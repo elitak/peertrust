@@ -32,10 +32,10 @@ import org.peertrust.net.Peer;
 //import javax.security.cert.X509Certificate;
 
 /**
- * $Id: SecureClientSocket.java,v 1.2 2004/07/08 15:10:44 dolmedilla Exp $
+ * $Id: SecureClientSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:44 $
+ * Last changed  $Date: 2004/10/20 19:26:39 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -53,16 +53,17 @@ public class SecureClientSocket implements NetClient {
 
 	//static private SecureRandom secureRandom;	
 
-	private SSLSocketFactory sf ;
-	private String keystoreFile ;
-	private String keyPassword ;
-	private String storePassword ;
+	private SSLSocketFactory _sf ;
+	private String _keystoreFile ;
+	private String _keyPassword ;
+	private String _storePassword ;
 	
 	public SecureClientSocket(String keystoreFile, String keyPassword, String storePassword) {
-		log.debug("init()") ;
-		this.keystoreFile = keystoreFile ;
-		this.keyPassword = keyPassword ;
-		this.storePassword = storePassword ;
+		log.debug("$Id: SecureClientSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+		
+		this._keystoreFile = keystoreFile ;
+		this._keyPassword = keyPassword ;
+		this._storePassword = storePassword ;
 		
 		//	Local references used for clarity
 		KeyManagerFactory kmf;
@@ -82,7 +83,7 @@ public class SecureClientSocket implements NetClient {
 			// The process is different from here on the client. Instead of
 			// getting a ServerSocketFactory, we ask for a SocketFactory from
 			// the SSL context.
-			sf = sslc.getSocketFactory();
+			_sf = sslc.getSocketFactory();
 		}
 		catch (Exception e) {
 			e.printStackTrace() ;	
@@ -106,7 +107,7 @@ public class SecureClientSocket implements NetClient {
 			try {
 				//	Then we get the socket from the factory and treat it
 				// as if it were a standard (plain) socket.
-				socket = (SSLSocket) sf.createSocket(peer.getAddress(), peer.getPort()) ;
+				socket = (SSLSocket) _sf.createSocket(peer.getAddress(), peer.getPort()) ;
 			
 //				((SSLSocket)socket).addHandshakeCompletedListener(new HandshakeCompletedListener()
 //							{

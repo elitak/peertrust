@@ -3,7 +3,7 @@
  * 
  * This file is part of Peertrust.
  * 
- * Foobar is free software; you can redistribute it and/or modify
+ * Peertrust is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
@@ -20,21 +20,27 @@
 
 package test.org.peertrust.meta;
 
+import org.peertrust.PeertrustConfigurator;
+import org.peertrust.Vocabulary;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.inference.MinervaProlog;
+
+import test.org.peertrust.Vocabulary4Tests;
 
 import com.ifcomputer.minerva.MinervaTerm;
 
 import junit.framework.*;
 
 /**
- * $Id: MinervaPrologTest.java,v 1.1 2004/07/01 23:38:29 dolmedilla Exp $
- * @author $Author: dolmedilla $
+ * $Id: MinervaPrologTest.java,v 1.2 2004/10/20 19:26:41 dolmedilla Exp $
+ * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/01 23:38:29 $
+ * Last changed  $Date: 2004/10/20 19:26:41 $
+ * by $Author: dolmedilla $
  * @description
  */
 public class MinervaPrologTest extends TestCase {
-	public MinervaProlog engine = new MinervaProlog(null) ;
+	public MinervaProlog engine = new MinervaProlog() ;
 	
 	public MinervaPrologTest ( String name ) {
 		super( name ) ;
@@ -77,8 +83,41 @@ public class MinervaPrologTest extends TestCase {
 		String query2 = engine.unparse(term) ;
 		assertEquals (query, query2) ;
 	}
+
+	public MinervaProlog initMinerva () throws ConfigurationException
+	{
+		PeertrustConfigurator config = new PeertrustConfigurator() ;
+		
+		String [] args = { Vocabulary4Tests.CONFIG_FILE } ;
+		try {
+			config.startApp(args) ;
+		} catch (ConfigurationException e) {
+			fail(e.getMessage()) ;
+		}
+		
+		MinervaProlog min = (MinervaProlog) config.createComponent(Vocabulary.InferenceEngine, false) ;
+
+		min.init() ;
+		
+		return min ;
+	}
 	
-	public void testAssert1 () {
+	public void testInitialization () throws ConfigurationException {
+		
+		MinervaProlog min = initMinerva() ;
+		
+		assertNotNull(min.getBaseFolder()) ;
+		System.out.println ("BaseFolder: " + min.getBaseFolder()) ;
+		assertNotNull(min.getPrologFiles()) ;
+		System.out.println ("PrologFiles: " + min.getPrologFiles()) ;
+		assertNotNull(min.getRdfFiles()) ;
+		System.out.println ("RdfFiles: " + min.getRdfFiles()) ;
+	}
+
+	public void testAssert1 () throws ConfigurationException {
+
+		MinervaProlog engine = initMinerva() ;
+		
 		String query = "asserta(predicate(test))" ;
 		
 		boolean result = engine.execute(query) ;
@@ -89,7 +128,7 @@ public class MinervaPrologTest extends TestCase {
 		boolean result2 = engine.execute(query2) ;
 		assertEquals (true, result2) ;
 	}
-	
+
 	public static void main( String[] args ) {
 		try {
 			junit.textui.TestRunner.run( suite() );

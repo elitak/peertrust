@@ -31,10 +31,10 @@ import org.peertrust.security.credentials.CryptTools;
 //import javax.net.ServerSocketFactory;
 
 /**
- * $Id: SecureServerSocket.java,v 1.2 2004/07/08 15:10:44 dolmedilla Exp $
+ * $Id: SecureServerSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:44 $
+ * Last changed  $Date: 2004/10/20 19:26:39 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -54,9 +54,11 @@ public class SecureServerSocket implements NetServer {
 //   private String keystoreFile ;
 //   private String keyPassword ;
 //   private String storePassword ;
-   private SSLServerSocket ss = null;
+   private SSLServerSocket _ss = null;
    
 	public SecureServerSocket(int port, String keystoreFile, String keyPassword, String storePassword) {
+		log.debug("$Id: SecureServerSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+		
 //		this.port=port;
 //		this.keystoreFile = keystoreFile ;
 //		this.keyPassword = keyPassword ;
@@ -126,12 +128,12 @@ public class SecureServerSocket implements NetServer {
       
 			// From the factory, we simply ask for an ordinary-looking
 			// server socket on the port we wish.
-			ss = (SSLServerSocket) ssf.createServerSocket(port);
+			_ss = (SSLServerSocket) ssf.createServerSocket(port);
 			
 			// we establish that client must also be authenticated
-			ss.setNeedClientAuth(true) ;
+			_ss.setNeedClientAuth(true) ;
 			
-			ss.setSoTimeout(TIMEOUT) ;
+			_ss.setSoTimeout(TIMEOUT) ;
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -149,7 +151,7 @@ public class SecureServerSocket implements NetServer {
 			try
 			{
 				//System.out.println ("Waiting for connections at port " + Integer.parseInt(config.getValue(SERVER_PORT_TAG))) ;
-				recSocket = (SSLSocket) ss.accept();
+				recSocket = (SSLSocket) _ss.accept();
 				log.debug("Socket connection received") ;
 
 				try {
@@ -202,16 +204,16 @@ public class SecureServerSocket implements NetServer {
 	{
 		log.info("Finalizing") ;
 		
-		if (ss != null)
+		if (_ss != null)
 		{
 			try {
-				ss.close() ;
+				_ss.close() ;
 			}
 			catch (IOException e)
 			{
 				log.error("Closing the server socket", e) ;
 			}
-			ss = null ;
+			_ss = null ;
 		}
 	}
 

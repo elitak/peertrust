@@ -26,21 +26,21 @@ import java.util.Vector ;
 import java.applet.Applet;
 import com.ifcomputer.minerva.*;
 
-import net.jxta.edutella.util.Configurable;
-import net.jxta.edutella.util.Configurator ;
-import net.jxta.edutella.util.Option;
+
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.peertrust.Vocabulary;
+import org.peertrust.Configurable;
+import org.peertrust.exception.ConfigurationException;
+import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.2 2004/07/08 15:10:42 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * Last changed  $Date: 2004/10/20 19:26:39 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -53,130 +53,136 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	private final String PROLOG_PARSER_PREDICATE = "read_prolog_file" ;
 	private final String INIT_PREDICATE = "init" ;
 	
-	private Minerva engine ;
-	private Hashtable varList = new Hashtable() ;
-	private Configurator config ;
-	private String files = "" ;
-	private String rdfFiles = "" ;
-	private boolean modeApplet ;
-//	private String predicates = "" ;
+	private Minerva _engine ;
+	private Hashtable _varList = new Hashtable() ;
+	
+	// Variables configured from config file
+	private String _prologFiles ;
+	private String _rdfFiles ;
+	private String _baseFolder ;
+	private String _license = "minervagui.mca" ;
+	
+	private Applet _applet ;
 	
 	private static Logger log = Logger.getLogger(MinervaProlog.class);
 	
-	public MinervaProlog (Configurator config)
+	public MinervaProlog ()
 	{
-		log.debug("Created") ;
+		super() ;
+		log.debug("$Id: MinervaProlog.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+	}
 		
-		modeApplet = false ;
+	public void setApplet (Applet applet)
+	{
+		_applet = applet ;
+	}
+		
+	public void init () throws ConfigurationException
+	{
+		log.debug("(Init) PrologFiles = " + _prologFiles + " - RdfFiles = " + _rdfFiles + " - _baseFolder = " + _baseFolder + " - License = " + _license) ;
+		
 		String[] minervaArgs = new String[2];
 		
 		minervaArgs[0] = "-c";
-		minervaArgs[1] = "minervagui.mca";
-		
+		minervaArgs[1] = _baseFolder + _license ;
+	
 		try {
-			engine = new Minerva(minervaArgs) ;
+			if (isApplet())
+				_engine = new Minerva(_applet,minervaArgs) ;
+			else
+				_engine = new Minerva(minervaArgs) ;
 		}
 		catch (IOException e) {
 			log.error("Minerva I/O initialization exception:",e) ;
+			throw new ConfigurationException (e) ;
 		}
 		catch (MinervaSystemError e) {
 			log.error("minerva: Minerva initialization exception: ",e) ;
+			throw new ConfigurationException (e) ;
 		}
-		this.config = config ;
+
 		log.debug("Engine initialized") ;
-	}
-	
-	public MinervaProlog (Applet applet, Configurator config)
-	{
-		modeApplet = true ;
-		String[] minervaArgs = new String[2];
-	
-		minervaArgs[0] = "-c";
-		minervaArgs[1] = "minervagui.mca";
-		
-		try {
-			engine = new Minerva(applet,minervaArgs) ;
-		}
-		catch (IOException e) {
-			log.error("Minerva I/O initialization exception:",e) ;
-		}
-		catch (MinervaSystemError e) {
-			log.error("minerva: Minerva initialization exception: ",e) ;
-		}
-		this.config = config ;
-		log.debug("Engine initialized") ;
-	}
-	
-	public void init ()
-	{
+
 		try
 		{
-			engine.load(META_INTERPRETER_FILENAME) ;
+			_engine.load(_baseFolder + META_INTERPRETER_FILENAME) ;
 			
-			engine.execute(INIT_PREDICATE) ;
+			_engine.execute(INIT_PREDICATE) ;
 			
-			engine.load(RDF_PARSER_FILENAME) ;
+			_engine.load(_baseFolder + RDF_PARSER_FILENAME) ;
 			
 			log.debug("Program loaded") ;
 			
-			StringTokenizer filesString = new StringTokenizer(rdfFiles,":") ;
+			StringTokenizer filesString = new StringTokenizer(_rdfFiles,":") ;
 			String tmp ;
 			while (filesString.hasMoreTokens())
 			{
-				tmp = config.getValue(Vocabulary.BASE_FOLDER_TAG) + filesString.nextToken() ;
+				tmp = _baseFolder + filesString.nextToken() ;
 				
 				MinervaAtom atom ;
-				if (modeApplet)
+				if (isApplet())
 					atom = new MinervaAtom("file://" + tmp) ;
 				else
 					atom = new MinervaAtom(tmp) ;
 				
 				log.debug("Loading RDF file " + tmp + " into the inference engine") ;
 				
-				engine.execute(RDF_PARSER_PREDICATE, atom) ;
+				_engine.execute(RDF_PARSER_PREDICATE, atom) ;
 				
 				log.debug("RDF file " + tmp + " loaded") ;
 			}
 			
-			engine.load(PROLOG_PARSER_FILENAME) ;
+			_engine.load(_baseFolder + PROLOG_PARSER_FILENAME) ;
 			
-			filesString = new StringTokenizer(files,":") ;
+			filesString = new StringTokenizer(_prologFiles,":") ;
 			while (filesString.hasMoreTokens())
 			{
-				tmp = config.getValue(Vocabulary.BASE_FOLDER_TAG) + filesString.nextToken() ;
+				tmp = _baseFolder + filesString.nextToken() ;
 
 				MinervaAtom atom ;
-				if (modeApplet)
+				if (isApplet())
 					atom = new MinervaAtom("file://" + tmp) ;
 				else
 					atom = new MinervaAtom(tmp) ;
 				
 				log.debug("Loading file " + tmp + " into the inference engine") ;
-				engine.execute(PROLOG_PARSER_PREDICATE, new MinervaAtom(tmp)) ;
+				_engine.execute(PROLOG_PARSER_PREDICATE, new MinervaAtom(tmp)) ;
 				log.debug("File " + tmp + " loaded") ;
 			}
-		
-
-//			StringTokenizer predicatesString = new StringTokenizer(predicates,":") ;
-//		
-//			while (predicatesString.hasMoreTokens())
-//				engine.execute(predicatesString.nextToken()) ;
+			
 		} catch (MinervaSystemError e)
 		{
 			log.error("Error loading files in Minerva",e) ;
+			throw new ConfigurationException (e) ;
 		} catch (IOException e)
 		{
 			log.error("I/O error loading files in Minerva",e) ;
+			throw new ConfigurationException (e) ;
 		}
-
 	}
 	
-	void initParse ()
+	public void insert (String clause) throws InferenceEngineException
 	{
-		varList.clear() ;
+		try {
+			MinervaTerm term = new MinervaAtom (clause) ;
+			_engine.execute("asserta", term) ;
+//			_engine.execute("asserta(" + clause + ")") ;
+		} catch (MinervaSystemError e) {
+			throw new InferenceEngineException(e) ;
+		}
 	}
 	
-	Object [] extractTerms (String query)
+	public void setDebugMode (boolean debug) throws InferenceEngineException
+	{
+		insert("debug_on") ;
+	}
+
+	private void initParse ()
+	{
+		_varList.clear() ;
+	}
+	
+	private Object [] extractTerms (String query)
 	{
 		Vector terms = new Vector () ;
 		int numberBrackets = 0 ;
@@ -284,11 +290,11 @@ public class MinervaProlog implements InferenceEngine, Configurable
 						(query.charAt(0) == '_') )
 				{
 					// it is a variable
-					term = (MinervaVariable) varList.get(query) ;
+					term = (MinervaVariable) _varList.get(query) ;
 					if (term == null)
 					{
 						term = new MinervaVariable() ;
-						varList.put(query, term) ;	
+						_varList.put(query, term) ;	
 					}
 				}
 				else
@@ -365,7 +371,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				terms[i] = term.getArg(i) ; 
 			try {
 				log.debug("Sending to the engine:" + minQuery.toString()) ;
-				ret = engine.execute(term.getFunctor(),terms) ;
+				ret = _engine.execute(term.getFunctor(),terms) ;
 			}
 			catch (MinervaSystemError e) {
 				log.error ("Error executing a query at Minerva", e) ;
@@ -399,7 +405,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		
 		try {
 			log.debug("Sending to the engine:" + "processTree(" + minQuery + ",Return)") ;
-			engine.execute("processTree", minQuery, resultVar) ;
+			_engine.execute("processTree", minQuery, resultVar) ;
 			log.debug("Receiving from the engine:" + resultVar.getValue().toString()) ;
 		}
 		catch (MinervaSystemError e) {
@@ -466,7 +472,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			MinervaVariable resultVar = new MinervaVariable() ;
 		
 			try {
-				engine.execute("unification", minQuery, minNewQuery, resultVar) ;
+				_engine.execute("unification", minQuery, minNewQuery, resultVar) ;
 			}
 			catch (MinervaSystemError e) {
 				System.err.println ("Minerva: error unificating in Minerva: " + e.getMessage()) ;
@@ -483,65 +489,56 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			tree.setSubqueries((String)treeStrings[1]) ;		
 		}
 
-	/**
-	 * @see net.jxta.edutella.util.Configurable#getOptions()
-	 */
-	public Option[] getOptions()
+	private boolean isApplet ()
 	{
-		Option filesOpt =	new Option(
-									'l',
-									"prolog.files",
-									"Files",
-									"Files to load",
-									false);
-		Option rdfFilesOpt =	new Option(
-											'r',
-											"prolog.rdfFiles",
-											"RDF Files",
-											"RDF Files to load",
-											false);
-//		Option predicatesOpt = new Option(
-//									'r',
-//									"prolog.predicates",
-//									"Predicates",
-//									"Predicates to call",
-//									false);
-
-//		return new Option[] {filesOpt, predicatesOpt};
-		return new Option[] {filesOpt, rdfFilesOpt};		
+		if (_applet == null)
+			return false ;
+		else
+			return true ;
 	}
 
 	/**
-	 * @see net.jxta.edutella.util.Configurable#getPropertyPrefix()
+	 * @return Returns the _baseFolder.
 	 */
-	public String getPropertyPrefix() {
-		return "prolog";
+	public String getBaseFolder() {
+		return _baseFolder;
+	}
+	/**
+	 * @param folder The _baseFolder to set.
+	 */
+	public void setBaseFolder(String folder) {
+		_baseFolder = folder;
 	}
 	
-	public void setFiles(String files) {
-		this.files = files ;
+	public void setPrologFiles(String files) {
+		_prologFiles = files ;
 	}
 
-	protected String getFiles() {
-		return files;
+	public String getPrologFiles() {
+		return _prologFiles;
 	}
 	
 	public void setRdfFiles(String files) {
-		this.rdfFiles = files ;
+		_rdfFiles = files ;
 	}
 	
-	protected String getRdfFiles() {
-		return rdfFiles;
+	public String getRdfFiles() {
+		return _rdfFiles;
 	}
 	
-//	public void setPredicates(String predicates) {
-//		this.predicates = predicates ;
-//	}
-//
-//	protected String getPredicates() {
-//		return predicates;
-//	}
-	
+	/**
+	 * @return Returns the _license.
+	 */
+	public String getLicense() {
+		return _license;
+	}
+	/**
+	 * @param _license The _license to set.
+	 */
+	public void setLicense(String _license) {
+		this._license = _license;
+	}
+		
 	public static void main(String[] args) throws MinervaSystemError, IOException
 	{
 		parseTest() ;
@@ -559,7 +556,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	
 	static void parseTest ()
 	{
-		MinervaProlog engine = new MinervaProlog (null) ;
+		MinervaProlog engine = new MinervaProlog () ;
 		
 		//String query = "prueba(Var, atom, 20, [atom, Var2, [32, Var2, Var, Segunda], tree(juego)], final(Segunda))" ;
 		//String query = "prueba(tree(_) @ x, Var, atom, 20, [atom, Var2, [32, Var2, Var, Segunda], tree(juego)], final(Segunda))" ;

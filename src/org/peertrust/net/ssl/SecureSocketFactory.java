@@ -19,19 +19,17 @@
 */
 package org.peertrust.net.ssl;
 
-import net.jxta.edutella.util.Configurator;
-
 import org.apache.log4j.Logger;
-import org.peertrust.Vocabulary;
 import org.peertrust.net.AbstractFactory;
 import org.peertrust.net.NetClient;
 import org.peertrust.net.NetServer;
+import org.peertrust.net.Peer;
 
 /**
- * $Id: SecureSocketFactory.java,v 1.1 2004/07/08 15:10:44 dolmedilla Exp $
+ * $Id: SecureSocketFactory.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:44 $
+ * Last changed  $Date: 2004/10/20 19:26:39 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -39,30 +37,100 @@ public class SecureSocketFactory implements AbstractFactory {
 
 	private static Logger log = Logger.getLogger(SecureSocketFactory.class);
 	
+	String _keystoreFile ;
+	String _keyPassword ;
+	String _storePassword ;
+	String _host ;
+	int _port ;
+	
+	public SecureSocketFactory ()
+	{
+		super() ;
+		log.debug("$Id: SecureSocketFactory.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $");
+	}
+	
+	public Peer getServerPeer (String alias)
+	{
+		return new Peer(alias, _host, _port) ;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.peertrust.net.AbstractFactory#createNetClient(net.jxta.edutella.util.Configurator)
 	 */
-	public NetClient createNetClient(Configurator config) {
+	public NetClient createNetClient() {
 		
 		log.debug("Creating new NetClient") ;
-		String keystoreFile = config.getValue(Vocabulary.BASE_FOLDER_TAG)  + config.getValue(Vocabulary.KEYSTORE_FILE_TAG) ;
-		String keyPassword = config.getValue(Vocabulary.KEY_PASSWORD_TAG) ;
-		String storePassword = config.getValue(Vocabulary.STORE_PASSWORD_TAG) ;
-		log.debug("keystoreFile: " + keystoreFile + " - " + "keyPassword: " + keyPassword + " - " + "storePassword: " + storePassword) ;
+		log.debug("keystoreFile: " + _keystoreFile + " - " + "keyPassword: " + _keyPassword + " - " + "storePassword: " + _storePassword) ;
 		
-		return new SecureClientSocket(keystoreFile, keyPassword, storePassword) ;
+		return new SecureClientSocket(_keystoreFile, _keyPassword, _storePassword) ;
 	}
 	/* (non-Javadoc)
 	 * @see org.peertrust.net.AbstractFactory#createNetServer(net.jxta.edutella.util.Configurator)
 	 */
-	public NetServer createNetServer(Configurator config) {
+	public NetServer createNetServer() {
 		log.debug("Creating new NetServer") ;
-		int port = Integer.parseInt(config.getValue(Vocabulary.SERVER_PORT_TAG)) ;
-		String keystoreFile = config.getValue(Vocabulary.BASE_FOLDER_TAG)  + config.getValue(Vocabulary.KEYSTORE_FILE_TAG) ;
-		String keyPassword = config.getValue(Vocabulary.KEY_PASSWORD_TAG) ;
-		String storePassword = config.getValue(Vocabulary.STORE_PASSWORD_TAG) ;
-		log.debug("port: " + port + " - keystoreFile: " + keystoreFile + " - keyPassword: " + keyPassword + " - storePassword: " + storePassword) ;
+		log.debug("port: " + _port + " - keystoreFile: " + _keystoreFile + " - keyPassword: " + _keyPassword + " - storePassword: " + _storePassword) ;
 		
-		return new SecureServerSocket(port, keystoreFile, keyPassword, storePassword) ;
+		return new SecureServerSocket(_port, _keystoreFile, _keyPassword, _storePassword) ;
+	}
+	/**
+	 * @return Returns the _keyPassword.
+	 */
+	public String getKeyPassword() {
+		return _keyPassword;
+	}
+	/**
+	 * @param password The _keyPassword to set.
+	 */
+	public void setKeyPassword(String password) {
+		_keyPassword = password;
+	}
+	/**
+	 * @return Returns the _keystoreFile.
+	 */
+	public String getKeystoreFile() {
+		return _keystoreFile;
+	}
+	/**
+	 * @param file The _keystoreFile to set.
+	 */
+	public void setKeystoreFile(String file) {
+		_keystoreFile = file;
+	}
+	/**
+	 * @return Returns the _host
+	 */
+	public String getHost() {
+		return _host;
+	}
+	/**
+	 * @param _host The _host to set.
+	 */
+	public void setHost(String _host) {
+		this._host = _host;
+	}
+	/**
+	 * @return Returns the _port.
+	 */
+	public int getPort() {
+		return _port;
+	}
+	/**
+	 * @param _port The _port to set.
+	 */
+	public void setPort(int _port) {
+		this._port = _port;
+	}
+	/**
+	 * @return Returns the _storePassword.
+	 */
+	public String getStorePassword() {
+		return _storePassword;
+	}
+	/**
+	 * @param password The _storePassword to set.
+	 */
+	public void setStorePassword(String password) {
+		_storePassword = password;
 	}
 }

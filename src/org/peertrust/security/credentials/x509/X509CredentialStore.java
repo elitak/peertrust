@@ -24,30 +24,31 @@ import org.peertrust.security.credentials.*;
  */
 public class X509CredentialStore extends CredentialStore {
 
-	private String file ;
-	private String storePassword ;
+	private String _file ;
+	private String _storePassword ;
 	private KeyStore ks;
 
 	private static Logger log = Logger.getLogger(CredentialStore.class);
 	
-	public X509CredentialStore(String file, String storePassword ) throws Exception {
+	public X509CredentialStore() {
 		super() ;
-		this.file = file ;
-		this.storePassword = storePassword ; 
-		ks = KeyStore.getInstance( "JKS" );
-		ks.load(new FileInputStream(file), storePassword.toCharArray() );
-		addAllCredentials (ks) ;
 	}
 	
-	public X509CredentialStore(String storePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-		super() ;
-		this.storePassword = storePassword ; 
-		createEmptyStore () ;
+	public void init() throws Exception
+	{
+		ks = KeyStore.getInstance( "JKS" );
+		ks.load(new FileInputStream(_file), _storePassword.toCharArray() );
+		addAllCredentials (ks) ;
 	}
+//	public X509CredentialStore(String storePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+//		super() ;
+//		this.storePassword = storePassword ; 
+//		createEmptyStore () ;
+//	}
 
 	public void loadAllCredentialsFromFile(String file) throws KeyStoreException, Exception {
 		KeyStore keystore = KeyStore.getInstance( "JKS" );
-		keystore.load(new FileInputStream(file), storePassword.toCharArray() );
+		keystore.load(new FileInputStream(file), _storePassword.toCharArray() );
 		
 		addAllCredentials (keystore) ;
 	}
@@ -72,7 +73,7 @@ public class X509CredentialStore extends CredentialStore {
 	private void createEmptyStore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
 	{
 		ks = KeyStore.getInstance( "JKS" );
-		ks.load(null, storePassword.toCharArray() );
+		ks.load(null, _storePassword.toCharArray() );
 	}
 	
 	public void addCredential( Credential credential ) throws Exception {
@@ -83,6 +84,30 @@ public class X509CredentialStore extends CredentialStore {
 
 	public void saveAllCredentialsToFile( String file ) throws Exception {
 		OutputStream os = new FileOutputStream( file );
-		ks.store(os, storePassword.toCharArray());
+		ks.store(os, _storePassword.toCharArray());
+	}
+	/**
+	 * @return Returns the _file.
+	 */
+	public String getFile() {
+		return _file;
+	}
+	/**
+	 * @param _file The _file to set.
+	 */
+	public void setFile(String _file) {
+		this._file = _file;
+	}
+	/**
+	 * @return Returns the _storePassword.
+	 */
+	public String getStorePassword() {
+		return _storePassword;
+	}
+	/**
+	 * @param password The _storePassword to set.
+	 */
+	public void setStorePassword(String password) {
+		_storePassword = password;
 	}
 }

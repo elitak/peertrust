@@ -22,16 +22,16 @@ package org.peertrust.net;
 import java.io.Serializable;
 
 /**
- * $Id: Peer.java,v 1.1 2004/07/08 15:10:42 dolmedilla Exp $
+ * $Id: Peer.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * Last changed  $Date: 2004/10/20 19:26:39 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Peer implements Serializable
 {
-	private static final int DEFAULT_PORT = 30000 ;
+//	private static final int DEFAULT_PORT = 30000 ;
 	private String alias ;
 	private String address ;
 	private int port ;
@@ -43,15 +43,15 @@ public class Peer implements Serializable
 		this.port = port ;
 	}
 	
-	public Peer (String alias, String address)
-	{
-		this(alias, address, DEFAULT_PORT) ;
-	}
-	
-	public Peer ()
-	{
-		this("", "", DEFAULT_PORT) ;
-	}
+//	public Peer (String alias, String address)
+//	{
+//		this(alias, address, DEFAULT_PORT) ;
+//	}
+//	
+//	public Peer (String alias)
+//	{
+//		this(alias, "", DEFAULT_PORT) ;
+//	}
 	
 	public boolean equals (Object object)
 	{

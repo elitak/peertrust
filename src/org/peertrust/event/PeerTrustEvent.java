@@ -17,50 +17,39 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.net;
-
-import java.io.Serializable;
+package org.peertrust.event;
 
 /**
- * $Id: Query.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
+ * $Id: PeerTrustEvent.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2004/10/20 19:26:38 $
  * by $Author: dolmedilla $
  * @description
  */
-public class Query extends Message implements Serializable {
-
- 	private String goal = null ;
- 	private long reqQueryId = -1 ;
-
-	public Query(String goal, Peer origin, long reqQueryId ) {
-		super(origin) ;
-		this.goal = goal ;
-		this.reqQueryId = reqQueryId ;
-	}
+public class PeerTrustEvent {
+	
+	static int id = 0 ;
+	int _identifier ;
+	Object _source ;
+	
 	/**
-	 * @return Returns the goal.
+	 * 
 	 */
-	public String getGoal() {
-		return goal;
+	public PeerTrustEvent(Object source) {
+		super();
+		_identifier = getNewId() ;
+		_source = source ;
 	}
-	/**
-	 * @param goal The goal to set.
-	 */
-	public void setGoal(String goal) {
-		this.goal = goal;
+	
+	private synchronized int getNewId ()
+	{
+		id += 1 ;
+		return id ;
 	}
-	/**
-	 * @return Returns the reqQueryId.
-	 */
-	public long getReqQueryId() {
-		return reqQueryId;
-	}
-	/**
-	 * @param reqQueryId The reqQueryId to set.
-	 */
-	public void setReqQueryId(long reqQueryId) {
-		this.reqQueryId = reqQueryId;
+	
+	public Object getSource ()
+	{
+		return  _source ;
 	}
 }

@@ -19,61 +19,66 @@
 */
 package org.peertrust.meta;
 
-import javax.net.ssl.*;
+import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
+import org.peertrust.PeertrustConfigurator;
+import org.peertrust.PeertrustEngine;
+import org.peertrust.Vocabulary;
+import org.peertrust.event.AnswerEvent;
+import org.peertrust.event.PeerTrustEvent;
+import org.peertrust.event.PeerTrustEventListener;
+import org.peertrust.event.QueryEvent;
+import org.peertrust.exception.ConfigurationException;
+import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.inference.InferenceEngine;
 import org.peertrust.net.AbstractFactory;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetServer;
 import org.peertrust.net.Query;
-import org.peertrust.net.ssl.SecureSocketFactory;
-import org.peertrust.strategy.*;
-
-import java.util.Hashtable ;
-import net.jxta.edutella.util.Configurator ;
+import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.3 2004/10/20 19:26:41 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:43 $
+ * Last changed  $Date: 2004/10/20 19:26:41 $
  * by $Author: dolmedilla $
  * @description
  */
 public class MetaInterpreterListener implements Runnable
 {
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	private Queue queue ;
-	private InferenceEngine engine ;
-	private Thread metaIThread = null ;
-	private SSLServerSocket serverSocket;
-	private Hashtable entities ;
-	private Configurator config ;
-	
 	private static Logger log = Logger.getLogger(MetaInterpreterListener.class);
 	
-	public MetaInterpreterListener (Queue queue, InferenceEngine engine, Hashtable entities, Configurator config)
-	{
-		log.debug("Created") ;
+	private PeertrustConfigurator _configurator ;
+	
+	private Queue _queue ;
+	private InferenceEngine _engine ;
+	private Hashtable _entities ;
+	private NetServer _netServer ;
+	private AbstractFactory _commChannelFactory ;
+	private Thread _metaIThread = null ;
 
-		this.queue = queue ;
-		this.engine = engine ;
-		this.entities = entities ;
-		this.config = config ;
-		metaIThread = new Thread(this, "MetaInterpreterListener") ;
-		metaIThread.start() ;
+	public MetaInterpreterListener ()
+	{
+		log.debug("$Id: MetaInterpreterListener.java,v 1.3 2004/10/20 19:26:41 dolmedilla Exp $");
 	}
-	 
+	
+	public void init() throws ConfigurationException
+	{
+		AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
+		_netServer = _commChannelFactory.createNetServer() ;
+	
+		_metaIThread = new Thread(this, "MetaInterpreterListener") ;
+		
+		_metaIThread.start() ;
+	}
+	
 	public void run()
 	{
+		log.debug("start") ;
 		Thread myThread = Thread.currentThread();
-		
-		AbstractFactory factory = new SecureSocketFactory() ;
-		NetServer netServer = factory.createNetServer(config) ;
 		
 //		System.runFinalizersOnExit(true) ;
 		
@@ -97,8 +102,8 @@ public class MetaInterpreterListener implements Runnable
 		
 		log.info("System ready") ;
 		
-		while (metaIThread == myThread) {  
-			Message message = netServer.listen() ;
+		while (_metaIThread == myThread) {  
+			Message message = _netServer.listen() ;
 			if (message != null)
 			{
 				//System.out.println("Received: from peer "+tree.getId()+" goal "+tree.getGoal());
@@ -110,7 +115,7 @@ public class MetaInterpreterListener implements Runnable
 		
 	public void stop()
 	{
-		metaIThread = null ;
+		_metaIThread = null ;
 		log.debug("Stopping") ;
 	}
 
@@ -121,16 +126,21 @@ public class MetaInterpreterListener implements Runnable
 		{
 			Query query = (Query) message ;
 
-			entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
+			PeertrustEngine.getDispatcher().event(new QueryEvent(this, query)) ;
+			
+			_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
 			Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
 			
 			log.debug ("New query received from " + query.getOrigin().getAlias() + ": " + query.getGoal()) ;
-			queue.add(tree) ;
+			_queue.add(tree) ;
 
 		}
 		else if (message instanceof Answer)
 		{
 			Answer answer = (Answer) message ;
+			
+			PeertrustEngine.getDispatcher().event(new AnswerEvent(this, answer)) ;
+			
 			// status might be answer or a failure
 			switch (answer.getStatus())
 			{
@@ -138,9 +148,13 @@ public class MetaInterpreterListener implements Runnable
 				case Answer.ANSWER:
 					// it is an answer, we unify the answer with the the corresponding query
 					Tree pattern = new Tree (answer.getReqQueryId()) ;
-					Tree match = queue.search(pattern) ;
+					Tree match = _queue.search(pattern) ;
 					
-					engine.unifyTree(match,answer.getGoal()) ;
+					try {
+						_engine.unifyTree(match,answer.getGoal()) ;
+					} catch (InferenceEngineException e) {
+						log.error("Error unifying " + match.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
+					}
 					
 					log.debug ("New answer received: " + answer.getGoal()) ;
 					
@@ -151,25 +165,31 @@ public class MetaInterpreterListener implements Runnable
 					// we add the proof from the answer
 					newTree.appendProof(answer.getProof()) ;
 					
-					queue.add(newTree) ;
+					_queue.add(newTree) ;
 					
 					// we update the waiting query
 					if (match.getStatus() == Tree.WAITING)
 					{
 						match.setStatus(Tree.ANSWERED_AND_WAITING) ;
-						queue.update(pattern, match) ;
+						_queue.update(pattern, match) ;
 					}
 					break ;
 					
 				// last answer to a query
 				case Answer.LAST_ANSWER:
+					// to-do
+					// CHECK IF THERE IS AN ERROR BECAUSE IT IS NOT IN THE QUEUE 
 					Tree pattern2 = new Tree (answer.getReqQueryId()) ;
 
 					// the query waiting is removed from the queue
-					Tree match2 = queue.remove(pattern2) ;
+					Tree match2 = _queue.remove(pattern2) ;
 					
 					// unification of the query goal with the answer
-					engine.unifyTree(match2,answer.getGoal()) ;
+					try {
+						_engine.unifyTree(match2,answer.getGoal()) ;
+					} catch (InferenceEngineException e) {
+						log.error("Error unifying " + match2.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
+					}
 					
 					log.debug("Last answer received: " + answer.getGoal()) ;
 
@@ -180,14 +200,14 @@ public class MetaInterpreterListener implements Runnable
 					// add the proof from the answer
 					newTree2.appendProof(answer.getProof()) ;
 					//queue.remove(pattern2) ;
-					queue.add(newTree2) ;
+					_queue.add(newTree2) ;
 				
 					break ;
 
 				// failure
 				case Answer.FAILURE:
 					Tree pattern3 = new Tree (answer.getReqQueryId()) ;
-					Tree match3 = queue.search(pattern3) ;
+					Tree match3 = _queue.search(pattern3) ;
 					
 					// if no answers were received so far, the query is updated to FAILED
 					if (match3.getStatus() == Tree.WAITING)
@@ -195,10 +215,10 @@ public class MetaInterpreterListener implements Runnable
 						log.debug("Failure received: " + answer.getGoal()) ;
 						
 						match3.setStatus(Tree.FAILED) ;
-						queue.update(pattern3, match3) ;
+						_queue.update(pattern3, match3) ;
 					}
 					else // if at least one query was received, we just remove the pending query from the queue
-						queue.remove(match3) ;
+						_queue.remove(match3) ;
 
 					break ;				
 			}
@@ -208,4 +228,66 @@ public class MetaInterpreterListener implements Runnable
 			
 	}
 	
+	/**
+	 * @return Returns the _configurator.
+	 */
+	public PeertrustConfigurator getConfigurator() {
+		return _configurator;
+	}
+	
+	/**
+	 * @param _configurator The _configurator to set.
+	 */
+	public void setConfigurator(PeertrustConfigurator _configurator) {
+		this._configurator = _configurator;
+	}
+
+	/**
+	 * @return Returns the _engine.
+	 */
+	public InferenceEngine getEngine() {
+		return _engine;
+	}
+	/**
+	 * @param _engine The _engine to set.
+	 */
+	public void setEngine(InferenceEngine _engine) {
+		this._engine = _engine;
+	}
+	/**
+	 * @return Returns the _queue.
+	 */
+	public Queue getQueue() {
+		return _queue;
+	}
+	/**
+	 * @param _queue The _queue to set.
+	 */
+	public void setQueue(Queue _queue) {
+		this._queue = _queue;
+	}
+	/**
+	 * @return Returns the entities.
+	 */
+	public Hashtable getEntities() {
+		return _entities;
+	}
+	/**
+	 * @param entities The entities to set.
+	 */
+	public void setEntities(Hashtable entities) {
+		this._entities = entities;
+	}
+	/**
+	 * @return Returns the _commChannelFactory.
+	 */
+	public AbstractFactory getCommChannelFactory() {
+		return _commChannelFactory;
+	}
+	/**
+	 * @param channelFactory The _commChannelFactory to set.
+	 */
+	public void setCommChannelFactory(AbstractFactory channelFactory) {
+		_commChannelFactory = channelFactory;
+	}
 }

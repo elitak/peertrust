@@ -17,50 +17,44 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.net;
-
-import java.io.Serializable;
+package org.peertrust.exception;
 
 /**
- * $Id: Query.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
+ * $Id: InitializationException.java,v 1.1 2004/10/20 19:26:40 dolmedilla Exp $
+ * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2004/10/20 19:26:40 $
  * by $Author: dolmedilla $
  * @description
  */
-public class Query extends Message implements Serializable {
-
- 	private String goal = null ;
- 	private long reqQueryId = -1 ;
-
-	public Query(String goal, Peer origin, long reqQueryId ) {
-		super(origin) ;
-		this.goal = goal ;
-		this.reqQueryId = reqQueryId ;
+public class InitializationException extends RuntimeException {
+	/**
+	 * 
+	 */
+	public InitializationException() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 	/**
-	 * @return Returns the goal.
+	 * @param arg0
 	 */
-	public String getGoal() {
-		return goal;
+	public InitializationException(String arg0) {
+		super(arg0);
+		// TODO Auto-generated constructor stub
 	}
 	/**
-	 * @param goal The goal to set.
+	 * @param arg0
 	 */
-	public void setGoal(String goal) {
-		this.goal = goal;
+	public InitializationException(Throwable arg0) {
+		super(arg0);
+		// TODO Auto-generated constructor stub
 	}
 	/**
-	 * @return Returns the reqQueryId.
+	 * @param arg0
+	 * @param arg1
 	 */
-	public long getReqQueryId() {
-		return reqQueryId;
-	}
-	/**
-	 * @param reqQueryId The reqQueryId to set.
-	 */
-	public void setReqQueryId(long reqQueryId) {
-		this.reqQueryId = reqQueryId;
+	public InitializationException(String arg0, Throwable arg1) {
+		super(arg0, arg1);
+		// TODO Auto-generated constructor stub
 	}
 }

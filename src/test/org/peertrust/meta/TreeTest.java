@@ -3,7 +3,7 @@
  * 
  * This file is part of Peertrust.
  * 
- * Foobar is free software; you can redistribute it and/or modify
+ * Peertrust is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
@@ -17,7 +17,6 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 package test.org.peertrust.meta;
 
 import java.util.Vector;
@@ -28,10 +27,11 @@ import org.peertrust.meta.Tree;
 import junit.framework.*;
 
 /**
- * $Id: TreeTest.java,v 1.1 2004/07/01 23:38:29 dolmedilla Exp $
- * @author $Author: dolmedilla $
+ * $Id: TreeTest.java,v 1.2 2004/10/20 19:26:41 dolmedilla Exp $
+ * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/01 23:38:29 $
+ * Last changed  $Date: 2004/10/20 19:26:41 $
+ * by $Author: dolmedilla $
  * @description
  */
 public class TreeTest extends TestCase {

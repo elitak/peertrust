@@ -17,22 +17,32 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+package org.peertrust.event;
 
-package org.peertrust.net;
+import org.peertrust.net.Answer;
 
 /**
- * $Id: AbstractFactory.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
+ * $Id: AnswerEvent.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2004/10/20 19:26:38 $
  * by $Author: dolmedilla $
  * @description
  */
-public interface AbstractFactory {
+public class AnswerEvent extends PeerTrustEvent {
+	/**
+	 * 
+	 */
+	Answer _answer ;
 	
-	public Peer getServerPeer (String alias) ;
+	public AnswerEvent(Object source, Answer answer) {
+		super(source);
+		_answer = answer ;
+		// TODO Auto-generated constructor stub
+	}
 	
-	public NetClient createNetClient() ;
-	
-	public NetServer createNetServer() ;
+	public Answer getAnswer ()
+	{
+		return _answer ;
+	}
 }

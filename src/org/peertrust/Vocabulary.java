@@ -19,15 +19,137 @@
 */
 package org.peertrust;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.mem.ModelMem;
+import com.hp.hpl.jena.rdf.model.RDFException;
+
 /**
- * $Id: Vocabulary.java,v 1.1 2004/07/08 15:11:00 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.2 2004/10/20 19:26:38 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:11:00 $
+ * Last changed  $Date: 2004/10/20 19:26:38 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Vocabulary {
+
+    public static final String uri = "http://www.l3s.de/~olmedilla/peertrust/Vocabulary#";
+
+
+    public static String getURI()
+    {
+        return(Vocabulary.uri);
+    }
+
+    public static Property javaClass;
+
+    /**
+     * Peer
+    */
+    public static Resource PeertrustEngine;
+
+    public static Property peerName ;
+
+    public static Property baseFolder ;
+    
+    public static Property entitiesFile ;
+    
+    public static Property hostName ;
+    
+    public static Property port ;
+    
+    public static Property keyStoreFile ;
+    
+    public static Property keyPassword ;
+    
+    public static Property storePassword ;
+    
+    /**
+     * Inference engine
+    */
+    public static Resource InferenceEngine;
+
+    public static Property prologFiles ;
+    
+    public static Property rdfFiles ;
+    
+    public static Property license ;
+
+    /**
+     * Queue
+    */
+    public static Resource Queue;
+
+    /**
+     * CommunicationChannel
+    */
+    public static Resource CommunicationChannel;
+
+    /**
+     * CredentialStore
+    */
+    public static Resource CredentialStore;
+    
+    /**
+     * MetaIntepreter
+    */
+    public static Resource MetaInterpreter;
+
+    /**
+     * MetaIntepreterListener
+    */
+    public static Resource MetaInterpreterListener ;
+    
+    /**
+     * EventListener
+    */
+    public static Resource EventListener ;
+    
+    /**
+     * EventDispatcher
+    */
+    public static Resource EventDispatcher ;
+
+  static {
+    try {
+        Model m = new ModelMem();
+
+      javaClass =
+      	  m.createProperty(Vocabulary.uri + "javaClass") ;
+
+      PeertrustEngine =
+        m.createResource(Vocabulary.uri + "PeertrustEngine");
+
+      InferenceEngine =
+          m.createResource(Vocabulary.uri + "InferenceEngine");
+
+      Queue =
+        m.createResource(Vocabulary.uri + "Queue");
+
+      CommunicationChannel =
+        m.createResource(Vocabulary.uri + "CommunicationChannel");
+      
+      CredentialStore =
+        m.createResource(Vocabulary.uri + "CredentialStore");
+
+      MetaInterpreter =
+        m.createResource(Vocabulary.uri + "MetaInterpreter");
+
+      MetaInterpreterListener =
+        m.createResource(Vocabulary.uri + "MetaInterpreterListener");
+      
+      EventListener =
+        m.createResource(Vocabulary.uri + "EventListener");
+      
+      EventDispatcher =
+        m.createResource(Vocabulary.uri + "EventDispatcher");
+
+    } catch (RDFException rdfe) {
+      throw(new RuntimeException(rdfe.getMessage()));
+    }
+  }
 
 	private static final String METAI_PREFIX = "metaI." ; 
 	public static final String PEERNAME = METAI_PREFIX + "peerName" ;
