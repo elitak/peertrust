@@ -1,17 +1,27 @@
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.meta;
 
-/**
- * $Id: TrustClient.java,v 1.1 2004/07/01 23:35:58 dolmedilla Exp $
- * @author $Author: dolmedilla $
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/01 23:35:58 $
- * @description
- */
-import java.net.*;
-import java.net.Socket ;
-import java.io.* ;
-
 import org.apache.log4j.Logger;
+import org.peertrust.Vocabulary;
+import org.peertrust.net.*;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.Query;
@@ -22,10 +32,16 @@ import net.jxta.edutella.util.Option;
 import net.jxta.edutella.util.Configurable ;
 //import java.util.Random;
 
+/**
+ * $Id: TrustClient.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * @author olmedilla
+ * @date 05-Dec-2003
+ * Last changed  $Date: 2004/07/08 15:10:43 $
+ * by $Author: dolmedilla $
+ * @description
+ */
 public class TrustClient implements Configurable
 {
-	private final String LOCAL_ALIAS = "alice" ;
-	private final int LOCAL_PORT = 31000 ;
 	private final int TIMEOUT = 15000 ;
 	//private final String LOCAL_ADDRESS = "130.75.152.153" ;
 		
@@ -36,7 +52,7 @@ public class TrustClient implements Configurable
 	private String baseFolder = System.getProperty("user.home") + "/trust/" ;
 	private String solution = "" ;
 	
-	private Peer destiny ;
+	private Peer destination ;
 	private Configurator config ;
 	private String query ;
 	
@@ -44,108 +60,66 @@ public class TrustClient implements Configurable
 	
 //	private String localAlias ;
 	
-	TrustClient (String query, Peer destiny, Configurator config)
+	TrustClient (String query, Peer destination, Configurator config)
 	{
 		//Random rand = new Random(System.currentTimeMillis()) ;
 		//localAlias = new String (LOCAL_ALIAS +  rand.nextLong()) ;
 
 		this.config = config ;
-		this.destiny = destiny ;
+		this.destination = destination ;
 		this.query = query ;
 	}
 
 	void run()
 	{
-		SecureClientSocket ssc = new SecureClientSocket(destiny.getAddress(),
-				destiny.getPort(),
-				config.getValue(MetaInterpreter.BASE_FOLDER_TAG)  + config.getValue(MetaInterpreter.KEYSTORE_FILE_TAG),
-				config.getValue(MetaInterpreter.KEY_PASSWORD_TAG),
-				config.getValue(MetaInterpreter.STORE_PASSWORD_TAG));
+		AbstractFactory factory = new SecureSocketFactory() ;
+		NetClient netClient = factory.createNetClient(config) ;
+		
+//		SecureClientSocket ssc = new SecureClientSocket(destination.getAddress(),
+//				destination.getPort(),
+//				config.getValue(Vocabulary.BASE_FOLDER_TAG)  + config.getValue(Vocabulary.KEYSTORE_FILE_TAG),
+//				config.getValue(Vocabulary.KEY_PASSWORD_TAG),
+//				config.getValue(Vocabulary.STORE_PASSWORD_TAG));
 		
 		// sending an object using serialization
 		log.debug("Starting a new request: " + query) ;
 		
-		ssc.send(new Query(query, new Peer(LOCAL_ALIAS,config.getValue(MetaInterpreter.LOCAL_ADDRESS_TAG), LOCAL_PORT), -1)); 
+		//ssc.send(new Query(query, new Peer(LOCAL_ALIAS,config.getValue(Vocabulary.LOCAL_ADDRESS_TAG), LOCAL_PORT), -1));
+		
+		netClient.send(new Query(query, new Peer(config.getValue(Vocabulary.PEERNAME),config.getValue(Vocabulary.LOCAL_ADDRESS_TAG), Integer.parseInt(config.getValue(Vocabulary.SERVER_PORT_TAG))), -1),
+				destination);
 		//ssc.send(new Tree(query, "[query(" + query + ",no)]", "[]", Tree.READY, new Peer(localAlias,config.getValue(LOCAL_ADDRESS_TAG), LOCAL_PORT), -1));
 		
-		ssc = null ;
+		NetServer netServer = factory.createNetServer(config) ; 
 		
-		SecureServerSocket sss;
-		ServerSocket serverSocket;
-
-		sss = new SecureServerSocket(LOCAL_PORT,
-				config.getValue(MetaInterpreter.BASE_FOLDER_TAG)  + config.getValue(MetaInterpreter.KEYSTORE_FILE_TAG),
-				config.getValue(MetaInterpreter.KEY_PASSWORD_TAG),
-				config.getValue(MetaInterpreter.STORE_PASSWORD_TAG));
-															
-		serverSocket = sss.getServerSocket();
+		Message message = netServer.listen() ;
+		log.debug("Connection accepted.");
 		
-		try
-		{
-			serverSocket.setSoTimeout(TIMEOUT) ;
-		} catch (SocketException e)
-		{
-			log.error ("SocketException", e) ;
-		}
-		
-		Socket recSocket;
-		
-		try {
-			log.debug("Listening at port " + LOCAL_PORT) ;
-			recSocket = serverSocket.accept();
-			log.debug("Connection accepted.");
-			
-			try {
-				 
-				DataInputStream    in     = new DataInputStream(recSocket.getInputStream());
-				ObjectInputStream  objIn  = new ObjectInputStream(in);
-
-				Message message = (Message) objIn.readObject();
+			if ( (message != null) && (message instanceof Answer) )
+			{
+				Answer answer = (Answer) message ;
 				
-				if (message instanceof Answer)
+				if (answer.getStatus() == Tree.FAILED)
 				{
-					Answer answer = (Answer) message ;
+					log.debug("Negotiation of " + query + " failed") ;
 					
-					if (answer.getStatus() == Tree.FAILED)
-					{
-						log.debug("Negotiation of " + query + " failed") ;
-						
-						solution = "" ;
-					}
-					else
-					{
-						log.debug ("Negotiation of " + query + " succeed") ;
-
-						log.info("Answer: " + answer.getGoal()) ;
-						
-						log.info("Proof: " + answer.getProof()) ;
-	
-						solution = answer.getGoal() ;
-					}
+					solution = "" ;
 				}
 				else
-					log.error("Invalid answer") ;
+				{
+					log.debug ("Negotiation of " + query + " succeed") ;
+
+					log.info("Answer: " + answer.getGoal()) ;
+					
+					log.info("Proof: " + answer.getProof()) ;
+
+					solution = answer.getGoal() ;
+				}
 			}
-			catch (ClassNotFoundException cnfe) {
-				log.error("Class Not Found", cnfe);
+			else
+			{
+				log.error("Invalid answer") ;
 			}
-			catch( IOException ie ) {
-				log.error("IOException", ie);
-			}
-		} catch (SocketTimeoutException te)
-		{
-			log.error("The request timed out the " + TIMEOUT/1000 + "seconds.") ;
-		} catch (IOException e)	{
-			log.error("Accept IOException", e) ;
-		}
-		
-		try {
-			serverSocket.close() ;
-		}
-		catch (IOException e)
-		{
-			log.error("IOException", e) ;
-		}
 	}
 	
 	public String getSolution () {
@@ -156,6 +130,9 @@ public class TrustClient implements Configurable
 	{
 		//java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 		
+		String LOCAL_ALIAS = "alice" ;
+		int LOCAL_PORT = 31000 ;
+
 		try {
 					Configurator config = new Configurator("trust.properties",new String[0]);
 					config.setAppInfo("Automated Trust Negotiation Requester");
@@ -169,7 +146,10 @@ public class TrustClient implements Configurable
 
 					// configure objects
 					config.finishConfig();
-
+			
+				config.updateValue(Vocabulary.SERVER_PORT_TAG, new Integer(LOCAL_PORT).toString()) ;
+				config.updateValue(Vocabulary.PEERNAME, LOCAL_ALIAS) ;
+					
 				client.run() ;
 				//TrustClient client = new TrustClient("document(project7, _) @ company7", new Peer("alice7","localhost", 32000),config) ;
 				//TrustClient client = new TrustClient("document(project7,V15595312)", new Peer("company","webbase.learninglab.uni-hannover.de", 37000), config) ;

@@ -20,15 +20,19 @@
 
 package org.peertrust.net;
 
+import net.jxta.edutella.util.Configurator;
 
 /**
- * $Id: NetClient.java,v 1.2 2004/07/08 15:10:42 dolmedilla Exp $
+ * $Id: AbstractFactory.java,v 1.1 2004/07/08 15:10:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
  * Last changed  $Date: 2004/07/08 15:10:42 $
  * by $Author: dolmedilla $
  * @description
  */
-public interface NetClient {
-	public void send(Message message, Peer destination) ;
+public interface AbstractFactory {
+	
+	public NetClient createNetClient(Configurator config) ;
+	
+	public NetServer createNetServer(Configurator config) ;
 }

@@ -1,32 +1,49 @@
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.meta;
 
 import javax.net.ssl.*;
-import javax.security.cert.* ;
 
 import org.apache.log4j.Logger;
 import org.peertrust.inference.InferenceEngine;
+import org.peertrust.net.AbstractFactory;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
+import org.peertrust.net.NetServer;
 import org.peertrust.net.Query;
-import org.peertrust.net.ssl.SecureServerSocket;
+import org.peertrust.net.ssl.SecureSocketFactory;
 import org.peertrust.strategy.*;
 
-import java.io.*;
-import java.net.* ;
 import java.util.Hashtable ;
 import net.jxta.edutella.util.Configurator ;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.1 2004/07/01 23:35:58 dolmedilla Exp $
- * @author $Author: dolmedilla $
+ * $Id: MetaInterpreterListener.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/01 23:35:58 $
+ * Last changed  $Date: 2004/07/08 15:10:43 $
+ * by $Author: dolmedilla $
  * @description
  */
 public class MetaInterpreterListener implements Runnable
 {
-	private final int TIMEOUT = 1000 ;
-
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
@@ -42,7 +59,7 @@ public class MetaInterpreterListener implements Runnable
 	public MetaInterpreterListener (Queue queue, InferenceEngine engine, Hashtable entities, Configurator config)
 	{
 		log.debug("Created") ;
-		
+
 		this.queue = queue ;
 		this.engine = engine ;
 		this.entities = entities ;
@@ -55,21 +72,8 @@ public class MetaInterpreterListener implements Runnable
 	{
 		Thread myThread = Thread.currentThread();
 		
-		SecureServerSocket sss;
-
-		sss = new SecureServerSocket(Integer.parseInt(config.getValue(MetaInterpreter.SERVER_PORT_TAG)),
-															config.getValue(MetaInterpreter.BASE_FOLDER_TAG)  + config.getValue(MetaInterpreter.KEYSTORE_FILE_TAG),
-															config.getValue(MetaInterpreter.KEY_PASSWORD_TAG),
-															config.getValue(MetaInterpreter.STORE_PASSWORD_TAG));
-		serverSocket = sss.getServerSocket();
-
-		try
-		{
-			serverSocket.setSoTimeout(TIMEOUT) ;
-		} catch (SocketException e1)
-		{
-			e1.printStackTrace();
-		}
+		AbstractFactory factory = new SecureSocketFactory() ;
+		NetServer netServer = factory.createNetServer(config) ;
 		
 //		System.runFinalizersOnExit(true) ;
 		
@@ -94,104 +98,16 @@ public class MetaInterpreterListener implements Runnable
 		log.info("System ready") ;
 		
 		while (metaIThread == myThread) {  
-			try
-			{	
-				SSLSocket recSocket;
-				try
-				{
-					//System.out.println ("Waiting for connections at port " + Integer.parseInt(config.getValue(SERVER_PORT_TAG))) ;
-					recSocket = (SSLSocket) serverSocket.accept();
-					log.debug("Socket connection received") ;
-
-					try {
-				 
-						DataInputStream    in     = new DataInputStream(recSocket.getInputStream());
-						ObjectInputStream  objIn  = new ObjectInputStream(in);
-
-						Message message = (Message) objIn.readObject() ;
-						
-						log.debug("Message received from " + message.getOrigin().getAlias());
-						
-						String DN = getCertificateName (recSocket.getSession().getPeerCertificateChain()) ;
-						if (validAuthentication(DN, message.getOrigin().getAlias()) == false)
-						{
-							log.error("Certificate DN (" + DN + ") and alias (" + message.getOrigin().getAlias() + ") mismatch") ;
-						}
-						else
-						{
-							//System.out.println("Received: from peer "+tree.getId()+" goal "+tree.getGoal());
-							processReceivedTree(message);
-						}
-					}
-					catch (ClassNotFoundException cnfe) {
-						log.error( "Class Not Found", cnfe);
-					}
-					catch(IOException ie ) {
-						log.error( "IOException2", ie);
-					}
-				}
-				catch (SocketTimeoutException te)
-				{
-					// ignore
-				} catch (IOException e)	{
-					log.error ("IOException", e) ;
-				}
-			}
- 			catch(Exception e)
- 			{
- 				log.error("Exception", e) ;
+			Message message = netServer.listen() ;
+			if (message != null)
+			{
+				//System.out.println("Received: from peer "+tree.getId()+" goal "+tree.getGoal());
+				processReceivedTree(message);
  			}
 		}
-		log.info("Finalizing") ;
-		if (serverSocket != null)
-		{
-			try
-			{
-				serverSocket.close() ;
-			} catch (IOException e)
-			{
-				log.error("Closing the server socket") ;
-			}
-			serverSocket = null ;
-		}
-	}
 
-	private boolean validAuthentication(String name1, String name2)
-	{
-		return name1.toLowerCase().equals(name2.toLowerCase()) ;
 	}
-	
-	private String getCertificateName (Certificate [] chain)
-	{
-		X509Certificate [] certs = (X509Certificate []) chain ;
-		String name ;
-
-//		for (int i = 0 ; i < certs.length ; i++)
-//			{
-		name = certs[0].getSubjectDN().getName() ;
-		int index = name.indexOf("CN=") + 3 ;
-		int index2 = name.indexOf(",", index) ;
-		String dn =name.substring(index, index2) ; 
-		System.err.println("Cert to " + dn + " valid till " + certs[0].getNotAfter()) ;
-//			}
-		return dn ;
-	}
-	
-	protected void finalize ()
-	{
-		if (serverSocket != null)
-		{
-			try {
-				serverSocket.close() ;
-				serverSocket = null ;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace() ;
-			}
-		}
-	}
-	
+		
 	public void stop()
 	{
 		metaIThread = null ;

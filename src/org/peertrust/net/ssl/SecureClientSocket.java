@@ -1,20 +1,48 @@
-package org.peertrust.net.ssl;
-
 /**
- * @author Rita Gavriloaie, Daniel Olmedilla
- * @date 10-Dec-2003
- * @description
- */
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
+package org.peertrust.net.ssl;
 
 import java.io.*;
 import java.security.*;
 //import javax.net.SocketFactory ;
 import javax.net.ssl.*;
+
+import org.apache.log4j.Logger;
+import org.peertrust.net.Message;
+import org.peertrust.net.NetClient;
+import org.peertrust.net.Peer;
 //import javax.security.cert.X509Certificate;
 
-public class SecureClientSocket {
-		
+/**
+ * $Id: SecureClientSocket.java,v 1.2 2004/07/08 15:10:44 dolmedilla Exp $
+ * @author olmedilla
+ * @date 05-Dec-2003
+ * Last changed  $Date: 2004/07/08 15:10:44 $
+ * by $Author: dolmedilla $
+ * @description
+ */
+public class SecureClientSocket implements NetClient {
+	
+	private static Logger log = Logger.getLogger(SecureClientSocket.class);
+	
 	SSLSocket socket = null;
 	private final int MAX_NUM_TRIES = 5 ;
 
@@ -25,16 +53,13 @@ public class SecureClientSocket {
 
 	//static private SecureRandom secureRandom;	
 
-	private String host = null;
-	private int port ;
 	private SSLSocketFactory sf ;
 	private String keystoreFile ;
 	private String keyPassword ;
 	private String storePassword ;
 	
-	public SecureClientSocket(String host, int port, String keystoreFile, String keyPassword, String storePassword) {
-		this.host = host;
-		this.port = port;
+	public SecureClientSocket(String keystoreFile, String keyPassword, String storePassword) {
+		log.debug("init()") ;
 		this.keystoreFile = keystoreFile ;
 		this.keyPassword = keyPassword ;
 		this.storePassword = storePassword ;
@@ -63,12 +88,16 @@ public class SecureClientSocket {
 			e.printStackTrace() ;	
 		}
 	}
-		
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.net.NetClient#send(org.peertrust.net.Message, org.peertrust.net.Peer)
+	 */
 	/**
 	 * @param obj
 	 */
-	public void send(Object obj)
+	public void send(Message message, Peer peer)
 	{
+		log.debug("Send() " + message.toString() + " to " + peer.getAlias()) ;
 		//int tries = 0 ;
 		//boolean sent = false ;
 		
@@ -77,7 +106,7 @@ public class SecureClientSocket {
 			try {
 				//	Then we get the socket from the factory and treat it
 				// as if it were a standard (plain) socket.
-				socket = (SSLSocket) sf.createSocket(host, port) ;
+				socket = (SSLSocket) sf.createSocket(peer.getAddress(), peer.getPort()) ;
 			
 //				((SSLSocket)socket).addHandshakeCompletedListener(new HandshakeCompletedListener()
 //							{
@@ -122,7 +151,7 @@ public class SecureClientSocket {
 				//System.out.println("Sending object: " + obj);
 				ObjectOutputStream objOut = new ObjectOutputStream(socket.getOutputStream()); 
 
-				objOut.writeObject(obj);
+				objOut.writeObject(message);
 				objOut.flush();
 				
 	//			sent = true ;
@@ -142,11 +171,14 @@ public class SecureClientSocket {
 //				}
 			}
 			finally{
-				if(socket!=null) {
-					try{
+				if(socket!=null)
+				{
+					try
+					{
 						socket.close();
 					}
-					catch(IOException e){
+					catch(IOException e)
+					{
 						e.printStackTrace() ;
 					}
 				}
@@ -154,12 +186,14 @@ public class SecureClientSocket {
 //		}
 	}
 	
-	public static void main(String[] args)
-	{
-		SecureClientSocket sc = new SecureClientSocket("localhost", 35000, "testClient_keystore", "testkey", "testkey") ;
-		
-		sc.send("prueba") ;
-		
-		System.out.println("Message sent") ;
-	}
+//	public static void main(String[] args)
+//	{
+//		SecureClientSocket sc = new SecureClientSocket("testClient_keystore", "testkey", "testkey") ;
+//		
+//		sc.send(new Query (null, new Peer(null, null, 12), 12), new Peer ("alice", "localhost", 35000)) ;
+//		
+//		System.out.println("Message sent") ;
+//	}
+//
+
 }

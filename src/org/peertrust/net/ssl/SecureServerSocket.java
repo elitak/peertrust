@@ -1,56 +1,69 @@
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.net.ssl;
 
 import java.io.*;
 import java.net.*;
 import java.security.*;
 import javax.net.ssl.*;
+
+import org.apache.log4j.Logger;
+import org.peertrust.net.Message;
+import org.peertrust.net.NetServer;
+import org.peertrust.security.credentials.CryptTools;
 //import javax.net.ServerSocketFactory;
 
 /**
- * @author Rita Gavriloaie, Daniel Olmedilla
- * @date 10-Dec-2003
+ * $Id: SecureServerSocket.java,v 1.2 2004/07/08 15:10:44 dolmedilla Exp $
+ * @author olmedilla
+ * @date 05-Dec-2003
+ * Last changed  $Date: 2004/07/08 15:10:44 $
+ * by $Author: dolmedilla $
  * @description
  */
-
-public class SecureServerSocket {
-
+public class SecureServerSocket implements NetServer {
+	
+	private static Logger log = Logger.getLogger(SecureServerSocket.class);
+	
 	//	The new constants that are used during setup.
    //public static final String KEYSTORE_FILE = "server_keystore";
    public static final String ALGORITHM = "sunx509";
    //public static final String KEY_PASSWORD = "serverpw";
    //public static final String STORE_PASSWORD = "serverstorepw";
+   private final int TIMEOUT = 15000 ;
 
-   private int port ;
-   private String keystoreFile ;
-   private String keyPassword ;
-   private String storePassword ;
+
+//   private int port ;
+//   private String keystoreFile ;
+//   private String keyPassword ;
+//   private String storePassword ;
    private SSLServerSocket ss = null;
    
 	public SecureServerSocket(int port, String keystoreFile, String keyPassword, String storePassword) {
-		this.port=port;
-		this.keystoreFile = keystoreFile ;
-		this.keyPassword = keyPassword ;
-		this.storePassword = storePassword ;
+//		this.port=port;
+//		this.keystoreFile = keystoreFile ;
+//		this.keyPassword = keyPassword ;
+//		this.storePassword = storePassword ;
 		//java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-	}
-	
-	protected void finalize ()
-	{
-		if (ss != null)
-		{
-			try {
-				ss.close() ;
-				ss = null ;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace() ;
-			}
-		}
-	}
-		
-	public SSLServerSocket getServerSocket() {
-	   	try {
+
+		try {
 
 		 	// Local references used for clarity.
 		 	KeyManagerFactory kmf;
@@ -117,28 +130,107 @@ public class SecureServerSocket {
 			
 			// we establish that client must also be authenticated
 			ss.setNeedClientAuth(true) ;
+			
+			ss.setSoTimeout(TIMEOUT) ;
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			return null ;
 		}
-		return ss ;
 	}
 	
-	public static void main(String[] args) throws IOException, ClassNotFoundException
-		{
-			SecureServerSocket sss = new SecureServerSocket(35000, "testServer_keystore", "testkey", "testkey") ;
-			
-			ServerSocket ss = sss.getServerSocket() ;
-			
-			Socket s = ss.accept() ;
-			
-			DataInputStream    in     = new DataInputStream(s.getInputStream());
-							
-			ObjectInputStream  objIn  = new ObjectInputStream(in);
+	/* (non-Javadoc)
+	 * @see org.peertrust.net.NetServer#listen()
+	 */
+	public Message listen() {
 
-			String st = (String) objIn.readObject();
-			
-			System.out.println("Message received: " + st) ;
+		try
+		{	
+			SSLSocket recSocket;
+			try
+			{
+				//System.out.println ("Waiting for connections at port " + Integer.parseInt(config.getValue(SERVER_PORT_TAG))) ;
+				recSocket = (SSLSocket) ss.accept();
+				log.debug("Socket connection received") ;
+
+				try {
+			 
+					DataInputStream    in     = new DataInputStream(recSocket.getInputStream());
+					ObjectInputStream  objIn  = new ObjectInputStream(in);
+
+					Message message = (Message) objIn.readObject() ;
+					
+					log.debug("Message received from " + message.getOrigin().getAlias());
+					
+					String DN = CryptTools.getCertificateName (recSocket.getSession().getPeerCertificateChain()) ;
+					if (validAuthentication(DN, message.getOrigin().getAlias()) == false)
+					{
+						log.error("Certificate DN (" + DN + ") and alias (" + message.getOrigin().getAlias() + ") mismatch") ;
+					}
+					else
+					{
+						//System.out.println("Received: from peer "+tree.getId()+" goal "+tree.getGoal());
+						return message ;
+					}
+				}
+				catch (ClassNotFoundException cnfe) {
+					log.error( "Class Not Found", cnfe);
+				}
+				catch(IOException ie ) {
+					log.error( "IOException2", ie);
+				}
+			}
+			catch (SocketTimeoutException te)
+			{
+				// ignore
+			} catch (IOException e)	{
+				log.error ("IOException", e) ;
+			}
 		}
+		catch(Exception e)
+		{
+			log.error("Exception", e) ;
+		}
+		return null ;
+	}
+
+	private boolean validAuthentication(String name1, String name2)
+	{
+		return name1.toLowerCase().equals(name2.toLowerCase()) ;
+	}
+
+	protected void finalize ()
+	{
+		log.info("Finalizing") ;
+		
+		if (ss != null)
+		{
+			try {
+				ss.close() ;
+			}
+			catch (IOException e)
+			{
+				log.error("Closing the server socket", e) ;
+			}
+			ss = null ;
+		}
+	}
+
+//	public static void main(String[] args) throws IOException, ClassNotFoundException
+//		{
+//			SecureServerSocket sss = new SecureServerSocket(35000, "testServer_keystore", "testkey", "testkey") ;
+//			
+//			ServerSocket ss = sss.getServerSocket() ;
+//			
+//			Socket s = ss.accept() ;
+//			
+//			DataInputStream    in     = new DataInputStream(s.getInputStream());
+//							
+//			ObjectInputStream  objIn  = new ObjectInputStream(in);
+//
+//			String st = (String) objIn.readObject();
+//			
+//			System.out.println("Message received: " + st) ;
+//		}
+
+
 }

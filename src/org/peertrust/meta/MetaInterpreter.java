@@ -3,7 +3,7 @@
  * 
  * This file is part of Peertrust.
  * 
- * Foobar is free software; you can redistribute it and/or modify
+ * Peertrust is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
@@ -29,30 +29,26 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.inference.*;
+import org.peertrust.net.*;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.Query;
-import org.peertrust.net.ssl.SecureClientSocket;
+import org.peertrust.net.ssl.SecureSocketFactory;
 import org.peertrust.security.credentials.Credential;
 import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.security.credentials.x509.X509CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.1 2004/07/01 23:35:58 dolmedilla Exp $
- * @author $Author: dolmedilla $
+ * $Id: MetaInterpreter.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/01 23:35:58 $
+ * Last changed  $Date: 2004/07/08 15:10:43 $
+ * by $Author: dolmedilla $
  * @description
  */
 public class MetaInterpreter implements Configurable, Runnable
 {
-	public static final String BASE_FOLDER_TAG = "metaI.baseFolder" ; 
-	public static final String SERVER_PORT_TAG = "metaI.serverPort" ;
-	public static final String LOCAL_ADDRESS_TAG = "metaI.address" ;
-	public static final String KEYSTORE_FILE_TAG = "metaI.keystoreFile" ;
-	public static final String KEY_PASSWORD_TAG = "metaI.keyPassword" ;
-	public static final String STORE_PASSWORD_TAG = "metaI.storePassword" ;
 	public static final String ASSERTA = "asserta" ;
 	
 	private final int SLEEP_TIME = 200 ;
@@ -69,6 +65,8 @@ public class MetaInterpreter implements Configurable, Runnable
 	private String keystoreFile ;
 	private String keyPassword ;
 	private String storePassword ;
+	
+	private NetClient netClient ;
 	
 	private CredentialStore credStore ;
 	
@@ -102,6 +100,9 @@ public class MetaInterpreter implements Configurable, Runnable
 			engine.execute(ASSERTA + "(" + stringCredential + ")") ;
 		}
 
+		AbstractFactory factory = new SecureSocketFactory() ;
+		netClient = factory.createNetClient(this.config) ;
+		
 		//log.debug ("DOC test : " + engine.execute("rule(validClient(alice,\"Http://result1\"),X,Y)")) ;
 		//log.debug ("DOC test2 : " + engine.execute("rule(validClient(alice,result2),X,Y)")) ;
 		metaIListener = new MetaInterpreterListener (queue, engine, entities, config) ;
@@ -249,21 +250,17 @@ public class MetaInterpreter implements Configurable, Runnable
 		}
 	}
 	
-	private void sendMessage(Message message, Peer destiny)
+	private void sendMessage(Message message, Peer destination)
 	{
 		if (message instanceof Query)
-			log.debug("Send query to " + destiny.getAddress() + ":" + destiny.getPort() + " from " + message.getOrigin().getAlias()) ;
+			log.debug("Send query to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
 		else if (message instanceof Answer)
-			log.debug("Send answer to " + destiny.getAddress() + ":" + destiny.getPort() + " from " + message.getOrigin().getAlias()) ;
+			log.debug("Send answer to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
 		else
 			log.error("Unknown message type") ;
 		
-		// creating a secure client socket object
-		SecureClientSocket ssc = new SecureClientSocket(destiny.getAddress(),destiny.getPort(), config.getValue(MetaInterpreter.BASE_FOLDER_TAG)  + keystoreFile, keyPassword,storePassword);
-		
-		// sending an object using serialization
-		ssc.send(message);
-		ssc = null ;
+		// sending an object
+		netClient.send(message, destination) ;
 	}
 	
 	private void readEntities ()
