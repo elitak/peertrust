@@ -1,0 +1,34 @@
+# PeerTrust properties.file
+
+# Name assigned to the Trust peer
+metaI.peerName=alice
+
+# Local ip address
+#metaI.address=130.75.152.153
+metaI.address=localhost
+
+# Port that will be used to receive connections
+metaI.serverPort=32000
+
+# Base directory (including the last /)
+#metaI.baseFolder=${user.home}/trust/
+metaI.baseFolder=
+
+# File with the aliases of known entities
+metaI.entitiesFile=entities.dat
+
+# Java keystore with local public/private key + certificates of known entities
+metaI.keystoreFile=client_keystore
+
+# If passwords are not stored here the application will prompt for them
+# Password of the private key
+metaI.keyPassword=clientpw
+
+# Password to access the java keystore
+metaI.storePassword=clientstorepw
+
+# Policy files (separated by ':')
+prolog.files=alice.min
+
+# RDF files to load (separated by ':')
+#prolog.rdfFiles=uli.rdf

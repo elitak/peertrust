@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE rdf:RDF [
+        <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+        <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+        <!ENTITY pd 'http://www.learninglab.de/~brunkhor/rdf/PeerDescription#'>
+]>
+
+<rdf:RDF xmlns:rdf="&rdf;"
+        xmlns:rdfs="&rdfs;"
+        xmlns:pd="&pd;">
+
+<pd:Peer rdf:about="#Peer">
+  <pd:peerName>peertrustConsumer@twilight.zone</pd:peerName>
+  <pd:hasDescription rdf:resource="#Description"/>
+  <pd:hasApplication rdf:resource="#Application"/>
+  <pd:hasComponent rdf:resource="#Component"/>
+  <pd:hasSystemService rdf:resource="#SystemService"/>
+  <pd:hasSystemBuilder rdf:resource="#SystemBuilder"/>
+  <pd:memberOf rdf:resource="#PeerGroup"/>
+</pd:Peer>
+ <!-- ======================================================================
+      List of Edutella Applications
+      ================================================================== -->
+<rdf:Seq rdf:about="#Application">
+</rdf:Seq>
+ <!-- ======================================================================
+      List of Edutella PeerGroups
+      ================================================================== -->
+<rdf:Seq rdf:about="#PeerGroup">
+<rdf:li rdf:resource="#PeertrustPeerGroup"/>
+</rdf:Seq>
+ <!-- ======================================================================
+      List of Edutella (non-JXTA) Components
+      ================================================================== -->
+<rdf:Seq rdf:about="#Component">
+<rdf:li rdf:resource="#TimerService"/>
+</rdf:Seq>
+ <!-- ======================================================================
+      Peer Description Document
+      ================================================================== -->
+<pd:Description rdf:about="#Description">
+<pd:javaClass>net.jxta.edutella.peer.document.ConsumerDescription</pd:javaClass>
+</pd:Description>
+<pd:Component rdf:ID="TimerService">
+ <pd:javaClass>net.jxta.edutella.service.timer.TimerServiceImpl</pd:javaClass>
+</pd:Component>
+<pd:Component rdf:about="#SystemService">
+  <pd:javaClass>net.jxta.edutella.peer.config.JxtaSystemServiceImpl</pd:javaClass>
+  <pd:configBuilderResource rdf:resource="#JxtaConfigBuilder"/>
+  <pd:rendezVous>false</pd:rendezVous>
+  <pd:hasComponent rdf:resource="#JxtaConfigBuilder"/>
+</pd:Component>
+
+<pd:Component rdf:about="#JxtaConfigBuilder">
+  <pd:javaClass>net.jxta.edutella.peer.config.JxtaPlatformConfigBuilder</pd:javaClass>
+  <pd:principal>edutella</pd:principal>
+  <pd:password>edutella</pd:password>
+  <pd:httpProxyEnabled>false</pd:httpProxyEnabled>
+  <pd:httpProxyAddress>127.0.0.1</pd:httpProxyAddress>
+  <pd:multicastEnabled>true</pd:multicastEnabled>
+  <pd:multicastAddr>224.0.1.85</pd:multicastAddr>
+  <pd:multicastPort>1234</pd:multicastPort>
+  <pd:multicastSize>16384</pd:multicastSize>
+  <pd:tcpEnabled>true</pd:tcpEnabled>
+  <pd:tcpConfigMode>auto</pd:tcpConfigMode>
+  <pd:tcpPort>9711</pd:tcpPort>
+  <pd:tcpServerPort>9711</pd:tcpServerPort>
+  <pd:tcpClientEnabled>true</pd:tcpClientEnabled>
+  <pd:tcpServerEnabled>true</pd:tcpServerEnabled>
+  <pd:httpEnabled>true</pd:httpEnabled>
+  <pd:httpConfigMode>auto</pd:httpConfigMode>
+  <pd:httpPort>9710</pd:httpPort>
+  <pd:httpServerPort>9710</pd:httpServerPort>
+  <pd:httpClientEnabled>true</pd:httpClientEnabled>
+  <pd:httpServerEnabled>true</pd:httpServerEnabled>
+  <pd:rendezVousList rdf:resource="#RendezVousList"/>
+  <pd:relayList rdf:resource="#RelayList"/>
+  <pd:rendezVous>false</pd:rendezVous>
+  <pd:relay>true</pd:relay>
+  <pd:jxtaProxy>true</pd:jxtaProxy>
+  <pd:usingRelay>false</pd:usingRelay>
+  <pd:endpointQueueSize>100</pd:endpointQueueSize>
+  <pd:autoPort>true</pd:autoPort>
+  <pd:lowPort>9710</pd:lowPort>
+  <pd:highPort>9798</pd:highPort>
+  <pd:reconf>false</pd:reconf>
+  <pd:autoConfig>true</pd:autoConfig>
+</pd:Component>
+
+<rdf:Seq rdf:about="#RendezVousList">
+  <rdf:li>tcp://magik:9801</rdf:li>
+  <rdf:li>http://magik:9800</rdf:li>    
+  <!-- <rdf:li>tcp://127.0.0.1:9801</rdf:li> -->
+  <!-- <rdf:li>tcp://server2.kbs.uni-hannover.de:9801</rdf:li> -->
+  <!-- <rdf:li>tcp://server3.learninglab.uni-hannover.de:9801</rdf:li> -->
+  <!-- <rdf:li>http://server2.kbs.uni-hannover.de:9800</rdf:li> -->
+  <!-- <rdf:li>http://server3.learninglab.uni-hannover.de:9800</rdf:li> -->
+</rdf:Seq>
+
+<rdf:Seq rdf:ID="RelayList">
+</rdf:Seq>
+
+<pd:Component rdf:about="#SystemBuilder">
+  <pd:javaClass>net.jxta.edutella.peer.config.SystemBuilderImpl</pd:javaClass>
+</pd:Component>
+<pd:PeerGroup rdf:about="#PeertrustPeerGroup">
+  <pd:javaClass>net.jxta.edutella.peertrust.PeertrustPeerGroupImpl</pd:javaClass>
+  <pd:hasService rdf:resource="#EdutellaPeerGroupServices"/>
+  <pd:hasApplication rdf:resource="#EdutellaPeerGroupApplications"/>
+  <pd:refPeerGroupID>urn:jxta:uuid-E35503D4C7BF451CB068F0FD372E238502</pd:refPeerGroupID>
+  <pd:refPeerGroupName>Peertrust Group</pd:refPeerGroupName>
+  <pd:refPeerGroupDescription>Group for all Peertrust enabled Edutella Provider and Consumer Peers</pd:refPeerGroupDescription>
+  <pd:peerGroupModuleSpecID>urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE00000001C72063728F9348288AC0EFE2C276F22906</pd:peerGroupModuleSpecID>
+  <pd:peerGroupProvider>Learning Lab Lower Saxony</pd:peerGroupProvider>
+  <pd:peerGroupUri>http://www.learninglab.de/~brunkhor/edutella/download/edutella.jar</pd:peerGroupUri>
+  <pd:providerQueryServiceResource rdf:resource="#ProviderQueryService"/>
+  <pd:providerDiscoveryServiceResource rdf:resource="#ProviderDiscoveryService"/>
+  <pd:registrationServiceResource rdf:resource="#RegistrationService"/>
+  <pd:peertrustServiceResource rdf:resource="#PeertrustService"/>  
+</pd:PeerGroup>
+
+<rdf:Seq rdf:about="#EdutellaPeerGroupServices">
+  <rdf:li rdf:resource="#ProviderQueryService"/>
+  <rdf:li rdf:resource="#ProviderDiscoveryService"/>
+  <rdf:li rdf:resource="#RegistrationService"/>
+  <rdf:li rdf:resource="#PeertrustService"/>  
+</rdf:Seq>
+
+<rdf:Seq rdf:about="#EdutellaPeerGroupApplications">
+  <rdf:li rdf:resource="#EdutellaPeerGroupApplication"/>
+</rdf:Seq>
+
+
+<pd:Service rdf:about="#ProviderQueryService">
+  <pd:moduleClassID>urn:jxta:uuid-943DEEDD6D7D4D398CECBCF429EF43B505</pd:moduleClassID>
+  <pd:moduleClassDescription>Provider Query Services</pd:moduleClassDescription>
+  <pd:moduleClassName>Provider Query Services</pd:moduleClassName>
+  <pd:moduleSpecID>urn:jxta:uuid-943DEEDD6D7D4D398CECBCF429EF43B5C59F658A279E4E73BF94A22909EA487506</pd:moduleSpecID>
+  <pd:moduleSpecCreator>Learning Lab Lower Saxony</pd:moduleSpecCreator>
+  <pd:moduleSpecURI>http://www.learninglab.de/</pd:moduleSpecURI>
+  <pd:moduleSpecDescription>Service for sending and receiving eqm queries</pd:moduleSpecDescription>
+  <pd:moduleSpecName>Provider Query Service</pd:moduleSpecName>
+  <pd:moduleSpecVersion>0.1</pd:moduleSpecVersion>
+  <pd:moduleImplDescription>Default Implementation of Provider Query Service</pd:moduleImplDescription>
+  <pd:moduleImplProvider>Learning Lab Lower Saxony</pd:moduleImplProvider>
+  <pd:moduleImplUri>http://www.learninglab.de/~brunkhor/download/edutella-jxta.jar</pd:moduleImplUri>
+  <pd:moduleImplCode>net.jxta.edutella.service.query.ProviderQueryServiceImpl</pd:moduleImplCode>
+</pd:Service>
+
+<pd:Service rdf:about="#ProviderDiscoveryService">
+  <pd:moduleClassID>urn:jxta:uuid-0B06DD8A67B44CE4B3049DD5BB2B01B805</pd:moduleClassID>
+  <pd:moduleClassDescription>Provider Discovery Services</pd:moduleClassDescription>
+  <pd:moduleClassName>Provider Discovery Services</pd:moduleClassName>
+  <pd:moduleSpecID>urn:jxta:uuid-0B06DD8A67B44CE4B3049DD5BB2B01B891A38A83846F4A2F8BEF969895E2558406</pd:moduleSpecID>
+  <pd:moduleSpecCreator>Learning Lab Lower Saxony</pd:moduleSpecCreator>
+  <pd:moduleSpecURI>http://www.learninglab.de/</pd:moduleSpecURI>
+  <pd:moduleSpecDescription>Service to search for providers</pd:moduleSpecDescription>
+  <pd:moduleSpecName>Provider Discovery Service</pd:moduleSpecName>
+  <pd:moduleSpecVersion>0.1</pd:moduleSpecVersion>
+  <pd:moduleImplDescription>Default Implementation of Provider Discovery Service</pd:moduleImplDescription>
+  <pd:moduleImplProvider>Learning Lab Lower Saxony</pd:moduleImplProvider>
+  <pd:moduleImplUri>http://www.learninglab.de/~brunkhor/download/edutella-jxta.jar</pd:moduleImplUri>
+  <pd:moduleImplCode>net.jxta.edutella.service.discovery.ProviderDiscoveryServiceImpl</pd:moduleImplCode>
+</pd:Service>
+
+<pd:Service rdf:about="#RegistrationService">
+  <pd:moduleClassID>urn:jxta:uuid-51E2AA37F63F4348B59CB38AB330853605</pd:moduleClassID>
+  <pd:moduleClassDescription>Peer Registration Service</pd:moduleClassDescription>
+  <pd:moduleClassName>Edutella Peer Registration Service</pd:moduleClassName>
+  <pd:moduleSpecID>urn:jxta:uuid-51E2AA37F63F4348B59CB38AB3308536F9C95F525B334845BB6FB3C2A84535D806</pd:moduleSpecID>
+  <pd:moduleSpecCreator>Learning Lab Lower Saxony, Ingo Brunkhorst</pd:moduleSpecCreator>
+  <pd:moduleSpecURI>http://www.learninglab.de/</pd:moduleSpecURI>
+  <pd:moduleSpecDescription>Standard Peer Registration Service</pd:moduleSpecDescription>
+  <pd:moduleSpecName>Standard Peer Registration Service</pd:moduleSpecName>
+  <pd:moduleSpecVersion>0.1</pd:moduleSpecVersion>
+  <pd:moduleImplDescription>Default Implementation of Edutella Peer Registration Service</pd:moduleImplDescription>
+  <pd:moduleImplProvider>Learning Lab Lower Saxony</pd:moduleImplProvider>
+  <pd:moduleImplUri>http://www.learninglab.de/~brunkhor/download/edutella-jxta.jar</pd:moduleImplUri>
+  <pd:moduleImplCode>net.jxta.edutella.service.registration.RegistrationServiceImpl</pd:moduleImplCode>
+</pd:Service>
+
+<pd:Service rdf:about="#PeertrustService">
+  <pd:moduleClassID>urn:jxta:uuid-33422BA1B97D44F9A0B1F487BC55110505</pd:moduleClassID>
+  <pd:moduleClassDescription>Peertrust Service</pd:moduleClassDescription>
+  <pd:moduleClassName>Peertrust Service</pd:moduleClassName>
+  <pd:moduleSpecID>urn:jxta:uuid-33422BA1B97D44F9A0B1F487BC55110587865D79057D4F848CB0C8E872BF407606</pd:moduleSpecID>
+  <pd:moduleSpecCreator>Learning Lab Lower Saxony, Ingo Brunkhorst</pd:moduleSpecCreator>
+  <pd:moduleSpecURI>http://www.learninglab.de/</pd:moduleSpecURI>
+  <pd:moduleSpecDescription>Service for establishing trust between peers</pd:moduleSpecDescription>
+  <pd:moduleSpecName>Standard Peertrust Service</pd:moduleSpecName>
+  <pd:moduleSpecVersion>0.1</pd:moduleSpecVersion>
+  <pd:moduleImplDescription>Default Implementation of Edutella Peertrust Service</pd:moduleImplDescription>
+  <pd:moduleImplProvider>Learning Lab Lower Saxony</pd:moduleImplProvider>
+  <pd:moduleImplUri>http://www.learninglab.de/~brunkhor/download/edutella-jxta.jar</pd:moduleImplUri>
+  <pd:moduleImplCode>net.jxta.edutella.service.peertrust.PeertrustServiceImpl</pd:moduleImplCode>
+</pd:Service>
+
+<pd:Application rdf:about="#EdutellaPeerGroupApplication">
+  <pd:moduleClassID>urn:jxta:uuid-841DAB03AB0F49D7A9D9AFD0D3F27C3E05</pd:moduleClassID>
+  <pd:moduleClassDescription>Peer Application</pd:moduleClassDescription>
+  <pd:moduleClassName>Edutella Peer Applications</pd:moduleClassName>
+  <pd:moduleSpecID>urn:jxta:uuid-841DAB03AB0F49D7A9D9AFD0D3F27C3E81350B980AA5485DB23DBFD62FF3778D06</pd:moduleSpecID>
+  <pd:moduleSpecCreator>Learning Lab Lower Saxony, Ingo Brunkhorst</pd:moduleSpecCreator>
+  <pd:moduleSpecURI>http://www.learninglab.de/</pd:moduleSpecURI>
+  <pd:moduleSpecDescription>Standard Peer Application</pd:moduleSpecDescription>
+  <pd:moduleSpecName>Standard Peer Application</pd:moduleSpecName>
+  <pd:moduleSpecVersion>0.1</pd:moduleSpecVersion>
+  <pd:moduleImplDescription>Default Implementation of Edutella Peer Application</pd:moduleImplDescription>
+  <pd:moduleImplProvider>Learning Lab Lower Saxony</pd:moduleImplProvider>
+  <pd:moduleImplUri>http://www.learninglab.de/~brunkhor/download/edutella-jxta.jar</pd:moduleImplUri>
+  <pd:moduleImplCode>net.jxta.edutella.component.peergroup.EdutellaPeerImpl</pd:moduleImplCode>
+  <pd:hasComponent rdf:resource="#EdutellaPeerGroupApplicationComponents"/>
+</pd:Application>
+<rdf:Seq rdf:about="#EdutellaPeerGroupApplicationComponents">
+  <rdf:li rdf:resource="#StdConsumer"/>
+</rdf:Seq>
+
+<pd:Component rdf:about="#StdConsumer">
+  <pd:javaClass>net.jxta.edutella.peertrust.PeertrustConsumerPeerImpl</pd:javaClass>
+  <pd:hasComponent rdf:resource="#EdutellaParts"/>
+  <pd:iconUrl>http://www.learninglab.de/~brunkhor/edutella/images/qel_icon.gif</pd:iconUrl>
+</pd:Component>
+
+<rdf:Seq rdf:about="#EdutellaParts">
+  <rdf:li rdf:resource="#StdPeerList"/>
+  <rdf:li rdf:resource="#StdResultComponent"/>
+  <rdf:li rdf:resource="#StdQueryComponent"/>
+</rdf:Seq>
+
+<pd:Component rdf:about="#StdPeerList">
+  <pd:javaClass>net.jxta.edutella.consumer.plugin.PeerListComponentImpl</pd:javaClass>
+</pd:Component>
+
+<pd:Component rdf:about="#StdQueryComponent">
+  <pd:javaClass>net.jxta.edutella.consumer.plugin.QueryComponentImpl</pd:javaClass>
+</pd:Component>
+
+<pd:Component rdf:about="#StdResultComponent">
+  <pd:javaClass>net.jxta.edutella.consumer.plugin.ResultComponentImpl</pd:javaClass>
+</pd:Component>
+</rdf:RDF>

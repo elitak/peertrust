@@ -1,0 +1,20 @@
+metaI.peerName=eLearn
+
+#metaI.address=webbase.learninglab.uni-hannover.de
+metaI.address=localhost
+
+metaI.serverPort=37000
+
+# Base directory (including the last /)
+#metaI.baseFolder=${user.home}/trust/
+metaI.baseFolder=
+
+metaI.entitiesFile=entities.dat
+
+metaI.keystoreFile=server_keystore
+
+metaI.keyPassword=serverpw
+metaI.storePassword=serverstorepw
+
+prolog.files=eLearn.min
+
