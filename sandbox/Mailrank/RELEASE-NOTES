@@ -4,3 +4,4 @@ TODO:
 - perl clients to improve
 - properties to incorporate (more than in the main class)
 - using threads to start two servers (mail and socket) in the main class
+- a lot of things are still incomplete, I will fix that after writing the thesis
