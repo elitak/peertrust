@@ -55,10 +55,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.5 2005/02/15 17:36:36 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.6 2005/02/22 17:43:35 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:36 $
+ * Last changed  $Date: 2005/02/22 17:43:35 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -117,7 +117,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.5 2005/02/15 17:36:36 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.6 2005/02/22 17:43:35 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -130,21 +130,30 @@ public class PTConfigurator {
      * @throws ConfigException
      * @see net.jxta.edutella.component.EdutellaComponent#startApp(java.lang.String[])
      */
-    public void startApp(String[] confFiles, String [] components) throws ConfigurationException {
+    public void startApp(String[] confFiles, String [] components) throws ConfigurationException
+    {
         log.debug(".startApp()");
         
         _registry = new Hashtable() ;
 //        _vectorRegistry = new Vector() ;
         _confFiles = confFiles;
-        _configuration = loadConfiguration(_confFiles);
-        _peer = baseConfigure(_configuration, _configuration.createResource(components[0]));
-//        _eventDispatcher = getResource(_configuration, Vocabulary.EventDispatcher) ;
+        try
+		{
+        	_configuration = loadConfiguration(_confFiles);
+            _peer = baseConfigure(_configuration, _configuration.createResource(components[0]));
+//            _eventDispatcher = getResource(_configuration, Vocabulary.EventDispatcher) ;
+            
+            // if the parent of the configurator was passed as argument, we initialize the registry with it
+            if (_configuratorParent != null)
+            	_registry.put(CONFIGURATOR_PARENT_NAME, _configuratorParent) ;
+            	
+            createComponent(_peer) ;
+        }
+        catch (ConfigurationException e)
+		{
+        	throw new ConfigurationException (e.getMessage() + ". Please, check your configuration file") ;
+		}
         
-        // if the parent of the configurator was passed as argument, we initialize the registry with it
-        if (_configuratorParent != null)
-        	_registry.put(CONFIGURATOR_PARENT_NAME, _configuratorParent) ;
-        	
-        createComponent(_peer) ;
         log.info ("Basic peer configuration succeded") ;
         
 //        createComponent(_eventDispatcher) ;

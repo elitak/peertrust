@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.9 2005/02/22 08:47:23 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.10 2005/02/22 17:44:54 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/22 08:47:23 $
+ * Last changed  $Date: 2005/02/22 17:44:54 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -79,7 +79,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.9 2005/02/22 08:47:23 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.10 2005/02/22 17:44:54 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -104,7 +104,6 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		
 		if (msg != null)
 		{
-			msg += ". Please, check your configuration file" ;
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
 		}

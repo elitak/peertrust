@@ -62,8 +62,8 @@ public class TNTreeDiagramm {
 		String goal = query.getGoal();
 		
 		if(graphics.getRoot() == null) {
-			TNNode source = (TNNode)getElement(createNode(sourceAddress,reqQueryId,sourceAddress,sourceAlias,sourcePort));
-			TNNode target = (TNNode)getElement(createNode(targetAddress,reqQueryId,targetAddress,targetAlias,targetPort));
+			TNNode source = (TNNode)getElement(createNode(sourceAlias,reqQueryId,sourceAddress,sourceAlias,sourcePort));
+			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
 			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
 			graphics.setRoot(source);
 			// Build graph path.
@@ -77,7 +77,7 @@ public class TNTreeDiagramm {
 			for(long i=reqQueryId;i>=0;i--) {
 				TNNode source = (TNNode)getElement("node:"+i+":"+sourceIdentifier);
 				if(source != null) {
-					TNNode target = (TNNode)getElement(createNode(targetAddress,reqQueryId,targetAddress,targetAlias,targetPort));
+					TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
 					TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
 					// Build graph path.
 					if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
@@ -109,8 +109,8 @@ public class TNTreeDiagramm {
 
 		TNNode source = (TNNode)getElement("node:"+reqQueryId+":"+sourceIdentifier);
 		if(source != null) {
-			TNNode target = (TNNode)getElement(createNode(targetAddress,reqQueryId,targetAddress,targetAlias,targetPort));
-			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
+			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
+			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,false,true,-1,""));
 			// Build graph path.
 			if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
 				graphPath.add(source);

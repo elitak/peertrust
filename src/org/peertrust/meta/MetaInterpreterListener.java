@@ -37,10 +37,10 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.8 2005/02/22 08:47:23 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.9 2005/02/22 17:44:56 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/22 08:47:23 $
+ * Last changed  $Date: 2005/02/22 17:44:56 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -62,7 +62,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.8 2005/02/22 08:47:23 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.9 2005/02/22 17:44:56 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -83,7 +83,6 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		
 		if (msg != null)
 		{
-			msg += ". Please, check your configuration file" ;
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
 		}

@@ -1,5 +1,6 @@
 package org.peertrust.tnviz.app;
 
+import org.apache.log4j.Logger;
 import org.peertrust.event.*;
 import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
@@ -7,6 +8,7 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 public class TNVizListener implements PTEventListener, Configurable {
+	private static Logger log = Logger.getLogger(TNVizListener.class);
 	
 	EventDispatcher _dispatcher;
 	private Graphics graphics;
@@ -32,11 +34,14 @@ public class TNVizListener implements PTEventListener, Configurable {
 		if (event instanceof QueryEvent)
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
+			log.debug("New query received: " + query.getGoal() + " - " + query.getReqQueryId()) ;
 			graphics.addQuery(query);
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			Answer answer = ( (AnswerEvent) event).getAnswer() ;
+			log.debug("New answer received: " + answer.getGoal() + " - " + answer.getReqQueryId()) ;
+			graphics.addAnswer(answer) ;
 		}
 		graphics.updateGraph();
 	}

@@ -27,7 +27,7 @@ public class TNSeqDiagramm {
 	private final int SEQ_START_DISTANCE_X = 10;
 	private final int SEQ_START_DISTANCE_Y = 50;
 	private final int SEQ_DISTANCE_Y = 40;
-	private final int SEQ_DISTANCE_X = 30;
+	private int SEQ_DISTANCE_X = 30;
 	private int lastY;
 	private int lastX;
 	private Graphics graphics;
@@ -69,7 +69,7 @@ public class TNSeqDiagramm {
 			source = (TNNode)graphElements.get("node:"+sourceIdentifier);
 		}
 		else {
-			String id = createNode(sourceAddress,sourceAddress,sourceAlias,sourcePort);
+			String id = createNode(sourceAlias,sourceAddress,sourceAlias,sourcePort);
 			source = getNode(id);
 		}
 		
@@ -77,7 +77,7 @@ public class TNSeqDiagramm {
 			target = (TNNode)graphElements.get("node:"+targetIdentifier);
 		}
 		else {
-			String id = createNode(targetAddress,targetAddress,targetAlias,targetPort);
+			String id = createNode(targetAlias,targetAddress,targetAlias,targetPort);
 			target = getNode(id);
 		}
 		
@@ -108,7 +108,7 @@ public class TNSeqDiagramm {
 			source = (TNNode)graphElements.get("node:"+sourceIdentifier);
 		}
 		else {
-			String id = createNode(sourceAddress,sourceAddress,sourceAlias,sourcePort);
+			String id = createNode(sourceAlias,sourceAddress,sourceAlias,sourcePort);
 			source = getNode(id);
 		}
 		
@@ -116,7 +116,7 @@ public class TNSeqDiagramm {
 			target = (TNNode)graphElements.get("node:"+targetIdentifier);
 		}
 		else {
-			String id = createNode(targetAddress,targetAddress,targetAlias,targetPort);
+			String id = createNode(targetAlias,targetAddress,targetAlias,targetPort);
 			target = getNode(id);
 		}
 				
