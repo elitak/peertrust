@@ -37,10 +37,10 @@ import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.4 2004/11/18 12:50:48 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.5 2005/01/11 17:47:52 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:48 $
+ * Last changed  $Date: 2005/01/11 17:47:52 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -64,12 +64,14 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	
 	private Applet _applet ;
 	
+	private boolean _debugMode = false ;
+	
 	private static Logger log = Logger.getLogger(MinervaProlog.class);
 	
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.4 2004/11/18 12:50:48 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.5 2005/01/11 17:47:52 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -107,47 +109,59 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		{
 			_engine.load(_baseFolder + META_INTERPRETER_FILENAME) ;
 			
+			if (_debugMode)
+				insert("debug_on") ;
+			
 			_engine.execute(INIT_PREDICATE) ;
 			
 			_engine.load(_baseFolder + RDF_PARSER_FILENAME) ;
 			
 			log.debug("Program loaded") ;
 			
-			StringTokenizer filesString = new StringTokenizer(_rdfFiles,":") ;
+			StringTokenizer filesString ;
 			String tmp ;
-			while (filesString.hasMoreTokens())
+			
+			if (_rdfFiles != null)
 			{
-				tmp = _baseFolder + filesString.nextToken() ;
-				
-				MinervaAtom atom ;
-				if (isApplet())
-					atom = new MinervaAtom("file://" + tmp) ;
-				else
-					atom = new MinervaAtom(tmp) ;
-				
-				log.debug("Loading RDF file " + tmp + " into the inference engine") ;
-				
-				_engine.execute(RDF_PARSER_PREDICATE, atom) ;
-				
-				log.debug("RDF file " + tmp + " loaded") ;
+				filesString = new StringTokenizer(_rdfFiles,":") ;
+
+				while (filesString.hasMoreTokens())
+				{
+					tmp = _baseFolder + filesString.nextToken() ;
+					
+					MinervaAtom atom ;
+					if (isApplet())
+						atom = new MinervaAtom("file://" + tmp) ;
+					else
+						atom = new MinervaAtom(tmp) ;
+					
+					log.debug("Loading RDF file " + tmp + " into the inference engine") ;
+					
+					_engine.execute(RDF_PARSER_PREDICATE, atom) ;
+					
+					log.debug("RDF file " + tmp + " loaded") ;
+				}
 			}
 			
 			_engine.load(_baseFolder + PROLOG_PARSER_FILENAME) ;
 			
-			filesString = new StringTokenizer(_prologFiles,":") ;
-			while (filesString.hasMoreTokens())
+			if (_prologFiles != null)
 			{
-				tmp = _baseFolder + filesString.nextToken() ;
-
-				MinervaAtom atom ;
-				if (isApplet())
-					atom = new MinervaAtom("file://" + tmp) ;
-				else
-					atom = new MinervaAtom(tmp) ;
-				
-				log.debug("Loading file " + tmp + " into the inference engine") ;
-				_engine.execute(PROLOG_PARSER_PREDICATE, new MinervaAtom(tmp)) ;
-				log.debug("File " + tmp + " loaded") ;
+				filesString = new StringTokenizer(_prologFiles,":") ;
+				while (filesString.hasMoreTokens())
+				{
+					tmp = _baseFolder + filesString.nextToken() ;
+	
+					MinervaAtom atom ;
+					if (isApplet())
+						atom = new MinervaAtom("file://" + tmp) ;
+					else
+						atom = new MinervaAtom(tmp) ;
+					
+					log.debug("Loading file " + tmp + " into the inference engine") ;
+					_engine.execute(PROLOG_PARSER_PREDICATE, new MinervaAtom(tmp)) ;
+					log.debug("File " + tmp + " loaded") ;
+				}
 			}
 			
 		} catch (MinervaSystemError e)
@@ -158,23 +172,21 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		{
 			log.error("I/O error loading files in Minerva",e) ;
 			throw new ConfigurationException (e) ;
+		} catch (InferenceEngineException e) {
+			log.error("InferenceEngineException", e) ;
+			throw new ConfigurationException (e) ;
 		}
 	}
 	
 	public void insert (String clause) throws InferenceEngineException
 	{
+		log.debug("Inserting " + clause + " in the KB") ;
 		try {
-			MinervaTerm term = new MinervaAtom (clause) ;
-			_engine.execute("asserta", term) ;
-//			_engine.execute("asserta(" + clause + ")") ;
+			MinervaTerm term = parse (clause) ;
+			_engine.execute("asserta", term) ;			
 		} catch (MinervaSystemError e) {
 			throw new InferenceEngineException(e) ;
 		}
-	}
-	
-	public void setDebugMode (boolean debug) throws InferenceEngineException
-	{
-		insert("debug_on") ;
 	}
 
 	private void initParse ()
@@ -510,6 +522,16 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		_baseFolder = folder;
 	}
 	
+	public void setDebugMode (boolean debug)
+	{
+		_debugMode = debug ;
+	}
+	
+	public boolean getDebugMode ()
+	{
+		return _debugMode ;
+	}
+	
 	public void setPrologFiles(String files) {
 		_prologFiles = files ;
 	}
@@ -539,9 +561,25 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		this._license = _license;
 	}
 		
-	public static void main(String[] args) throws MinervaSystemError, IOException
+	public static void main(String[] args) throws MinervaSystemError, IOException, Exception
 	{
-		parseTest() ;
+		//parseTest() ;
+		
+		MinervaProlog engine = new MinervaProlog() ;
+		engine.setBaseFolder("/home/olmedilla/workspace/peertrust/config/prolog/minerva/") ;
+		engine.setLicense("minervagui.mca") ;
+		
+		engine.init() ;
+		
+//MinervaTerm [] minArgs = new MinervaTerm[1] ;
+//minArgs[0] = new MinervaAtom("alice") ;
+//MinervaTerm term = new MinervaCompound("peerName", minArgs) ;
+		MinervaTerm term = engine.parse("peerName(alice)") ;
+		engine._engine.execute("asserta", term) ;
+		
+		//engine.insert("peerName(alice)") ;
+		
+		System.out.println (engine.execute("peerName(alice)")) ;
 //		MinervaProlog engine = new MinervaProlog() ;		
 //		MinervaVariable var = new MinervaVariable() ;
 //
@@ -554,9 +592,12 @@ public class MinervaProlog implements InferenceEngine, Configurable
 //		System.out.println ("Finished") ;
 	}
 	
-	static void parseTest ()
+	static void parseTest () throws ConfigurationException
 	{
 		MinervaProlog engine = new MinervaProlog () ;
+		engine.setBaseFolder("/home/olmedilla/workspace/peertrust/") ;
+		engine.setLicense("config/prolog/minerva/minervagui.mca") ;
+		engine.init() ;
 		
 		//String query = "prueba(Var, atom, 20, [atom, Var2, [32, Var2, Var, Segunda], tree(juego)], final(Segunda))" ;
 		//String query = "prueba(tree(_) @ x, Var, atom, 20, [atom, Var2, [32, Var2, Var, Segunda], tree(juego)], final(Segunda))" ;

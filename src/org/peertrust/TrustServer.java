@@ -23,16 +23,16 @@ import org.peertrust.config.PTConfigurator;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: TrustServer.java,v 1.1 2004/11/24 10:24:03 dolmedilla Exp $
+ * $Id: TrustServer.java,v 1.2 2005/01/11 17:47:51 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:03 $
+ * Last changed  $Date: 2005/01/11 17:47:51 $
  * by $Author: dolmedilla $
  * @description
  */
 public class TrustServer
 {
-	public static final String PREFIX = "Client app.: " ;
+	public static final String PREFIX = "Server app.: " ;
 
 	public static void main(String[] args) throws ConfigurationException
 	{

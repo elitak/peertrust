@@ -19,15 +19,11 @@
 */
 package org.peertrust.meta;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Hashtable ;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
+import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
@@ -44,10 +40,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.5 2005/01/11 17:46:58 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:47 $
+ * Last changed  $Date: 2005/01/11 17:46:58 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -69,12 +65,10 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	private EventDispatcher _dispatcher ;
 	
 	AbstractFactory _commChannelFactory ;
-	
-	private String _entitiesFile ;
 
 	private Thread _metaIThread = null ;
 	
-	private Hashtable _entities = new Hashtable() ;
+	private EntitiesTable _entities ;
 	private String _alias ;
 	
 	private Peer _localPeer ;
@@ -83,7 +77,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.5 2005/01/11 17:46:58 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -109,19 +103,18 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		}
 		
 		log.info("PeerName = " + _alias) ;
-		log.debug("(Init) PeerName = " + _alias + " - EntitiesFile = " + _entitiesFile) ;
+		log.debug("(Init) PeerName = " + _alias) ;
 		
 //		_queue = (Queue) _configurator.createComponent(Vocabulary.Queue, true) ;
 
 //		_inferenceEngine = (InferenceEngine) _configurator.createComponent(Vocabulary.InferenceEngine, true) ;
 //		_inferenceEngine.init() ;
 		try {
-//			_inferenceEngine.setDebugMode(true) ;
 			_inferenceEngine.insert(PEERNAME_PREDICATE + "(" + _alias + ")") ;
 		} catch (InferenceEngineException e) {
 			log.error("Error:", e) ;
 		}
-
+		
 //		_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
 		Vector credentials = _credStore.getCredentials() ;
 		//log.debug("TMP number of elements " + credentials.size()) ;
@@ -142,9 +135,6 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		
 		log.debug ("Local Peer: alias = " + _localPeer.getAlias() + " - host = " + _localPeer.getAddress() + " - port = " + _localPeer.getPort()) ;
 		
-		if (_entitiesFile != null)
-			_entities = readEntities(_entitiesFile) ;
-		
 //		_metaInterpreterListener = (MetaInterpreterListener) _configurator.createComponent(Vocabulary.MetaInterpreterListener, true) ; 
 //		_metaInterpreterListener.setConfigurator(_configurator) ;
 //		_metaInterpreterListener.setEngine(_inferenceEngine) ;
@@ -155,6 +145,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 //		
 //		PTEngine.getDispatcher().register(this, QueryEvent.class) ;
 
+		_dispatcher.register(this, QueryEvent.class) ;
+		
 		_metaIThread = new Thread(this, "MetaInterpreter") ;
 
 		_metaIThread.start() ;
@@ -186,7 +178,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			Query query = ( (QueryEvent) event).getQuery() ;
 			//_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
 			Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
-			
+
 			log.debug ("New query received from " + ( (query.getOrigin() == null) ? "null" : query.getOrigin().getAlias()) + ": " + query.getGoal()) ;
 			_queue.add(tree) ;
 		}
@@ -217,6 +209,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			
 			log.debug("Sending answer of " + failure.getGoal() + " to " + selectedTree.getRequester().getAlias()) ;
 			sendMessage (failure, selectedTree.getRequester()) ;
+			
 			return ;
 		} // if the query is already answered, then we send the answer to the requester
 		else if ( ( (selectedTree.getStatus() == Tree.READY) && (selectedTree.getSubqueries().equals("[]")) ) ||
@@ -301,21 +294,34 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 				}
 				else // we delegate
 				{
-					// look up the real address and port corresponding to the alias while creating the new tree
-					Tree delegatedTree = new Tree (results[i].getGoal(), results[i].getSubgoals(),
-							selectedTree.getProof(), Tree.WAITING, selectedTree.getRequester(),
-							selectedTree.getReqQueryId(), (Peer) _entities.get(delegator), results[i].getGoalExpanded()) ;
-					delegatedTree.appendProof(results[i].getProof()) ;
+					log.debug("Searching for delegator '" + delegator + "' in the entities table") ;
+					Object o = _entities.get(delegator) ;
+					log.debug ("pasado") ;
+					Peer peerDelegator = (Peer) _entities.get(delegator) ;
+					if (peerDelegator == null)
+					{
+						log.warn ("Delegator '" + delegator + "' is unknown") ;
+						log.warn ("Ignoring query " + results[i].getGoalExpanded()) ;
+					}
+					else
+					{
+						log.debug ("Delegator == " + delegator) ;
+						
+						// look up the real address and port corresponding to the alias while creating the new tree
 
-					log.debug ("Delegator == " + delegator) ;
-					
-					_queue.add(delegatedTree) ;
-					
-					// and send query to remote delegator
-					Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getId()) ;
-										
-					log.debug("Sending request " + query.getGoal() + " to " + delegatedTree.getDelegator().getAlias()) ;
-					sendMessage(query, delegatedTree.getDelegator()) ;
+						Tree delegatedTree = new Tree (results[i].getGoal(), results[i].getSubgoals(),
+								selectedTree.getProof(), Tree.WAITING, selectedTree.getRequester(),
+								selectedTree.getReqQueryId(), peerDelegator, results[i].getGoalExpanded()) ;
+						delegatedTree.appendProof(results[i].getProof()) ;
+						
+						_queue.add(delegatedTree) ;
+						
+						// and send query to remote delegator
+						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getId()) ;
+											
+						log.debug("Sending request " + query.getGoal() + " to " + delegatedTree.getDelegator().getAlias() + " from " + query.getOrigin().getAlias()) ;
+						sendMessage(query, delegatedTree.getDelegator()) ;
+					}
 				}
 			}
 		}
@@ -323,47 +329,26 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	
 	private void sendMessage(Message message, Peer destination)
 	{
+		PTEvent ptevent = null ;
 		if (message instanceof Query)
+		{
 			log.debug("Send query to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
+			ptevent = new QueryEvent (this, (Query)message) ;
+		}
 		else if (message instanceof Answer)
+		{
 			log.debug("Send answer to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
+			ptevent = new AnswerEvent (this, (Answer)message) ;
+		}
 		else
 			log.error("Unknown message type") ;
 		
-		// sending an object
-		_netClient.send(message, destination) ;
-	}
+		if (destination.getAddress() != null)
+			// sending an object
+			_netClient.send(message, destination) ;
 
-	private Hashtable readEntities (String fileName) throws ConfigurationException
-	{
-		Hashtable entities = new Hashtable() ;
-		
-		BufferedReader input = null;
-		try {
-			input = new BufferedReader(new FileReader(fileName)); // Open the file.
-		}
-		catch(FileNotFoundException e) { // The file may not exist.
-			log.error("Entities file not found: " + fileName, e) ;
-			throw new ConfigurationException (e) ;
-		}
-		// Now we read the file, line by line, echoing each line to
-		// the terminal.
-		try {
-			String line;
-			String [] attributes ;
-			while( (line = input.readLine()) != null ) {
-				if (line.charAt(0) != '%')
-				{
-					attributes = line.split("\t") ;
-					entities.put(attributes[0], new Peer (attributes[0], attributes[1], Integer.parseInt(attributes[2]))) ;
-				}
-			 }
-		}
-		catch(IOException x) {
-			x.printStackTrace();
-			throw new ConfigurationException (x) ;
-		}
-		return entities ;
+		if (ptevent != null)
+			_dispatcher.event(ptevent) ;
 	}
 	
 	public static void main(String[] args)
@@ -416,18 +401,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public void setPeerName(String _alias) {
 		this._alias = _alias.toLowerCase() ;
 	}
-	/**
-	 * @return Returns the _entitiesFile.
-	 */
-	public String getEntitiesFile() {
-		return _entitiesFile;
-	}
-	/**
-	 * @param file The _entitiesFile to set.
-	 */
-	public void setEntitiesFile(String file) {
-		_entitiesFile = file;
-	}
+
 	/**
 	 * @param engine The _inferenceEngine to set.
 	 */
@@ -463,5 +437,17 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	 */
 	public void setEventDispatcher(EventDispatcher _dispatcher) {
 		this._dispatcher = _dispatcher;
+	}
+	/**
+	 * @return Returns the _entities.
+	 */
+	public EntitiesTable getEntitiesTable() {
+		return _entities;
+	}
+	/**
+	 * @param _entities The _entities to set.
+	 */
+	public void setEntitiesTable(EntitiesTable _entities) {
+		this._entities = _entities;
 	}
 }

@@ -26,10 +26,10 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: SimplePeer.java,v 1.2 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: SimplePeer.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2005/01/11 17:47:51 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -76,6 +76,19 @@ public class SimplePeer implements PTEventListener, Configurable {
 		{
 			Answer answer = ( (AnswerEvent) event).getAnswer() ;
 			log.debug("New answer " + answer.getGoal() + " from " + answer.getOrigin().getAlias()) ;
+			switch(answer.getStatus())
+			{
+				case Answer.ANSWER:
+				case Answer.LAST_ANSWER:
+					log.info("Request successful") ;
+					log.info("The answer is " + answer.getGoal()) ;
+					break;
+				case Answer.FAILURE:
+					log.info("Request failed") ;
+					break;
+				default:
+					log.info("Request status unknown") ;
+			}
 		}
 		else
 			log.debug ("unknown event") ;	

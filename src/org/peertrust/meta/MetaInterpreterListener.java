@@ -19,8 +19,6 @@
 */
 package org.peertrust.meta;
 
-import java.util.Hashtable;
-
 import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
 import org.peertrust.event.AnswerEvent;
@@ -31,16 +29,17 @@ import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.inference.InferenceEngine;
 import org.peertrust.net.AbstractFactory;
 import org.peertrust.net.Answer;
+import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetServer;
 import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.5 2005/01/11 17:46:59 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:47 $
+ * Last changed  $Date: 2005/01/11 17:46:59 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -52,7 +51,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	
 	private Queue _queue ;
 	private InferenceEngine _inferenceEngine ;
-	private Hashtable _entities ;
+	private EntitiesTable _entities ;
 	private NetServer _netServer ;
 	private AbstractFactory _commChannelFactory ;
 	private EventDispatcher _dispatcher ;
@@ -61,7 +60,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.5 2005/01/11 17:46:59 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -141,13 +140,19 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		{
 			Query query = (Query) message ;
 
+			String alias = query.getOrigin().getAlias() ;
+			if (_entities.get(alias) == null)
+			{
+				_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
+				log.debug("Added peer '" + alias + "' to the entities table") ;
+			}
+			
 			_dispatcher.event(new QueryEvent(this, query)) ;
 			
-			_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
-			Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
+			//Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
 			
 			log.debug ("New query received from " + query.getOrigin().getAlias() + ": " + query.getGoal()) ;
-			_queue.add(tree) ;
+			//_queue.add(tree) ;
 
 		}
 		else if (message instanceof Answer)
@@ -281,18 +286,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	public void setQueue(Queue _queue) {
 		this._queue = _queue;
 	}
-//	/**
-//	 * @return Returns the entities.
-//	 */
-//	public Hashtable getEntities() {
-//		return _entities;
-//	}
-	/**
-	 * @param entities The entities to set.
-	 */
-	public void setEntities(Hashtable entities) {
-		this._entities = entities;
-	}
+
 //	/**
 //	 * @return Returns the _commChannelFactory.
 //	 */
@@ -310,5 +304,18 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	 */
 	public void setEventDispatcher(EventDispatcher _dispatcher) {
 		this._dispatcher = _dispatcher;
+	}
+	
+	/**
+	 * @return Returns the _entities.
+	 */
+	public EntitiesTable getEntitiesTable() {
+		return _entities;
+	}
+	/**
+	 * @param _entities The _entities to set.
+	 */
+	public void setEntitiesTable(EntitiesTable _entities) {
+		this._entities = _entities;
 	}
 }

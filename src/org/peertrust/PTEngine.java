@@ -28,10 +28,10 @@ import org.peertrust.meta.MetaInterpreter;
 import org.peertrust.meta.MetaInterpreterListener;
 
 /**
- * $Id: PTEngine.java,v 1.2 2004/11/24 10:24:03 dolmedilla Exp $
+ * $Id: PTEngine.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:03 $
+ * Last changed  $Date: 2005/01/11 17:47:51 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -55,7 +55,7 @@ public class PTEngine implements Configurable {
 	 */
 	public PTEngine() {
 		super();
-		log.debug("$Id: PTEngine.java,v 1.2 2004/11/24 10:24:03 dolmedilla Exp $");
+		log.debug("$Id: PTEngine.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -98,7 +98,7 @@ public class PTEngine implements Configurable {
      *
      * @author <a href="mailto:brunkhor@learninglab.de">Ingo Brunkhorst</a>
      * @author $Author: dolmedilla $
-     * @version $Revision: 1.2 $
+     * @version $Revision: 1.3 $
      */
     public class ShutdownHook extends Thread {
 
@@ -157,5 +157,17 @@ public class PTEngine implements Configurable {
 	 */
 	public void setEventDispatcher(EventDispatcher _dispatcher) {
 		this._dispatcher = _dispatcher;
+	}
+	/**
+	 * @return Returns the _eventListener.
+	 */
+	public PTEventListener getEventListener() {
+		return _eventListener;
+	}
+	/**
+	 * @param listener The _eventListener to set.
+	 */
+	public void setEventListener(PTEventListener listener) {
+		_eventListener = listener;
 	}
 }

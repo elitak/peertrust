@@ -25,10 +25,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * $Id: Tree.java,v 1.3 2005/01/11 17:46:58 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:43 $
+ * Last changed  $Date: 2005/01/11 17:46:58 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -299,7 +299,7 @@ public class Tree
 	}
 	
 	public Vector generateProofVector(String proof) {
-		log.debug("Parsing proof" + proof) ;
+		log.debug("Parsing proof: " + proof) ;
 		Vector vector = new Vector() ;
 		int offsetstart=1,num_brackets=0;
 		char c;

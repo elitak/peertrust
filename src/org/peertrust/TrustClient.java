@@ -31,13 +31,14 @@ import org.peertrust.event.PTEventListener;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.Answer;
+import org.peertrust.net.Peer;
 import org.peertrust.net.Query ;
 
 /**
- * $Id: TrustClient.java,v 1.2 2004/11/24 10:24:03 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:03 $
+ * Last changed  $Date: 2005/01/11 17:47:51 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -45,11 +46,14 @@ public class TrustClient implements PTEventListener
 {
 	public static final String PREFIX = "Client app.: " ;
 
+	public final String ALIAS = "Client" ;
 	EventDispatcher _ed ;
 	private String _query ;
 	private int _id ;
 	
 	private Hashtable _queries ;
+	
+	private Peer _peer ;
 	
 //	private String localAlias ;
 	
@@ -58,12 +62,13 @@ public class TrustClient implements PTEventListener
 		_ed = ed ;
 		_id = 0 ;
 		_queries = new Hashtable() ;
+		_peer = new Peer (ALIAS.toLowerCase(), null, -1) ;
 	}
 
 	public void sendQuery (String query)
 	{
 		_id++ ;
-		Query newQuery = new Query(query, null, _id) ;
+		Query newQuery = new Query(query, _peer, _id) ;
 		QueryEvent qe = new QueryEvent(this, newQuery) ;
 		
 		_ed.event(qe) ;
@@ -126,7 +131,7 @@ public class TrustClient implements PTEventListener
 		
 		TrustClient tc = new TrustClient(dispatcher) ;
 		
-		tc.sendQuery("request(spanishCourse,Session) @ eLearn") ;
+		tc.sendQuery("request(spanishCourse,Session) @ elearn") ;
 		
 		long time = System.currentTimeMillis() ;
 		
