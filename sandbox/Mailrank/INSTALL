@@ -43,6 +43,7 @@ Please read this instructions carefully.
 
 10. Change the path to the properties file in MRServer.
     The Properties file is in supportfiles
+    While you there, set the port, 4444 should work in most cases
 
 11. We're almost done: Take a look at start.sh in supportfiles and make sure, that the paths fit
     your environment. Then the big moment: compile the server and start it with this script.
