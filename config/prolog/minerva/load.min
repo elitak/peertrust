@@ -1,0 +1,16 @@
+ % read Prolog rules from a text file
+
+read_prolog_file(File) :-
+     open(File, read, Input_Stream),
+     readall(Input_Stream).
+
+readall(Input_Stream) :-
+     read(Input_Stream, Term),
+     Term \== end_of_file, !,
+     asserta(Term), %%could be replaced by assertz/1, then rules will be asserted at the end
+     readall(Input_Stream).
+readall(_).
+
+
+listing :- clause(H,B),
+			  println([H, ':-', B]).

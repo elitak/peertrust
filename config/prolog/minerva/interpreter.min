@@ -1,0 +1,469 @@
+
+% only for XSB prolog
+% :- [basics].
+
+% general functions needed
+% ---------------------------------------
+:- dynamic(prevId/1).
+:- dynamic(writId/1).
+
+:- dynamic(signed/3).
+:- dynamic(policy/2).
+:- dynamic(internal/3).
+:- dynamic(rule/3).
+:- dynamic(peerName/1).
+
+
+% load the properties of the current peer
+%:- include('local_properties.min').
+
+init :- 
+    retractall(writId(_)),
+    asserta(writId(0)).
+
+writeId(NewId) :-
+     retract(writId(Id)),
+     NewId is Id+1,
+     asserta(writId(NewId)).
+
+deb(N,List) :-
+     writelist(N,List).
+deb(List) :-
+     writelist(0,List).
+
+% begin meta meta interpreter
+% ---------------------------------------
+
+% tree(Id, Goal, Subqueries, Proof, Status, (Requester,QueryId)) -> Status = ready, waiting or failed
+%         Ready: it is in the queue and it has not been processed yet
+%	  Waiting: it has been processed but it is waiting from an answer from other peer
+%	  Failed: it is in the queue but the query has failed in another peer
+% query(Query, Internal) -> Internal = yes, no
+     
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+:- op(601, yfx, $).
+
+% META-INTERPRETER
+
+processTree(tree(Goal,Queries,Proof,Requester),Results) :-
+    selectQuery(query(Query,Internal),Queries,RestQueries),
+    findall(tree(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal),
+	metaQuery(tree(Goal,query(Query,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)),
+	Results).
+
+selectQuery(Query,[Query|Rest], Rest).
+
+addQueries(Guard,Body,RestQueries,NewListQueries,Internal) :-
+     append(Guard,Body,NewList),
+     createQueries(NewList,Internal,QueryList),
+     append(QueryList,RestQueries,NewListQueries).
+
+createQueries([],_,[]).
+createQueries([H|T],Internal,[query(H,Internal)|Rest]) :-
+     createQueries(T,Internal,Rest).
+
+addQueryStrategy(Query,QueryList,NewQueryList) :-
+     append(Query,QueryList,NewQueryList).
+
+% addProof(NewFact,OldProof,NewProof,InternalRule)
+addProof(NewFact,OldProof,NewProof,no) :-
+     peerName(Peer), !,
+     append(OldProof,[NewFact @ Peer],NewProof).
+addProof(_,Proof,Proof,yes).
+
+:- dynamic(markSignal/0).
+mark :- \+(markSignal),!,asserta(markSignal).
+mark.
+checkMark :- \+(markSignal).
+demark :- retractall(markSignal).
+
+% begin meta interpreter
+% ---------------------------------------
+
+metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+    \+(Goal = _ $ _),
+    writelist_debug(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
+    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
+metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+    writelist_debug(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
+    meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
+% meta(tree(Goal,query(Query,Internal),RestQueries,Proof,Requester),treeR(Goal,NewQueries,NewProof,Delegator)),
+
+meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,nil,nil)) :-
+     demark,
+     local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)),
+     mark.
+meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+     checkMark,
+%     writelist(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
+     remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
+% local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof))
+% remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator))
+
+% evaluate Prolog constraints directly
+local(tree(FinalGoal,query(constraint(Goal),_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof)) :-
+     !, write_actions(['evaluating constraint ', Goal]),
+     call(Goal).
+
+% now let's look at proving single literal goals
+
+% simplify 'Goal @ Issuer @ Issuer' to 'Goal @ Issuer'
+% Remark: this rule will become clear later, when we introduce credentials
+
+local(tree(FinalGoal,query(Goal @ Issuer1 @ Issuer2,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-
+     Issuer1 == Issuer2, !, 
+     write_actions(['simplify ', Goal @ Issuer1 @ Issuer2, ' to ', Goal @ Issuer1]),
+     local(tree(FinalGoal,query(Goal @ Issuer1,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+
+remote(tree(FinalGoal,query(Goal @ Issuer1 @ Issuer2,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+     Issuer1 == Issuer2, !, 
+     write_actions(['simplify ', Goal @ Issuer1 @ Issuer2, ' to ', Goal @ Issuer1]),
+     remote(tree(FinalGoal,query(Goal @ Issuer1,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
+% check if there is a policy for the current signed rule
+
+local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-
+         signed(rule(Goal, Guard, Body), Issuer, Credential),
+	 checkPolicy(Goal,ExtraGuards,Requester), !,
+%	 selectQuery(NewGoal,ExtraGuards,RestExtraGuards),
+%	 append(Guard,Body,SignedQueries),
+  addQueries(Guard,Body,RestQueries,NewListQueries,Internal),
+%	 append(ExtraGuards,SignedQueries,NewRestQueries),
+  addQueries(ExtraGuards,[],NewListQueries,NewQueries,Internal),
+%	 append(NewRestQueries,RestQueries,NewQueries),
+	 addProof(signed(r(Goal,Guard,Body),Issuer,Credential),Proof,ModifiedProof,Internal),
+	 addProof(policy(Goal,ExtraGuards),ModifiedProof,NewProof,Internal).
+%	 local(tree(FinalGoal,query(NewGoal,Internal),FinalRestQueries,NewModifiedProof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+
+checkPolicy(Goal,ExtraGuards,_) :-
+    policy(Goal,ExtraGuards),!.
+checkPolicy(Goal,ExtraGuards,Requester) :-
+    policy(Goal $ Requester, ExtraGuards).
+
+% we do not allow direct access from external peers to internal
+% predicates, which we store as special 'internal' rules
+internal(Goal) :-
+    internal(Goal, _, _).
+internal([Goal | _]) :-
+    internal(Goal, _, _).
+internal([_ | Rest]) :-
+    internal(Rest).
+
+% if we have a single Goal, we search for rules with Goal in their
+% head, and then evaluate their guard and body literals
+local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
+    writelist_debug(['checking for rule for goal: ', Goal]),
+%    writelist_debug(['guard -', Guard, '- Body -', Body, '-']),
+    rule(Goal, Guard, Body),
+	writelist_debug(['rule selected']),
+    peerName(Peer),
+    write_actions([Peer, ' is using rule: ', Goal, ' if ', Body, ' protected by ', Guard]),
+    addProof(r(Goal,Guard,Body),Proof,NewProof,Internal),
+    addQueries(Guard,Body,RestQueries,NewQueries,Internal).
+
+% internal rules can be used in the context of an internal computation
+% just like ordinary rules, but we will not include them in the proof
+
+local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
+    writelist_debug(['checking for internal rule for goal: ', Goal]),
+    internal(Goal, Guard, Body),
+    peerName(Peer),
+    write_actions([Peer, ' is using internal rule: ', Goal, ' if ', Body, ' protected by ', Guard]),
+    addProof(r(Goal,hidden,hidden),Proof,NewProof,Internal),
+    addQueries(Guard,Body,RestQueries,NewQueries,yes).
+
+% and, of course, a Peer can also prove a 'Goal @ Issuer', if he has a
+% signed rule for it
+local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
+    writelist_debug(['checking for signed rule for goal: ', Goal]),
+    signed(rule(Goal, Guard, Body), Issuer, Credential),
+    (Goal = _ @ Issuer ; Goal = _ @ Issuer $ _),
+    peerName(Peer),
+    write_actions([Peer, ' is using signed rule: ', Goal, ' if ', Body, ' protected by ', Guard, ', certified by ', Credential]),
+    addQueries(Guard,Body,RestQueries,NewQueries,Internal),
+    addProof(signed(r(Goal,Guard,Body),Issuer,Credential),Proof,NewProof,Internal).
+
+% we try to call the remote peer, but only if we do not find a signed
+% rule (i.e. we can use signed rules as a cache)
+
+% we will not use this rule if Goal itself is a 
+% 'Goal @ Peer' structure
+remote(tree(FinalGoal,query(Goal @ Issuer,_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal)) :-
+     peerName(Peer),
+     \+(Peer = Issuer),
+     \+(Goal = _ @ _),
+     \+(signed(rule(Goal @ Issuer, _, _), _, _)), !.
+
+% we also have a variant, which transmits the Requester
+% (can also be a chain of requesters)
+remote(tree(FinalGoal,query(Goal @ Issuer $ Req,_),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal $ Req)) :-
+     peerName(Peer),
+     \+(Peer = Issuer),
+     \+(Peer = Requester),
+     \+(Goal = _ @ _),
+     \+(signed(rule(Goal @ Issuer, _, _), _, _)), !.
+
+% To make it possible for peers to answer queries we will also assume,
+% that they can possess signed versions of clauses from other peers,
+% so that they can answer on behalf of these other peers. We will use
+% signed rules 'signed(Rule, Credential, Issuer)', where 'Rule' has
+% the usual rule structure 'rule(Goal, Guard, Body, Issuer)', which
+% tell us that the truth of 'Clause' is certified by the 'Credential',
+% issued by 'Issuer'.  
+% we use cached and signed rules like ordinary rules, but include 
+% 'Credential' in the proof tree
+% we represent these credentials as lists of 'attribute(value)' terms
+
+% so we can also ask not the Issuer, but another Delegate about a
+% certain goal (this is the second clause using the remote_call
+% predicate)
+
+% in this case, however, the proof has to be properly signed
+remote(tree(FinalGoal,query(Goal @ Issuer @ Delegate,Internal),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,NewProof,Delegate,Goal @ Issuer)) :-
+     \+(Issuer == Delegate), !, % cut here, we always transfer control
+                                % to Delegate in this case
+      % we allow 'Goal @ Issuer' to be proved at the 'Delegate'
+     addProof(proved_by(Delegate),Proof,NewProof, Internal).
+      % properly_signed could ask for all pieces of the
+      % proof to be signed (i.e. a complete credential chain), but this
+      % might be too much?
+      % not checked right now
+      % properly_signed(ProofGoal).
+
+% and the variant for transmitting the Requester (or Requester chain):
+remote(tree(FinalGoal,query(Goal @ Issuer @ Delegate,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,NewProof,Delegate,Goal @ Issuer)) :-
+    peerName(Peer),
+    \+(Requester = Peer),
+    \+(Issuer == Delegate), !, % cut here, we always transfer control
+                                 % to Delegate in this case
+    % we allow 'Goal @ Issuer' to be proved at the 'Delegate'
+     addProof(proved_by(Delegate),Proof,NewProof,Internal).
+
+unification(old(Goal,CurrentQuery,RestQueries),ResolvedQuery,new(Goal,RestQueries)) :-
+    writelist_debug(['Unificando ', CurrentQuery, ' with ', ResolvedQuery, ' - Goal: ', Goal]),
+    CurrentQuery = ResolvedQuery.
+
+:- dynamic(runningpeer/2).
+:- dynamic(maxdepth/1).
+:- dynamic(debug_on/0).
+
+% ---------------------------------------
+
+% begin utility predicates for printing etc.
+
+prettyprint([], _) :- !.
+prettyprint([Proof | Rest], N) :-
+    !, prettyprint(Proof, N),
+    prettyprint(Rest, N).
+prettyprint(r(Goal, [], []) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint(r(Goal, hidden, hidden) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint(r(Goal, ProofGuard, []) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard(ProofGuard, N1).
+prettyprint(r(Goal, ProofGuard, ProofBody) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because']), 
+    prettyprint(ProofBody, N1),
+    prettyprint_guard(ProofGuard, N1).
+prettyprint(signed(r(Goal, [], []),
+                   Credential) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_credential(Credential, N).
+prettyprint(signed(r(Goal, ProofGuard, []), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint(signed(r(Goal, ProofGuard, ProofBody), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because']), 
+    prettyprint(ProofBody, N1),
+    prettyprint_guard(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint(proved_by(Peer, ProofGoal), N) :-
+    !, N1 is N + 2,
+    writelist(N, [Peer, ' successfully proved that ']), 
+    prettyprint(ProofGoal, N1).
+% the following is just another clause for debugging
+prettyprint(ProofGoal, _) :-
+    writelist(['Error: I do not know how to prettyprint ', ProofGoal]).
+
+prettyprint2([], _) :- !.
+prettyprint2([Proof | Rest], N) :-
+    !, prettyprint2(Proof, N),
+    prettyprint2(Rest, N).
+prettyprint2(r(Goal, [], []) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint2(r(Goal, hidden, hidden) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint2(r(Goal, ProofGuard, []) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard2(ProofGuard, N1).
+prettyprint2(r(Goal, ProofGuard, ProofBody) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because ', ProofBody]), 
+    prettyprint_guard2(ProofGuard, N1).
+prettyprint2(signed(r(Goal, [], []), 
+                   Credential) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_credential(Credential, N).
+prettyprint2(signed(r(Goal, ProofGuard, []), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard2(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint2(signed(r(Goal, ProofGuard, ProofBody), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because ', ProofBody]), 
+    prettyprint_guard2(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+%prettyprint2(proved_by(Peer, ProofGoal), N) :-
+%    !, N1 is N + 2,
+%    writelist(N, [Peer, ' successfully proved that ']),
+%    prettyprint2(ProofGoal, N1).
+% the following is just another clause for debugging
+prettyprint2(proved_by(Peer), N) :-
+    !, writelist(N, [Peer, ' successfully proved that ']).
+% the following is just another clause for debugging
+prettyprint2(ProofGoal, _) :-
+    writelist(['Error: I do not know how to prettyprint ', ProofGoal]).
+
+prettyprint_guard2([], _) :- !.
+prettyprint_guard2(ProofGuard, N) :-
+    N1 is N + 2,
+    writelist(N, ['protected by ']),
+    writelist(N1,ProofGuard).
+
+prettyprint_guard([], _) :- !.
+prettyprint_guard(ProofGuard, N) :-
+    N1 is N + 2,
+    writelist(N, ['protected by ']),
+    prettyprint(ProofGuard, N1).
+
+prettyprint_credential(Credential, N) :-
+    N1 is N + 2,
+    N2 is N + 4,
+    writelist(N1, ['certified by ']),
+    writecommalist(N2, Credential).
+
+prettyprint_list(_,[]).
+prettyprint_list(N,[H|T]) :-
+     writelist(N, [H]),
+     prettyprint_list(N,T).
+
+% print the actions of a peer with the same indention
+write_actions(L) :-
+    peerName(Peer),
+    write(Peer),write(': '),
+    writelist(L).
+
+write_peer_KBs([]).
+write_peer_KBs([Peer | Peers]) :-
+    writelist([Peer, ' KB: ']),
+    write_rules(Peer),
+    write_signed_rules(Peer),
+    write_peer_KBs(Peers).
+
+write_rules(Peer) :-
+    rule(Goal, Guard, Body),
+    peerName(Peer),
+    writelist(2, [Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    fail.
+write_rules(_).
+
+write_signed_rules(_) :-
+    signed(rule(Goal, Guard, Body), _, Credential),
+    writelist([Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    write_credential(Credential),
+    fail.
+write_signed_rules(_).
+
+write_guard([]) :- !.
+write_guard(Guard) :-
+    write('    policy:     '),
+    writecommalist(Guard).
+write_body([]) :- !.
+write_body(Body) :-
+    write('    body:       '),
+    writecommalist(Body).
+write_credential(Credential) :-
+    write('    credential: '),
+    writecommalist(Credential).
+
+writelist_debug(List) :-
+    debug_on, !,
+    writelist(List).
+writelist_debug(_).
+
+writelist(N, List) :-
+    writeId(Id),
+    numBlanks(Id, L),
+    writeblank(L),
+    write(Id),
+    write(' '),
+    writeblank(N),
+    writelist(List).
+
+writelist([]) :-
+    nl.
+writelist([First | Rest]) :-
+    write(First),
+    writelist(Rest).
+
+numBlanks(Id,4) :-
+    Id < 10,!.
+numBlanks(Id,3) :-
+    Id < 100,!.
+numBlanks(Id,2) :-
+    Id < 1000,!.
+numBlanks(_,1).
+
+writecommalist(N, L) :-
+    writeId(Id),
+    numBlanks(Id, X),
+    writeblank(X),
+    write(Id),
+    write(' '),
+    writeblank(N),
+    writecommalist(L).
+writecommalist([Single]) :-
+    !, write(Single),
+    nl.
+writecommalist([]) :-
+    nl.
+writecommalist([First, Second | Rest]) :-
+    write(First),
+    write(', '),
+    writecommalist([Second | Rest]).
+
+writeblank(0) :- !.
+writeblank(N) :-
+    write(' '),
+    N1 is N - 1,
+    writeblank(N1).

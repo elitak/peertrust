@@ -1,0 +1,1176 @@
+/*
+
+       Package:     parser
+       Description: parses RDF and asserts the resulting triples into the database
+       Top level predicates: read_RDF_file/1
+			     parse_RDF_file/1	
+			   
+*/
+
+
+%%% include 
+/*
+
+       File:        include.min
+       Description: declares some operators.
+		    
+*/
+
+:- op(600, xfy, :).
+:- op(500, fx, \?).
+
+
+
+/*
+:- package(rdf_parser).
+:- package(rdf_triple).
+:- package(rdf_test).
+:- package(transform).
+:- package(extra).
+
+
+:- include('include.min').
+*/
+
+% read_RDF_file(+RDF_Filename_without_extension)
+read_RDF_file(File) :-
+        open(File, read, Input_Stream),
+        parse_RDF_file(Input_Stream).
+
+
+% parse_RDF_file(+File_Stream)
+parse_RDF_file(Input_Stream) :-
+	println(['Started parsing the RDF file.']), flush_output,
+        retract_rdf_facts,
+        rdf_reset_ids,
+	%%println(['Done']),
+          
+	%%println(['Generating the XML term ...']),flush_output,
+	read_xml(Input_Stream, XMLTerm), close(Input_Stream),
+	%%println(['Done1']),
+
+
+	%%println(['XML term ...', XMLTerm]), flush_output,
+        document(_, RootElement, _) = XMLTerm,
+	%%nl,println(['Asserting namespaces ...']), nl, flush_output,
+        %%nl, write('* * * * Asserted Namespaces * * * * * * * * * * * '),nl,             
+        assert_namespaces(RootElement),
+	%%println(['Done']),
+	
+
+	%%println(['Transforming the XML term ...']), flush_output,
+        X = [RootElement],
+	%%println(['Found root element ', X]), flush_output,
+	
+        mapList(X, TRootElement),
+	%%println(['List Mapped']), flush_output,
+	%%println(['Done']),
+        
+	%%println(['Finding the embedded RDF element ...']),flush_output,
+	find_rdf(TRootElement, RDFElement),
+	%%println(['Done']),
+        
+
+	%%println(['Transforming RDF term into intermediate representation ...']), flush_output,
+        xml_to_plrdf(RDFElement, [], RDF),
+	%%println(['Done']),
+	%%println(['Generating the triples ...']), flush_output,
+        rdf_triples(RDF, Triples),
+	%%println(['Done']),
+
+	%%println(['Asserting triples ...']), flush_output,
+        %%nl, write('* * * * * Asserted Triples * * * * * * * * * * * *'),nl,flush_output,
+        assert_triples(Triples),!,
+	%%println(['Done']),flush_output,
+		  println(['Finished parsing the RDF file.']),flush_output.
+		  
+
+              
+	
+
+retract_rdf_facts :-
+        retractall(ecdm_namespace(_,_)).
+       
+assert_namespaces(element('rdf:RDF',Namespaces, _)) :-
+        assert_ns(Namespaces).
+
+assert_ns([]).
+assert_ns([(NS_Atom = URL) | Rest]) :-
+        sub_atom(NS_Atom, 6, _, 0, Namespace),
+        atom_chars(Namespace, SNamespace),
+        assertz(ecdm_namespace(SNamespace, URL)),
+        %%writeq(ecdm_namespace(SNamespace, URL)),nl,
+        assert_ns(Rest).
+
+
+
+
+assert_triples([]).
+assert_triples([H|T]) :- 
+        assert_triple(H),
+        assert_triples(T).
+
+assert_triple(rdf(S,P,O)) :-
+        filtered(S, S1),
+        filtered(P, P1),
+        filtered(O, O1),
+        assert_triple(S1, P1, O1).
+
+assert_triple(S, P, O) :-
+        sub_atom(P, 0, 5, _, 'rdf__'), !,
+        RDF_Statement =.. [ecdm_s, S, P, O],
+        %%writeq([RDF_Statement]),nl,flush_output,
+        assertz(RDF_Statement).
+
+assert_triple(S, P, O) :-
+        RDF_Statement =.. [P, S, O],
+        %%writeq([RDF_Statement]),nl,flush_output,
+        assertz(RDF_Statement).
+
+filtered(rdf:X, Y) :-
+        !, atom_concat(['rdf_', X], Y).
+
+filtered(X1:X2,Y) :-
+        ecdm_namespace(NS, X1), !,
+        atom_chars(NS_Atom, NS),
+        atom_concat([NS_Atom, '_', X2], Y).
+
+filtered(X,Y) :-
+        d_filter(X,Y).
+
+d_filter(literal(X), X) :-
+        !.
+
+d_filter(X,Y) :-
+        ecdm_namespace(NS, URL),
+	atom_chars(URL, URL_List),
+	length(URL_List, N),
+	sub_atom(X, 0, N, After, URL), !, 
+        Start2 is N,
+        sub_atom(X, Start2, After, _, X1),
+        atom_chars(NS_Atom, NS),
+        atom_concat([NS_Atom, '_', X1], Y).
+d_filter(X,X).
+
+
+%%% rdf_parser
+/*
+
+       Package:     rdf_parser
+       Description: Adaptation of the SWI-Prolog RDF Parser library(rdf_parser) 
+		    
+*/
+
+
+/*
+:- package(extra).
+:- package(rewrite).
+:- package(uri).
+
+
+:- include('include.min').		
+*/
+
+
+:- dynamic   rdf_name_space/1.
+
+
+
+rdf_name_space('http://www.w3.org/1999/02/22-rdf-syntax-ns#').
+rdf_name_space('http://www.w3.org/TR/REC-rdf-syntax').
+
+
+:- dynamic base_uri/1.
+
+
+
+%	xml_to_plrdf(+RDFElementOrObject, +BaseURI, -RDFTerm)
+%
+%	Translate an XML (using namespaces) term into an Prolog term
+%	representing the RDF data.  This term can then be fed into
+%	rdf_triples/[2,3] to create a list of RDF triples.
+%
+%	if `BaseURI' == [], local URI's are not globalised.
+
+
+xml_to_plrdf(element(_:'RDF', _, Objects), BaseURI, RDF) :- !,
+        asserta(base_uri(BaseURI)),
+        rdf_objects(RDF, Objects),
+        retract(base_uri(BaseURI)).
+
+xml_to_plrdf(Objects, BaseURI, RDF) :-
+        asserta(base_uri(BaseURI)),
+        (   is_list(Objects)
+        ->  rdf_objects(RDF, Objects)
+        ;   rdf_object(RDF, Objects)
+        ),
+        retract(base_uri(BaseURI)).
+
+
+rdf_objects([], []) :- !.
+rdf_objects([A|B], [C|D]) :-
+        rdf_object_or_error(A, C),
+        rdf_objects(B, D).
+
+
+rdf_object_or_error(A, B) :-
+        rdf_object(A, B), !.
+rdf_object_or_error(unparsed(A), A).
+
+
+rdf_object(container(Type, Id, Elements), D) :-
+        container(Type, Id, Elements, D), !.
+rdf_object(description(Type, About, BagID, Properties), E) :-
+        description(Type, About, BagID, Properties, E).
+
+
+
+
+		 /*******************************
+		 *	    DESCRIPTION		*
+		 *******************************/
+
+		 
+
+description(description, A, B, C, element(D, E, F)) :-
+        rdf('Description', D),
+        attrs([\?(idAboutAttr(A)), \?(bagIdAttr(B))|\propAttrs(G)], E),
+        propertyElts(H, F), !,
+        append(G, H, C).
+description(A, B, C, D, element(A, E, F)) :-
+        attrs([\?(idAboutAttr(B)), \?(bagIdAttr(C))|\propAttrs(G)], E),
+        propertyElts(H, F),
+        append(G, H, D).
+
+		
+propAttrs([], []) :- !.
+propAttrs([A|B], [C|D]) :-
+        propAttr(A, C),
+        propAttrs(B, D).
+
+
+propAttr(rdf:type=A, B=C) :-
+        rdf(type, B),
+        uri(A, C), !.
+propAttr(A=literal(B), A=B).
+
+
+propertyElts([], []) :- !.
+propertyElts([A|B], [C|D]) :-
+        propertyElt(E, F, G, C),
+        propertyElts(B, D),
+        mkprop(F, G, H),
+        (   var(E)
+        ->  A=H
+        ;   A=id(E, H)
+        ).
+
+
+mkprop(A:B, C, rdf:B=C) :-
+        rdf_name_space(A), !.
+mkprop(A, B, A=B).
+
+
+
+propertyElt(A, B, literal(C), element(B, D, C)) :-
+        attrs([\parseLiteral, \?(idAttr(A))], D), !.
+propertyElt(_A, B, description(description, C, _D, E), element(B, F, G)) :-
+        attrs([\parseResource, \?(idTermAttr(C))], F),
+        propertyElts(E, G), !.
+propertyElt(A, B, literal(C), element(B, D, [C])) :-
+        attrs([\?(idAttr(A))], D),
+        atom(C), !.
+propertyElt(A, B, C, element(B, D, E)) :-
+        attrs([\?(idAttr(A))], D),
+        an_rdf_object(C, E), !.
+propertyElt(_A, B, description(description, C, D, E), element(B, F, [])) :-
+        attrs([\?(idRefAttr(C)), \?(bagIdAttr(D))|\propAttrs(E)], F), !.
+propertyElt(A, B, unparsed(C), element(B, D, C)) :-
+        attrs([\?(idAttr(A))], D).
+
+
+idTermAttr(id(A), B) :-
+        idAttr(A, B).
+
+
+idAboutAttr(id(A), B) :-
+        idAttr(A, B), !.
+idAboutAttr(about(A), B) :-
+        aboutAttr(A, B), !.
+idAboutAttr(A, B) :-
+        aboutEachAttr(A, B).
+
+
+idRefAttr(A, B) :-
+        idAttr(A, B), !.
+idRefAttr(about(A), B) :-
+        resourceAttr(A, B).
+
+
+
+%	an_rdf_object(-Object)
+%
+%	Deals with an object, but there may be spaces around.  I'm still
+%	not sure where to deal with these.  Best is to ask the XML parser
+%	to get rid of them, So most likely this code will change if this
+%	happens.
+
+an_rdf_object(A, [B]) :-
+        rdf_object(A, B), !.
+an_rdf_object(A, [B, C]) :-
+        rdf_object(A, B),
+        blank(C), !.
+an_rdf_object(A, [B|C]) :-
+        blank(B),
+        an_rdf_object(A, C).
+
+
+blank(A) :-
+        atom(A),
+        atom_chars(A, B),
+        all_blank(B).
+
+
+all_blank([]).
+all_blank([H|T]) :-
+	char_type(H, space),		% SWI-Prolog specific
+	all_blank(T).
+
+
+		 /*******************************
+		 *	   RDF ATTRIBUTES	*
+		 *******************************/
+
+idAttr(A, B=C) :-
+        rdf('ID', B),
+        globalid(A, C).
+
+
+bagIdAttr(A, B=C) :-
+        rdf(bagID, B),
+	globalid(A, C).
+
+
+aboutAttr(A, B=C) :-
+        rdf(about, B),
+        uri(A, C).
+
+
+aboutEachAttr(each(A), B=C) :-
+        rdf(aboutEach, B),
+        uri(A, C), !.
+aboutEachAttr(prefix(A), B=C) :-
+        rdf(aboutEachPrefix, B),
+        uri(A, C), !.
+
+
+resourceAttr(A, B=C) :-
+        rdf(resource, B),
+        uri(A, C).
+
+
+uri(A, B) :-
+        (   (   base_uri(C)
+            ->  C\==[]
+            )
+        ->  canonical_uri(B, C, A)
+        ;   sub_atom(B, 0, _D, _E, #)
+        ->  sub_atom(B, 1, _F, 0, A)
+        ;   A=B
+        ).
+
+
+globalid(A, B) :-
+        (   (   base_uri(C)
+            ->  C\==[]
+            )
+        ->  atomics_concat([C, B], #, A)
+        ;   sub_atom(B, 0, _D, _E, #)
+        ->  sub_atom(B, 1, _F, 0, A),
+            print(['Warning ', rdf(protege(id, B))])
+        ;   A=B
+        ).
+
+
+
+
+		 /*******************************
+		 *	     CONTAINERS		*
+		 *******************************/
+
+container(A, B, C, element(D, E, [])) :-
+        containertype(A, D),
+        attrs([\?(idAttr(B))|\memberAttrs(C)], E), !.
+container(A, B, C, element(D, E, F)) :-
+        containertype(A, D),
+        attrs([\?(idAttr(B))], E),
+        memberElts(C, F).
+
+
+containertype(A, B) :-
+        rdf(A, B),
+        containertype(A).
+containertype('Bag').
+containertype('Seq').
+containertype('Alt').
+
+
+memberElts([], []).
+memberElts([A|B], [C|D]) :-
+        memberElt(A, C),
+        memberElts(B, D).
+
+
+memberElt(A, B) :-
+        referencedItem(A, B).
+memberElt(A, B) :-
+        inlineItem(A, B).
+
+
+referencedItem(A, element(B, [C], [])) :-
+        rdf(li, B),
+        resourceAttr(A, C).
+
+
+inlineItem(literal(A), element(B, [C], A)) :-
+        rdf(li, B),
+        parseLiteral(C).
+inlineItem(description(description, _A, _B, C), element(D, [E], F)) :-
+        rdf(li, D),
+        parseResource(E),
+        propertyElts(C, F).
+inlineItem(A, element(B, [], [C])) :-
+        rdf(li, B),
+        rdf_object(A, C), !.
+inlineItem(literal(A), element(B, [], [A])) :-
+        rdf(li, B).
+
+
+memberAttrs([], []).
+memberAttrs([A|B], [C|D]) :-
+        memberAttr(A, C),
+        memberAttrs(B, D).
+
+
+memberAttr(li(A, B), C=B) :-            % Id should be _<n>
+        rdf(A, C).
+
+
+parseLiteral(A='Literal') :-
+        rdf(parseType, A).
+parseResource(A='Resource') :-
+        rdf(parseType, A).
+
+
+
+
+		 /*******************************
+		 *	     PRIMITIVES		*
+		 *******************************/
+
+rdf(A, B:A) :-
+        rdf_name_space(B), !.
+
+
+
+
+		 /*******************************
+		 *	       BASICS		*
+		 *******************************/
+
+attrs(A, B) :-
+        do_attrs(A, B).
+
+
+do_attrs([], _A) :- !.
+do_attrs([\?(A)|B], C) :- !,
+        (   select(D, C, E),
+            rewrite(\A, D)
+        ->  true
+        ;   E=C
+        ),
+        do_attrs(B, E).
+do_attrs([A|B], C) :-
+        select(D, C, E),
+        rewrite(A, D), !,
+        do_attrs(B, E).
+do_attrs(A, B) :-
+        rewrite(A, B).
+
+
+%%% rdf_triple
+/*
+
+       Package:     rdf_triple
+       Description: Adaptation of the SWI-Prolog RDF Parser library(rdf_triple) 
+		    
+*/
+
+
+/*
+:- package(gensym).
+:- package(extra).
+
+
+
+:- include('include.min').
+*/
+
+
+
+
+
+%	rdf_triples(+Term, -Tripples[, +Tail])
+%
+%	Convert an object as parsed by rdf.pl into a list of rdf/3
+%	triples.  The identifier of the main object created is returned
+%	by rdf_triples/3.
+
+rdf_triples(RDF, Tripples) :-
+	rdf_triples(RDF, Tripples, []).
+rdf_triples([]) --> !,
+	[].
+rdf_triples([H|T]) --> !,
+	triples(H, _),
+	rdf_triples(T).
+rdf_triples(Term) -->
+	triples(Term, _).
+
+
+triples(container(Type, Id, Elements), Id) --> !,
+	{ container_id(Type, Id)
+	},
+	[ rdf(Id, rdf:type, rdf:Type)
+	],
+	container(Elements, 1, Id).
+triples(description(Type, IdAbout, BagId, Props), Id) -->
+	{ nonvar(BagId), !,
+	  phrase(triples(description(Type, IdAbout, _, Props), Id), Triples)
+	},
+	list(Triples),
+	reinify(Triples, BagId).
+triples(description(description, IdAbout, _, Props), Subject) --> !,
+	{ description_id(IdAbout, Subject)
+	},
+	properties(Props, Subject).
+triples(description(Type, IdAbout, _, Props), Subject) -->
+	{ description_id(IdAbout, Subject),
+	  name_to_type_uri(Type, TypeURI)
+	},
+	[ rdf(Subject, rdf:type, TypeURI)
+	],
+	properties(Props, Subject).
+triples(unparsed(Data), Id) -->
+	{ gensym('Error__', Id),
+            print(['Error ', rdf(unparsed(Data))])
+	},
+	[].
+
+name_to_type_uri(NS:Local, URI) :- !,
+	atomics_concat([NS, Local], URI).
+name_to_type_uri(URI, URI).
+
+		 /*******************************
+		 *	    CONTAINERS		*
+		 *******************************/
+
+container([], _, _) -->
+	[].
+container([H0|T0], N, Id) -->
+	li(H0, N, Id),
+	{ NN is N + 1
+	},
+	container(T0, NN, Id).
+
+li(li(Nid, V), _, Id) --> !,
+	[ rdf(Id, rdf:Nid, V)
+	].
+li(V, N, Id) -->
+	triples(V, VId), !,
+	{ atomics_concat(['_', N], Nid)
+	},
+	[ rdf(Id, rdf:Nid, VId)
+	].
+li(V, N, Id) -->
+	{ atomics_concat(['_', N], Nid)
+	},
+	[ rdf(Id, rdf:Nid, V)
+	].
+	
+container_id(_, Id) :-
+	nonvar(Id), !.
+container_id(Type, Id) :-
+	atomics_concat([Type, '__'], Base),
+	gensym(Base, Id).
+
+
+		 /*******************************
+		 *	    DESCRIPTIONS	*
+		 *******************************/
+
+description_id(Id, Id) :-
+	var(Id), !,
+	gensym('Description__', Id).
+description_id(about(Id), Id).
+description_id(id(Id), Id).
+description_id(each(Id), each(Id)).
+description_id(prefix(Id), prefix(Id)).
+
+properties([], _) -->
+	[].
+properties([H0|T0], Subject) -->
+	property(H0, Subject),
+	properties(T0, Subject).
+
+property(Pred = Object, Subject) --> % inlined object
+	triples(Object, Id), !,
+	[ rdf(Subject, Pred, Id)
+	].
+property(Pred = Object, Subject) --> !,
+	[ rdf(Subject, Pred, Object)
+	].
+property(id(Id, Pred = Object), Subject) -->
+	{ phrase(triples(Object, ObjectId), ObjectTriples)
+	}, !,
+	list(ObjectTriples),
+	[ rdf(Subject, Pred, ObjectId)
+	],
+	reinify(ObjectTriples, Id),
+	[ rdf(Subject, Pred, Id)
+	].
+property(id(Id, Pred = Object), Subject) -->
+	[ rdf(Subject, Pred, Object),
+	  rdf(Id, rdf:type, rdf:'Statement'),
+	  rdf(Id, rdf:subject, Subject),
+	  rdf(Id, rdf:predicate, Pred),
+	  rdf(Id, rdf:object, Object)
+	].
+
+
+		 /*******************************
+		 *	   REINIFICATION	*
+		 *******************************/
+
+reinify(Triples, BagId) -->
+	{ container_id('Bag', BagId)
+	},
+	[ rdf(BagId, rdf:type, rdf:'Bag')
+	],
+	reinify_elements(Triples, 1, BagId).
+
+reinify_elements([], _, _) -->
+	[].
+reinify_elements([rdf(Subject, Pred, Object)|T], N, BagId) -->
+	{ statement_id(Id),
+	  atomics_concat(['_', N], ElAttr),
+	  NN is N + 1
+	},
+	[ rdf(Id, rdf:type, rdf:'Statement'),
+	  rdf(Id, rdf:subject, Subject),
+	  rdf(Id, rdf:predicate, Pred),
+	  rdf(Id, rdf:object, Object),
+	  rdf(BagId, rdf:ElAttr, Id)
+	],
+	reinify_elements(T, NN, BagId).
+
+
+statement_id(Id) :-
+	nonvar(Id), !.
+statement_id(Id) :-
+	gensym('Statement__', Id).
+
+
+		 /*******************************
+		 *	     DCG BASICS		*
+		 *******************************/
+
+list(Elms, List, Tail) :-
+	append(Elms, Tail, List).
+
+
+		 /*******************************
+		 *	       UTIL		*
+		 *******************************/
+
+%	rdf_reset_ids
+%
+%	Utility predicate to reset the gensym counters for the various
+%	generated identifiers.  This simplifies debugging and matching
+%	output with the stored desired output (see rdf_test.pl).
+
+rdf_reset_ids :-
+	reset_gensym('Bag__'),
+	reset_gensym('Seq__'),
+	reset_gensym('Alt__'),
+	reset_gensym('Description__'),
+	reset_gensym('Statement__').
+
+
+%%% rdf_test
+/*
+
+       Package:     rdf_test
+       Description: Defines the predicate find_rdf/2 from library(rdf_test) 
+		    
+*/
+
+
+
+%%%:- include('include.min').
+
+
+
+:- dynamic(rdf_name_space/1).
+
+
+
+% find_rdf(+Term, -RDFTerm)
+find_rdf(Term, RDFTerm) :-
+	RDFTerm = element(NS:'RDF', _, _),
+	'_term_member'(RDFTerm, Term), !,
+	(   rdf_name_space(NS)
+	->  true
+	;   asserta(rdf_name_space(NS)),
+	    asserta(new_rdf_namespace(NS))
+	).
+find_rdf(Term, Term).
+
+'_term_member'(X, X).
+'_term_member'(X, [X]). 
+
+	 
+
+%%% transform
+%%:- include('include.min').
+
+
+
+:- dynamic(ecdm_namespace/2).
+
+
+
+%mapList(+List, -TransformedList)
+mapList([], []).
+mapList([H|T], [TH|TT]) :- 
+        '_mapListElement'(H, TH, _),
+        mapList(T, TT).
+
+
+%mapListElement(+Elem, -TElem, ?Type).
+'_mapListElement'(Elem, TElem, element) :-
+        Elem = (element(EName, AttrList, SubElementsList)),
+        '_mapName'(EName, TEName),
+        '_mapAttrList'(AttrList, TAttrList),
+        '_mapSubElementsList'(SubElementsList, TSubElementsList),
+        TElem = (element(TEName, TAttrList, TSubElementsList)).
+'_mapListElement'(Elem, TElem, chardata) :-
+        Elem = chardata(TElem).
+'_mapListElement'(Elem, TElem, attr) :-
+        Elem = (AttrName = AttrValue),
+        '_mapName'(AttrName, TAttrName),
+        TElem = (TAttrName = AttrValue).          
+
+
+'_mapName'(Atom, Term) :-
+        '_split_atom'(Atom, T),    
+        %namespaces names and elements' names do not contain ':' 
+        % --> T will have 2 elements
+        T = [Namespace, EName],	
+        atom_chars(Namespace, SNamespace),
+	'_prefix'(SNamespace, Prefix),
+        Term = (Prefix : EName).
+
+'_prefix'(Namespace, URL) :-
+        ecdm_namespace(Namespace, URL).
+'_prefix'(Namespace, Prefix):-
+        atom_chars(Prefix, Namespace). 
+
+% split_atom(+Atom, -Tokens) 
+% Tokens is a list of substrings
+'_split_atom'(Atom, Tokens) :-
+        split((:), Atom, Tokens).                
+                        
+
+'_mapAttrList'(AttrList, TAttrList) :-
+        mapList(AttrList, TAttrList).
+
+'_mapSubElementsList'(SubElementsList, TSubElementsList) :-
+        mapList(SubElementsList, TSubElementsList).
+                                                                               
+
+                           
+%%% extra
+/*
+
+       Package:     extra
+       Description: implements the SWI-Prolog predicates that
+                    do not have an equivalent predicate in Minerva
+		    
+*/
+
+
+%%%:- include('include.min').
+
+
+
+% call(+Goal, +ExtraArg1)
+		  /* appends ExtraArg1 to the arguments list of Goal and
+		  calls the result */
+call(P, X1) :-
+	  functor(P, F, N0),
+	  N1 is 1+N0,
+	  functor(G, F, N1),
+	  arg(N1, G, X1),
+	  '_copy_args'(N0, P, G),
+	  call(G).
+
+% '_copy_args'(+ArgumentNo, +From, +To)
+'_copy_args'(I, P, G) :-
+	(   I > 0 ->
+	    arg(I, P, X),
+	    arg(I, G, X),
+	    J is I - 1,
+	    '_copy_args'(J, P, G)
+	;/* I =< 0 */
+	true
+	).
+
+
+
+% select(?Elem, ?List, ?Rest)
+select(A, [A|B], B).
+select(A, [B|C], [B|D]) :-
+        select(A, C, D).
+
+
+
+% is_list(+Term)
+is_list(X) :-
+        var(X), !,
+        fail.
+is_list([]).
+is_list([_|T]) :-
+        is_list(T).
+
+
+
+% atomics_concat(+Atomics,-Atom)
+atomics_concat(Atomics,Atom) :-
+        atomics_concat(Atomics,'',Atom).
+
+% atomics_concat(+Atomics,+Separator,-Atom)
+atomics_concat([Atomic],_,Atom) :-
+        '_atomic_to_atom'(Atomic,Atom).
+atomics_concat([Atomic|As],Sep,At) :-
+        '_atomic_to_atom'(Atomic,A),
+        atom_concat(A,Sep,A1),
+        atomics_concat(As,Sep,At1),
+        atom_concat(A1,At1,At).
+
+% '_atomic_to_atom'(+X,-AtomX)
+'_atomic_to_atom'(Atom,Atom) :-
+        atom(Atom),!.
+'_atomic_to_atom'(Number,Atom) :-
+        number(Number),!, atom_number(Atom,Number).
+
+
+
+% code_type(?Code, ?Type)
+code_type(Code, Type) :-
+        char_type(Code, Type).
+
+% char_type(?Code, ?Type)
+char_type(C, alnum) :-
+        char_type(C, alpha).
+char_type(C, alnum) :-
+        char_type(C, digit).
+
+char_type(C, alpha) :-
+        C @>= 'A',
+        C @=< 'Z'.
+char_type(C, alpha) :-
+        C @>= 'a',
+        C @=< 'z'.
+
+char_type(C, digit) :-
+        C @>= '0',
+        C @=< '9'.
+
+char_type(X, space) :- char_code(X, 9).  
+char_type(X, space) :- char_code(X, 10).   
+char_type(X, space) :- char_code(X, 11).   
+char_type(X, space) :- char_code(X, 12).    
+char_type(X, space) :- char_code(X, 13).
+char_type(X, space) :- char_code(X, 32).
+char_type(X, space) :- char_code(X, 160).
+
+
+% file_directory_name(+File, -Directory)
+file_directory_name(/, /) :- !.
+file_directory_name(File, '.') :-
+        not(sub_atom(File, _, _, _, /)), !.
+file_directory_name(File, Directory) :-
+        last_found(File, /, P),
+        P1 is P - 1,
+        sub_atom(File, 0, P1, _, Directory).
+        
+last_found(Atom, Search_Atom, Last) :-
+        last_found(Atom, Search_Atom, 0, Last), !.
+last_found(Atom, Search_Atom, Previous, Last) :-
+        sub_atom(Atom, B, L, A, Search_Atom),
+        B1 is B + L,
+        sub_atom(Atom, B1, A, _, Atom2),
+        Previous2 is Previous + B1,
+        last_found(Atom2, Search_Atom, Previous2, Last).
+last_found(_, _, Last, Last).
+
+not(G) :-
+        call(G), !, fail.
+not(_).
+
+
+
+% the_same(?List1, ?List2)
+the_same([],[]).
+the_same([_|T], [_|TT]) :- the_same(T, TT).   
+
+
+% length(?List, ?Length).
+length([],0).
+length([_|T], N) :-
+	length(T, N1),
+	N is N1+1.
+	
+
+%%% rewrite
+/*
+
+       Package:     rewrite
+       Description: Adaptation of the SWI-Prolog RDF Parser library(rewrite) 
+		    
+*/
+
+/*
+:- package(extra).
+
+
+:- include('include.min').
+*/
+
+
+% rewrite(?To, +From)
+rewrite(To, From) :-
+	(   var(To)
+	->  From = To
+	;   To = \Rule
+	->  call(Rule, From)
+	;   maTch(To, From)
+	).
+
+maTch(Rule, From) :-
+	translate(Rule, From, Code),
+	Code.
+
+translate(Var, Var, true) :-
+	var(Var), !.
+translate(\Command, Var, Goal) :- !,
+	(   catch(Command =.. List, _, fail)
+	->  append(List, [Var], L2),
+	    Goal =.. L2
+	;   Goal = rewrite(\Command, Var)
+	).
+translate(Atomic, Atomic, true) :-
+	atomic(Atomic), !.
+translate(C, _, Cmd) :-
+	command(C, Cmd), !.
+translate((A, B), T, Code) :-
+	(   command(A, Cmd)
+	->  !, translate(B, T, C),
+	    Code = (Cmd, C)
+	;   command(B, Cmd)
+	->  !, translate(A, T, C),
+	    Code = (C, Cmd)
+	).
+translate(Term0, Term, Command) :-
+	functor(Term0, Name, Arity),
+	functor(Term, Name, Arity),
+	translate_args(0, Arity, Term0, Term, Command).
+
+translate_args(N, N, _, _, true) :- !.
+translate_args(I0, Arity, T0, T1, (C0,C)) :-
+	I is I0 + 1, 
+	arg(I, T0, A0),
+	arg(I, T1, A1),
+	translate(A0, A1, C0),
+	translate_args(I, Arity, T0, T1, C).
+
+command(0, _) :- !,			% catch variables
+	fail.
+command({A}, A).
+command(!, !).
+
+		 /*******************************
+		 *	      SIMPLIFY		*
+		 *******************************/
+
+%	simplify(+Raw, -Simplified)
+%
+%	Get rid of redundant `true' goals generated by translate/3.
+
+simplify(V, V) :-
+	var(V), !.
+simplify((A0,B), A) :-
+	B == true, !,
+	simplify(A0, A).
+simplify((A,B0), B) :-
+	A == true, !,
+	simplify(B0, B).
+simplify((A0, B0), C) :- !,
+	simplify(A0, A),
+	simplify(B0, B),
+	(   (   A \== A0
+	    ;	B \== B0
+	    )
+	->  simplify((A,B), C)
+	;   C = (A,B)
+	).
+simplify(X, X).
+
+
+%%% uri
+/*
+
+       Package:     uri
+       Description: Adaptation of the SWI-Prolog RDF Parser library(uri) 
+		    
+*/
+
+/*
+:- package(extra).
+
+
+:- include('include.min').
+*/
+
+
+%	canonical_uri(+URI, +BaseURI, -CanonicalURI)
+%
+%	Turn URI into a global URI.  Rather crude as it stands.
+
+canonical_uri(URI, _, CanonicalURI) :-
+	'_is_global_uri'(URI), !,
+	CanonicalURI = URI.
+canonical_uri(URI, BaseURI, CanonicalURI) :-
+	sub_atom(URI, 0, _, _, #), !,
+	atom_concat(BaseURI, URI, CanonicalURI).
+canonical_uri(URI, BaseURI, CanonicalURI) :-
+	file_directory_name(BaseURI, BaseDir),
+	atomics_concat([BaseDir, URI], /, CanonicalURI).
+
+
+
+%	We assume a URI is global if is starts with an identifier
+%	followed by a colon (:).
+'_is_global_uri'(URI) :-
+	sub_atom(URI, P, _, _, :),
+	sub_atom(URI, 0, P, _, Protocol),
+	atom_codes(Protocol, Codes),
+	'_id_chars'(Codes).
+
+'_id_chars'([]).
+'_id_chars'([H|T]) :-
+	code_type(H, alnum),
+	'_id_chars'(T).
+
+
+%%% uri
+/*
+
+       Package:     uri
+       Description: Adaptation of the SWI-Prolog RDF Parser library(uri) 
+		    
+*/
+
+/*
+:- package(extra).
+
+
+:- include('include.min').
+*/
+
+
+%	canonical_uri(+URI, +BaseURI, -CanonicalURI)
+%
+%	Turn URI into a global URI.  Rather crude as it stands.
+
+canonical_uri(URI, _, CanonicalURI) :-
+	'_is_global_uri'(URI), !,
+	CanonicalURI = URI.
+canonical_uri(URI, BaseURI, CanonicalURI) :-
+	sub_atom(URI, 0, _, _, #), !,
+	atom_concat(BaseURI, URI, CanonicalURI).
+canonical_uri(URI, BaseURI, CanonicalURI) :-
+	file_directory_name(BaseURI, BaseDir),
+	atomics_concat([BaseDir, URI], /, CanonicalURI).
+
+
+
+%	We assume a URI is global if is starts with an identifier
+%	followed by a colon (:).
+'_is_global_uri'(URI) :-
+	sub_atom(URI, P, _, _, :),
+	sub_atom(URI, 0, P, _, Protocol),
+	atom_codes(Protocol, Codes),
+	'_id_chars'(Codes).
+
+'_id_chars'([]).
+'_id_chars'([H|T]) :-
+	code_type(H, alnum),
+	'_id_chars'(T).
+
+
+%%% gensym
+/*	
+          Package: gensym
+	
+            gensym(+Base, -Unique)
+            Generates unique identifiers Base1, Base2, etc. at each subsequent call
+
+            reset_gensym(?Base)
+            Resets the counter for Base.
+*/
+
+
+
+:- dynamic(gen/2).
+
+
+
+gen(_, 0). 
+/*initialization clause*/
+
+gensym(Base, Unique) :-
+	atom_concat(Base, '',ABase),
+	/*fails if Base is not an atom*/
+	retract(gen(ABase, N)), 
+	/*retracts first clause*/ 
+	test(N),
+	N1 is N+1,
+	write_atom(N1, Atom), 
+	/*converts number to atom*/ 
+	atom_concat(ABase, Atom, Unique),
+	asserta(gen(ABase, N1)). 
+	/*adds clause as the first clause of the predicate*/ 
+
+test(0):-
+/*ensures that the initialization clause remains in the db*/
+	assertz(gen(_,0)). 
+	/*adds clause as the last clause of the predicate*/
+test(_).
+	
+reset_gensym(Base) :-	
+	retract(gen(Base,N)),
+	/*retracts first clause*/
+	test(N).
+	
+

@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.1 2004/11/24 10:26:41 dolmedilla Exp $
+     $Id: build.xml,v 1.2 2004/11/24 14:20:03 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -604,17 +604,17 @@ ${Name} Build file
     <echo>Copying files from ${configdir} in ${startdir}</echo>
     <mkdir dir="${startdir}"/>
   	<copy file="${configdir}/.logconfig" todir="${startdir}"/>
-  	<copy file="${configdir}/interpreter.mbc" todir="${startdir}"/>
-  	<copy file="${configdir}/load.mbc" todir="${startdir}"/>
-    <copy file="${configdir}/rdfParser.mbc" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/minerva/interpreter.mbc" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/minerva/load.mbc" todir="${startdir}"/>
+    <copy file="${configdir}/prolog/minerva/rdfParser.mbc" todir="${startdir}"/>
     <copy file="${configdir}/entities.dat" todir="${startdir}"/>
-    <copy file="${configdir}/minervagui.mca" todir="${startdir}"/>
+    <copy file="${configdir}/prolog/minerva/minervagui.mca" todir="${startdir}"/>
   </target>
 	
     <!-- ====================================================================
     	MetaInterpreter
        ==================================================================== -->
-  <target name="metaServer" depends="initstart">
+<!--  <target name="metaServer" depends="initstart">
   <description>
   metainterpreter:
         Starts a metainterpreter for the server
@@ -630,12 +630,12 @@ ${Name} Build file
   	<copy file="${configdir}/trustConfig.server.rdf" tofile="${startdir}/trustConfig.rdf"/>
     <copy file="${configdir}/server_keystore" todir="${startdir}"/>
     <antcall target="start" inheritAll="true" inheritRefs="true"/>
-  </target>
+  </target> -->
 
   <!-- ====================================================================
   	Client
        ==================================================================== -->
-  <target name="metaClient" depends="initstart">
+<!--  <target name="metaClient" depends="initstart">
   <description>
   client:
         Starts a metainterpreter for the client
@@ -651,7 +651,7 @@ ${Name} Build file
   	<copy file="${configdir}/trustConfig.client.rdf" tofile="${startdir}/trustConfig.rdf"/>
   	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
     <antcall target="start" inheritAll="true" inheritRefs="true"/>
-  </target>
+  </target> -->
 
   <!-- ====================================================================
   	Client
@@ -669,8 +669,7 @@ ${Name} Build file
       <pathelement location="${dist}/${name}.jar"/>
     </path>
   	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
-  	<!-- <copy file="${configdir}/trust.properties.client" tofile="${startdir}/trust.properties"/> -->
-  	<copy file="${configdir}/alice.min" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/policies.alice" todir="${startdir}"/>
   	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
   	<copy file="${configdir}/${configFileName}" todir="${testenv}"/>
   	<!-- <copy file="${configFile}" tofile="${testenv}/trustConfig.rdf"/> -->
@@ -694,13 +693,35 @@ ${Name} Build file
       <pathelement location="${dist}/${name}.jar"/>
     </path>
   	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
-  	<!-- <copy file="${configdir}/trust.properties.client" tofile="${startdir}/trust.properties"/> -->
-  	<copy file="${configdir}/eLearn.min" todir="${startdir}"/>
-  	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/policies.eLearn" todir="${startdir}"/>
+  	<copy file="${configdir}/server_keystore" todir="${startdir}"/>
   	<copy file="${configdir}/${configFileName}" todir="${startdir}"/>
-  	<!-- <copy file="${configFile}" tofile="${testenv}/trustConfig.rdf"/> -->
+  	<property name="configFile" value="file:${startdir}/${configFileName}"/>
+    <antcall target="start" inheritAll="true" inheritRefs="true"/>
+  </target>
+
+  <!-- ====================================================================
+  	Tests
+       ==================================================================== -->
+  <target name="tests" depends="initstart">
+  <description>
+  tests:
+        Starts the junit tests
+  </description>
+    <property name="startdir" value="${testenv}/tests"/>
+    <property name="startclass" value="org.peertrust.TrustServer"/>
+  	<property name="configFileName" value="peertrustConfig.server.rdf"/>
+    <path id="startpeertrust.classpath">
+      <path refid="commonrun.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
+  	<copy file="${configdir}/prolog/policies.eLearn" todir="${startdir}"/>
+  	<copy file="${configdir}/server_keystore" todir="${startdir}"/>
+  	<copy file="${configdir}/${configFileName}" todir="${startdir}"/>
   	<property name="configFile" value="file:${startdir}/${configFileName}"/>
     <antcall target="start" inheritAll="true" inheritRefs="true"/>
   </target>
 	
+  
 </project>

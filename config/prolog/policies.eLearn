@@ -1,0 +1,53 @@
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+% example(access(url)).
+
+rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+rule(validClient(localhost,'http://result1'), [],[]).
+rule(validClient(localhost,'http://result2'), [],[]).
+
+% ---------------------------------------
+% query, rules and facts for example 7
+
+rule(document(Project, Document, Employer),
+     [policy1(document(Project, Document, Employer)), 
+      policy2(document(Project, Document, Employer))],
+     [get_record(Project, Document)]).
+
+rule(policy1(document(_, _, Employer)),
+     [],
+     []).
+
+internal(policy2(document(_, _, Employer)),
+     [],
+     [constraint(Employer = ibm)]).
+
+internal(policy2(document(_, _, Employer)),
+     [],
+     [constraint(Employer = microsoft)]).
+
+internal(get_record(project7, document_data), [], []).
+
+% ---------------------------------------
+% Semantic Web paper example
+
+rule(request(Course,Session) $ Requester,
+     [policy1(request(Course),Requester)],
+     [get(Course,Session)]).
+
+rule(policy1(request(spanishCourse),Requester),
+     [drivingLicense(Requester) @ caState @ Requester,
+      policeOfficer(Requester) @ caStatePolice @ Requester],
+     []).
+rule(policy1(request(germanCourse),_),
+     [],
+     []).
+
+signed(rule(bbbMember(eLearn) @ bbb, [], []),
+            bbb, signature(bbb)).
+
+internal(get(spanishCourse,session1),[],[]).
+
+internal(get(germanCourse,session2),[],[]).
