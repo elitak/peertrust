@@ -1,0 +1,9 @@
+This is the first version of the Mailrankserver software.
+It's written in Java with clients written in Perl.
+
+You need several things to make it run. Please take a look at INSTALL.
+I'm not a very good Java programmer. If you have ANY advice or improvement please contact me: brosowski@l3s.de
+
+Thanks,
+
+Marko Brosowski

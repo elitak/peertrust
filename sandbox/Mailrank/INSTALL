@@ -1,0 +1,48 @@
+Please read this instructions carefully.
+
+1. You need several jar-files:
+	a) get the latest mysql-database connector for java from mysql.com
+	(http://www.mysql.com/products/connector/j/)
+	
+	b) get the latest javamail classes
+	(http://java.sun.com/products/javamail/)
+	Mailrankserver is known to work with JavaMail 1.3.2 Early Access release
+	
+	c) get the latest JavaBeans activation framework, because JavaMail needs it
+	(http://java.sun.com/products/javabeans/jaf/)
+   If you like put these files in your classpath.
+
+2. Get the source from cvs (probably you already have them now)
+
+3. Get an pop3 account for the server
+
+4. Insert the account data into MRMail (later with properties)
+   Please use pop3s and don't send your password arround in the clear.
+   It's worth it.
+
+5. Get the ca certificate if the pop3 server uses a self-signed certificate.
+   Add this certificate to your keystore with:
+   > keytool -import -file /path/to/cacert.pem -trustcacerts -storetype jks
+   password is usually: changeit
+   list the keystore with:
+   > keytool -list -trustcacerts -storetype jks
+   and make sure that it's listed
+
+6. Edit MRMail again and insert the path to the keystore 
+   (usually YOURHOME/.keystore)
+   While you there edit the flush boolean variable:
+   true: all the mails that are processed will be deleted from the server
+   false: the mail be not be deleted, useful for debugging only
+
+7. Insert the remaining parameter (like smtphost etc.) into MRMail
+
+8. You need a MySQL account, please enter the parameter into MRMySQLDatabase (line 37)
+
+9. Use the file mysql.sql in supportfiles to create the necessary tablestructure
+   (take a look at it before!)
+
+10. Change the path to the properties file in MRServer.
+    The Properties file is in supportfiles
+
+11. We're almost done: Take a look at start.sh in supportfiles and make sure, that the paths fit
+    your environment. Then the big moment: compile the server and start it with this script.

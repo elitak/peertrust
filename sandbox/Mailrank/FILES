@@ -1,0 +1,14 @@
+
+doc:            The Javadoc for this project
+perl:           Here you can find the perl clients
+src:            The Java source files
+supportfiles:   Some useful files, see INSTALL
+supportfiles/BerkeleyDB:
+                I tried to use BerkeleyDB Java Edition for database backend.
+                (see: http://www.sleepycat.com/products/je.shtml)
+                These are the files that reflect my tries. If you like take it and
+                make something with it.
+INSTALL:        Install instructions
+README:         I mean it!
+RELEASE-NOTES:  Not much yet
+USAGE:          What you can do

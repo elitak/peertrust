@@ -1,0 +1,6 @@
+20th of August 2004: First cvs checkin
+TODO:
+- spamassassin plugin not done yet
+- perl clients to improve
+- properties to incorporate (more than in the main class)
+- using threads to start two servers (mail and socket) in the main class

@@ -1,0 +1,3 @@
+socket.port=4444
+mail.popinterval=15
+debug=false
