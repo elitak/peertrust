@@ -46,10 +46,8 @@ import edu.stanford.smi.protege.util.SelectionListener;
 import edu.stanford.smi.protege.widget.*;
 import java.util.*;
 /**
- * @author kbs
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ *Tab plugin to show and manipulate classes and slots with policies 
+ * @author congo
  */
 public class PolicyTabPlugin extends AbstractTabWidget {
 	  
@@ -119,24 +117,26 @@ public class PolicyTabPlugin extends AbstractTabWidget {
         });
     }
 
+    /**
+     * Split the panel in 2: left are the class and super class display; right is the policy view. 
+     * @return
+     */
     private JComponent createMainSplitter() {
         JSplitPane pane = createLeftRightSplitPane("ClsesTab.left_right", 250);
         pane.setLeftComponent(createClsesSplitter());
         //pane.setRightComponent(createClsDisplay());
         
         tabbedPane= new JTabbedPane();
-        tabbedPane.addTab("Policy View", createClsDisplay());
-        //TODO meta classes configuration panel
-        //tabbedPane.addTab("Policy Meta Classes", new JButton("Meta classes"));
-        //tabbedPane.addTab("Slot Poliy", createSlotPolicyDisplay());
-        //tabbedPane.addTab("Slot Policy", createClsDisplay());
-        
+        tabbedPane.addTab("   Policy View   ", createClsDisplay());
         
         pane.setRightComponent(tabbedPane);
         
         return pane;
     }
 
+    /**
+     * create the policy frame work model.
+     */
     protected void createPolicyFrameworkModel(){
     	policyFrameworkModel=new PolicyFrameworkModel(getKnowledgeBase());
     	policyFrameworkModel.addPolicyMetaCls();
@@ -162,7 +162,10 @@ public class PolicyTabPlugin extends AbstractTabWidget {
             transmitSelection();
         }
     }
-
+    /**
+     * transmit selection to display panels
+     *
+     */
     protected void transmitSelection() {
         // Log.enter(this, "transmitSelection");
         Collection selection = _clsesPanel.getSelection();
@@ -191,9 +194,10 @@ public class PolicyTabPlugin extends AbstractTabWidget {
         //policyTemplateSlotWidget.setInstance(selectedInstance);
         //policyTemplateSlotWidget.reload();/**/
     }
-    // this method is useful for debugging
+    
+    
     public static void main(String[] args) {
-    	System.out.println("Starting PolicyTabPlugin ........................***");
+    	System.out.println("Starting PolicyTabPlugin ........................//////");
     	edu.stanford.smi.protege.Application.main(args);   
         
     }

@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY a 'http://protege.stanford.edu/system#'>
+	 <!ENTITY rdf_ 'http://protege.stanford.edu/rdf'>
+	 <!ENTITY rdfs 'http://www.w3.org/TR/1999/PR-rdf-schema-19990303#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:rdf_="&rdf_;"
+	 xmlns:a="&a;"
+	 xmlns:rdfs="&rdfs;">
+<rdf:Property rdf:about="&rdf_;Attached_Policy"
+	 rdfs:label="Attached Policy">
+	<rdfs:range rdf:resource="&rdf_;PolicyCls"/>
+	<rdfs:domain rdf:resource="&rdf_;PolicyTaggedCls"/>
+	<rdfs:domain rdf:resource="&rdf_;PolicyTaggedSlot"/>
+</rdf:Property>
+<rdf_:PolicyTaggedSlot rdf:about="&rdf_;CName"
+	 rdfs:label="CName">
+	<rdfs:domain rdf:resource="&rdf_;cls2"/>
+	<rdf_:Attached_Policy rdf:resource="&rdf_;sp21"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf_:PolicyTaggedSlot>
+<rdfs:Class rdf:about="&rdf_;PolicyCls"
+	 rdfs:label="PolicyCls">
+	<rdfs:subClassOf rdf:resource="&a;_system_class"/>
+</rdfs:Class>
+<rdf:Property rdf:about="&rdf_;PolicySlotOverridden"
+	 rdfs:label="PolicySlotOverridden">
+	<rdfs:domain rdf:resource="&rdf_;PolicyCls"/>
+	<rdfs:range rdf:resource="&rdf_;PolicyCls"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;PolicySlotOverridding"
+	 rdfs:label="PolicySlotOverridding">
+	<rdfs:range rdf:resource="&rdf_;PolicyCls"/>
+	<rdfs:domain rdf:resource="&rdf_;PolicyCls"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;PolicySlotValue"
+	 rdfs:label="PolicySlotValue">
+	<rdfs:domain rdf:resource="&rdf_;PolicyCls"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdfs:Class rdf:about="&rdf_;PolicyTaggedCls"
+	 rdfs:label="PolicyTaggedCls">
+	<rdfs:subClassOf rdf:resource="&rdfs;Class"/>
+</rdfs:Class>
+<rdfs:Class rdf:about="&rdf_;PolicyTaggedSlot"
+	 rdfs:label="PolicyTaggedSlot">
+	<rdfs:subClassOf rdf:resource="&rdf;Property"/>
+</rdfs:Class>
+<rdf:Property rdf:about="&rdf_;PolicyType"
+	 rdfs:label="PolicyType">
+	<rdfs:domain rdf:resource="&rdf_;PolicyCls"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf_:PolicyTaggedCls rdf:about="&rdf_;cls1"
+	 rdfs:label="cls1">
+	<rdf_:Attached_Policy rdf:resource="&rdf_;p11"/>
+	<rdf_:Attached_Policy rdf:resource="&rdf_;p12"/>
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:PolicyTaggedCls>
+<rdf_:PolicyTaggedCls rdf:about="&rdf_;cls2"
+	 rdfs:label="cls2">
+	<rdfs:subClassOf rdf:resource="&rdf_;cls1"/>
+	<rdf_:Attached_Policy rdf:resource="&rdf_;p21"/>
+	<rdf_:Attached_Policy rdf:resource="&rdf_;p22"/>
+</rdf_:PolicyTaggedCls>
+</rdf:RDF>

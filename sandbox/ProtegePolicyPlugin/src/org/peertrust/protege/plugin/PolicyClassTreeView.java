@@ -68,11 +68,11 @@ import edu.stanford.smi.protege.util.TreeSelectionListenerAdapter;
 import edu.stanford.smi.protege.util.WaitCursor;
 
 /**
+ * This class is used to show the class with there policies.
+ * The classes are shown in a tree; with the selected class as root
+ * and it parents as "child". The class policies are shown in a table.
  * @author congo
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+*/
 public class PolicyClassTreeView extends JPanel{//SelectableContainer {
 	class PolicyTreeNode extends DefaultMutableTreeNode{
 		
@@ -378,7 +378,6 @@ public class PolicyClassTreeView extends JPanel{//SelectableContainer {
 		if(selNode==null){
 			return;
 		}else{
-			//TODO policyTableModel.setCls(selNode.getCls());
 			policyTableModel.setCls(selNode.getCls());
 			
 		}

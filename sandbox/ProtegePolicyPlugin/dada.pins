@@ -1,0 +1,64 @@
+; Mon Jan 17 15:36:57 CET 2005
+; 
+;+ (version "2.1.2")
+;+ (build "Build 246")
+
+([ClsPolicy1105972575884] of PolicyCls
+	(PolicyType M))
+
+([ClsPolicy1105972576111] of PolicyCls
+	(PolicyType M))
+
+([ClsPolicy1105972578218] of PolicyCls
+	(PolicyType M))
+
+([ClsPolicy1105972578426] of PolicyCls
+	(PolicySlotOverridding [KB_317073_Instance_4])
+	(PolicyType D))
+
+([ClsPolicy1105972578700] of PolicyCls
+	(PolicyType D))
+
+([KB_317073_Class_0] of PolicyTaggedCls
+	(Attached+Policy
+		[ClsPolicy1105972575884]
+		[ClsPolicy1105972576111]))
+
+([KB_317073_Class_1] of PolicyTaggedCls)
+
+([KB_317073_Class_2] of PolicyTaggedCls
+	(Attached+Policy
+		[ClsPolicy1105972578218]
+		[ClsPolicy1105972578426]
+		[ClsPolicy1105972578700]))
+
+([KB_317073_Class_3] of PolicyTaggedCls
+	(Attached+Policy
+		[KB_317073_Instance_4]
+		[KB_317073_Instance_5]))
+
+([KB_317073_Instance_4] of PolicyCls
+	(PolicySlotOverridden [ClsPolicy1105972578426])
+	(PolicyType M))
+
+([KB_317073_Instance_5] of PolicyCls
+	(PolicyType M))
+
+([PSlot1105972597054] of PolicyTaggedSlot)
+
+([PSlot1105972597801] of PolicyTaggedSlot
+	(Attached+Policy
+		[SlotPolicy1105972600229]
+		[SlotPolicy1105972600437]
+		[SlotPolicy1105972600692]))
+
+([PSlot1105972597990] of PolicyTaggedSlot)
+
+([SlotPolicy1105972600229] of PolicyCls
+	(PolicyType M))
+
+([SlotPolicy1105972600437] of PolicyCls
+	(PolicyType D))
+
+([SlotPolicy1105972600692] of PolicyCls
+	(PolicyType M))

@@ -24,21 +24,41 @@ package org.peertrust.protege.plugin;
 import edu.stanford.smi.protege.model.*;
 import java.util.*;
 /**
+ * PolicyFrameworkModel provides a framework which ease the integration of security attributes with your ontology.
+ * 
+ * Reyponsibility:
+ * 
  * @author congo
  *
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PolicyFrameworkModel {
+	/** container for a policy and its caracterising data.*/
 	class PolicyData{
+		/** the policy value*/
 		String policy;
+		/** the policy type; m for mandator or D for default.*/
 		String policyType;
+		/** the policy name */
 		String policyName;
+		/** the class in which the policy has been defined.*/
 		String definingClassName;
+		/** the instance representing the policy.*/
 		Instance policyInst;
+		
+		/** the instance representing the overriden policy*/ 
 		Instance policyOverridden;
+		
 		boolean isLocallyDefined;
 		
+		/**
+		 * create a new PolicyData object the policyInstance the defining class and its locality flag.
+		 * 
+		 * @param policyInst
+		 * @param definingCls
+		 * @param isLocal
+		 */
 		public PolicyData(Instance policyInst,String definingCls, boolean isLocal){
 			//System.out.println("POLSLOT:"+policyTypeSlot+ "ww"+policyInst);
         	///Type
@@ -77,6 +97,8 @@ public class PolicyFrameworkModel {
         	this.definingClassName=definingCls;
         	this.isLocallyDefined=isLocal;
 		}
+		
+		
 		public PolicyData(	String policy, 
 							String policyType,
 							String policyName,
@@ -90,9 +112,13 @@ public class PolicyFrameworkModel {
 			return;
 		}
 		
+		/** 
+		 * build a dummy policy data object.
+		 */
 		public PolicyData(){
 			this(null,null,null,null,false);
 		}
+		
 		
 		public String toString(){
 			if(policy==null && policyType==null && definingClassName==null){
@@ -129,7 +155,7 @@ public class PolicyFrameworkModel {
 	///default values
 	static public final String DEFAULT_POLICY_META_CLS_NAME="PolicyTaggedCls";
 	static public final String DEFAULT_POLICY_SLOT_VALUE="PolicySlotValue";
-	static public final String DEFAULT_POLICY_SLOT_NAME="PolicySlotName";
+	//static public final String DEFAULT_POLICY_SLOT_NAME="PolicySlotName";
 	static public final String DEFAULT_POLICY_SLOT_OVERRIDDEN="PolicySlotOverridden";
 	static public final String DEFAULT_POLICY_SLOT_OVERRIDDING="PolicySlotOverridding";
 	
@@ -137,7 +163,7 @@ public class PolicyFrameworkModel {
 	static public final String DEFAULT_POLICY_TAGGED_META_SLOT_NAME="PolicyTaggedSlot";
 	
 	static public final String DEFAULT_POLICY_CLS_NAME="PolicyCls";
-	static public final String DEFAULT_POLICY_CLS_POLICY_SLOT_NAME="PolicySlot";
+	static public final String DEFAULT_POLICY_CLS_POLICY_SLOT_NAME="Attached Policy";
 	
 	
 	static public final String TYPE_MANDATORY="M";
@@ -197,28 +223,12 @@ public class PolicyFrameworkModel {
 		return;
 	}
 	
-	public boolean isClsPolicyMetaCls(Cls cls){
-		return cls.getName().equals(policyMetaClsName);		
-	}
 	
 	public KnowledgeBase getKnowledgeBase(){
 		return kb;
 	}
 	
-	public boolean isPolicyCls(Cls cls){
-		Collection c= cls.getDirectTypes();
-		Cls dTypeCls;
-		
-		for(Iterator it=c.iterator();it.hasNext();){
-			dTypeCls=(Cls)it.next();
-			if(dTypeCls.getName().equals(policyMetaClsName)){
-				return true;
-			}
-		}
-		//System.out.println("cls.getDirectType:"+cls.getDirectType().getName()+" browser Text:"+cls.getDirectType().getBrowserText());
-		//return cls.getDirectType().getName().equals(policyMetaClsName);
-		return false;
-	}
+
 	
 	public boolean isPolicyTaggedSlot(Slot slot){
 		//String slotName=slot.getDirectType().getName();
@@ -253,21 +263,7 @@ public class PolicyFrameworkModel {
 		return policySlot;
 	}
 	
-	/**
-	 * Create a slot to hold the policy name.
-	 */
-	protected Slot createPolicySlotName(){
-		Slot lPolicySlotName=kb.getSlot(DEFAULT_POLICY_SLOT_NAME);
-		if(lPolicySlotName==null){
-			Cls stdMetaCls= kb.getCls(Model.Cls.STANDARD_SLOT);
-			lPolicySlotName= kb.createSlot(DEFAULT_POLICY_SLOT_NAME,stdMetaCls);
-			lPolicySlotName.setAllowsMultipleValues(false);
-			//this.policySlotName=lPolicySlotName;
-		}
-		this.policySlotName=lPolicySlotName;
-		System.out.println("PolicySlotName in Create..:"+policySlotName);
-		return policySlotName;
-	}
+
 	
 	/**
 	 * Create a slot to hold a reference to the policy which is being overridden.
@@ -368,13 +364,13 @@ public class PolicyFrameworkModel {
 		
 		policyCls.addDirectTemplateSlot(createPolicySlot());
 		policyCls.addDirectTemplateSlot(createPolicyTypeSlot());
-		policyCls.addDirectTemplateSlot(createPolicySlotName());
+//		policyCls.addDirectTemplateSlot(createPolicySlotName());
 		policyCls.addDirectTemplateSlot(createPolicySlotOverridden());
 		policyCls.addDirectTemplateSlot(createPolicySlotOverridding());
 		//System.out.println("//////////////////////////////////////OVERRIDDING:"+policySlotOverridding);
 		policyCls.setTemplateSlotAllowsMultipleValues(policyTypeSlot,false);
 		policyCls.setTemplateSlotAllowsMultipleValues(policySlot,false);
-		policyCls.setTemplateSlotAllowsMultipleValues(policySlotName,false);
+//		policyCls.setTemplateSlotAllowsMultipleValues(policySlotName,false);
 		policyCls.setTemplateSlotAllowsMultipleValues(policySlotOverridden, false);
 		policyCls.setTemplateSlotAllowsMultipleValues(policySlotOverridding,true);
 		
@@ -430,26 +426,7 @@ public class PolicyFrameworkModel {
 		return;
 	}
 	
-	/**
-	 * To create a class with policy that have the specific super cls.
-	 * @param superCls
-	 * @return
-	 */
-	public Cls createPolicyCls(Cls superCls){
-		if(superCls==null){
-			superCls=kb.getCls(Model.Cls.THING);
-		}
-		
-		Cls policyMetaCls=kb.getCls(DEFAULT_POLICY_META_CLS_NAME);
-		if(policyMetaCls==null){
-			return null;
-		}
-		Cls newCls= kb.createCls("PolicyTaggedCls"+System.currentTimeMillis(),
-								Arrays.asList(new Cls[]{superCls}),
-								policyMetaCls);
-		return newCls;
-		
-	}
+
 	
 	/**
 	 *To add a slot with policy to a class. 
@@ -488,12 +465,6 @@ public class PolicyFrameworkModel {
 		return policySlot;
 	}
 	
-	public Slot getPolicySlotName() {
-		if(policySlotName==null){
-			policySlotName= kb.getSlot(DEFAULT_POLICY_SLOT_NAME);
-		}
-		return policySlotName;
-	}
 	
 	public Slot getPolicySlotOverridden(){
 		if(policySlotOverridden==null){
@@ -525,35 +496,6 @@ public class PolicyFrameworkModel {
 		return "NO POLICY TYPE";		
 	}
 	
-	public String getPolicyType(Instance policyInst){
-		Object obj  = policyInst.getOwnSlotValue(createPolicySlot());//policySlot);
-    	if(obj==null){
-    		return "";
-    	}else{
-    		return obj.toString();
-    	}
-	}
-	
-//	public String getPolicyType(Instance inst){
-//		
-//		Slot policyTypeSlot=kb.getSlot(DEFAULT_POLICY_CLS_POLICY_SLOT_NAME);
-//		Collection metaSlots = inst.getDirectType().getDirectTemplateSlots();
-//		//System.out.println("PolicyTypeSlot:"+policyTypeSlot);
-//		if (metaSlots.contains(policyTypeSlot)) {
-//		        //Instance clsInst = kb.getInstance(cls.getName());		        
-//		        //if (clsInst != null) {
-//		        	Object val=inst.getOwnSlotValue(policyTypeSlot);
-//		        	System.out.println("OWN SLOT VALUE:"+val);
-//		        	if(val!=null){
-//		                return val.toString();		        				                
-//		        	}else{
-//		        		return "BAD POLICY TYPE";
-//		        	}
-//		        //}
-//		}	
-//		return "NO POLICY TYPE";
-//		
-//	}
 	
 
 	
@@ -569,30 +511,12 @@ public class PolicyFrameworkModel {
 		}	
 	}
 	
-	public void setPolicyName(Cls cls, String name){
-		Slot policyTypeSlot=kb.getSlot(DEFAULT_POLICY_SLOT_NAME);
-		Collection metaSlots = cls.getDirectType().getDirectTemplateSlots();
-		
-		if (metaSlots.contains(policyTypeSlot)) {
-		        Instance clsInst = kb.getInstance(cls.getName());		        
-		        if (clsInst != null) {
-		        	clsInst.setOwnSlotValue(policyTypeSlot,name);		
-		        	
-		        }
-		}	
-	} 
 	
 	public void setPolicyName(Instance inst, String name) throws IllegalArgumentException{
 		
 		inst.setName(name);
 		
 		
-//		Slot policyTypeSlot=kb.getSlot(DEFAULT_POLICY_SLOT_NAME);
-//		Collection metaSlots = inst.getDirectType().getDirectTemplateSlots();
-//		
-//		if (metaSlots.contains(policyTypeSlot)) {
-//			inst.setOwnSlotValue(policyTypeSlot,name);	        
-//		}	
 	}
 	
 	public void setPolicyOverridden(Instance inst, Instance overridden){
@@ -626,35 +550,8 @@ public class PolicyFrameworkModel {
 		}
 	}
 	
-	public Instance getPolicyOverridden(Instance inst){
-		Slot lPolicySlotOverridden=kb.getSlot(DEFAULT_POLICY_SLOT_OVERRIDDEN);
-		Collection metaSlots = inst.getDirectType().getDirectTemplateSlots();
-		
-		if (metaSlots.contains(policyTypeSlot)) {
-			//inst.setOwnSlotValue(policyTypeSlot,overridden);
-			return (Instance) inst.getOwnSlotValue(lPolicySlotOverridden);
-		}else{
-			return null;
-		}
-	}
 	
 	public String getPolicyType(Slot slot){
-//		Slot policyTypeSlot=kb.getSlot(DEFAULT_POLICY_TYPE_SLOT_NAME);
-//		Collection metaSlots = slot.getDirectType().getDirectTemplateSlots();
-//		//System.out.println("PolicyTypeSlot:"+policyTypeSlot);
-//		if (metaSlots.contains(policyTypeSlot)) {
-//		        Instance clsInst = kb.getInstance(slot.getName());		        
-//		        if (clsInst != null) {
-//		        	Object val=clsInst.getOwnSlotValue(policyTypeSlot);
-//		            if(val!=null){    
-//		            	return val.toString();
-//		            }else{
-//		            	return "BAD POLICY TYPE";
-//		            }
-//		        }
-//		}	
-//		return "NO POLICY TYPE";
-		//String clsName= cls.getName();
 		if(slot==null){
 			return "NO POLICY TYPE";
 		}
@@ -676,21 +573,16 @@ public class PolicyFrameworkModel {
 		return "NO POLICY TYPE";
 	}
 	
-	public void setPolicyType(Slot slot, String type){
-		Slot policyTypeSlot=kb.getSlot(DEFAULT_POLICY_TYPE_SLOT_NAME);
-		Collection metaSlots = slot.getDirectType().getDirectTemplateSlots();
-		//System.out.println("PolicyTypeSlot:"+policyTypeSlot);
-		if (metaSlots.contains(policyTypeSlot)) {
-		        Instance clsInst = kb.getInstance(slot.getName());
-		        if(clsInst!=null){
-		        	//System.out.println("clsInst:"+clsInst);
-		        	clsInst.setOwnSlotValue(policyTypeSlot,type);
-		        }	       
-		}
-				
-	}
-	
-	
+	/**
+	 * To get the policies that are definied in a specific class. 
+	 * The flague iSLocallyDefinedValue indicates whether the policies are local to a specific class or inheritated.
+	 * Since that class ist not neccesarely equals to the cls provides as argument,
+	 * its value have to be rovided externaly through a parameter. 
+	 * @param cls
+	 * @param specialSlotName
+	 * @param isLocalyDefinedValue
+	 * @return
+	 */
 	public Collection getLocalPolicy(Cls cls, String specialSlotName,boolean isLocalyDefinedValue){
 		if(cls.isDeleted() ){
 			return new Vector(2);
@@ -746,40 +638,17 @@ public class PolicyFrameworkModel {
 		
 		return polVector;
 	}
-	//TODO TEST THIS FUNCTION
-//	public void changeLocalPolicy(Cls cls, String specialSlotName,String oldPolicy, String newPolicy){
-//		Slot specialSlot = kb.getSlot(specialSlotName);
-//		
-//		String definingClassName= cls.getName();
-//		String policyType = getPolicyType(cls);
-//		//		 Check that the meta-class of cls is the correct one and that it has
-//		//		 our special slot
-//		Collection metaSlots = cls.getDirectType().getDirectTemplateSlots();
-//		Vector polVector= new Vector(20);
-//		
-//		if (metaSlots.contains(specialSlot)) {
-//		        Instance clsInst = kb.getInstance(cls.getName());
-//		        
-//		        if (clsInst != null) {
-//		        	clsInst.removeOwnSlotValue(specialSlot,oldPolicy);
-//		        	clsInst.addOwnSlotValue(specialSlot,newPolicy);
-//		        }
-//		}
-//	}
 	
+	/** 
+	 * To change the Value of a policy.
+	 * @param polInst
+	 * @param specialSlotName
+	 * @param oldPolicy
+	 * @param newPolicy
+	 */
 	public void changeLocalPolicy(Instance polInst, String specialSlotName,String oldPolicy, String newPolicy){
 		Slot specialSlot = kb.getSlot(specialSlotName);
 		
-		//String definingClassName= cls.getName();
-		//String policyType = getPolicyType(cls);
-		//		 Check that the meta-class of cls is the correct one and that it has
-		//		 our special slot
-//		Collection metaSlots = cls.getDirectType().getDirectTemplateSlots();
-//		Vector polVector= new Vector(20);
-//		
-//		if (metaSlots.contains(specialSlot)) {
-//		        Instance clsInst = kb.getInstance(cls.getName());
-//		        
 		        if (polInst != null) {
 		        	if(newPolicy==null){
 		        		kb.deleteInstance(polInst);
@@ -787,9 +656,16 @@ public class PolicyFrameworkModel {
 		        		polInst.setOwnSlotValue(specialSlot, newPolicy);
 		        	}
 		        }
-//		}
+
 	}
 	
+	/**
+	 * Create a new policy for the specified class.
+	 * @param cls
+	 * @param specialSlotName
+	 * @param policy
+	 * @param type
+	 */
 	public void createLocalPolicy(Cls cls, String specialSlotName,String policy, String type){
 		Slot specialSlot = kb.getSlot(specialSlotName);
 		 //System.out.println("polInst:"+cls);    
@@ -806,7 +682,7 @@ public class PolicyFrameworkModel {
 			        if (clsInst != null) {
 			        	long timeInMillis= System.currentTimeMillis();
 			        	Instance polInst= kb.createInstance("ClsPolicy"+timeInMillis,getPolicyCls(),true);
-			        	polInst.addOwnSlotValue(getPolicySlotName(),"p"+timeInMillis);
+//			        	polInst.addOwnSlotValue(getPolicySlotName(),"p"+timeInMillis);
 			        	//System.out.println("instcreate:"+polInst);
 			        	//clsInst.removeOwnSlotValue(specialSlot,oldPolicy);
 			        	//clsInst.addOwnSlotValue(specialSlot,newPolicy);
@@ -815,6 +691,13 @@ public class PolicyFrameworkModel {
 			}
 	}
 	
+	/**
+	 * Create a new policy for the specified slot.
+	 * @param slot
+	 * @param specialSlotName
+	 * @param policy
+	 * @param type
+	 */
 	public void createLocalPolicy(Slot slot, String specialSlotName,String policy, String type){
 		Slot specialSlot = kb.getSlot(specialSlotName);
 		 String definingClassName= slot.getName();
@@ -829,12 +712,17 @@ public class PolicyFrameworkModel {
 			        if (clsInst != null) {
 			        	long timeInMillis=System.currentTimeMillis();
 			        	Instance polInst= kb.createInstance("SlotPolicy"+timeInMillis,getPolicyCls(),true);
-			        	polInst.addOwnSlotValue(getPolicySlotName(),"p"+timeInMillis);
+//			        	polInst.addOwnSlotValue(getPolicySlotName(),"p"+timeInMillis);
 			        	clsInst.addOwnSlotValue(specialSlot,polInst);
 			        }
 			}
 	}
 	
+	/**
+	 * Get all policy that apply to the specified class.
+	 * @param cls
+	 * @return
+	 */
 	public Collection getAllPolicies(Cls cls){
 		Vector allPolicies= new Vector(20);
 		allPolicies.addAll(getLocalPolicy(cls,PolicyFrameworkModel.DEFAULT_POLICY_SLOT_VALUE,true));
@@ -847,6 +735,11 @@ public class PolicyFrameworkModel {
 		return allPolicies;
 	}
 	
+	/**
+	 * Get the policy that another policy in the specified class can overwrite. 
+	 * @param cls
+	 * @return
+	 */
 	public Collection getOverriddablePolicies(Cls cls){
 		//Vector allPolicies= new Vector(20);
 		Vector mayBeOverridden= new Vector(20);
@@ -865,34 +758,14 @@ public class PolicyFrameworkModel {
 		
 		mayBeOverridden.removeAll(alreadyOverridden);
 		return mayBeOverridden;
-//		///get already overriden
-//		Vector alreadyOverridden= new Vector(10);
-//		for(Iterator it=cls.getOwnSlotValues(getPolicySlotOverridden()).iterator();//getLocalPolicy(cls,PolicyFrameworkModel.DEFAULT_POLICY_SLOT_OVERRIDDEN,true).iterator(); 
-//			it.hasNext();){
-//			Instance inst= (Instance)it.next();
-//			Instance overridden= getPolicyOverriden(inst);
-//			if(overridden!=null){
-//				alreadyOverridden.add(overridden);
-//			}
-//		}
-//		System.out.println("already overriden policies:"+alreadyOverridden);
-//		//get all overriddable
-//		for(Iterator it= cls.getSuperclasses().iterator(); it.hasNext();){
-//			Cls aCls=(Cls)it.next();
-////			//allPolicies.addAll(getLocalPolicy(aCls,PolicyFrameworkModel.DEFAULT_POLICY_SLOT_OVERRIDDEN,false));
-////			allPolicies.addAll(aCls.getOwnSlotValues(getPolicySlotOverridden()));
-//			for(Iterator it1=getLocalPolicy(aCls,PolicyFrameworkModel.DEFAULT_POLICY_SLOT_VALUE,false).iterator();
-//				it1.hasNext();){
-//				Instance pol= (Instance)it1.next();
-//				Instance overr=(Instance)pol.getOwnSlotValue(getPolicySlotOverridden());
-//				allPolicies.add(overr);
-//			}
-//		}	
-//		System.out.println("before removal of already overridden:"+allPolicies);
-//		allPolicies.removeAll(alreadyOverridden);
-		//return allPolicies;
 	}
-	
+	/**
+	 * To get the policy that apply to the slot dirrect type.
+	 * @param slot
+	 * @param specialSlotName
+	 * @param isLocalyDefinedValue
+	 * @return
+	 */
 	public Collection getLocalPolicy(Slot slot, String specialSlotName,boolean isLocalyDefinedValue){
 		Vector polVector= new Vector(20);
 		if(slot==null){
@@ -930,37 +803,39 @@ public class PolicyFrameworkModel {
 	}
 	
 	
-	public Collection changeSlotLocalPolicy(Slot slot, String newPolicy, String oldPolicy){
-		Vector polVector= new Vector(10);
-		if(slot==null){
-			return polVector;
-		}
-		Slot specialSlot = getPolicySlot();//kb.getSlot(specialSlotName);
-		
-		String definingClassName= slot.getName();
-		String policyType = getPolicyType(slot);
-		//		 Check that the meta-class of cls is the correct one and that it has
-		//		 our special slot
-		Collection metaSlots = slot.getDirectType().getDirectTemplateSlots();
-		//Vector polVector= new Vector(20);
-		
-		if (metaSlots.contains(specialSlot)) {
-		        Instance clsInst = kb.getInstance(slot.getName());
-		        if (clsInst != null) {
-		            if(oldPolicy!=null){
-		            	clsInst.removeOwnSlotValue(specialSlot,oldPolicy);
-		            }
-		            
-		            if(newPolicy!=null){
-		            	clsInst.addOwnSlotValue(specialSlot,newPolicy);
-		            }
-		        	///Iterator i = clsInst.getOwnSlotValues(specialSlot).iterator();//cls.getTemplateSlots().iterator();//getSlots(clsInst).iterator();		                
-		        }
-		}
-		
-		return polVector;
-	}
-	
+//	public Collection changeSlotLocalPolicy(Slot slot, String newPolicy, String oldPolicy){
+//		Vector polVector= new Vector(10);
+//		if(slot==null){
+//			return polVector;
+//		}
+//		Slot specialSlot = getPolicySlot();//kb.getSlot(specialSlotName);
+//		
+//		String definingClassName= slot.getName();
+//		String policyType = getPolicyType(slot);
+//		//		 Check that the meta-class of cls is the correct one and that it has
+//		//		 our special slot
+//		Collection metaSlots = slot.getDirectType().getDirectTemplateSlots();
+//		//Vector polVector= new Vector(20);
+//		
+//		if (metaSlots.contains(specialSlot)) {
+//		        Instance clsInst = kb.getInstance(slot.getName());
+//		        if (clsInst != null) {
+//		            if(oldPolicy!=null){
+//		            	clsInst.removeOwnSlotValue(specialSlot,oldPolicy);
+//		            }
+//		            
+//		            if(newPolicy!=null){
+//		            	clsInst.addOwnSlotValue(specialSlot,newPolicy);
+//		            }
+//		        	///Iterator i = clsInst.getOwnSlotValues(specialSlot).iterator();//cls.getTemplateSlots().iterator();//getSlots(clsInst).iterator();		                
+//		        }
+//		}
+//		
+//		return polVector;
+//	}
+	/**
+	 * To get all the policies that apply to a slot.
+	 */
 	public Collection getAllPolicies(Slot slot){
 		Vector allPolicies= new Vector(20);
 		if(slot!=null){

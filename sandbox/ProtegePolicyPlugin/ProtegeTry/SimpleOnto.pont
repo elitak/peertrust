@@ -1,0 +1,86 @@
+; Thu Jan 20 10:21:09 CET 2005
+; 
+;+ (version "2.1.2")
+;+ (build "Build 246")
+
+
+(defclass %3ACLIPS_TOP_LEVEL_SLOT_CLASS "Fake class to save top-level slot information"
+	(is-a USER)
+	(role abstract)
+	(multislot PolicySlotValue
+		(type STRING)
+		(create-accessor read-write))
+	(single-slot PolicyType
+		(type SYMBOL)
+		(allowed-values M D)
+		(default M)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot PolicySlotOverridden
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(multislot PolicySlotOverridding
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+		(create-accessor read-write))
+	(multislot Attached+Policy
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+		(create-accessor read-write))
+	(single-slot CName
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass PolicyTaggedCls
+	(is-a %3ASTANDARD-CLASS)
+	(role concrete)
+	(multislot Attached+Policy
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+		(create-accessor read-write)))
+
+(defclass PolicyTaggedSlot
+	(is-a %3ASTANDARD-SLOT)
+	(role concrete)
+	(multislot Attached+Policy
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+		(create-accessor read-write)))
+
+(defclass PolicyCls
+	(is-a %3ASYSTEM-CLASS)
+	(role concrete)
+	(single-slot PolicySlotValue
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot PolicyType
+		(type SYMBOL)
+		(allowed-values M D)
+		(default M)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot PolicySlotOverridden
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(multislot PolicySlotOverridding
+		(type INSTANCE)
+;+		(allowed-classes PolicyCls)
+		(create-accessor read-write)))
+
+(defclass cls1
+	(is-a USER)
+	(role concrete))
+
+(defclass cls2
+	(is-a cls1)
+	(role concrete)
+	(single-slot CName
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))

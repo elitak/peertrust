@@ -33,38 +33,36 @@ import edu.stanford.smi.protege.model.Slot;
 import edu.stanford.smi.protege.util.DefaultRenderer;
 
 /**
+ * Renderer for slot policy table. use it only for the Policy Info column. 
  * @author Congo Patrice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PolicyTableCellRenderer extends JPanel
 									implements TableCellRenderer {
 
-	Icon mandatoryIcon;
-	Icon defaultIcon;
-	Icon noPolicyIcon;
-	Icon badTypeIcon;
+//	Icon mandatoryIcon;
+//	Icon defaultIcon;
+Icon noPolicyIcon;
+//	Icon badTypeIcon;
 	
 	PolicyFrameworkModel policyFrameworkModel;
-	//JCheckBox templateSlotPolicyCheckBox= new JCheckBox();
 	JLabel policyInfoLabel;
+	
 	public PolicyTableCellRenderer(PolicyFrameworkModel policyFrameworkModel){
 		this.policyFrameworkModel=policyFrameworkModel;
 		//templateSlotPolicyCheckBox.setAlignmentX(JCheckBox.CENTER_ALIGNMENT);
 		policyInfoLabel= new JLabel();
 		try{
-			URL url = getClass().getResource("res/Default.gif");			
-			defaultIcon= new ImageIcon(url);
-			
-			url = getClass().getResource("res/Mandatory.gif");			
-			mandatoryIcon= new ImageIcon(url);
-			
-			url = getClass().getResource("res/NoPolicy.gif");			
-			noPolicyIcon= new ImageIcon(url);
-			
-			url = getClass().getResource("res/Ugly.gif");			
-			badTypeIcon= new ImageIcon(url);
+//			URL url = getClass().getResource("res/Default.gif");			
+//			defaultIcon= new ImageIcon(url);
+//			
+//			url = getClass().getResource("res/Mandatory.gif");			
+//			mandatoryIcon= new ImageIcon(url);
+//			
+//			url = getClass().getResource("res/NoPolicy.gif");			
+//			noPolicyIcon= new ImageIcon(url);
+//			
+//			url = getClass().getResource("res/Ugly.gif");			
+//			badTypeIcon= new ImageIcon(url);
 			
 		}catch(Throwable th){
 			th.printStackTrace();
@@ -73,7 +71,7 @@ public class PolicyTableCellRenderer extends JPanel
 	public void setPolicyFrameworkModel(PolicyFrameworkModel policyFrameworkModel){
 		this.policyFrameworkModel=policyFrameworkModel;
 	}
-	/* (non-Javadoc)
+	/**
 	 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -92,25 +90,13 @@ public class PolicyTableCellRenderer extends JPanel
 			FrameSlotCombination fsCombi= (FrameSlotCombination)value;	
 			Slot aSlot= fsCombi.getSlot();
 			if(policyFrameworkModel.isPolicyTaggedSlot(aSlot)){//slotTypeName.equals("PolicyTaggedSlot")){
-//				///templateSlotPolicyCheckBox.setSelected(true); 
-//				int polCount= policyFrameworkModel.getAllPolicies(aSlot).size();
-//				//templateSlotPolicyCheckBox.setIcon(defaultIcon);
-//				templateSlotPolicyCheckBox.setText(" "+Integer.toString(polCount));
-//				if(policyFrameworkModel.getPolicyType(aSlot).equals("M")){
-//					templateSlotPolicyCheckBox.setIcon(mandatoryIcon);
-//				}else if(policyFrameworkModel.getPolicyType(aSlot).equals("D")){
-//					templateSlotPolicyCheckBox.setIcon(defaultIcon);
-//				}else{
-//					templateSlotPolicyCheckBox.setIcon(badTypeIcon);
-//				}
-//				/templateSlotPolicyCheckBox.setSelected(true); 
 				Collection c=policyFrameworkModel.getAllPolicies(aSlot); 
 				int polCount= c.size();
 				int mPolCount=0;
 				int dPolCount=0;
 				String aType;
 				for(Iterator it=c.iterator();it.hasNext();){
-					if(	((PolicyFrameworkModel.PolicyData)it.next()).policyType=="M"){
+					if(	((PolicyFrameworkModel.PolicyData)it.next()).policyType.equalsIgnoreCase("M")){
 						mPolCount++;
 					}else{
 						dPolCount++;
@@ -122,18 +108,8 @@ public class PolicyTableCellRenderer extends JPanel
 							"</font></b></body></html>";
 				//templateSlotPolicyCheckBox.setText(text);
 				policyInfoLabel.setText(text);
-				//templateSlotPolicyCheckBox.setText(" "+Integer.toString(polCount));
-//				if(policyFrameworkModel.getPolicyType(aSlot).equals("M")){
-//					templateSlotPolicyCheckBox.setIcon(mandatoryIcon);
-//				}else if(policyFrameworkModel.getPolicyType(aSlot).equals("D")){
-//					templateSlotPolicyCheckBox.setIcon(defaultIcon);
-//				}else{
-//					templateSlotPolicyCheckBox.setIcon(badTypeIcon);
-//				}
+				
 			}else{
-				//templateSlotPolicyCheckBox.setSelected(false);
-				//templateSlotPolicyCheckBox.setIcon(noPolicyIcon);
-				//templateSlotPolicyCheckBox.setText("");
 				policyInfoLabel.setIcon(noPolicyIcon);
 				policyInfoLabel.setText("");
 			}

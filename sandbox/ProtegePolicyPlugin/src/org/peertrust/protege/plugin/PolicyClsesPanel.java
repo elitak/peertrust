@@ -38,10 +38,11 @@ import edu.stanford.smi.protege.util.CollectionUtilities;
 import edu.stanford.smi.protege.util.CreateAction;
 
 /**
+ * This class is used to show the class with there policies.
+ * The classes are shown in a tree; with the selected class as root
+ * and it parents as "child". The class policies are shown in a table.
+ * 
  * @author congo
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PolicyClsesPanel extends ClsesPanel {
 	protected PolicyFrameworkModel policyFrameworkModel;
@@ -56,7 +57,11 @@ public class PolicyClsesPanel extends ClsesPanel {
 		//_labeledComponent.addHeaderButton(getCreatePolicyClassAction()); 
 		
 	}
-	
+	/**
+	 * Utility methode to create an action that make a PolicyTaggedCls
+	 * using the policyFramework model.
+	 * @return an Action that responds to action events by creating a PolicyTaggedCls
+	 */
 	public Action getCreatePolicyClassAction(){
 		URL url = getClass().getResource("res/Create.gif");
 		
@@ -76,6 +81,10 @@ public class PolicyClsesPanel extends ClsesPanel {
 		return createPolicyClassAction;
 	}
 	
+	/**
+	 * Override to create an action that build a PolicyTaggedCls.
+	 * @return
+	 */
 	protected AllowableAction getCreateClsAction() {
 		//return super.getCreateClsAction();
 		return (AllowableAction)getCreatePolicyClassAction();

@@ -1,8 +1,6 @@
 /*
  * Created on Oct 30, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package org.peertrust.protege.plugin;
 
@@ -30,11 +28,8 @@ import edu.stanford.smi.protege.model.Model;
 import edu.stanford.smi.protege.model.Slot;
 
 /**
- * Table model for cls policy;
+ * Table model for slot policy; The slot table has 3 column and uses a vector to cache policy data.
  * @author congo
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class SlotPolicyTableModel extends AbstractTableModel implements InstanceListener,FrameListener,SlotListener{
 	//Nr Type Pol DefCls
@@ -84,21 +79,25 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		return;
 	}
 	
+	/**
+	 * Utility method which build the policy data vector.
+	 *
+	 */
 	private void makeModelRow(){
-		//Slot clsPolicySlot= modelCls.getDirectOwnSlotValue(slot);
-		//PolicyFrameworkModel frameworkModel= new PolicyFrameworkModel(modelSlot.getKnowledgeBase());
+		//clean up.
 		Instance instance=null;
 		for(Iterator it=policyData.iterator();it.hasNext();){
 			instance=((PolicyFrameworkModel.PolicyData)it.next()).policyInst;
 			instance.removeInstanceListener(this);
 			instance.removeFrameListener(this);
 			
-		}
-		
+		}		
 		policyData.removeAllElements();
-		policyData.addAll(policyFrameworkModel.getAllPolicies(this.modelSlot));
 		
-		
+		//get new policy data
+		policyData.addAll(policyFrameworkModel.getAllPolicies(this.modelSlot));	
+
+		//register for instance and frame events
 		for(Iterator it=policyData.iterator();it.hasNext();){
 			instance=((PolicyFrameworkModel.PolicyData)it.next()).policyInst;
 			instance.addInstanceListener(this);
@@ -107,14 +106,14 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		return;
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		return COLUMN_COUNT;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
@@ -125,7 +124,16 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * To get the value of the specified cell.
+	 * @return the value of the cell. if col:
+	 * 	<ul>
+	 * 		<li> 0 for the policy Name.
+	 * 		<li> 1 for the policy Type.
+	 * 		<li> 2 for the policy value
+	 * 		<li> 3 for the defining class
+	 * 		<li> otherwise the row and column number of the cell.
+	 * </ul>
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int row, int col) {
@@ -139,7 +147,9 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		
 	}
 	
-	
+	/**
+	 * To get The column Name.
+	 */
 	public String getColumnName(int colIndex) {
 		switch(colIndex){
 			case 0: return "Name";
@@ -168,34 +178,10 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 	
 	
 	public void setValueAt(Object newValue, int row, int column) {
-//		if(column == 1){//set policy Type
-//			if(newValue==null){
-//				return;
-//			}else{
-//				String type=newValue.toString();
-//				if(type.equalsIgnoreCase("M" ) || type.equalsIgnoreCase("D")){
-//					policyFrameworkModel.setPolicyType(modelSlot,type.toUpperCase());
-//					makeModelRow();
-//				}else{
-//					System.out.println("bad value");
-//				}
-//			}
-//			this.fireTableDataChanged();
-//			return;
-//		}else if(column == 2){
-//			String oldValue= getValueAt(row,column).toString();
-//			policyFrameworkModel.changeSlotLocalPolicy(modelSlot,newValue.toString(),oldValue);
-//			makeModelRow();
-//			this.fireTableDataChanged();
-//			return;
-//		}else{
-//			return;
-//		}
 		
 		if(column == 0){//set Name
 			PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyData.get(row);
-//			policyFrameworkModel.changeLocalPolicy(polData.policyInst,
-//						PolicyFrameworkModel.DEFAULT_POLICY_TYPE_SLOT_NAME,polData.policyType,newValue.toString());
+
 			try{
 				policyFrameworkModel.setPolicyName(polData.policyInst,""+newValue);
 			}catch(IllegalArgumentException ilArgEx){
@@ -222,8 +208,10 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		//this.fireTableDataChanged();
 	}
 	
+	/** 
+	 * To add a new policy to the slot.
+	 */
 	public void addNewPolicy(){
-		//policyFrameworkModel.changeSlotLocalPolicy(modelSlot,"newPolicy",null);
 		policyFrameworkModel.createLocalPolicy(
 							modelSlot, 
 							PolicyFrameworkModel.DEFAULT_POLICY_CLS_POLICY_SLOT_NAME,
@@ -232,9 +220,11 @@ public class SlotPolicyTableModel extends AbstractTableModel implements Instance
 		fireTableDataChanged();
 	}
 	
+	/** 
+	 *To remove the policy in the specified row. 
+	 * @param selRow
+	 */
 	public void removePolicy(int selRow){
-//		String policyToDel= (String)getValueAt(selRow,POLICY_COLUMN_NR);
-//		policyFrameworkModel.changeSlotLocalPolicy(modelSlot,null,policyToDel);
 		PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyData.get(selRow);
 		if(polData.isLocallyDefined){
 			policyFrameworkModel.changeLocalPolicy(polData.policyInst,PolicyFrameworkModel.DEFAULT_POLICY_CLS_POLICY_SLOT_NAME," ",null);

@@ -83,6 +83,8 @@ public class SlotPolicyDisplayPanel extends JPanel {
 		this.policyFrameworkModel= new PolicyFrameworkModel(project.getKnowledgeBase());
 		policyTableModel= new SlotPolicyTableModel(this.policyFrameworkModel);
 		slotPolicyTable= new JTable(policyTableModel);
+		slotPolicyTable.setDefaultRenderer(	slotPolicyTable.getColumnClass(1), 
+				new ClsPolicyTableCellRenderer(policyFrameworkModel));
 		slotPolicyTable.getColumnModel().getColumn(1).setCellEditor(new ChoiceCellEditor(new String[]{"M","D"}));
 		toolBar= new JToolBar(JToolBar.HORIZONTAL); 
 		

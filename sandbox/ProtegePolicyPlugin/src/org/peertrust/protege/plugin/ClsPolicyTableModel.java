@@ -47,31 +47,44 @@ import edu.stanford.smi.protege.model.Slot;
 
 /**
  * Table model for cls policy;
+ * Its models a table  with 5 column and uses vectors to store the very data.
  * @author congo
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-public class ClsPolicyTableModel extends AbstractTableModel implements ClsListener, InstanceListener,FrameListener,SlotListener{
+public class ClsPolicyTableModel extends AbstractTableModel implements ClsListener, InstanceListener,FrameListener//,SlotListener
+{
 	//Nr Type Pol DefCls
 	private static int COLUMN_COUNT=5;
 	
+	/** the analysed class */
 	private Cls modelCls;
+	
+	/** a vector of PolicyData objects that represent the policies, which apply to the analysed class */
 	private Vector policyData;
+	
+	/** a vector of PolicyData objects that represent the policies, which apply to super classes but have been overridden*/ 
 	private Vector policyDataNotOverridden;
 	
+	/** the policy frame work.*/
 	private PolicyFrameworkModel policyFrameworkModel;
 	
+	/**
+	 * Build a virgin ClsPolicyTableModel object
+	 * @param policyFrameworkModel
+	 */
 	public ClsPolicyTableModel(PolicyFrameworkModel policyFrameworkModel){
 		super();
 		policyData= new Vector(20);
 		policyDataNotOverridden= new Vector(20);
 		this.policyFrameworkModel= policyFrameworkModel;
-		//this.addColumn("Nr");
-		//this.addColumn("Type");
+		return;
 	}
 	
+	/**
+	 * To set the class which policies are to be examined.
+	 * @param cls
+	 */
 	public void setCls(Cls cls){
+		
 		if(cls==null){
 			System.out.println("new Model cls is null!");
 			modelCls=null;
@@ -79,14 +92,15 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 			this.policyDataNotOverridden.removeAllElements();
 			return; //TODO BETTER WAY
 		}
+		
 		if(cls.isDeleted()){
-			System.out.println("new Model cls is null!");
+			System.out.println("new Model cls is deleted!");
 			modelCls=null;
 			this.policyData.removeAllElements();
 			this.policyDataNotOverridden.removeAllElements();
 			return; //TODO BETTER WAY1
 		}
-		
+		//clean up before setting a new class a class is already set 
 		if(this.modelCls!=null){
 			this.modelCls.removeClsListener(this);
 			String modelClsName= modelCls.getName();
@@ -99,60 +113,57 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 			}
 		}
 				
-				///cache and listen for events
-				this.modelCls=cls;
-				//this.modelCls.addClsListener(this);
-				//modelCls.getKnowledgeBase().getInstance(modelCls.getName()).addInstanceListener(this);
-				TableModelEvent tableModelEvent= new TableModelEvent(this);
-				makeModelRow();
-				this.fireTableChanged(tableModelEvent);
-		//		System.out.println("PolicyTableModel cls:"+cls.getBrowserText()+
-		//							"col1Size:"+policyData.size());
-				return;
+		///cache the class object, make the model data and notify for changes.
+		this.modelCls=cls;
+		TableModelEvent tableModelEvent= new TableModelEvent(this);
+		makeModelRow();
+		this.fireTableChanged(tableModelEvent);
+		
+		return;
 		
 	}
 	
+	/**
+	 * Recalculate the model data and notify the changes to listener.
+	 */
 	public void resetTableModel(){
 		TableModelEvent tableModelEvent= new TableModelEvent(this);
 		makeModelRow();
 		this.fireTableChanged(tableModelEvent);
-		//System.out.println("Resetinggggggggggggggggggggggggggggggggggggggggg");
 		return;
 	}
 	
+	/**
+	 * Find the policies that apply to the classes.
+	 * I.e. To building the policy data vector and the policyNotOvveridden vector.
+	 */
 	private void makeModelRow(){
 		//Slot clsPolicySlot= modelCls.getDirectOwnSlotValue(slot);
 		if(modelCls!=null){			
-			PolicyFrameworkModel frameworkModel= new PolicyFrameworkModel(modelCls.getKnowledgeBase());
-			policyData.removeAllElements();
-			this.policyDataNotOverridden.removeAllElements();
-			policyData.addAll(frameworkModel.getAllPolicies(this.modelCls));
-			
-			policyDataNotOverridden.addAll(policyData);
-			//policyDataNotOverridden.removeAll(frameworkModel.getOverriddablePolicies(this.modelCls));
+			//stop listening and clean up if a class exists
 			Instance instance=null;
 			for(Iterator it=policyData.iterator();it.hasNext();){
 				instance=((PolicyFrameworkModel.PolicyData)it.next()).policyInst;
 				instance.removeInstanceListener(this);
-				instance.removeFrameListener(this);
-				
-			}
-			//Filter the data
-			//System.out.println("*********************************************************************************");
-			Vector alreadyOverridden= new Vector(10);
+				instance.removeFrameListener(this);				
+			}			
+			policyData.removeAllElements();
+			this.policyDataNotOverridden.removeAllElements();
 			
+			//build the new policy data vector
+			policyData.addAll(policyFrameworkModel.getAllPolicies(this.modelCls));			
+			//find the policy which have not been overridden.
+			policyDataNotOverridden.addAll(policyData);
+			Vector alreadyOverridden= new Vector(10);			
 			for(Iterator it=policyData.iterator();it.hasNext();){
 				PolicyFrameworkModel.PolicyData polData=((PolicyFrameworkModel.PolicyData)it.next());
-				//System.out.println("overRiden:"+polData.policyOverridden);
-				//policyDataNotOverridden.remove(polData.policyOverridden);
 				if(polData.policyOverridden!=null){
-//					policyDataNotOverridden.remove(polData);
 					alreadyOverridden.add(polData.policyOverridden);
 				}
 			}
 			policyDataNotOverridden.removeAll(alreadyOverridden);
-			//System.out.println("*********************************************************************************");
 			
+			//start listening
 			for(Iterator it=policyData.iterator();it.hasNext();){
 				instance=((PolicyFrameworkModel.PolicyData)it.next()).policyInst;
 				instance.addInstanceListener(this);
@@ -160,6 +171,7 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 				
 			}
 		}else{
+			//Clean upn
 			Instance instance=null;
 			for(Iterator it=policyData.iterator();it.hasNext();){
 				instance=((PolicyFrameworkModel.PolicyData)it.next()).policyInst;
@@ -173,23 +185,17 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 		return;
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		return COLUMN_COUNT;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-//		if(policyData==null){
-//			return 0;
-//		}else{
-//			return policyData.size();
-//			//return policyDataNoOverridden.size();
-//		}
 		if(policyDataNotOverridden==null){
 			return 0;
 		}else{
@@ -198,8 +204,20 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 		
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * To get the cell value.
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 * @param row - the cell row
+	 * @param col - the cell col
+	 * @return the cell value. if col is:
+	 * 	<ul>
+	 * 		<li> 0 the policy name.
+	 * 		<li> 1 the policy type
+	 * 		<li> 2 the policy
+	 * 		<li> 3 the defining class for a policy
+	 * 		<li> 4 the class that the policy has overridden.
+	 * 		<li> otherwise the pair (row,col)
+	 * </ul>
 	 */
 	public Object getValueAt(int row, int col) {
 		switch(col){
@@ -209,11 +227,14 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 		 case 3:  return ((PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row)).definingClassName;
 		 case 4: return  ((PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row)).policyOverridden;
 		 default: return "("+row+","+col+")";
-		}
-		
+		}		
 	}
 	
-	
+	/**
+	 * To get the column name.
+	 * @param colIndex - is the index of the column 
+	 * @return the column name.
+	 */
 	public String getColumnName(int colIndex) {
 		switch(colIndex){
 			case 0: return "Name";
@@ -225,11 +246,22 @@ public class ClsPolicyTableModel extends AbstractTableModel implements ClsListen
 		}
 		//return super.getColumnName(arg0);
 	}
-	
+
+/**
+ * To check whether the policy at a specific row is locally defined or inheritated.
+ * This flag is available in the PolicyData object.
+ * @param row - the number of the row.
+ * @return true if the policy is defined in class to examine or false.
+ */	
 public boolean getIsLocallyLocal(int row){
 	return ((PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row)).isLocallyDefined;
 }
 
+/**
+ * To remove a localy defined policy at specific row.
+ * 
+ * @param row
+ */
 public void removePolicy(int row){
 	PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row);
 	if(polData.isLocallyDefined){
@@ -239,53 +271,65 @@ public void removePolicy(int row){
 	return;
 }
 
+/**
+ * To get the policy, which may be overridden by the policy in the current row.
+ * @param row
+ * @return a collection of overridable policies.
+ */
 public Collection getOverriddables(int row){
 	PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row);
-	//policyFrameworkModel.changeLocalPolicy(polData.policyInst,PolicyFrameworkModel.DEFAULT_POLICY_CLS_POLICY_SLOT_NAME," ",null);
 	Cls cls=policyFrameworkModel.getKnowledgeBase().getCls(polData.definingClassName);
-	//System.out.println("Overridable for :"+cls);
 	return policyFrameworkModel.getOverriddablePolicies(cls);
-	//fireTableDataChanged();
-	//return;
+	
 }
 
+/**
+ * To get the name of an instance.
+ * @param inst
+ * @return
+ */
 public String getInstanceName(Instance inst){
-	Object name= inst.getOwnSlotValue(policyFrameworkModel.getPolicySlotName());
-	if(name==null){
-		return null;
+	if(inst!=null){
+		return inst.getName();
 	}else{
-		return name.toString();
+		return null;
 	}
 }
 
+/**
+ * To add a new policy to a class.
+ */
 public void addNewPolicy(){
 	policyFrameworkModel.createLocalPolicy(this.modelCls,PolicyFrameworkModel.DEFAULT_POLICY_CLS_POLICY_SLOT_NAME,"My Policy","M");
 }
-
-	public boolean isCellEditable(int row, int column) {
-		if(((PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row)).isLocallyDefined){
-			if(column == 0){
-				return true;
-			}else if(column == 1){
-				return true;
-			}else if(column==2){
-				return true;
-			}else if(column==4){
-				return true;
-			}else{
-				return false;
-			}
+/**
+ * @see javax.swing.table.TableModel#isCellEditable(int, int)
+ */
+public boolean isCellEditable(int row, int column) {
+	if(((PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row)).isLocallyDefined){
+		if(column == 0){
+			return true;
+		}else if(column == 1){
+			return true;
+		}else if(column==2){
+			return true;
+		}else if(column==4){
+			return true;
 		}else{
 			return false;
 		}
+	}else{
+		return false;
 	}
+}
 	
-	
+	/**
+	 * 
+	 * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
+	 */
 	public void setValueAt(Object newValue, int row, int column) {
 		if(column == 0){//set Name
 			PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row);
-//			policyFrameworkModel.changeLocalPolicy(polData.policyInst,
-//						PolicyFrameworkModel.DEFAULT_POLICY_TYPE_SLOT_NAME,polData.policyType,newValue.toString());
 			try{
 				policyFrameworkModel.setPolicyName(polData.policyInst,""+newValue);
 			}catch(IllegalArgumentException ilArgEx){
@@ -308,9 +352,6 @@ public void addNewPolicy(){
 			return;
 		}else if(column==4){//set policy
 			PolicyFrameworkModel.PolicyData polData= (PolicyFrameworkModel.PolicyData)policyDataNotOverridden.get(row);
-//			policyFrameworkModel.changeLocalPolicy(polData.policyInst,
-//						//PolicyFrameworkModel.DEFAULT_POLICY_CLS_POLICY_SLOT_NAME,polData.policy,newValue.toString());
-//					PolicyFrameworkModel.DEFAULT_POLICY_SLOT_VALUE,polData.policy,newValue.toString());
 			policyFrameworkModel.setPolicyOverridden(polData.policyInst,(Instance)newValue);
 			this.resetTableModel();
 			return;
@@ -319,10 +360,8 @@ public void addNewPolicy(){
 		}
 		
 	}
-//public boolean getRowCls(){
-//	((PolicyFrameworkModel.PolicyData)policyData.get(row)).
-//}
-/*********************** CLSLISTENERFUNCTIONS *****************************************/
+
+	/*********************** CLSLISTENERFUNCTIONS *****************************************/
 	/* (non-Javadoc)
 	 * @see edu.stanford.smi.protege.event.ClsListener#directInstanceAdded(edu.stanford.smi.protege.event.ClsEvent)
 	 */
@@ -342,8 +381,7 @@ public void addNewPolicy(){
 	 * @see edu.stanford.smi.protege.event.ClsListener#directSubclassAdded(edu.stanford.smi.protege.event.ClsEvent)
 	 */
 	public void directSubclassAdded(ClsEvent event) {
-		resetTableModel();
-		
+		resetTableModel();		
 	}
 
 	/* (non-Javadoc)
@@ -424,7 +462,7 @@ public void addNewPolicy(){
 	 * @see edu.stanford.smi.protege.event.InstanceListener#directTypeAdded(edu.stanford.smi.protege.event.InstanceEvent)
 	 */
 	public void directTypeAdded(InstanceEvent event) {
-		resetTableModel();		
+		resetTableModel();
 	}
 
 	/* (non-Javadoc)
@@ -432,14 +470,13 @@ public void addNewPolicy(){
 	 */
 	public void directTypeRemoved(InstanceEvent event) {
 		resetTableModel();
-		
 	}
 
 	/* (non-Javadoc)
 	 * @see edu.stanford.smi.protege.event.FrameListener#browserTextChanged(edu.stanford.smi.protege.event.FrameEvent)
 	 */
 	public void browserTextChanged(FrameEvent event) {
-		resetTableModel();		
+		resetTableModel();
 	}
 
 	/* (non-Javadoc)
@@ -447,7 +484,6 @@ public void addNewPolicy(){
 	 */
 	public void deleted(FrameEvent event) {
 		resetTableModel();
-		
 	}
 
 	/* (non-Javadoc)
@@ -515,59 +551,59 @@ public void addNewPolicy(){
 	}
 	/************************************************************************************/
 
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#templateSlotClsAdded(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void templateSlotClsAdded(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#templateSlotClsRemoved(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void templateSlotClsRemoved(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotAdded(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void directSubslotAdded(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotRemoved(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void directSubslotRemoved(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotMoved(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void directSubslotMoved(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#directSuperslotAdded(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void directSuperslotAdded(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.stanford.smi.protege.event.SlotListener#directSuperslotRemoved(edu.stanford.smi.protege.event.SlotEvent)
-	 */
-	public void directSuperslotRemoved(SlotEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#templateSlotClsAdded(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void templateSlotClsAdded(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#templateSlotClsRemoved(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void templateSlotClsRemoved(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotAdded(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void directSubslotAdded(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotRemoved(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void directSubslotRemoved(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#directSubslotMoved(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void directSubslotMoved(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#directSuperslotAdded(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void directSuperslotAdded(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see edu.stanford.smi.protege.event.SlotListener#directSuperslotRemoved(edu.stanford.smi.protege.event.SlotEvent)
+//	 */
+//	public void directSuperslotRemoved(SlotEvent event) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 }

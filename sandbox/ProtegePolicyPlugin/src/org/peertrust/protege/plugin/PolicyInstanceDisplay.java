@@ -105,14 +105,13 @@ import edu.stanford.smi.protege.widget.SlotWidget;
 import edu.stanford.smi.protege.widget.TemplateSlotsWidget;
 
 /**
+ * This is modification of the class InstanceDisplay to provide a display
+ * very suitable for classes of the type PolicyTaggesCls.
  * @author Congo Patrice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PolicyInstanceDisplay extends JDesktopPane{//InstanceDisplay {
-	public static String TAB_TITLE_SLOT_POLICY= "Slot Policy";
-	public static String TAB_TITLE_CLS_POLICY="Cls POLICY";
+	public static String TAB_TITLE_SLOT_POLICY= "           Slot Policies             ";
+	public static String TAB_TITLE_CLS_POLICY=	"           Class Policies            ";
 	private Project _project;
     private JScrollPane _scrollPane;
     private ClsWidget _currentWidget;
@@ -320,7 +319,7 @@ public class PolicyInstanceDisplay extends JDesktopPane{//InstanceDisplay {
     }
     protected void addRuntimeWidget(Instance instance, Cls associatedCls) {
         Cls type = instance.getDirectType();
-        _project.getDirectIncludedProjects();
+        //_project.getDirectIncludedProjects();
         if (type == null) {
             Log.warning("instance has no type", this, "Instance", instance);
         } else {
@@ -344,8 +343,8 @@ public class PolicyInstanceDisplay extends JDesktopPane{//InstanceDisplay {
             ///rightPane.setBottomComponent(policyDisplayPanel);//createPolicyslotPanel());
             ////CLS AND SLOT POLICY
             JTabbedPane tabbedPane= new JTabbedPane();
-            tabbedPane.addTab("Cls Policy", policyClsTreeView);
-            tabbedPane.addTab("Slot Policy", slotPolicyDisplayPanel);
+            tabbedPane.addTab(TAB_TITLE_CLS_POLICY,policyClsTreeView);//"    Class Policies   ", policyClsTreeView);
+            tabbedPane.addTab(TAB_TITLE_SLOT_POLICY,slotPolicyDisplayPanel);//"    Slot Policies    ", slotPolicyDisplayPanel);
             //tabbedPane.addTab("Slot Policy", createClsDisplay());            
             
             rightPane.setBottomComponent(tabbedPane);

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: 1.4.1_02 (Sun Microsystems Inc.)
+
+Name: org.peertrust.protege.plugin.PolicyTabPlugin.class
+Tab-Widget: True
+
+Name: org.peertrust.protege.plugin.PolicyTemplateSlotsWidget.class
+Slot-Widget: True
+

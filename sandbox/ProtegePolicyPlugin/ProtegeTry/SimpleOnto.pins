@@ -1,0 +1,39 @@
+; Thu Jan 20 10:21:09 CET 2005
+; 
+;+ (version "2.1.2")
+;+ (build "Build 246")
+
+([cls1] of PolicyTaggedCls
+	(Attached+Policy
+		[p11]
+		[p12]))
+
+([cls2] of PolicyTaggedCls
+	(Attached+Policy
+		[p21]
+		[p22]))
+
+([CName] of PolicyTaggedSlot
+	(Attached+Policy [sp21]))
+
+([p11] of PolicyCls
+	(PolicySlotValue "p11Policy")
+	(PolicyType M))
+
+([p12] of PolicyCls
+	(PolicySlotOverridding [p21])
+	(PolicySlotValue "p12Policy")
+	(PolicyType D))
+
+([p21] of PolicyCls
+	(PolicySlotOverridden [p12])
+	(PolicySlotValue "P21Policy")
+	(PolicyType M))
+
+([p22] of PolicyCls
+	(PolicySlotValue "p22Policy")
+	(PolicyType M))
+
+([sp21] of PolicyCls
+	(PolicySlotValue "sp21Policy")
+	(PolicyType M))

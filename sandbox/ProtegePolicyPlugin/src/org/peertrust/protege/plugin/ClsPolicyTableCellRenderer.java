@@ -29,6 +29,7 @@ import javax.swing.JTable;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import edu.stanford.smi.protege.model.FrameSlotCombination;
 import edu.stanford.smi.protege.model.Instance;
@@ -36,13 +37,13 @@ import edu.stanford.smi.protege.model.Slot;
 import edu.stanford.smi.protege.util.DefaultRenderer;
 
 /**
- * @author Congo Patrice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Provide a contomized renderer for table cell.
+ * A specific renderer is return according the table column name. 
+ * @author Congo Patrice 
  */
-public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 
+public class ClsPolicyTableCellRenderer implements TableCellRenderer {
+	
 	Icon mandatoryIcon;
 	Icon defaultIcon;
 	Icon noPolicyIcon;
@@ -52,13 +53,23 @@ public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 	Icon inheritatedIcon;
 	
 	PolicyFrameworkModel policyFrameworkModel;
+	
 	JCheckBox templateSlotPolicyCheckBox= new JCheckBox();
+	
 	JLabel rendererNrLabel= new JLabel();
+	
 	JLabel rendererTypeLabel= new JLabel();
+	
 	JLabel rendererPolicyLabel= new JLabel();
+	
 	JLabel rendererDefiningClsLabel= new JLabel();
+	
 	JLabel rendererOverriddenClsLabel= new JLabel();
 	
+	/**
+	 * create a ClsPolicyTableCellRenderer object. Icon resources are loaded hier
+	 * @param policyFrameworkModel - the currently used policy framework.
+	 */
 	public ClsPolicyTableCellRenderer(PolicyFrameworkModel policyFrameworkModel){
 		this.policyFrameworkModel=policyFrameworkModel;
 		templateSlotPolicyCheckBox.setAlignmentX(JCheckBox.CENTER_ALIGNMENT);
@@ -85,16 +96,37 @@ public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 			th.printStackTrace();
 		}
 	}
+	
+	/**
+	 * To set A new Policy Framework model.
+	 * @param policyFrameworkModel - the new policy framework
+	 */
 	public void setPolicyFrameworkModel(PolicyFrameworkModel policyFrameworkModel){
 		this.policyFrameworkModel=policyFrameworkModel;
 	}
-	/* (non-Javadoc)
+	
+	/**
+	 * Automaticaly call to get the cell renderer.
+	 * The return rendering componenet depends on the column name. Renderer only exists for:
+	 * <ul>
+	 * 	<li> the Name column to render policy names.
+	 * 	<li> the Type column to render policy type 
+	 * 	<li> the Defining column to show the classes in which the class policies have been defined
+	 * 	<li> the overridden Policy column to show policies which have been overridden bei other.
+	 * 	<li> or a renderer that show that indicate an error
+	 * </ul>  
 	 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 	 */
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	public Component getTableCellRendererComponent(	JTable table, 
+													Object value, 
+													boolean isSelected, 
+													boolean hasFocus, 
+													int row, 
+													int column
+													) {
 		String colName= table.getColumnName(column);
 		if(colName=="Name"){
-			return getNrRendererComponent(table,value,isSelected,hasFocus,row,column);
+			return getNameRendererComponent(table,value,isSelected,hasFocus,row,column);
 		}else if(colName=="Type"){
 			return getTypeRendererComponent(table,value,isSelected,hasFocus,row,column);
 		}else if(colName=="Policy"){
@@ -109,24 +141,55 @@ public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 		
 	}
 	
-	private Component getNrRendererComponent(	JTable table, Object value, 
+	/**
+	 * Utility method that returns the Name coulumn cell renderer.
+	 * @param table 
+	 * @param value 
+	 * @param isSelected
+	 * @param hasFocus
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private Component getNameRendererComponent(	JTable table, Object value, 
 												boolean isSelected, boolean hasFocus, 
 												int row, int column){
-		boolean isLocallyDefined=((ClsPolicyTableModel)table.getModel()).getIsLocallyLocal(row);
-		if(isLocallyDefined){
+		TableModel tm=table.getModel();
+		if(tm instanceof ClsPolicyTableModel){
+			boolean isLocallyDefined=((ClsPolicyTableModel)table.getModel()).getIsLocallyLocal(row);
+			if(isLocallyDefined){
+				rendererNrLabel.setIcon(locallyDefinedIcon);
+			}else{
+				rendererNrLabel.setIcon(inheritatedIcon);
+				//System.out.println("********************************inherited:"+inheritatedIcon);
+			}
+		}else if(tm instanceof SlotPolicyTableModel){
 			rendererNrLabel.setIcon(locallyDefinedIcon);
 		}else{
 			rendererNrLabel.setIcon(inheritatedIcon);
-			//System.out.println("********************************inherited:"+inheritatedIcon);
 		}
 		rendererNrLabel.setText(value.toString());
 		return rendererNrLabel;
 	}
 	
-
-	private Component getTypeRendererComponent(	JTable table, Object value, 
-												boolean isSelected, boolean hasFocus, 
-												int row, int column){
+	/**
+	 * Utility method that returns the policy type column cell renderer.
+	 * @param table
+	 * @param value
+	 * @param isSelected
+	 * @param hasFocus
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private Component getTypeRendererComponent(	
+												JTable table, 
+												Object value, 
+												boolean isSelected, 
+												boolean hasFocus, 
+												int row, 
+												int column
+												){
 		String type= value.toString();
 		if(type.equals("M")){
 			rendererTypeLabel.setIcon(mandatoryIcon);
@@ -138,29 +201,67 @@ public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 		return rendererTypeLabel;
 	}
 	
-	private Component getPolicyRendererComponent(	JTable table, Object value, 
-			boolean isSelected, boolean hasFocus, 
-			int row, int column){
-		
+	/**
+	 * Utility method that returns the Policy column table cell rendering component.
+	 * @param table
+	 * @param value
+	 * @param isSelected
+	 * @param hasFocus
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private Component getPolicyRendererComponent(	
+											JTable table, 
+											Object value, 
+											boolean isSelected, 
+											boolean hasFocus, 
+											int row, 
+											int column
+											){		
 		rendererPolicyLabel.setText(value.toString());
 		return rendererPolicyLabel;
 	}
 	
-	private Component getDefiningClsRendererComponent(	JTable table, Object value, 
-			boolean isSelected, boolean hasFocus, 
-			int row, int column){
+	/**
+	 * To get thet cell renderer component , which can render the defining class column cells.
+	 * @param table
+	 * @param value
+	 * @param isSelected
+	 * @param hasFocus
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private Component getDefiningClsRendererComponent(	
+												JTable table, 
+												Object value,
+												boolean isSelected, 
+												boolean hasFocus,
+												int row, 
+												int column){
 		rendererDefiningClsLabel.setText(value.toString());
 		return rendererDefiningClsLabel;
 	}
 	
+	/**
+	 * To get get the renderer that can show the Overridden class column cells
+	 * @param table
+	 * @param value
+	 * @param isSelected
+	 * @param hasFocus
+	 * @param row
+	 * @param column
+	 * @return
+	 */
 	private Component getOverriddenClsRendererComponent(	
 										JTable table, Object value, 
 										boolean isSelected, boolean hasFocus, 
 										int row, int column){
 		String text="Nothing";
 		if(value!=null){
-			text= (String)((Instance)value).getOwnSlotValue(policyFrameworkModel.getPolicySlotName());
-			
+			//text= (String)((Instance)value).getOwnSlotValue(policyFrameworkModel.getPolicySlotName());
+			text=(String)((Instance)value).getName();
 		}
 		rendererOverriddenClsLabel.setText(text);
 		return rendererOverriddenClsLabel;
