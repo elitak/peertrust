@@ -40,10 +40,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.6 2005/01/12 11:23:18 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.7 2005/02/10 11:41:05 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/12 11:23:18 $
+ * Last changed  $Date: 2005/02/10 11:41:05 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -77,7 +77,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.6 2005/01/12 11:23:18 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.7 2005/02/10 11:41:05 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -95,6 +95,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			msg = "There not exist a communication channel factory" ;
 		else if (_alias == null)
 			msg = "No alias has been defined for the peer" ;
+		else if (_entities == null)
+			msg = "There not exist a table of entities" ;
 		
 		if (msg != null)
 		{

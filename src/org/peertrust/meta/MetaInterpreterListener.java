@@ -36,10 +36,10 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.5 2005/01/11 17:46:59 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.6 2005/02/10 11:41:22 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:46:59 $
+ * Last changed  $Date: 2005/02/10 11:41:22 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -60,7 +60,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.5 2005/01/11 17:46:59 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.6 2005/02/10 11:41:22 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -74,6 +74,8 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			msg = "There not exist an inference engine" ;
 		else if (_commChannelFactory == null)
 			msg = "There not exist a communication channel factory" ;
+		else if (_entities == null)
+			msg = "There not exist a table of entities" ;
 		
 		if (msg != null)
 		{

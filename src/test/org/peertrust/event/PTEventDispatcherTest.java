@@ -26,10 +26,10 @@ import org.peertrust.exception.ConfigurationException;
 import junit.framework.*;
 
 /**
- * $Id: PTEventDispatcherTest.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: PTEventDispatcherTest.java,v 1.2 2005/02/10 11:41:54 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * Last changed  $Date: 2005/02/10 11:41:54 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -118,7 +118,47 @@ public class PTEventDispatcherTest extends TestCase {
 		assertSame(event, event3) ;
 	}
 	
-	public void testRegisteredClassForSpecifiAndAllEvents() {
+	public void testRegisteredClassForParentEvent() {
+		
+		TestClass t1 = new TestClass(ed) ;
+		ed.register(t1) ;
+		
+		TestClass t2 = new TestClass(ed) ;
+		ed.register(t2, PTEventTestB.class) ;
+		
+		TestClass t3 = new TestClass(ed) ;
+		ed.register(t3, PTEventTestA.class) ;
+		
+		TestClass t4 = new TestClass(ed) ;
+		ed.register(t4, PTEventTestASubClass.class) ;
+		
+		TestClass t5 = new TestClass(ed) ;
+		
+		PTEvent event = new PTEventTestASubClass(t5) ;
+		
+		t5.generateEvent(event) ;
+		
+		PTEvent event1 = t1.getMessage() ;
+		PTEvent event2 = t2.getMessage() ;
+		PTEvent event3 = t3.getMessage() ;
+		PTEvent event4 = t4.getMessage() ;
+		
+		assertNotNull(event1) ;
+		assertNull(event2) ;
+		assertNotNull(event3) ;
+		assertNotNull(event4) ;
+		
+		assertEquals(event, event1) ;
+		assertEquals(event, event3) ;
+		assertEquals(event, event4) ;
+		
+		assertSame(event, event1) ;
+		assertNotSame(event, event2) ;
+		assertSame(event, event3) ;
+		assertSame(event, event4) ;
+	}
+	
+	public void testRegisteredClassForSpecificAndAllEvents() {
 		
 		TestClass t1 = new TestClass(ed) ;
 		ed.register(t1) ;
