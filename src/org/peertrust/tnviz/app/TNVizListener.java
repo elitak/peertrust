@@ -8,13 +8,13 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 public class TNVizListener implements PTEventListener, Configurable {
-	private static Logger log = Logger.getLogger(TNVizListener.class);
 	
+	private static Logger log = Logger.getLogger(TNVizListener.class);
 	EventDispatcher _dispatcher;
 	private Graphics graphics;
 
 	public TNVizListener() {
-		super();
+		//super();
 		graphics = new TNGraphics();
 	}
 	
@@ -26,10 +26,9 @@ public class TNVizListener implements PTEventListener, Configurable {
 			msg = "There not exist an event dispatcher" ;
 			throw new ConfigurationException(msg) ;
 		}
-		
 		_dispatcher.register(this) ;
 	}
-	
+
 	public void event(PTEvent event) {
 		if (event instanceof QueryEvent)
 		{
@@ -45,11 +44,11 @@ public class TNVizListener implements PTEventListener, Configurable {
 		}
 		graphics.updateGraph();
 	}
-	
+
 	public EventDispatcher getEventDispatcher() {
 		return _dispatcher;
 	}
-	
+
 	/**
 	 * @param _dispatcher The _dispatcher to set.
 	 */
@@ -75,14 +74,20 @@ public class TNVizListener implements PTEventListener, Configurable {
 		Peer chen=new Peer("chen","www.chen.de",828282);
 		Peer sebastian=new Peer("sebastian","www.sebastian.de",282828);
 		Peer michael=new Peer("michael","www.michael.de",121212);
-		listener.deliverEvent(new QueryEvent(null,new Query("hallo, sebastian",chen,sebastian,0)));
+		/*listener.deliverEvent(new QueryEvent(null,new Query("hallo, sebastian",chen,sebastian,0)));
 		listener.deliverEvent(new AnswerEvent(null,new Answer("hallo, chen","",Answer.ANSWER,0,sebastian,chen)));
 		listener.deliverEvent(new QueryEvent(null,new Query("sebastian?",chen,sebastian,1)));
 		listener.deliverEvent(new QueryEvent(null,new Query("michael?",chen,michael,2)));
 		listener.deliverEvent(new AnswerEvent(null,new Answer("wo ai ni","",Answer.ANSWER,1,sebastian,chen)));
 		listener.deliverEvent(new AnswerEvent(null,new Answer("chen??","",Answer.ANSWER,2,michael,chen)));
-		listener.deliverEvent(new QueryEvent(null,new Query("michael?",chen,michael,3)));
-		listener.deliverEvent(new AnswerEvent(null,new Answer("chen?!?","",Answer.ANSWER,3,michael,chen)));
+		listener.deliverEvent(new QueryEvent(null,new Query("michael??????????????????????????????????????",chen,michael,3)));
+		listener.deliverEvent(new AnswerEvent(null,new Answer("chen?!?","",Answer.ANSWER,3,michael,chen)));*/
+	/*
+		listener.deliverEvent(new QueryEvent(null,new Query("b",sebastian,michael,1,0)));
+		listener.deliverEvent(new QueryEvent(null,new Query("a",chen,sebastian,0,Query.NO_RELATED_QUERY)));
+		listener.deliverEvent(new AnswerEvent(null,new Answer("c","",Answer.ANSWER,1,michael,sebastian)));
+		listener.deliverEvent(new AnswerEvent(null,new Answer("d","",Answer.ANSWER,0,sebastian,chen)));
+		listener.deliverEvent(new QueryEvent(null,new Query("a",michael,sebastian,0,Query.NO_RELATED_QUERY)));
 	}*/
 	
 }

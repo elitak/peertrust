@@ -3,7 +3,6 @@ package org.peertrust.tnviz.app;
 
 import java.awt.Color;
 import org.jgraph.JGraph;
-
 import org.peertrust.net.Query;
 import org.peertrust.net.Answer;
 import org.peertrust.tnviz.gui.TNGui;
@@ -12,6 +11,8 @@ public interface Graphics {
 	
 	public static final int TREE_LAYOUT = 0;
 	public static final int SEQ_LAYOUT = 1;
+	
+	public abstract void wipeGraph();
 	
 	public abstract JGraph getGraph();
 	

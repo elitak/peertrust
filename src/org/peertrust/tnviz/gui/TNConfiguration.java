@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 
 import org.peertrust.tnviz.app.Graphics;
 
-
 public class TNConfiguration extends JDialog implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;

@@ -3,7 +3,6 @@ package org.peertrust.tnviz.app;
 import java.awt.Color;
 import java.util.Enumeration;
 import java.util.Vector;
-
 import org.peertrust.tnviz.gui.TNGui;
 
 public class TNReplay extends Thread {

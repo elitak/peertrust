@@ -53,7 +53,25 @@ public class TNSeqDiagramm {
 		
 	}
 	
+	public void wipeGraph() {
+		graph = new JGraph();
+		model = new DefaultGraphModel();
+		graphElements = new Hashtable();
+		lastY = SEQ_START_DISTANCE_Y;
+		lastX = SEQ_START_DISTANCE_X;
+		graphPath = new Vector();
+		nodes = new Vector();
+		nodesInvisible = new Hashtable();
+		graph.setModel(model);
+		graph.setGraphLayoutCache(new GraphLayoutCache(model,new DefaultCellViewFactory(),true));
+	}
+	
 	public void addQuery(Query query) {
+		
+		if (query.getSource() == null || query.getTarget() == null) {
+			return;
+		}
+		
 		String sourceAddress = query.getSource().getAddress();
 		String sourceAlias = query.getSource().getAlias();
 		int sourcePort = query.getSource().getPort();
@@ -66,7 +84,7 @@ public class TNSeqDiagramm {
 		
 		String goal = query.getGoal();
 		long reqQueryId = query.getReqQueryId();
-		
+				
 		TNNode source = null;
 		TNNode target = null;
 		
@@ -91,6 +109,11 @@ public class TNSeqDiagramm {
 	}
 	
 	public void addAnswer(Answer answer) {
+		
+		if (answer.getSource() == null || answer.getTarget() == null) {
+			return;
+		}
+		
 		String sourceAddress = answer.getSource().getAddress();
 		String sourceAlias = answer.getSource().getAlias();
 		int sourcePort = answer.getSource().getPort();
@@ -211,7 +234,6 @@ public class TNSeqDiagramm {
 		
 		// Check the length of the edge label, and recompute the distance between the nodes.
 	    int labelWidth = graph.getFontMetrics(graph.getFont()).stringWidth(object.toString())+10;
-	    System.out.println("dist: "+(nodeTarget.getX() - nodeSource.getX())+" length: "+labelWidth);
 	    if ((nodeTarget.getX() > nodeSource.getX()) && (nodeTarget.getX() - nodeSource.getX()) < labelWidth) {
 	    	SEQ_DISTANCE_X = labelWidth;
 	    	repositionNodes();
@@ -273,10 +295,10 @@ public class TNSeqDiagramm {
 	    Map edgeAttributes = new Hashtable();
 	    int arrow;
 	    if (query) {
-	    	arrow = GraphConstants.ARROW_CLASSIC;
+	    	arrow = GraphConstants.ARROW_SIMPLE;
 	    }
 	    else {
-	    	arrow = GraphConstants.ARROW_SIMPLE;
+	    	arrow = GraphConstants.ARROW_CLASSIC;
 	    }
 	    GraphConstants.setLineEnd(edgeAttributes,arrow);
 	    GraphConstants.setEndFill(edgeAttributes,true);
@@ -291,12 +313,20 @@ public class TNSeqDiagramm {
 	    GraphConstants.setEditable(edgeAttributes,graphics.getEdgeEditable());
 	    GraphConstants.setLineColor(edgeAttributes,graphics.getEdgeColor());
 	    
-	    if (lastInvisibleNodeSource.equals(nodeSource)) {
+	    if (lastY == SEQ_START_DISTANCE_Y) {
 	    	lastY = lastY+SEQ_DISTANCE_Y+NODE_HEIGHT;
 	    }
 	    else {
 	    	lastY = lastY+SEQ_DISTANCE_Y;
 	    }
+	    
+	    /*
+	    if (lastInvisibleNodeSource.equals(nodeSource)) {
+	    	lastY = lastY+SEQ_DISTANCE_Y+NODE_HEIGHT;
+	    }
+	    else {
+	    	lastY = lastY+SEQ_DISTANCE_Y;
+	    }*/
 	    	    
 	    Map attributes = new Hashtable();
 	    attributes.put(invisibleEdgeSource,edgeInvisibleSourceAttributes);
@@ -362,7 +392,6 @@ public class TNSeqDiagramm {
 
 	private void positionNode(TNNode node, int x, int y) {
 		Rectangle nodeBounds = new Rectangle(x,y,node.getLabelWidth(),NODE_HEIGHT);
-		System.out.println("w: "+node.getLabelWidth()+" h: "+NODE_HEIGHT);
 		Map nodeAttributes = node.getAttributes();
 	    GraphConstants.setBounds(nodeAttributes,nodeBounds);
 	    node.setX(x);

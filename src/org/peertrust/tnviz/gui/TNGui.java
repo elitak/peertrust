@@ -24,12 +24,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JOptionPane;
 
 import org.jgraph.graph.DefaultGraphCell;
+
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
-
 
 public class TNGui extends JFrame implements MouseListener, KeyListener, ActionListener {
 	
@@ -109,6 +110,9 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 	    JMenuBar menuBar = new JMenuBar();
 	    
 	    JMenu fileMenu = new JMenu("File");
+	    JMenuItem deleteItem = new JMenuItem("Delete Graphs",'D');
+	    deleteItem.addActionListener(this);
+	    fileMenu.add(deleteItem);
 	    JMenuItem exitItem = new JMenuItem("Exit",'E');
 	    exitItem.addActionListener(this);
 	    fileMenu.add(exitItem);
@@ -220,8 +224,6 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 			this.repaint();
 		}
 		
-		
-		
 	}
 	
 	public void mouseExited(MouseEvent e) {}
@@ -243,14 +245,7 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 		
 	}
 	
-	public void keyPressed(KeyEvent e) {
-		/*
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			TNNode node = graphics.createNode("Node Neu");
-			graphics.positionNode(node,100,100);
-		}
-		*/
-	}
+	public void keyPressed(KeyEvent e) {}
 	
 	public void keyReleased(KeyEvent e) {}
 	
@@ -260,6 +255,13 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 		
 		if (e.getActionCommand().equals("Exit")) {
 			System.exit(0);
+		}
+		else if (e.getActionCommand().equals("Delete Graphs")) {
+			int option = JOptionPane.showConfirmDialog(this,"Do you really want to delete all the graphs and their data?","Delete Graphs?",JOptionPane.WARNING_MESSAGE,JOptionPane.YES_NO_OPTION);
+			if (option == JOptionPane.OK_OPTION) {
+				graphics.wipeGraph();
+				setGraphics(graphics);
+			}
 		}
 		else if (e.getActionCommand().equals("Preferences")) {
 			TNConfiguration conf = new TNConfiguration(this,graphics);
@@ -289,11 +291,13 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 			graphics.setLayout(Graphics.TREE_LAYOUT);
 			setGraphics(graphics);
 			setCollapseEnabled(true);
+			graphics.refreshGraph();
 		}
 		else if (e.getActionCommand().equals("Sequence Layout")) {
 			graphics.setLayout(Graphics.SEQ_LAYOUT);
 			setGraphics(graphics);
 			setCollapseEnabled(false);
+			graphics.refreshGraph();
 		}
 		
 	}

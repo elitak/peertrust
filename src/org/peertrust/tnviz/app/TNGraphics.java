@@ -1,6 +1,7 @@
 
 package org.peertrust.tnviz.app;
 
+import org.peertrust.tnviz.gui.TNGui;
 
 import java.awt.Color;
 import java.util.List;
@@ -10,9 +11,7 @@ import java.util.Vector;
 import org.jgraph.JGraph;
 import org.jgraph.graph.GraphConstants;
 
-import org.peertrust.net.Answer;
-import org.peertrust.net.Query;
-import org.peertrust.tnviz.gui.TNGui;
+import org.peertrust.net.*;
 
 public class TNGraphics implements Graphics {
 	
@@ -66,20 +65,26 @@ public class TNGraphics implements Graphics {
 		gui = new TNGui();
 		switch(layout) {
 			case TREE_LAYOUT:
-				treeDiagramm.calculateGraphLayout();
 				gui.setCollapseEnabled(true);
 				break;
 			case SEQ_LAYOUT:
 				gui.setCollapseEnabled(false);
 				break;
 			default:
-				treeDiagramm.calculateGraphLayout();
 				gui.setCollapseEnabled(true);
 				break;
 		}
 		
 		gui.setGraphics(this);
 		
+	}
+	
+	public void wipeGraph() {
+		treeDiagramm.wipeGraph();
+		sequenceDiagramm.wipeGraph();
+		nodeRoot = null;
+		listVisibleNodes = new Vector();
+		refreshGraph();
 	}
 	
 	public void addQuery(Query query) {
@@ -120,7 +125,7 @@ public class TNGraphics implements Graphics {
 	public Color getEdgeColor() {
 		return edgeColor;
 	}
-	
+		
 	public void setEdgeColor(Color color) {
 		edgeColor = color;
 		Object[] cells = treeDiagramm.getGraph().getRoots();

@@ -17,8 +17,7 @@ import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.Port;
 
-import org.peertrust.net.Answer;
-import org.peertrust.net.Query;
+import org.peertrust.net.*;
 
 public class TNTreeDiagramm {
 	
@@ -29,6 +28,7 @@ public class TNTreeDiagramm {
 	private Vector graphPath;
 	private List listVisibleNodes;
 	private List listNodes;
+	private List listFalseQueries;
 	private final int MIN_X_ABSTAND=110;
 	private final int MIN_Y_ABSTAND=40;
 	private FontMetrics fontmetrics;
@@ -39,6 +39,8 @@ public class TNTreeDiagramm {
 		graphElements = new Hashtable();
 		graphPath = new Vector();
 		listVisibleNodes = new Vector();
+		listNodes = new Vector();
+		listFalseQueries = new Vector();
 
 		graph.setModel(model);
 		graph.setGraphLayoutCache(new GraphLayoutCache(model,new DefaultCellViewFactory(),true));
@@ -47,53 +49,80 @@ public class TNTreeDiagramm {
 		fontmetrics=graph.getFontMetrics(graph.getFont());
 	}
 	
+	public void wipeGraph() {
+		graph = new JGraph();
+		model = new DefaultGraphModel();
+		graphElements = new Hashtable();
+		graphPath = new Vector();
+		listVisibleNodes = new Vector();
+		listNodes = new Vector();
+		graph.setModel(model);
+		graph.setGraphLayoutCache(new GraphLayoutCache(model,new DefaultCellViewFactory(),true));
+		fontmetrics=graph.getFontMetrics(graph.getFont());
+	}
+	
 	public void addQuery(Query query) {
+		
+		if (query.getSource() == null || query.getTarget() == null) {
+			return;
+		}
+		
 		String sourceAddress = query.getSource().getAddress();
 		String sourceAlias = query.getSource().getAlias();
 		int sourcePort = query.getSource().getPort();
 		String sourceIdentifier = sourceAlias+":"+sourceAddress+":"+sourcePort;
-		
+				
 		String targetAddress = query.getTarget().getAddress();
 		String targetAlias = query.getTarget().getAlias();
 		int targetPort = query.getTarget().getPort();
 		String targetIdentifier = targetAlias+":"+targetAddress+":"+targetPort;
-		
+				
 		long reqQueryId = query.getReqQueryId();
 		String goal = query.getGoal();
 		
 		if(graphics.getRoot() == null) {
-			TNNode source = (TNNode)getElement(createNode(sourceAlias,reqQueryId,sourceAddress,sourceAlias,sourcePort));
-			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
-			//TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
-			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,""));
+			TNNode source = (TNNode)getElement(createNode("source",-1,"","source",-1));
+			graph.getGraphLayoutCache().setVisible(new Object[]{source},false);
+			source.setInvisible(true);
+			graph.getGraphLayoutCache().reload();
 			graphics.setRoot(source);
-			// Build graph path.
-			if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
-				graphPath.add(source);
+		}
+		long related_id=query.getRelatedQueryId();
+		if(related_id!=Query.NO_RELATED_QUERY) {
+			TNNode source=(TNNode)getElement("node:"+related_id+":"+
+				sourceIdentifier);
+			if(source==null) {
+				listFalseQueries.add(query);
+				return;
 			}
+			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
+			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,""));
+			// Build graph path.
 			graphPath.add(edge);
 			graphPath.add(target);
 		}
 		else {
-			for(long i=reqQueryId;i>=0;i--) {
-				TNNode source = (TNNode)getElement("node:"+i+":"+sourceIdentifier);
-				if(source != null) {
-					TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
-					//TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
-					TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,""));
-					// Build graph path.
-					if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
-						graphPath.add(source);
-					}
-					graphPath.add(edge);
-					graphPath.add(target);
-					break;
-				}
-			}
+			TNNode source=graphics.getRoot();
+			TNNode target = (TNNode)getElement(createNode(sourceAlias,reqQueryId,sourceAddress,sourceAlias,sourcePort));
+			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,"","",-1,true,false,-1,""));
+			graphPath.add(edge);
+			graphPath.add(target);
+			TNNode target2 = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
+			edge = (TNEdge)getElement(connectNodes(target,target2,goal+" ?",goal,reqQueryId,true,false,-1,""));
+			graphPath.add(edge);
+			graphPath.add(target2);
+			for(int i=listFalseQueries.size()-1;i>=0;i--)
+				addQuery((Query)listFalseQueries.remove(i));
+			graph.getGraphLayoutCache().setVisible(new Object[]{graphics.getRoot()},false);
 		}
 	}
 	
 	public void addAnswer(Answer answer) {
+		
+		if (answer.getSource() == null || answer.getTarget() == null) {
+			return;
+		}
+		
 		String sourceAddress = answer.getSource().getAddress();
 		String sourceAlias = answer.getSource().getAlias();
 		int sourcePort = answer.getSource().getPort();
@@ -109,7 +138,17 @@ public class TNTreeDiagramm {
 		int status = answer.getStatus();
 		String proof = answer.getProof();
 
-		TNNode source = (TNNode)getElement("node:"+reqQueryId+":"+sourceIdentifier);
+		long i=reqQueryId;
+		Object node=null;
+		while(true) {
+			Object node2=getElement("node:"+i+":"+sourceIdentifier);
+			if(node2!=null)
+				node=node2;
+			else
+				break;
+			i++;
+		}
+		TNNode source = (TNNode)node;
 		if(source != null) {
 			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
 			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,false,true,-1,""));
@@ -307,7 +346,7 @@ public class TNTreeDiagramm {
 			for(int j=stufen[i];j<stufen[i]+anzahl;j++) {
 				node=(TNNode)listVisibleNodes.get(j);
 				positionNode(node,(j-stufen[i]+1)*graphics.getGui().getPaneWidth()/
-					(anzahl+1)-graphics.getNRadius()/2,(node.getStufe()-1)*y_delta);
+					(anzahl+1)-graphics.getNRadius()/2,(node.getStufe()-2)*y_delta);
 			}
 		}
 		//if((graphics.getFScaleX()>1.0)||(graphics.getNRadius()<graphics.getRadiusNormal())) {
@@ -350,14 +389,14 @@ public class TNTreeDiagramm {
 		int max=0;
 		for(int i=0;i<listVisibleNodes.size();i++)
 			max=Math.max(max,((TNNode)listVisibleNodes.get(i)).getStufe());
-		int stufen[]=new int[max];
-		if(max==0)
-			return stufen;
-		stufen[0]=0;
-		for(int i=1;i<listVisibleNodes.size();i++)
+		if(max<=1)
+			return new int[0];
+		int stufen[]=new int[max-1];
+		stufen[0]=1;
+		for(int i=2;i<listVisibleNodes.size();i++)
 			if(((TNNode)listVisibleNodes.get(i)).getStufe()>
 				((TNNode)listVisibleNodes.get(i-1)).getStufe())
-				stufen[((TNNode)listVisibleNodes.get(i)).getStufe()-1]=i;
+				stufen[((TNNode)listVisibleNodes.get(i)).getStufe()-2]=i;
 		return stufen;
 	}
 	
