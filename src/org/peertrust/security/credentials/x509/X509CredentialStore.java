@@ -38,6 +38,18 @@ public class X509CredentialStore extends CredentialStore implements Configurable
 	
 	public void init() throws ConfigurationException
 	{
+		String msg = null ;
+		if (_file == null)
+			msg = "A keystore file has not been given" ;
+		else if (_storePassword == null)
+			msg = "Store password has not been given" ;
+		
+		if (msg != null)
+		{
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
+		
 		try {
 			_ks = KeyStore.getInstance( "JKS" );
 			_ks.load(new FileInputStream(_file), _storePassword.toCharArray() );

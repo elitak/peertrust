@@ -64,7 +64,8 @@ public class TNTreeDiagramm {
 		if(graphics.getRoot() == null) {
 			TNNode source = (TNNode)getElement(createNode(sourceAlias,reqQueryId,sourceAddress,sourceAlias,sourcePort));
 			TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
-			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
+			//TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
+			TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,""));
 			graphics.setRoot(source);
 			// Build graph path.
 			if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
@@ -78,7 +79,8 @@ public class TNTreeDiagramm {
 				TNNode source = (TNNode)getElement("node:"+i+":"+sourceIdentifier);
 				if(source != null) {
 					TNNode target = (TNNode)getElement(createNode(targetAlias,reqQueryId,targetAddress,targetAlias,targetPort));
-					TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
+					//TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,""));
+					TNEdge edge = (TNEdge)getElement(connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,""));
 					// Build graph path.
 					if ((graphPath.size() == 0) || (!graphPath.lastElement().equals(source))) {
 						graphPath.add(source);
@@ -168,11 +170,16 @@ public class TNTreeDiagramm {
 	    TNEdge edge = new TNEdge(object);
 	    edge.setLabel(object.toString());
 	    Map edgeAttributes = new Hashtable();
-	    int arrow = GraphConstants.ARROW_CLASSIC;
+	    int arrow;
+	    if (query) {
+	    	arrow = GraphConstants.ARROW_SIMPLE;
+	    }
+	    else {
+	    	arrow = GraphConstants.ARROW_CLASSIC;
+	    }
 	    GraphConstants.setLineEnd(edgeAttributes,arrow);
 	    GraphConstants.setEndFill(edgeAttributes,true);
 	    GraphConstants.setLabelAlongEdge(edgeAttributes, true);
-	    GraphConstants.setDashPattern(edgeAttributes, new float[]{6});
 	    
 	    GraphConstants.setMoveable(edgeAttributes,graphics.getEdgeMovable());
 	    GraphConstants.setConnectable(edgeAttributes,graphics.getEdgeMovable());

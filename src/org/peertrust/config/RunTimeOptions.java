@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: RunTimeOptions.java,v 1.1 2005/02/22 08:47:22 dolmedilla Exp $
+ * $Id: RunTimeOptions.java,v 1.2 2005/02/23 08:41:47 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/22 08:47:22 $
+ * Last changed  $Date: 2005/02/23 08:41:47 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -34,7 +34,12 @@ public class RunTimeOptions implements Configurable {
 	
 	private static Logger log = Logger.getLogger(RunTimeOptions.class);
 	
-	boolean isCredentialVerification ;
+	public static String NORMAL_MODE = "normal" ;
+	public static String DEMO_MODE = "demo" ;
+	
+	private String DEFAULT_MODE = NORMAL_MODE ;
+	
+	String _runningMode ;
 	
 	/**
 	 * 
@@ -44,6 +49,26 @@ public class RunTimeOptions implements Configurable {
 	}
 
 	public void init() throws ConfigurationException {
-		
+
+	}
+	/**
+	 * @return Returns the runningMode.
+	 */
+	public String getRunningMode() {
+		return _runningMode;
+	}
+	/**
+	 * @param runningMode The runningMode to set.
+	 */
+	public void setRunningMode(String runningMode) {
+		if (runningMode.equalsIgnoreCase(NORMAL_MODE) == true)
+			_runningMode = NORMAL_MODE ;
+		else if (runningMode.equalsIgnoreCase(DEMO_MODE) == true)
+			_runningMode = DEMO_MODE ;
+		else
+		{
+			log.warn ("Running mode '" + runningMode + "' not valid. Applying default mode '" + DEFAULT_MODE + "'") ;
+			_runningMode = DEFAULT_MODE ;
+		}
 	}
 }

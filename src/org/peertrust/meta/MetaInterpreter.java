@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.10 2005/02/22 17:44:54 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.11 2005/02/23 08:42:03 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/22 17:44:54 $
+ * Last changed  $Date: 2005/02/23 08:42:03 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -75,11 +75,12 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	
 	private Peer _localPeer ;
 
+	boolean isDemoMode = false ;
 	
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.10 2005/02/22 17:44:54 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.11 2005/02/23 08:42:03 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -91,7 +92,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			msg = "There not exist a queue" ;
 		else if (_inferenceEngine == null)
 			msg = "There not exist an inference engine" ;
-		else if (_credStore == null)
+		else if ( (isDemoMode() == false) && (_credStore == null) )
 			msg = "There not exist a credential store" ;
 		else if (_commChannelFactory == null)
 			msg = "There not exist a communication channel factory" ;
@@ -121,17 +122,20 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			log.error("Error:", e) ;
 		}
 		
-//		_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
-		Vector credentials = _credStore.getCredentials() ;
-		//log.debug("TMP number of elements " + credentials.size()) ;
-		for (int i = 0 ; i < credentials.size() ; i++)
+		if (isDemoMode() == false)
 		{
-			String stringCredential = ( (Credential) credentials.elementAt(i)).getStringRepresentation() ;
-			log.debug("Adding credential string '" + stringCredential + "'") ;
-			try {
-				_inferenceEngine.insert(stringCredential) ;
-			} catch (InferenceEngineException e1) {
-				log.error("Error inserting credentials in the inference engine", e1) ;
+			//	_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
+			Vector credentials = _credStore.getCredentials() ;
+			//log.debug("TMP number of elements " + credentials.size()) ;
+			for (int i = 0 ; i < credentials.size() ; i++)
+			{
+				String stringCredential = ( (Credential) credentials.elementAt(i)).getStringRepresentation() ;
+				log.debug("Adding credential string '" + stringCredential + "'") ;
+				try {
+					_inferenceEngine.insert(stringCredential) ;
+				} catch (InferenceEngineException e1) {
+					log.error("Error inserting credentials in the inference engine", e1) ;
+				}
 			}
 		}
 
@@ -466,5 +470,11 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	 */
 	public void setRunTimeOptions(RunTimeOptions runTimeOptions) {
 		this._runTimeOptions = runTimeOptions;
+	}
+	/**
+	 * @return Returns the isDemoMode.
+	 */
+	public boolean isDemoMode() {
+		return _runTimeOptions.getRunningMode() == RunTimeOptions.DEMO_MODE ;
 	}
 }

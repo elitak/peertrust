@@ -11,7 +11,7 @@ final public class TNNode extends DefaultGraphCell {
 	private boolean bExpanded=true;
 	private int nStufe=0;
 	private int nX,nY;
-	private TNNode lastSeqNode;
+	//private TNNode lastSeqNode;
 	private Port port;
 	private boolean invisible;
 	private int nLabelWidth;
@@ -32,7 +32,7 @@ final public class TNNode extends DefaultGraphCell {
 		peerAddress = "";
 		peerAlias = "";
 		peerPort = 0;
-		lastSeqNode = this;
+		//lastSeqNode = this;
 		port = null;
 		invisible = false;
 		nLabelWidth=graph.getFontMetrics(graph.getFont()).stringWidth(object.toString())+10;
@@ -94,7 +94,7 @@ final public class TNNode extends DefaultGraphCell {
 	public void setId(String id) {
 		this.id = id;
 	}
-		
+	/*
 	public TNNode getLastSeqNode() {
 		return lastSeqNode;
 	}
@@ -102,7 +102,7 @@ final public class TNNode extends DefaultGraphCell {
 	public void setLastSeqNode(TNNode lastSeqNode) {
 		this.lastSeqNode = lastSeqNode;
 	}
-	
+	*/
 	public Port getPort() {
 		return port;
 	}

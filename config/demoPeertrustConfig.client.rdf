@@ -33,7 +33,6 @@
 		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
 		<pt:inferenceEngine rdf:resource="#InferenceEngine"/>
 		<pt:queue rdf:resource="#Queue"/>
-		<pt:credentialStore rdf:resource="#CredentialStore"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
 		<pt:runTimeOptions rdf:resource="#RunTimeOptions" />
@@ -57,6 +56,7 @@
 	================================================================== -->
 	<pt:RuntimeOptions rdf:about="#RunTimeOptions">
 		<pt:javaClass>org.peertrust.config.RunTimeOptions</pt:javaClass>
+		<pt:runningMode>demo</pt:runningMode>
 	</pt:RuntimeOptions>
 	
 	<!-- ======================================================================
@@ -82,7 +82,7 @@
 		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
 		<!--<pt:baseFolder>${user.home}/trust/</pt:baseFolder> -->
 		<pt:baseFolder>${user.dir}/</pt:baseFolder>
-		<pt:prologFiles>policies.alice</pt:prologFiles>
+		<pt:prologFiles>demoPolicies.alice</pt:prologFiles>
 		<pt:rdfFiles></pt:rdfFiles>
 		<pt:license>minervagui.mca</pt:license>
 		<pt:debugMode>true</pt:debugMode>
@@ -99,10 +99,7 @@
 	Communication Channel
 	====================================================================== -->
 	<pt:CommunicationChannelFactory rdf:about="#CommunicationChannelFactory">
-		<pt:javaClass>org.peertrust.net.ssl.SecureSocketFactory</pt:javaClass>
-		<pt:keystoreFile>client_keystore</pt:keystoreFile>
-		<pt:keyPassword>clientpw</pt:keyPassword>
-		<pt:storePassword>clientstorepw</pt:storePassword>
+		<pt:javaClass>org.peertrust.net.socket.SimpleSocketFactory</pt:javaClass>
 		<pt:host>localhost</pt:host>
 		<pt:port>32000</pt:port>
 	</pt:CommunicationChannelFactory>
@@ -112,7 +109,5 @@
 	====================================================================== -->
 	<pt:CredentialStore rdf:about="#CredentialStore">
 		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
-		<pt:file>client_keystore</pt:file>
-		<pt:storePassword>clientstorepw</pt:storePassword>
 	</pt:CredentialStore>
 </rdf:RDF>

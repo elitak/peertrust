@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import java.util.Enumeration;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.ConnectionSet;
@@ -24,7 +25,7 @@ public class TNSeqDiagramm {
 	private GraphModel model;
 	private Hashtable graphElements;
 	private final int NODE_HEIGHT = 40;
-	private final int SEQ_START_DISTANCE_X = 10;
+	private final int SEQ_START_DISTANCE_X = 30;
 	private final int SEQ_START_DISTANCE_Y = 50;
 	private final int SEQ_DISTANCE_Y = 40;
 	private int SEQ_DISTANCE_X = 30;
@@ -32,6 +33,8 @@ public class TNSeqDiagramm {
 	private int lastX;
 	private Graphics graphics;
 	private Vector graphPath;
+	private Vector nodes; // A vector with the main nodes in the order in which they are created.
+	private Hashtable nodesInvisible; // A hashtable with the nodes as key and a vector with their invisible children.
 	
 	public TNSeqDiagramm(Graphics graphics) {
 		graph = new JGraph();
@@ -40,6 +43,8 @@ public class TNSeqDiagramm {
 		lastY = SEQ_START_DISTANCE_Y;
 		lastX = SEQ_START_DISTANCE_X;
 		graphPath = new Vector();
+		nodes = new Vector();
+		nodesInvisible = new Hashtable();
 		
 		graph.setModel(model);
 		graph.setGraphLayoutCache(new GraphLayoutCache(model,new DefaultCellViewFactory(),true));
@@ -81,7 +86,7 @@ public class TNSeqDiagramm {
 			target = getNode(id);
 		}
 		
-		connectNodes(source,target,goal,goal,reqQueryId,true,false,-1,"");
+		connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,"");
 		
 	}
 	
@@ -132,14 +137,21 @@ public class TNSeqDiagramm {
 		TNNode node = new TNNode(object,graph);
 		
 		setNodeInformation(node,object.toString(),"node:"+peerAlias+":"+peerAddress+":"+peerPort,peerAddress,peerAlias,peerPort);
-		node.setLastSeqNode(node);
 		graphElements.put(node.getId(),node);
-				
+		nodes.add(node);
+		Vector elements = new Vector();
+		elements.add(node);
+		nodesInvisible.put(node,elements);
+		
 		DefaultPort port = new DefaultPort();
 	    node.add(port);
 	    node.setPort(port);
 		Map nodeAttributes = new Hashtable();
-		lastX = lastX+SEQ_DISTANCE_X;
+		
+		if (nodes.size() != 1) {
+			lastX = lastX+SEQ_DISTANCE_X;
+		}
+				
 	    Rectangle nodeBounds = new Rectangle(lastX,SEQ_START_DISTANCE_Y,node.getLabelWidth(),NODE_HEIGHT);
 	    node.setX(lastX);
 	    node.setY(SEQ_START_DISTANCE_Y);
@@ -170,6 +182,7 @@ public class TNSeqDiagramm {
 	    node.add(port);
 	    node.setPort(port);
 	    node.setInvisible(true);
+	    
 		Map nodeAttributes = new Hashtable();
 	    Rectangle nodeBounds = new Rectangle(0,0,0,0);
 	    GraphConstants.setBounds(nodeAttributes,nodeBounds);
@@ -195,11 +208,35 @@ public class TNSeqDiagramm {
 	}
 	
 	private String connectNodes(TNNode nodeSource, TNNode nodeTarget, Object object, String goal, long reqQueryId, boolean query, boolean answer, int status, String proof) {
+		
+		// Check the length of the edge label, and recompute the distance between the nodes.
+	    int labelWidth = graph.getFontMetrics(graph.getFont()).stringWidth(object.toString())+10;
+	    System.out.println("dist: "+(nodeTarget.getX() - nodeSource.getX())+" length: "+labelWidth);
+	    if ((nodeTarget.getX() > nodeSource.getX()) && (nodeTarget.getX() - nodeSource.getX()) < labelWidth) {
+	    	SEQ_DISTANCE_X = labelWidth;
+	    	repositionNodes();
+	    }
+	    else if ((nodeSource.getX() > nodeTarget.getX()) && (nodeSource.getX() - nodeTarget.getX()) < labelWidth) {
+	    	SEQ_DISTANCE_X = labelWidth;
+	    	repositionNodes();
+	    }
+	    /*
+	    if (SEQ_DISTANCE_X < labelWidth) {
+	    	SEQ_DISTANCE_X = labelWidth;
+	    	repositionNodes();
+	    }*/
+		
 		DefaultPort portSource = (DefaultPort)nodeSource.getPort();
 		DefaultPort portTarget = (DefaultPort)nodeTarget.getPort();
-				
-		TNNode lastInvisibleNodeSource = (TNNode)nodeSource.getLastSeqNode();
-		TNNode lastInvisibleNodeTarget = (TNNode)nodeTarget.getLastSeqNode();
+		
+		TNNode lastInvisibleNodeSource;
+		TNNode lastInvisibleNodeTarget;
+		
+		Vector sourceElements = (Vector)nodesInvisible.get(nodeSource);
+		lastInvisibleNodeSource = (TNNode)sourceElements.lastElement();
+		
+		Vector targetElements = (Vector)nodesInvisible.get(nodeTarget);
+		lastInvisibleNodeTarget = (TNNode)targetElements.lastElement();
 		
 		TNEdge invisibleEdgeSource = new TNEdge("");
 		TNEdge invisibleEdgeTarget = new TNEdge("");
@@ -234,7 +271,13 @@ public class TNSeqDiagramm {
 		TNEdge edge = new TNEdge(object);
 	    edge.setLabel(object.toString());
 	    Map edgeAttributes = new Hashtable();
-	    int arrow = GraphConstants.ARROW_CLASSIC;
+	    int arrow;
+	    if (query) {
+	    	arrow = GraphConstants.ARROW_CLASSIC;
+	    }
+	    else {
+	    	arrow = GraphConstants.ARROW_SIMPLE;
+	    }
 	    GraphConstants.setLineEnd(edgeAttributes,arrow);
 	    GraphConstants.setEndFill(edgeAttributes,true);
 	    GraphConstants.setLabelAlongEdge(edgeAttributes, true);
@@ -254,14 +297,15 @@ public class TNSeqDiagramm {
 	    else {
 	    	lastY = lastY+SEQ_DISTANCE_Y;
 	    }
-	    
+	    	    
 	    Map attributes = new Hashtable();
 	    attributes.put(invisibleEdgeSource,edgeInvisibleSourceAttributes);
 	    ConnectionSet cs = new ConnectionSet();
 	    TNNode invisibleNodeSource = createInvisibleNode();
 	    cs.connect(invisibleEdgeSource,lastInvisibleNodeSource.getPort(),invisibleNodeSource.getPort());
-	    nodeSource.setLastSeqNode(invisibleNodeSource);
-	    positionNode(invisibleNodeSource,nodeSource.getX()+(nodeSource.getLabelWidth()/2),lastY);
+	    sourceElements.add(invisibleNodeSource);
+	    nodesInvisible.put(nodeSource,sourceElements);
+	    positionInvisibleNode(invisibleNodeSource,nodeSource.getX()+(nodeSource.getLabelWidth()/2),lastY);
 	    graph.getGraphLayoutCache().insert(new Object[]{invisibleEdgeSource},attributes,cs,null,null);
 	    
 	    attributes = new Hashtable();
@@ -269,8 +313,9 @@ public class TNSeqDiagramm {
 	    cs = new ConnectionSet();
 	    TNNode invisibleNodeTarget = createInvisibleNode();
 	    cs.connect(invisibleEdgeTarget,lastInvisibleNodeTarget.getPort(),invisibleNodeTarget.getPort());
-	    nodeTarget.setLastSeqNode(invisibleNodeTarget);
-	    positionNode(invisibleNodeTarget,nodeTarget.getX()+(nodeTarget.getLabelWidth()/2),lastY);
+	    targetElements.add(invisibleNodeTarget);
+	    nodesInvisible.put(nodeTarget,targetElements);
+	    positionInvisibleNode(invisibleNodeTarget,nodeTarget.getX()+(nodeTarget.getLabelWidth()/2),lastY);
 	    graph.getGraphLayoutCache().insert(new Object[]{invisibleEdgeTarget},attributes,cs,null,null);
 	    
 	    attributes = new Hashtable();
@@ -306,13 +351,41 @@ public class TNSeqDiagramm {
 		edge.setProof(proof);
 	}
 	
-	private void positionNode(TNNode node, int x, int y) {
-		Rectangle nodeBounds = nodeBounds = new Rectangle(x,y,0,0);
+	private void positionInvisibleNode(TNNode node, int x, int y) {
+		Rectangle nodeBounds = new Rectangle(x,y,0,0);
 		Map nodeAttributes = node.getAttributes();
 	    GraphConstants.setBounds(nodeAttributes,nodeBounds);
 	    node.setX(x);
 		node.setY(y);
 	    refreshGraph();
+	}
+
+	private void positionNode(TNNode node, int x, int y) {
+		Rectangle nodeBounds = new Rectangle(x,y,node.getLabelWidth(),NODE_HEIGHT);
+		System.out.println("w: "+node.getLabelWidth()+" h: "+NODE_HEIGHT);
+		Map nodeAttributes = node.getAttributes();
+	    GraphConstants.setBounds(nodeAttributes,nodeBounds);
+	    node.setX(x);
+		node.setY(y);
+	    refreshGraph();
+	}
+	
+	private void repositionNodes() {
+		lastX = SEQ_START_DISTANCE_X;
+		for (Enumeration e1=nodes.elements(); e1.hasMoreElements() ; ) {
+			TNNode node = (TNNode)e1.nextElement();
+			if (!node.equals(nodes.firstElement())) {
+				lastX += SEQ_DISTANCE_X;
+			}
+			positionNode(node,lastX,node.getY());
+			Vector elements = (Vector)nodesInvisible.get(node);
+			for (Enumeration e2=elements.elements(); e2.hasMoreElements() ;) {
+				TNNode invisibleNode = (TNNode)e2.nextElement();
+				if (!node.equals(invisibleNode)) {
+					positionInvisibleNode(invisibleNode,node.getX()+(node.getLabelWidth()/2),invisibleNode.getY());
+				}
+			}
+		}
 	}
 	
 	public JGraph getGraph() {
