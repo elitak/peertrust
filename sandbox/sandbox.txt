@@ -5,3 +5,4 @@ Mailrank - An implementation of the Mailrank algorithm used for classifying mail
 proofChecking - Set of classes and methods to enforce that answers prove 
 the query previously sent
 
+ProtegePolicyPlugin plugin for protege to model policy aware ontologies
