@@ -1,3 +1,33 @@
 I assume you have the server up and running.
 
-First try to receive a pop3 mail.
+First, try to receive a pop3 mail.
+You can do this by using your mailprogramm to send a mail to
+the mailaddress (the pop3 mailbox) of the server.
+Please use only plaintext mails.
+The subject doesn't matter, but the body have to look like this:
+setValues:my@email.com:spam@spammer.org:-2.34:43
+setEntryByUser:my@email.com
+
+You should then receive a mail with the subject "Your Mailrank results"
+and the values in it.
+If not, turn on debugging by setting the debug boolean value to true in the MRMail
+and look at the output.
+
+Try to use the MRSocket server.
+In the perl directory you find among other things getEntry.pl and setEntry.pl.
+at the beginning of this two files, you need to set the host and port to connect to:
+
+my $remote_host="123.456.789.087";
+my $remote_port=4444;
+
+In most cases the post 4444 should work.
+In the Terminal try: ./setEntry my@mail.com spam@spammer.org 123.456 345
+if this works, try to receive the entry you just added:
+./getEntry my@mail.com
+You should see an output.
+
+Thats it for the moment.
+
+
+If you ran into problems and cannot help yourself, please write an email to: brosowski@l3s.de
+I will help you.
