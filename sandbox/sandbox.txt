@@ -1,1 +1,3 @@
-Description of each folder in the sandbox
+Description of each folder in the sandbox:
+
+service - An Edutella service to enable Peertrust to be used with Edutella
