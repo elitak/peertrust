@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
+import org.peertrust.config.RunTimeOptions;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
@@ -40,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.8 2005/02/15 17:36:34 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.9 2005/02/22 08:47:23 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:34 $
+ * Last changed  $Date: 2005/02/22 08:47:23 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -63,6 +64,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	private NetClient _netClient ;
 	
 	private EventDispatcher _dispatcher ;
+	private RunTimeOptions _runTimeOptions ;
 	
 	AbstractFactory _commChannelFactory ;
 
@@ -77,7 +79,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.8 2005/02/15 17:36:34 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.9 2005/02/22 08:47:23 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -97,9 +99,12 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			msg = "No alias has been defined for the peer" ;
 		else if (_entities == null)
 			msg = "There not exist a table of entities" ;
+		else if (_runTimeOptions == null)
+			msg = "There are no runtime options specified" ;
 		
 		if (msg != null)
 		{
+			msg += ". Please, check your configuration file" ;
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
 		}
@@ -450,5 +455,17 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	 */
 	public void setEntitiesTable(EntitiesTable _entities) {
 		this._entities = _entities;
+	}
+	/**
+	 * @return Returns the runTimeOptions.
+	 */
+	public RunTimeOptions getRunTimeOptions() {
+		return _runTimeOptions;
+	}
+	/**
+	 * @param runTimeOptions The runTimeOptions to set.
+	 */
+	public void setRunTimeOptions(RunTimeOptions runTimeOptions) {
+		this._runTimeOptions = runTimeOptions;
 	}
 }

@@ -21,6 +21,7 @@ package org.peertrust.meta;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
+import org.peertrust.config.RunTimeOptions;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.QueryEvent;
@@ -36,10 +37,10 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.7 2005/02/15 17:36:36 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.8 2005/02/22 08:47:23 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:36 $
+ * Last changed  $Date: 2005/02/22 08:47:23 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -55,12 +56,13 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	private NetServer _netServer ;
 	private AbstractFactory _commChannelFactory ;
 	private EventDispatcher _dispatcher ;
+	private RunTimeOptions _runTimeOptions ;
 	
 	private Thread _metaIThread = null ;
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.7 2005/02/15 17:36:36 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.8 2005/02/22 08:47:23 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -76,9 +78,12 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			msg = "There not exist a communication channel factory" ;
 		else if (_entities == null)
 			msg = "There not exist a table of entities" ;
+		else if (_runTimeOptions == null)
+			msg = "There are no runtime options specified" ;
 		
 		if (msg != null)
 		{
+			msg += ". Please, check your configuration file" ;
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
 		}
@@ -319,5 +324,18 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	 */
 	public void setEntitiesTable(EntitiesTable _entities) {
 		this._entities = _entities;
+	}
+	
+	/**
+	 * @return Returns the runTimeOptions.
+	 */
+	public RunTimeOptions getRunTimeOptions() {
+		return _runTimeOptions;
+	}
+	/**
+	 * @param runTimeOptions The runTimeOptions to set.
+	 */
+	public void setRunTimeOptions(RunTimeOptions runTimeOptions) {
+		this._runTimeOptions = runTimeOptions;
 	}
 }

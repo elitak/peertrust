@@ -36,6 +36,7 @@
 		<pt:credentialStore rdf:resource="#CredentialStore"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:runTimeOptions rdf:resource="#RunTimeOptions" />
 	</pt:MetaInterpreter>
 
 	<!-- ======================================================================
@@ -48,8 +49,16 @@
 		<pt:queue rdf:resource="#Queue"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:runTimeOptions rdf:resource="#RunTimeOptions" />
 	</pt:MetaInterpreterListener>
 
+	<!-- ======================================================================
+	RuntimeOptions
+	================================================================== -->
+	<pt:RuntimeOptions rdf:about="#RunTimeOptions">
+		<pt:javaClass>org.peertrust.config.RunTimeOptions</pt:javaClass>
+	</pt:RuntimeOptions>
+	
 	<!-- ======================================================================
 	Entities Table
 	====================================================================== -->

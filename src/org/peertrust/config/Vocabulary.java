@@ -26,10 +26,10 @@ import com.hp.hpl.jena.mem.ModelMem;
 import com.hp.hpl.jena.rdf.model.RDFException;
 
 /**
- * $Id: Vocabulary.java,v 1.2 2005/01/11 17:47:52 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.3 2005/02/22 08:47:22 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:52 $
+ * Last changed  $Date: 2005/02/22 08:47:22 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -103,6 +103,11 @@ public class Vocabulary {
     public static Resource MetaInterpreterListener ;
     
     /**
+     * RunTimeOptions
+    */
+    public static Resource RunTimeOptions;
+    
+    /**
      * EntitiesTable
     */
     public static Resource EntitiesTable;
@@ -144,6 +149,9 @@ public class Vocabulary {
 
       MetaInterpreterListener =
         m.createResource(Vocabulary.uri + "MetaInterpreterListener");
+      
+      RunTimeOptions =
+        m.createResource(Vocabulary.uri + "RunTimeOptions");
       
       EntitiesTable =
         m.createResource(Vocabulary.uri + "EntitiesTable");
