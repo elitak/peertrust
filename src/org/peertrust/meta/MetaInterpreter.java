@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.12 2005/03/12 11:40:13 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.13 2005/03/31 14:02:51 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/12 11:40:13 $
+ * Last changed  $Date: 2005/03/31 14:02:51 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -80,7 +80,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.12 2005/03/12 11:40:13 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.13 2005/03/31 14:02:51 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -328,7 +328,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						log.debug("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
 						
 						long relatedQuery ;
-						if (selectedTree.getRequester().getAlias() == delegatedTree.getDelegator().getAlias())
+						if (selectedTree.getRequester().getAlias().equals(delegatedTree.getDelegator().getAlias()) )
 							relatedQuery = selectedTree.getReqQueryId() ;
 						else
 							relatedQuery = Query.NO_RELATED_QUERY ;
