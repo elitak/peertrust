@@ -22,10 +22,10 @@ package org.peertrust.net;
 import java.io.Serializable;
 
 /**
- * $Id: Query.java,v 1.6 2005/03/12 11:43:52 dolmedilla Exp $
+ * $Id: Query.java,v 1.5 2005/03/12 11:40:13 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/12 11:43:52 $
+ * Last changed  $Date: 2005/03/12 11:40:13 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -35,13 +35,11 @@ public class Query extends Message implements Serializable {
 	
  	private String goal = null ;
  	private long reqQueryId = -1 ;
- 	private long relatedQueryId = NO_RELATED_QUERY ;
 
 	public Query(String goal, Peer origin, Peer target, long reqQueryId, long relatedQueryId) {
 		super(origin, target) ;
 		this.goal = goal ;
 		this.reqQueryId = reqQueryId ;
-		this.relatedQueryId = relatedQueryId ;
 	}
 	/**
 	 * @return Returns the goal.
@@ -66,11 +64,5 @@ public class Query extends Message implements Serializable {
 	 */
 	public void setReqQueryId(long reqQueryId) {
 		this.reqQueryId = reqQueryId;
-	}
-	/**
-	 * @return Returns the relatedQueryId.
-	 */
-	public long getRelatedQueryId() {
-		return relatedQueryId;
 	}
 }
