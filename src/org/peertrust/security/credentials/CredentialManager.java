@@ -28,10 +28,10 @@ import org.apache.log4j.Logger;
 
 
 /**
- * $Id: CredentialManager.java,v 1.1 2004/07/08 15:10:42 dolmedilla Exp $
+ * $Id: CredentialManager.java,v 1.2 2005/02/10 11:53:36 dolmedilla Exp $
  * @author $Author: dolmedilla $
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * Last changed  $Date: 2005/02/10 11:53:36 $
  * @description
  */
 public class CredentialManager implements Configurable {
@@ -76,7 +76,7 @@ public class CredentialManager implements Configurable {
 	
 	public void addCredential (String alias, String text, String subject, String issuer) throws Exception
 	{
-		
+		log.debug("Adding credential " + text + " to alias") ;
 		PrivateKey caKey = getCAKey(alias, keyPassword);
 		// Creation of a new key pair
 		PublicKey pubKey = CryptTools.makeKeyPair( "RSA", 512 ).getPublic();
