@@ -36,10 +36,10 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.6 2005/02/10 11:41:22 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.7 2005/02/15 17:36:36 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/10 11:41:22 $
+ * Last changed  $Date: 2005/02/15 17:36:36 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -60,7 +60,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.6 2005/02/10 11:41:22 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.7 2005/02/15 17:36:36 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -142,10 +142,10 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		{
 			Query query = (Query) message ;
 
-			String alias = query.getOrigin().getAlias() ;
+			String alias = query.getSource().getAlias() ;
 			if (_entities.get(alias) == null)
 			{
-				_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
+				_entities.put(query.getSource().getAlias(), query.getSource()) ;
 				log.debug("Added peer '" + alias + "' to the entities table") ;
 			}
 			
@@ -153,7 +153,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			
 			//Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
 			
-			log.debug ("New query received from " + query.getOrigin().getAlias() + ": " + query.getGoal()) ;
+			log.debug ("New query received from " + query.getSource().getAlias() + ": " + query.getGoal()) ;
 			//_queue.add(tree) ;
 
 		}

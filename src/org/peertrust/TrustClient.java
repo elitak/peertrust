@@ -35,10 +35,10 @@ import org.peertrust.net.Peer;
 import org.peertrust.net.Query ;
 
 /**
- * $Id: TrustClient.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.4 2005/02/15 17:36:24 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:51 $
+ * Last changed  $Date: 2005/02/15 17:36:24 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -68,7 +68,7 @@ public class TrustClient implements PTEventListener
 	public void sendQuery (String query)
 	{
 		_id++ ;
-		Query newQuery = new Query(query, _peer, _id) ;
+		Query newQuery = new Query(query, _peer, null, _id) ;
 		QueryEvent qe = new QueryEvent(this, newQuery) ;
 		
 		_ed.event(qe) ;
@@ -101,6 +101,8 @@ public class TrustClient implements PTEventListener
 		final String PREFIX = TrustClient.PREFIX ;
 		
 		String defaultConfigFile = "file:peertrustConfig.rdf" ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		
 		int TIMEOUT = 15000 ;
 		int SLEEP_INTERVAL = 500 ;
 		
@@ -119,7 +121,8 @@ public class TrustClient implements PTEventListener
 		
 		PTConfigurator config = new PTConfigurator() ;
 		
-		config.startApp(newArgs) ;
+		String[] components = { defaultComponent } ;
+		config.startApp(newArgs, components) ;
 		
 		PTEngine engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
 		EventDispatcher dispatcher = engine.getEventDispatcher() ;

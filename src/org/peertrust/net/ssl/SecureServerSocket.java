@@ -31,10 +31,10 @@ import org.peertrust.security.credentials.CryptTools;
 //import javax.net.ServerSocketFactory;
 
 /**
- * $Id: SecureServerSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
+ * $Id: SecureServerSocket.java,v 1.4 2005/02/15 17:36:22 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2005/02/15 17:36:22 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -57,7 +57,7 @@ public class SecureServerSocket implements NetServer {
    private SSLServerSocket _ss = null;
    
 	public SecureServerSocket(int port, String keystoreFile, String keyPassword, String storePassword) {
-		log.debug("$Id: SecureServerSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+		log.debug("$Id: SecureServerSocket.java,v 1.4 2005/02/15 17:36:22 dolmedilla Exp $");
 		
 //		this.port=port;
 //		this.keystoreFile = keystoreFile ;
@@ -161,12 +161,12 @@ public class SecureServerSocket implements NetServer {
 
 					Message message = (Message) objIn.readObject() ;
 					
-					log.debug("Message received from " + message.getOrigin().getAlias());
+					log.debug("Message received from " + message.getSource().getAlias());
 					
 					String DN = CryptTools.getCertificateName (recSocket.getSession().getPeerCertificateChain()) ;
-					if (validAuthentication(DN, message.getOrigin().getAlias()) == false)
+					if (validAuthentication(DN, message.getSource().getAlias()) == false)
 					{
-						log.error("Certificate DN (" + DN + ") and alias (" + message.getOrigin().getAlias() + ") mismatch") ;
+						log.error("Certificate DN (" + DN + ") and alias (" + message.getSource().getAlias() + ") mismatch") ;
 					}
 					else
 					{

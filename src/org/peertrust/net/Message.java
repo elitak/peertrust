@@ -24,29 +24,32 @@ import java.io.Serializable;
 
 
 /**
- * $Id: Message.java,v 1.2 2004/07/08 15:10:42 dolmedilla Exp $
+ * $Id: Message.java,v 1.3 2005/02/15 17:36:22 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * Last changed  $Date: 2005/02/15 17:36:22 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Message implements Serializable {
- 	private Peer origin = null ;
+ 	Peer _source, _target ;
  	
- 	Message (Peer origin) {
- 		this.origin  = origin ;
+ 	Message (Peer source, Peer target) {
+ 		_source  = source ;
+ 		_target = target ;
  	}
+ 	
 	/**
-	 * @return Returns the origin.
+	 * @return Returns the source.
 	 */
-	public Peer getOrigin() {
-		return origin;
+	public Peer getSource() {
+		return _source;
 	}
+	
 	/**
-	 * @param origin The origin to set.
+	 * @return Returns the target.
 	 */
-	public void setOrigin(Peer origin) {
-		this.origin = origin;
+	public Peer getTarget() {
+		return _target;
 	}
  }

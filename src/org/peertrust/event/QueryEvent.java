@@ -19,13 +19,14 @@
 */
 package org.peertrust.event;
 
+import org.peertrust.net.Peer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: QueryEvent.java,v 1.2 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: QueryEvent.java,v 1.3 2005/02/15 17:36:33 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2005/02/15 17:36:33 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -46,4 +47,20 @@ public class QueryEvent extends PTEvent {
 	{
 		return _query ;
 	}
+	
+//	public Peer getSourcePeer()
+//	{
+//		if (_query == null)
+//			return null ;
+//		else
+//			return _query.getSource() ;
+//	}
+//	
+//	public Peer getTargetPeer()
+//	{
+//		if (_query == null)
+//			return null ;
+//		else
+//			return _query.getTarget() ;
+//	}
 }

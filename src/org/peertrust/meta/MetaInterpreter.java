@@ -40,10 +40,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.7 2005/02/10 11:41:05 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.8 2005/02/15 17:36:34 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/10 11:41:05 $
+ * Last changed  $Date: 2005/02/15 17:36:34 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -77,7 +77,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.7 2005/02/10 11:41:05 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.8 2005/02/15 17:36:34 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -179,9 +179,9 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
 			//_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
-			Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
+			Tree tree = new Tree (query.getGoal(), query.getSource(), query.getReqQueryId()) ;
 
-			log.debug ("New query received from " + ( (query.getOrigin() == null) ? "null" : query.getOrigin().getAlias()) + ": " + query.getGoal()) ;
+			log.debug ("New query received from " + ( (query.getSource() == null) ? "null" : query.getSource().getAlias()) + ": " + query.getGoal()) ;
 			_queue.add(tree) ;
 		}
 		else
@@ -207,10 +207,10 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		// if the query is a failure, we forward the failure to the requester
 		if (selectedTree.getStatus() == Tree.FAILED)
 		{
-			Answer failure = new Answer(selectedTree.getGoal(), null, Answer.FAILURE, selectedTree.getReqQueryId(), _localPeer) ; 
+			Answer failure = new Answer(selectedTree.getGoal(), null, Answer.FAILURE, selectedTree.getReqQueryId(), _localPeer, selectedTree.getRequester()) ; 
 			
 			log.debug("Sending answer of " + failure.getGoal() + " to " + selectedTree.getRequester().getAlias()) ;
-			sendMessage (failure, selectedTree.getRequester()) ;
+			sendMessage (failure) ;
 			
 			return ;
 		} // if the query is already answered, then we send the answer to the requester
@@ -227,10 +227,10 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			else
 				status = Answer.ANSWER ;
 			
-			Answer answer = new Answer (selectedTree.getGoal(), selectedTree.getProof(), status, selectedTree.getReqQueryId(), _localPeer) ;
+			Answer answer = new Answer (selectedTree.getGoal(), selectedTree.getProof(), status, selectedTree.getReqQueryId(), _localPeer, selectedTree.getRequester()) ;
 			
 			log.debug("Sending answer " + answer.getGoal() + " to " + selectedTree.getRequester().getAlias() + " with proof " + answer.getProof()) ;
-			sendMessage(answer, selectedTree.getRequester()) ;
+			sendMessage(answer) ;
 			return ;
 		}
 
@@ -317,27 +317,28 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						_queue.add(delegatedTree) ;
 						
 						// and send query to remote delegator
-						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getId()) ;
+						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getDelegator(), delegatedTree.getId()) ;
 											
-						log.debug("Sending request " + query.getGoal() + " to " + delegatedTree.getDelegator().getAlias() + " from " + query.getOrigin().getAlias()) ;
-						sendMessage(query, delegatedTree.getDelegator()) ;
+						log.debug("Sending request " + query.getGoal() + " to " + delegatedTree.getDelegator().getAlias() + " from " + query.getSource().getAlias()) ;
+						sendMessage(query) ;
 					}
 				}
 			}
 		}
 	}
 	
-	private void sendMessage(Message message, Peer destination)
+	private void sendMessage(Message message)
 	{
 		PTEvent ptevent = null ;
+		Peer destination = message.getTarget() ;
 		if (message instanceof Query)
 		{
-			log.debug("Send query to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
+			log.debug("Send query to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getSource().getAlias()) ;
 			ptevent = new QueryEvent (this, (Query)message) ;
 		}
 		else if (message instanceof Answer)
 		{
-			log.debug("Send answer to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getOrigin().getAlias()) ;
+			log.debug("Send answer to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getSource().getAlias()) ;
 			ptevent = new AnswerEvent (this, (Answer)message) ;
 		}
 		else

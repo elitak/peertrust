@@ -55,10 +55,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.4 2005/02/08 10:00:48 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.5 2005/02/15 17:36:36 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/08 10:00:48 $
+ * Last changed  $Date: 2005/02/15 17:36:36 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -78,7 +78,7 @@ public class PTConfigurator {
     //private Vector _vectorRegistry ;
     
     // Arguments from the command line
-    private String[] _args ;
+    private String[] _confFiles ;
     
     // The root node of the peers configuration RDF graph: PeerTrust engine
     private Resource _peer ;
@@ -117,7 +117,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.4 2005/02/08 10:00:48 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.5 2005/02/15 17:36:36 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -130,14 +130,14 @@ public class PTConfigurator {
      * @throws ConfigException
      * @see net.jxta.edutella.component.EdutellaComponent#startApp(java.lang.String[])
      */
-    public void startApp(String[] newArgs) throws ConfigurationException {
+    public void startApp(String[] confFiles, String [] components) throws ConfigurationException {
         log.debug(".startApp()");
         
         _registry = new Hashtable() ;
 //        _vectorRegistry = new Vector() ;
-        _args = newArgs;
-        _configuration = loadConfiguration(_args);
-        _peer = baseConfigure(_configuration, Vocabulary.PeertrustEngine);
+        _confFiles = confFiles;
+        _configuration = loadConfiguration(_confFiles);
+        _peer = baseConfigure(_configuration, _configuration.createResource(components[0]));
 //        _eventDispatcher = getResource(_configuration, Vocabulary.EventDispatcher) ;
         
         // if the parent of the configurator was passed as argument, we initialize the registry with it
@@ -513,8 +513,9 @@ public class PTConfigurator {
     
     public static void main (String args[]) throws ConfigurationException
     {
-    	String [] args2 = { "peertrustConfig.rdf" } ;
+    	String [] confFiles = { "peertrustConfig.rdf" } ;
+    	String [] components = { Vocabulary.PeertrustEngine.toString() } ;
     	PTConfigurator ptconf = new PTConfigurator() ;
-    	ptconf.startApp(args2) ;
+    	ptconf.startApp(confFiles, components) ;
     }
 }

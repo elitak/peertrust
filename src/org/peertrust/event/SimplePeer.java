@@ -27,10 +27,10 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: SimplePeer.java,v 1.4 2005/02/08 10:02:02 dolmedilla Exp $
+ * $Id: SimplePeer.java,v 1.5 2005/02/15 17:36:24 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/08 10:02:02 $
+ * Last changed  $Date: 2005/02/15 17:36:24 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -71,12 +71,12 @@ public class SimplePeer implements PTEventListener, Configurable {
 		if (event instanceof QueryEvent)
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
-			log.debug("New query " + query.getGoal() + " from " + query.getOrigin().getAlias()) ;
+			log.debug("New query " + query.getGoal() + " from " + query.getSource().getAlias() + " to " + query.getTarget().getAlias()) ;
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			Answer answer = ( (AnswerEvent) event).getAnswer() ;
-			log.debug("New answer " + answer.getGoal() + " from " + answer.getOrigin().getAlias()) ;
+			log.debug("New answer " + answer.getGoal() + " from " + answer.getSource().getAlias() + " to " + answer.getTarget().getAlias()) ;
 			switch(answer.getStatus())
 			{
 				case Answer.ANSWER:

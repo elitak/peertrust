@@ -20,13 +20,14 @@
 package org.peertrust;
 
 import org.peertrust.config.PTConfigurator;
+import org.peertrust.config.Vocabulary;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: TrustServer.java,v 1.2 2005/01/11 17:47:51 dolmedilla Exp $
+ * $Id: TrustServer.java,v 1.3 2005/02/15 17:36:24 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:51 $
+ * Last changed  $Date: 2005/02/15 17:36:24 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -39,6 +40,8 @@ public class TrustServer
 		final String PREFIX = TrustServer.PREFIX ;
 		
 		String defaultConfigFile = "file:peertrustConfig.rdf" ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		
 		int TIMEOUT = 15000 ;
 		int SLEEP_INTERVAL = 500 ;
 		
@@ -57,7 +60,8 @@ public class TrustServer
 		
 		PTConfigurator config = new PTConfigurator() ;
 		
-		config.startApp(newArgs) ;
+		String[] components = { defaultComponent } ;
+		config.startApp(newArgs, components) ;
 
 		System.out.println(PREFIX + "Started") ;
 	}
