@@ -28,10 +28,10 @@ import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: PTEventDispatcher.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $
+ * $Id: PTEventDispatcher.java,v 1.4 2005/02/08 10:01:10 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:02 $
+ * Last changed  $Date: 2005/02/08 10:01:10 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -43,7 +43,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
 	public PTEventDispatcher() {
 		super();
-		log.debug("$Id: PTEventDispatcher.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $");
+		log.debug("$Id: PTEventDispatcher.java,v 1.4 2005/02/08 10:01:10 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -102,35 +102,42 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 	public void event(PTEvent event) {
 		log.debug("Distributing event " + event.getClass().getName() + " from " + event.getSource().getClass().getName());
 		
-		Vector vector = (Vector) registry.get(event.getClass());
-
-		// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
-		if (vector == null)
-			log.debug("No listeners registered to catch event " + event.getClass().getName()) ;
-		else
-		{
-			log.debug(vector.size() + " elements registered for the event " + event.getClass().getName() ) ;
-			
-			log.debug("Broadcasting event to listeners registered for the event " + event.getClass().getName());
-			Iterator it = vector.iterator();
-			dispatchEvent(event, it)  ;
-		}
-			
+		Class currentClass = event.getClass() ;
+		Vector vector ;
 		
-        vector = (Vector) registry.get(PTEvent.class);
-
-        if (vector == null)
-        	log.debug("No listeners registered to catch event of type PeerTrustEvent") ;
-        else
-        {
-        	log.debug(vector.size() + " elements registered for the event PeerTrustEvent" ) ;
-        	
-        	log.debug("Always broadcasting event to listeners registered for the parent PeerTrustEvent");
-
-        	Iterator it = vector.iterator();
-        
-        	dispatchEvent(event, it) ;
-        }
+		while ( (currentClass != Object.class ) && (currentClass != null) )
+		{
+			vector = (Vector) registry.get(currentClass);
+	
+			// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
+			if (vector == null)
+				log.debug("No listeners registered to catch event " + currentClass.getName()) ;
+			else
+			{
+				log.debug(vector.size() + " elements registered for the event " + currentClass.getName() ) ;
+				
+				log.debug("Broadcasting event to listeners registered for the event " + currentClass.getName());
+				Iterator it = vector.iterator();
+				dispatchEvent(event, it)  ;
+			}
+			
+			currentClass = currentClass.getSuperclass() ;
+		}	
+		
+//        vector = (Vector) registry.get(PTEvent.class);
+//
+//        if (vector == null)
+//        	log.debug("No listeners registered to catch event of type PeerTrustEvent") ;
+//        else
+//        {
+//        	log.debug(vector.size() + " elements registered for the event PeerTrustEvent" ) ;
+//        	
+//        	log.debug("Always broadcasting event to listeners registered for the parent PeerTrustEvent");
+//
+//        	Iterator it = vector.iterator();
+//        
+//        	dispatchEvent(event, it) ;
+//        }
 	}
 	
     private void dispatchEvent(PTEvent event, Iterator it)

@@ -21,15 +21,16 @@ package org.peertrust.event;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
+import org.peertrust.event.error.PTErrorEvent;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: SimplePeer.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
+ * $Id: SimplePeer.java,v 1.4 2005/02/08 10:02:02 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:51 $
+ * Last changed  $Date: 2005/02/08 10:02:02 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -90,8 +91,12 @@ public class SimplePeer implements PTEventListener, Configurable {
 					log.info("Request status unknown") ;
 			}
 		}
+		else if (event instanceof PTErrorEvent)
+		{
+			log.error("PT Error: " + ((PTErrorEvent)event).getMessage() ) ;
+		}
 		else
-			log.debug ("unknown event") ;	
+			log.debug ("Unknown event") ;	
 	}
 	/**
 	 * @param _dispatcher The _dispatcher to set.

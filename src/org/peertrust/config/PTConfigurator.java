@@ -55,10 +55,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.4 2005/02/08 10:00:48 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:03 $
+ * Last changed  $Date: 2005/02/08 10:00:48 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -117,7 +117,9 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.4 2005/02/08 10:00:48 dolmedilla Exp $");
+		
+		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
 	/**
      * 
@@ -332,7 +334,9 @@ public class PTConfigurator {
         }
     }
 
-    private void setFieldOnObject(Model model, Resource identifier, Object object, String attr, String value) throws ConfigurationException {
+    private void setFieldOnObject(Model model, Resource identifier, Object object, String attr, String value)
+    	throws ConfigurationException {
+    	
     	if (_verbose)
     		log.debug(".setFieldOnObject()");
         
