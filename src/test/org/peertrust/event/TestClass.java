@@ -17,43 +17,47 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.event;
+package test.org.peertrust.event;
 
-import org.apache.log4j.Logger;
+import org.peertrust.event.EventDispatcher;
+import org.peertrust.event.PTEvent;
+import org.peertrust.event.PTEventListener;
 
 /**
- * $Id: PTEvent.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: TestClass.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
  * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */
-public class PTEvent implements Cloneable {
+public class TestClass implements PTEventListener {
 	
-	private static Logger log = Logger.getLogger(PTEventDispatcher.class);
-	
-	static int id = 0 ;
-	int _identifier ;
-	Object _source ;
-	
+	PTEvent _message ;
+	EventDispatcher _dispatcher ;
 	/**
 	 * 
 	 */
-	public PTEvent(Object source) {
+	public TestClass(EventDispatcher ed) {
 		super();
-		_identifier = getNewId() ;
-		_source = source ;
+		_dispatcher = ed ;
 	}
 	
-	private synchronized int getNewId ()
-	{
-		id += 1 ;
-		return id ;
+	/* (non-Javadoc)
+	 * @see org.peertrust.event.PTEventListener#event(org.peertrust.event.PTEvent)
+	 */
+	public void event(PTEvent event) {
+		_message = event ;
 	}
 	
-	public Object getSource ()
+	public void generateEvent (PTEvent event)
 	{
-		return  _source ;
+		_dispatcher.event(event) ;
+	}
+	/**
+	 * @return Returns the _message.
+	 */
+	public PTEvent getMessage() {
+		return _message;
 	}
 }

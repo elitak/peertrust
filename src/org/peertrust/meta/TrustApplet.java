@@ -26,6 +26,7 @@ import java.io.* ;
 import javax.swing.*;
 
 import org.apache.log4j.Logger;
+import org.peertrust.*;
 import org.peertrust.inference.*;
 import org.peertrust.net.*;
 import org.peertrust.strategy.*;
@@ -33,10 +34,10 @@ import org.peertrust.strategy.*;
 import net.jxta.edutella.util.Configurator ;
 
 /**
- * $Id: TrustApplet.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * $Id: TrustApplet.java,v 1.3 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:43 $
+ * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */

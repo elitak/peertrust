@@ -28,10 +28,10 @@ import org.peertrust.exception.ConfigurationException;
 import junit.framework.*;
 
 /**
- * $Id: PeertrustConfiguratorTest.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: PeertrustConfiguratorTest.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -71,7 +71,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		ExampleClass ec = (ExampleClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 33) ;
@@ -80,7 +80,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		assertTrue (v1.contains("Element 1")) ;
 		assertTrue (v1.contains("Element 2")) ;
 		
-		ExampleClass ec2 = ec.getExample2() ;
+		TestClass ec2 = ec.getExample2() ;
 		assertEquals (ec2.getString(), "testing2") ;
 		assertEquals (ec2.isBool(), false) ;
 		assertEquals (ec2.getInteger(), -99) ;
@@ -115,7 +115,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		ExampleClass ec = (ExampleClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 33) ;
@@ -124,7 +124,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		assertTrue (v1.contains("Element 1")) ;
 		assertTrue (v1.contains("Element 2")) ;
 		
-		ExampleClass ec2 = ec.getExample2() ;
+		TestClass ec2 = ec.getExample2() ;
 		assertEquals (ec2.getString(), "testing2") ;
 		assertEquals (ec2.isBool(), false) ;
 		assertEquals (ec2.getInteger(), -99) ;
@@ -133,7 +133,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		assertTrue (v2.contains("Element 3")) ;
 		assertTrue (v2.contains("Element 4")) ;
 		
-		ExampleClass ec3 = (ExampleClass) ec.getExtraExample() ;
+		TestClass ec3 = (TestClass) ec.getExtraExample() ;
 		assertEquals (ec3.getString(), "testing3") ;
 		assertEquals (ec3.isBool(), true) ;
 		assertEquals (ec3.getInteger(), -66) ;
@@ -142,8 +142,8 @@ public class PeertrustConfiguratorTest extends TestCase {
 		assertTrue (v3.contains("Element 100")) ;
 		assertTrue (v3.contains("Element 111")) ;
 		
-		ExampleClass ec4 = ec3.getExample2() ;
-		assertEquals (ec2, ec4) ;
+		TestClass ec4 = ec3.getExample2() ;
+		assertSame (ec2, ec4) ;
 	}
 	
 	public void testConfiguratorParentClass() throws ConfigurationException {
@@ -157,7 +157,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		ExampleClass ec = (ExampleClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 33) ;
@@ -205,7 +205,11 @@ public class PeertrustConfiguratorTest extends TestCase {
 
 		object = config.getComponent(Vocabulary.CommunicationChannelFactory) ;
 		assertNotNull(object) ;		
-}
+	}
+	
+	// TO-DO: errors
+	// class without init method
+	// class does not fit target object
 	
 	public static void main( String[] args ) {
 		try {

@@ -17,43 +17,24 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.event;
+package test.org.peertrust.event;
 
-import org.apache.log4j.Logger;
+import org.peertrust.event.PTEvent;
 
 /**
- * $Id: PTEvent.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: PTEventTestB.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
  * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */
-public class PTEvent implements Cloneable {
-	
-	private static Logger log = Logger.getLogger(PTEventDispatcher.class);
-	
-	static int id = 0 ;
-	int _identifier ;
-	Object _source ;
-	
+public class PTEventTestB extends PTEvent {
 	/**
-	 * 
+	 * @param source
 	 */
-	public PTEvent(Object source) {
-		super();
-		_identifier = getNewId() ;
-		_source = source ;
-	}
-	
-	private synchronized int getNewId ()
-	{
-		id += 1 ;
-		return id ;
-	}
-	
-	public Object getSource ()
-	{
-		return  _source ;
+	public PTEventTestB(Object source) {
+		super(source);
+		// TODO Auto-generated constructor stub
 	}
 }

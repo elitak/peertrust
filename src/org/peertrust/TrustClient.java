@@ -17,10 +17,11 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.meta;
+package org.peertrust;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.Vocabulary;
+import org.peertrust.meta.Tree;
 import org.peertrust.net.*;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
@@ -33,10 +34,10 @@ import net.jxta.edutella.util.Configurable ;
 //import java.util.Random;
 
 /**
- * $Id: TrustClient.java,v 1.3 2004/11/18 12:50:47 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:47 $
+ * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */

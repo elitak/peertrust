@@ -22,26 +22,26 @@ package test.org.peertrust.config;
 import java.util.Vector;
 
 /**
- * $Id: ExampleClass.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: TestClass.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2004/11/20 19:47:53 $
  * by $Author: dolmedilla $
  * @description
  */
-public class ExampleClass {
+public class TestClass {
 	private String string ;
 	private boolean bool ;
 	private int integer ;
 	private long longinteger ;
 	private Vector vector ;
-	private ExampleClass example2 ;
+	private TestClass example2 ;
 	private Object extraExample ;
 	
 	/**
 	 * 
 	 */
-	public ExampleClass() {
+	public TestClass() {
 		super();
 	}
 	
@@ -60,13 +60,13 @@ public class ExampleClass {
 	/**
 	 * @return Returns the example2.
 	 */
-	public ExampleClass getExample2() {
+	public TestClass getExample2() {
 		return example2;
 	}
 	/**
 	 * @param example2 The example2 to set.
 	 */
-	public void setExample2(ExampleClass example2) {
+	public void setExample2(TestClass example2) {
 		this.example2 = example2;
 	}
 	/**

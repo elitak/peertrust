@@ -55,10 +55,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.2 2004/11/20 19:47:54 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2004/11/20 19:47:54 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -117,7 +117,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.2 2004/11/20 19:47:54 dolmedilla Exp $");
 	}
 	/**
      * 
@@ -328,7 +328,8 @@ public class PTConfigurator {
     }
 
     private void setFieldOnObject(Model model, Resource identifier, Object object, String attr, String value) throws ConfigurationException {
-        log.debug(".setFieldOnObject()");
+    	if (_verbose)
+    		log.debug(".setFieldOnObject()");
         
         // Getting Properties from BeanInfo, that match <code>name</code>
         PropertyDescriptor propertyDescriptors[] = null;
@@ -418,8 +419,7 @@ public class PTConfigurator {
             }
         }
     }
-    
-    
+
     private Vector fillVector(Resource identifier, Object component, String attribute, String value) {
         log.debug(".fillVector()");
         
@@ -429,9 +429,12 @@ public class PTConfigurator {
         
         Vector vector = new Vector();
         
-        log.debug("Subject: " + subject.getURI().toString());
-        log.debug("Predicate: " + predicate.getURI().toString());
-        log.debug("Object: " + object.getURI().toString());
+        if (_verbose)
+        {
+        	log.debug("Subject: " + subject.getURI().toString());
+        	log.debug("Predicate: " + predicate.getURI().toString());
+        	log.debug("Object: " + object.getURI().toString());
+        }
         
         StmtIterator i = this._configuration.listStatements(subject, predicate, object);
         
@@ -465,7 +468,7 @@ public class PTConfigurator {
     public boolean isVerbose() {
         return _verbose;
     }
-    
+
     public Object getComponent (Resource resource)
     {
     	if (_configuration == null)
@@ -498,4 +501,11 @@ public class PTConfigurator {
 //    {
 //    	return _registry.get(_eventDispatcher.getLocalName()) ;
 //    }
+    
+    public static void main (String args[]) throws ConfigurationException
+    {
+    	String [] args2 = { "peertrustConfig.rdf" } ;
+    	PTConfigurator ptconf = new PTConfigurator() ;
+    	ptconf.startApp(args2) ;
+    }
 }
