@@ -37,10 +37,10 @@ import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.5 2005/01/11 17:47:52 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.6 2005/03/01 13:53:05 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:52 $
+ * Last changed  $Date: 2005/03/01 13:53:05 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -71,7 +71,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.5 2005/01/11 17:47:52 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.6 2005/03/01 13:53:05 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -347,9 +347,9 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				break ;
 			case MinervaTerm.LIST:
 				tmp.append("[") ;
-				Enumeration enum = ((MinervaList) term).getEnumeration() ;
-				while (enum.hasMoreElements())
-					tmp.append(unparse ((MinervaTerm)enum.nextElement()) + ",") ; 
+				Enumeration enume = ((MinervaList) term).getEnumeration() ;
+				while (enume.hasMoreElements())
+					tmp.append(unparse ((MinervaTerm)enume.nextElement()) + ",") ; 
 				tmp.setCharAt(tmp.length()-1,']') ;
 				query = tmp.toString() ;			
 				break ;
