@@ -20,38 +20,53 @@
 package org.peertrust.event;
 
 import org.apache.log4j.Logger;
-import org.peertrust.PeertrustEngine;
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: SimplePeer.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: SimplePeer.java,v 1.2 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
-public class SimplePeer implements PeerTrustEventListener {
+public class SimplePeer implements PTEventListener, Configurable {
 	
-	private static Logger log = Logger.getLogger(PeerTrustEventListener.class);
+	private static Logger log = Logger.getLogger(PTEventListener.class);
+	
+	EventDispatcher _dispatcher ;
 	
 	/**
 	 * 
 	 */
 	public SimplePeer() {
 		super();
-		PeertrustEngine.getDispatcher().register(this) ;
+	}
+	
+	public void init() throws ConfigurationException
+	{
+		String msg = null ;
+		if (_dispatcher == null)
+		{
+			msg = "There not exist an event dispatcher" ;
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
 		
-		log.debug("registered") ;
+		_dispatcher.register(this) ;
+		
+		log.debug("Event listener registered") ;
 
-		PeertrustEngine.getDispatcher().event(new QueryEvent(this, new Query ("request(spanishCourse,Session) @ eLearn", null, 1))) ;
+		//_dispatcher.event(new QueryEvent(this, new Query ("request(spanishCourse,Session) @ eLearn", null, 1))) ;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.PeerTrustEventListener#event(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void event(PeerTrustEvent event) {
+	public void event(PTEvent event) {
 		if (event instanceof QueryEvent)
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
@@ -64,5 +79,11 @@ public class SimplePeer implements PeerTrustEventListener {
 		}
 		else
 			log.debug ("unknown event") ;	
+	}
+	/**
+	 * @param _dispatcher The _dispatcher to set.
+	 */
+	public void setEventDispatcher(EventDispatcher _dispatcher) {
+		this._dispatcher = _dispatcher;
 	}
 }

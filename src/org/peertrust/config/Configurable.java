@@ -17,15 +17,15 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust;
+package org.peertrust.config;
 
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: Configurable.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: Configurable.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */

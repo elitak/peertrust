@@ -20,7 +20,7 @@
 package org.peertrust.meta;
 
 import org.apache.log4j.Logger;
-import org.peertrust.Vocabulary;
+import org.peertrust.config.Vocabulary;
 import org.peertrust.net.*;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
@@ -33,10 +33,10 @@ import net.jxta.edutella.util.Configurable ;
 //import java.util.Random;
 
 /**
- * $Id: TrustClient.java,v 1.2 2004/07/08 15:10:43 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.3 2004/11/18 12:50:47 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:43 $
+ * Last changed  $Date: 2004/11/18 12:50:47 $
  * by $Author: dolmedilla $
  * @description
  */

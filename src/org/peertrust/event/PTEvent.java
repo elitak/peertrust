@@ -17,15 +17,39 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.consumer;
+package org.peertrust.event;
 
 /**
- * $Id: Consumer.java,v 1.1 2004/10/20 19:26:42 dolmedilla Exp $
+ * $Id: PTEvent.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:42 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
-public interface Consumer {
+public class PTEvent {
+	
+	static int id = 0 ;
+	int _identifier ;
+	Object _source ;
+	
+	/**
+	 * 
+	 */
+	public PTEvent(Object source) {
+		super();
+		_identifier = getNewId() ;
+		_source = source ;
+	}
+	
+	private synchronized int getNewId ()
+	{
+		id += 1 ;
+		return id ;
+	}
+	
+	public Object getSource ()
+	{
+		return  _source ;
+	}
 }

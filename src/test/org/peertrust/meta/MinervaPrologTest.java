@@ -20,22 +20,22 @@
 
 package test.org.peertrust.meta;
 
-import org.peertrust.PeertrustConfigurator;
-import org.peertrust.Vocabulary;
+import org.peertrust.config.PTConfigurator;
+import org.peertrust.config.Vocabulary;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.inference.MinervaProlog;
 
-import test.org.peertrust.Vocabulary4Tests;
+import test.org.peertrust.config.Vocabulary4Tests;
 
 import com.ifcomputer.minerva.MinervaTerm;
 
 import junit.framework.*;
 
 /**
- * $Id: MinervaPrologTest.java,v 1.2 2004/10/20 19:26:41 dolmedilla Exp $
+ * $Id: MinervaPrologTest.java,v 1.3 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:41 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -86,7 +86,7 @@ public class MinervaPrologTest extends TestCase {
 
 	public MinervaProlog initMinerva () throws ConfigurationException
 	{
-		PeertrustConfigurator config = new PeertrustConfigurator() ;
+		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE } ;
 		try {

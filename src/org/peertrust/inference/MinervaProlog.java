@@ -30,17 +30,17 @@ import com.ifcomputer.minerva.*;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.peertrust.Configurable;
+import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.4 2004/11/18 12:50:48 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2004/11/18 12:50:48 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -69,7 +69,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.4 2004/11/18 12:50:48 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)

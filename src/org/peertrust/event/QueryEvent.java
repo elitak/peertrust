@@ -22,14 +22,14 @@ package org.peertrust.event;
 import org.peertrust.net.Query;
 
 /**
- * $Id: QueryEvent.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: QueryEvent.java,v 1.2 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
-public class QueryEvent extends PeerTrustEvent {
+public class QueryEvent extends PTEvent {
 	/**
 	 * 
 	 */

@@ -22,12 +22,9 @@ package org.peertrust.meta;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
-import org.peertrust.PeertrustConfigurator;
-import org.peertrust.PeertrustEngine;
-import org.peertrust.Vocabulary;
+import org.peertrust.config.Configurable;
 import org.peertrust.event.AnswerEvent;
-import org.peertrust.event.PeerTrustEvent;
-import org.peertrust.event.PeerTrustEventListener;
+import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
@@ -40,34 +37,52 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.3 2004/10/20 19:26:41 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:41 $
+ * Last changed  $Date: 2004/11/18 12:50:47 $
  * by $Author: dolmedilla $
  * @description
  */
-public class MetaInterpreterListener implements Runnable
+public class MetaInterpreterListener implements Runnable, Configurable
 {
 	private static Logger log = Logger.getLogger(MetaInterpreterListener.class);
 	
-	private PeertrustConfigurator _configurator ;
+	//private PTConfigurator _configurator ;
 	
 	private Queue _queue ;
-	private InferenceEngine _engine ;
+	private InferenceEngine _inferenceEngine ;
 	private Hashtable _entities ;
 	private NetServer _netServer ;
 	private AbstractFactory _commChannelFactory ;
+	private EventDispatcher _dispatcher ;
+	
 	private Thread _metaIThread = null ;
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.3 2004/10/20 19:26:41 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
 	{
-		AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
+		String msg = null ;
+		if (_dispatcher == null)
+			msg = "There not exist an event dispatcher" ;
+		else if (_queue == null)
+			msg = "There not exist a queue" ;
+		else if (_inferenceEngine == null)
+			msg = "There not exist an inference engine" ;
+		else if (_commChannelFactory == null)
+			msg = "There not exist a communication channel factory" ;
+		
+		if (msg != null)
+		{
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
+		
+		//AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
 		_netServer = _commChannelFactory.createNetServer() ;
 	
 		_metaIThread = new Thread(this, "MetaInterpreterListener") ;
@@ -126,7 +141,7 @@ public class MetaInterpreterListener implements Runnable
 		{
 			Query query = (Query) message ;
 
-			PeertrustEngine.getDispatcher().event(new QueryEvent(this, query)) ;
+			_dispatcher.event(new QueryEvent(this, query)) ;
 			
 			_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
 			Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
@@ -139,7 +154,7 @@ public class MetaInterpreterListener implements Runnable
 		{
 			Answer answer = (Answer) message ;
 			
-			PeertrustEngine.getDispatcher().event(new AnswerEvent(this, answer)) ;
+			_dispatcher.event(new AnswerEvent(this, answer)) ;
 			
 			// status might be answer or a failure
 			switch (answer.getStatus())
@@ -151,7 +166,7 @@ public class MetaInterpreterListener implements Runnable
 					Tree match = _queue.search(pattern) ;
 					
 					try {
-						_engine.unifyTree(match,answer.getGoal()) ;
+						_inferenceEngine.unifyTree(match,answer.getGoal()) ;
 					} catch (InferenceEngineException e) {
 						log.error("Error unifying " + match.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
 					}
@@ -186,7 +201,7 @@ public class MetaInterpreterListener implements Runnable
 					
 					// unification of the query goal with the answer
 					try {
-						_engine.unifyTree(match2,answer.getGoal()) ;
+						_inferenceEngine.unifyTree(match2,answer.getGoal()) ;
 					} catch (InferenceEngineException e) {
 						log.error("Error unifying " + match2.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
 					}
@@ -228,66 +243,72 @@ public class MetaInterpreterListener implements Runnable
 			
 	}
 	
-	/**
-	 * @return Returns the _configurator.
-	 */
-	public PeertrustConfigurator getConfigurator() {
-		return _configurator;
-	}
-	
-	/**
-	 * @param _configurator The _configurator to set.
-	 */
-	public void setConfigurator(PeertrustConfigurator _configurator) {
-		this._configurator = _configurator;
-	}
+//	/**
+//	 * @return Returns the _configurator.
+//	 */
+//	public PTConfigurator getConfigurator() {
+//		return _configurator;
+//	}
+//	
+//	/**
+//	 * @param _configurator The _configurator to set.
+//	 */
+//	public void setConfigurator(PTConfigurator _configurator) {
+//		this._configurator = _configurator;
+//	}
 
 	/**
 	 * @return Returns the _engine.
 	 */
 	public InferenceEngine getEngine() {
-		return _engine;
+		return _inferenceEngine;
 	}
 	/**
 	 * @param _engine The _engine to set.
 	 */
-	public void setEngine(InferenceEngine _engine) {
-		this._engine = _engine;
+	public void setInferenceEngine(InferenceEngine _engine) {
+		this._inferenceEngine = _engine;
 	}
-	/**
-	 * @return Returns the _queue.
-	 */
-	public Queue getQueue() {
-		return _queue;
-	}
+//	/**
+//	 * @return Returns the _queue.
+//	 */
+//	public Queue getQueue() {
+//		return _queue;
+//	}
 	/**
 	 * @param _queue The _queue to set.
 	 */
 	public void setQueue(Queue _queue) {
 		this._queue = _queue;
 	}
-	/**
-	 * @return Returns the entities.
-	 */
-	public Hashtable getEntities() {
-		return _entities;
-	}
+//	/**
+//	 * @return Returns the entities.
+//	 */
+//	public Hashtable getEntities() {
+//		return _entities;
+//	}
 	/**
 	 * @param entities The entities to set.
 	 */
 	public void setEntities(Hashtable entities) {
 		this._entities = entities;
 	}
-	/**
-	 * @return Returns the _commChannelFactory.
-	 */
-	public AbstractFactory getCommChannelFactory() {
-		return _commChannelFactory;
-	}
+//	/**
+//	 * @return Returns the _commChannelFactory.
+//	 */
+//	public AbstractFactory getCommChannelFactory() {
+//		return _commChannelFactory;
+//	}
 	/**
 	 * @param channelFactory The _commChannelFactory to set.
 	 */
-	public void setCommChannelFactory(AbstractFactory channelFactory) {
+	public void setCommunicationChannelFactory(AbstractFactory channelFactory) {
 		_commChannelFactory = channelFactory;
+	}
+	/**
+	 * @param _dispatcher The _dispatcher to set.
+	 */
+	public void setEventDispatcher(EventDispatcher _dispatcher) {
+		this._dispatcher = _dispatcher;
 	}
 }

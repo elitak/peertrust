@@ -7,7 +7,6 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * Manages storage and retrieval of Credentials for automated trust
  * negotiation.
@@ -25,6 +24,7 @@ public abstract class CredentialStore {
 		credentials = new Vector();
 	}
 
+	
 	/**
 	 * Restores all Credential from a given file and returns them in a Vector,
 	 * 

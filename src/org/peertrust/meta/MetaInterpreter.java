@@ -27,12 +27,10 @@ import java.util.Hashtable ;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.peertrust.Configurable;
-import org.peertrust.PeertrustConfigurator;
-import org.peertrust.PeertrustEngine;
-import org.peertrust.Vocabulary;
-import org.peertrust.event.PeerTrustEvent;
-import org.peertrust.event.PeerTrustEventListener;
+import org.peertrust.config.Configurable;
+import org.peertrust.event.EventDispatcher;
+import org.peertrust.event.PTEvent;
+import org.peertrust.event.PTEventListener;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
@@ -46,31 +44,36 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.3 2004/10/20 19:26:40 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:40 $
+ * Last changed  $Date: 2004/11/18 12:50:47 $
  * by $Author: dolmedilla $
  * @description
  */
-public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventListener
+public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 {
 	private static Logger log = Logger.getLogger(MetaInterpreter.class);
 	
-	private PeertrustConfigurator _configurator ;
+//	private PTConfigurator _configurator ;
 
 	private final int SLEEP_TIME = 200 ;
 	private final String PEERNAME_PREDICATE = "peerName" ;
 	
 	private Queue _queue ;
-	private InferenceEngine _engine ;
-	private MetaInterpreterListener _metaIListener ;
+	private InferenceEngine _inferenceEngine ;
+	//private MetaInterpreterListener _metaInterpreterListener ;
 	private CredentialStore _credStore ;
 	private NetClient _netClient ;
+	
+	private EventDispatcher _dispatcher ;
+	
+	AbstractFactory _commChannelFactory ;
 	
 	private String _entitiesFile ;
 
 	private Thread _metaIThread = null ;
+	
 	private Hashtable _entities = new Hashtable() ;
 	private String _alias ;
 	
@@ -80,26 +83,46 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.3 2004/10/20 19:26:40 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.4 2004/11/18 12:50:47 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
+		String msg = null ;
+		if (_dispatcher == null)
+			msg = "There not exist an event dispatcher" ;
+		else if (_queue == null)
+			msg = "There not exist a queue" ;
+		else if (_inferenceEngine == null)
+			msg = "There not exist an inference engine" ;
+		else if (_credStore == null)
+			msg = "There not exist a credential store" ;
+		else if (_commChannelFactory == null)
+			msg = "There not exist a communication channel factory" ;
+		else if (_alias == null)
+			msg = "No alias has been defined for the peer" ;
+		
+		if (msg != null)
+		{
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
+		
 		log.info("PeerName = " + _alias) ;
 		log.debug("(Init) PeerName = " + _alias + " - EntitiesFile = " + _entitiesFile) ;
 		
-		_queue = (Queue) _configurator.createComponent(Vocabulary.Queue, true) ;
+//		_queue = (Queue) _configurator.createComponent(Vocabulary.Queue, true) ;
 
-		_engine = (InferenceEngine) _configurator.createComponent(Vocabulary.InferenceEngine, true) ;
-		_engine.init() ;
+//		_inferenceEngine = (InferenceEngine) _configurator.createComponent(Vocabulary.InferenceEngine, true) ;
+//		_inferenceEngine.init() ;
 		try {
-			_engine.setDebugMode(true) ;
-			_engine.insert(PEERNAME_PREDICATE + "(" + _alias + ")") ;
+//			_inferenceEngine.setDebugMode(true) ;
+			_inferenceEngine.insert(PEERNAME_PREDICATE + "(" + _alias + ")") ;
 		} catch (InferenceEngineException e) {
 			log.error("Error:", e) ;
 		}
 
-		_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
+//		_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
 		Vector credentials = _credStore.getCredentials() ;
 		//log.debug("TMP number of elements " + credentials.size()) ;
 		for (int i = 0 ; i < credentials.size() ; i++)
@@ -107,29 +130,30 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 			String stringCredential = ( (Credential) credentials.elementAt(i)).getStringRepresentation() ;
 			log.debug("Adding credential string '" + stringCredential + "'") ;
 			try {
-				_engine.insert(stringCredential) ;
+				_inferenceEngine.insert(stringCredential) ;
 			} catch (InferenceEngineException e1) {
 				log.error("Error inserting credentials in the inference engine", e1) ;
 			}
 		}
 
-		AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
+//		AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
 		_netClient = _commChannelFactory.createNetClient() ;
 		_localPeer = _commChannelFactory.getServerPeer(_alias) ;
 		
 		log.debug ("Local Peer: alias = " + _localPeer.getAlias() + " - host = " + _localPeer.getAddress() + " - port = " + _localPeer.getPort()) ;
 		
-		_entities = readEntities(_entitiesFile) ;
+		if (_entitiesFile != null)
+			_entities = readEntities(_entitiesFile) ;
 		
-		_metaIListener = (MetaInterpreterListener) _configurator.createComponent(Vocabulary.MetaInterpreterListener, true) ; 
-		_metaIListener.setConfigurator(_configurator) ;
-		_metaIListener.setEngine(_engine) ;
-		_metaIListener.setEntities(_entities) ;
-		_metaIListener.setQueue(_queue) ;
-		_metaIListener.setCommChannelFactory(_commChannelFactory) ;
-		_metaIListener.init() ;
-		
-		PeertrustEngine.getDispatcher().register(this, QueryEvent.class) ;
+//		_metaInterpreterListener = (MetaInterpreterListener) _configurator.createComponent(Vocabulary.MetaInterpreterListener, true) ; 
+//		_metaInterpreterListener.setConfigurator(_configurator) ;
+//		_metaInterpreterListener.setEngine(_inferenceEngine) ;
+//		_metaInterpreterListener.setEntities(_entities) ;
+//		_metaInterpreterListener.setQueue(_queue) ;
+//		_metaInterpreterListener.setCommChannelFactory(_commChannelFactory) ;
+//		_metaInterpreterListener.init() ;
+//		
+//		PTEngine.getDispatcher().register(this, QueryEvent.class) ;
 
 		_metaIThread = new Thread(this, "MetaInterpreter") ;
 
@@ -150,13 +174,13 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 	public void stop()
 	{
 		_metaIThread = null ;
-		_metaIListener.stop() ;
+//		_metaInterpreterListener.stop() ;
 	}
 		
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.PeerTrustEventListener#event(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void event(PeerTrustEvent event) {
+	public void event(PTEvent event) {
 		if (event instanceof QueryEvent)
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
@@ -221,7 +245,7 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 		//processing the tree
 	 	LogicAnswer [] results = null ;
 		try {
-			results = _engine.processTree(logicQuery);
+			results = _inferenceEngine.processTree(logicQuery);
 		} catch (InferenceEngineException e) {
 			log.error ("Error processing tree", e) ;
 		}
@@ -367,19 +391,19 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 //		}
 	}
 	
-	/**
-	 * @return Returns the _configurator.
-	 */
-	public PeertrustConfigurator getConfigurator() {
-		return _configurator;
-	}
-	
-	/**
-	 * @param _configurator The _configurator to set.
-	 */
-	public void setConfigurator(PeertrustConfigurator _configurator) {
-		this._configurator = _configurator;
-	}
+//	/**
+//	 * @return Returns the _configurator.
+//	 */
+//	public PTConfigurator getConfigurator() {
+//		return _configurator;
+//	}
+//	
+//	/**
+//	 * @param _configurator The _configurator to set.
+//	 */
+//	public void setConfigurator(PTConfigurator _configurator) {
+//		this._configurator = _configurator;
+//	}
 	/**
 	 * @return Returns the _alias.
 	 */
@@ -403,5 +427,41 @@ public class MetaInterpreter implements Configurable, Runnable, PeerTrustEventLi
 	 */
 	public void setEntitiesFile(String file) {
 		_entitiesFile = file;
+	}
+	/**
+	 * @param engine The _inferenceEngine to set.
+	 */
+	public void setInferenceEngine(InferenceEngine engine) {
+		_inferenceEngine = engine;
+	}
+//	/**
+//	 * @param interpreterListener The _metaInterpreterListener to set.
+//	 */
+//	public void setMetaInterpreterListener(MetaInterpreterListener interpreterListener) {
+//		_metaInterpreterListener = interpreterListener;
+//	}
+	/**
+	 * @param channelFactory The _commChannelFactory to set.
+	 */
+	public void setCommunicationChannelFactory(AbstractFactory channelFactory) {
+		_commChannelFactory = channelFactory;
+	}
+	/**
+	 * @param store The _credStore to set.
+	 */
+	public void setCredentialStore(CredentialStore store) {
+		_credStore = store;
+	}
+	/**
+	 * @param _queue The _queue to set.
+	 */
+	public void setQueue(Queue _queue) {
+		this._queue = _queue;
+	}
+	/**
+	 * @param _dispatcher The _dispatcher to set.
+	 */
+	public void setEventDispatcher(EventDispatcher _dispatcher) {
+		this._dispatcher = _dispatcher;
 	}
 }

@@ -24,38 +24,44 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: PeerTrustEventDispatcher.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: PTEventDispatcher.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
-public class PeerTrustEventDispatcher implements EventDispatcher {
+public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
-	private static Logger log = Logger.getLogger(PeerTrustEventDispatcher.class);
+	private static Logger log = Logger.getLogger(PTEventDispatcher.class);
 	
 	Hashtable registry ;
 	
-	public PeerTrustEventDispatcher() {
+	public PTEventDispatcher() {
 		super();
-		log.debug("$Id: PeerTrustEventDispatcher.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $");
+		log.debug("$Id: PTEventDispatcher.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $");
+	}
+	
+	public void init () throws ConfigurationException
+	{
 		registry = new Hashtable() ;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#register(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void register(PeerTrustEventListener listener) {
-		register(listener, PeerTrustEvent.class) ;
+	public void register(PTEventListener listener) {
+		register(listener, PTEvent.class) ;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#unregister(org.peertrust.event.PeerTrustEvent)
 	 */
-	public boolean unregister(PeerTrustEventListener listener) {
+	public boolean unregister(PTEventListener listener) {
 		boolean res = false ;
 		Iterator it = registry.keySet().iterator() ;
 		while (it.hasNext())
@@ -71,7 +77,7 @@ public class PeerTrustEventDispatcher implements EventDispatcher {
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#register(org.peertrust.event.PeerTrustEvent, java.lang.Class)
 	 */
-	public void register(PeerTrustEventListener listener, Class event) {
+	public void register(PTEventListener listener, Class event) {
     	log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
     	
         Vector vector = (Vector) registry.get(event);
@@ -93,7 +99,7 @@ public class PeerTrustEventDispatcher implements EventDispatcher {
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.PeerTrustEventListener#event(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void event(PeerTrustEvent event) {
+	public void event(PTEvent event) {
 		log.debug("Distributing event " + event.getClass().getName() + " from " + event.getSource().getClass().getName());
 		
 		Vector vector = (Vector) registry.get(event.getClass());
@@ -111,7 +117,7 @@ public class PeerTrustEventDispatcher implements EventDispatcher {
 		}
 			
 		
-        vector = (Vector) registry.get(PeerTrustEvent.class);
+        vector = (Vector) registry.get(PTEvent.class);
 
         if (vector == null)
         	log.error("No listeners registered to catch event of type PeerTrustEvent") ;
@@ -127,15 +133,15 @@ public class PeerTrustEventDispatcher implements EventDispatcher {
         }
 	}
 	
-    private void dispatchEvent(PeerTrustEvent event, Iterator it)
+    private void dispatchEvent(PTEvent event, Iterator it)
     {        
         while( it.hasNext() ) {
             Object listener =  it.next();
              
-            if (listener instanceof PeerTrustEventListener)
+            if (listener instanceof PTEventListener)
             {
             	if (listener != event.getSource())
-            		( (PeerTrustEventListener)listener).event(event) ;
+            		( (PTEventListener)listener).event(event) ;
 /*            	try {
                     if ( service != event.getSource() ) {
                         service.event(event);

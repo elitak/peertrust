@@ -20,36 +20,13 @@
 package org.peertrust.event;
 
 /**
- * $Id: PeerTrustEvent.java,v 1.1 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: PTEventListener.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
-public class PeerTrustEvent {
-	
-	static int id = 0 ;
-	int _identifier ;
-	Object _source ;
-	
-	/**
-	 * 
-	 */
-	public PeerTrustEvent(Object source) {
-		super();
-		_identifier = getNewId() ;
-		_source = source ;
-	}
-	
-	private synchronized int getNewId ()
-	{
-		id += 1 ;
-		return id ;
-	}
-	
-	public Object getSource ()
-	{
-		return  _source ;
-	}
+public interface PTEventListener {
+	public void event(PTEvent event) ;
 }

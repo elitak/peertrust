@@ -17,7 +17,7 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust;
+package org.peertrust.config;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -26,10 +26,10 @@ import com.hp.hpl.jena.mem.ModelMem;
 import com.hp.hpl.jena.rdf.model.RDFException;
 
 /**
- * $Id: Vocabulary.java,v 1.2 2004/10/20 19:26:38 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:38 $
+ * Last changed  $Date: 2004/11/18 12:50:46 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -50,33 +50,33 @@ public class Vocabulary {
     */
     public static Resource PeertrustEngine;
 
-    public static Property peerName ;
-
-    public static Property baseFolder ;
-    
-    public static Property entitiesFile ;
-    
-    public static Property hostName ;
-    
-    public static Property port ;
-    
-    public static Property keyStoreFile ;
-    
-    public static Property keyPassword ;
-    
-    public static Property storePassword ;
-    
+//    public static Property peerName ;
+//
+//    public static Property baseFolder ;
+//    
+//    public static Property entitiesFile ;
+//    
+//    public static Property hostName ;
+//    
+//    public static Property port ;
+//    
+//    public static Property keyStoreFile ;
+//    
+//    public static Property keyPassword ;
+//    
+//    public static Property storePassword ;
+//    
     /**
      * Inference engine
     */
     public static Resource InferenceEngine;
-
-    public static Property prologFiles ;
-    
-    public static Property rdfFiles ;
-    
-    public static Property license ;
-
+//
+//    public static Property prologFiles ;
+//    
+//    public static Property rdfFiles ;
+//    
+//    public static Property license ;
+//
     /**
      * Queue
     */
@@ -85,7 +85,7 @@ public class Vocabulary {
     /**
      * CommunicationChannel
     */
-    public static Resource CommunicationChannel;
+    public static Resource CommunicationChannelFactory;
 
     /**
      * CredentialStore
@@ -128,8 +128,8 @@ public class Vocabulary {
       Queue =
         m.createResource(Vocabulary.uri + "Queue");
 
-      CommunicationChannel =
-        m.createResource(Vocabulary.uri + "CommunicationChannel");
+      CommunicationChannelFactory =
+        m.createResource(Vocabulary.uri + "CommunicationChannelFactory");
       
       CredentialStore =
         m.createResource(Vocabulary.uri + "CredentialStore");
@@ -151,12 +151,12 @@ public class Vocabulary {
     }
   }
 
-	private static final String METAI_PREFIX = "metaI." ; 
-	public static final String PEERNAME = METAI_PREFIX + "peerName" ;
-	public static final String BASE_FOLDER_TAG = METAI_PREFIX + "baseFolder" ; 
-	public static final String SERVER_PORT_TAG = METAI_PREFIX + "serverPort" ;
-	public static final String LOCAL_ADDRESS_TAG = METAI_PREFIX + "address" ;
-	public static final String KEYSTORE_FILE_TAG = METAI_PREFIX + "keystoreFile" ;
-	public static final String KEY_PASSWORD_TAG = METAI_PREFIX + "keyPassword" ;
-	public static final String STORE_PASSWORD_TAG = METAI_PREFIX + "storePassword" ;
+//	private static final String METAI_PREFIX = "metaI." ; 
+//	public static final String PEERNAME = METAI_PREFIX + "peerName" ;
+//	public static final String BASE_FOLDER_TAG = METAI_PREFIX + "baseFolder" ; 
+//	public static final String SERVER_PORT_TAG = METAI_PREFIX + "serverPort" ;
+//	public static final String LOCAL_ADDRESS_TAG = METAI_PREFIX + "address" ;
+//	public static final String KEYSTORE_FILE_TAG = METAI_PREFIX + "keystoreFile" ;
+//	public static final String KEY_PASSWORD_TAG = METAI_PREFIX + "keyPassword" ;
+//	public static final String STORE_PASSWORD_TAG = METAI_PREFIX + "storePassword" ;
 }
