@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==========================================================================
+
+                        * ====================== *
+                        |  How to build PeerTrust |
+                        * ====================== *
+
+           Adaption from the FOP build.xml written by Stefano Mazzocchi
+                by Giacomo Pati with some addition by Fotis Jannidis
+           Adapted by Ingo Brunkhorst and Daniel Olmedilla
+
+Introduction
+============
+
+In the PeerTrust project we are developing and investigating policy languages to describe trust and security requirements on the Semantic Web. Such policies will be one component of a run-time system that can negotiate to establish trust on the Semantic Web. The PeerTrust system uses guarded distributed logic programs as the basis for a simple yet expressive policy and trust negotiation language, built upon the rule layer of the Semantic Web layer cake.
+
+The homepage of Peertrust is http://www.learninglab.de/peertrust/
+
+Installing the build tools
+==========================
+
+Building the latest versions of Peertrust is automated
+using Ant which is a little but very handy tool that 
+uses a build file written in XML (this file) as building instructions.
+ 
+For more information refer to "http://ant.apache.org/".
+
+Additionally you have to make sure, that the "JAVA_HOME" environment
+property should be set to match the JVM you want to use. That's it.
+
+Building instructions
+=====================
+
+First, make sure your current working directory is where 
+this very file is located. Then just type
+
+	ant
+
+or, if it doesn't work
+
+	build
+
+to create the settings for an environment to suit Ant.
+
+After the above command you should see a help screen
+describing the usage of the Ant facility if everything is set up properly.
+
+Property Settings
+=================
+
+You may place a simple text file named ".ant.properties" in your home
+directory using which you can change certain properties. 
+For example, by adding a line to .ant.properties you can change
+the compiler to be used:
+
+build.compiler=jikes
+(without a blank after "jikes"!).
+
+This will force Ant to compile with jikes if you have it on your system.
+The other alternatives for this setting are:
+
+build.compiler=modern
+to use the most up-to-date version available to you
+which for Sun is currently javac from jdk1.3
+
+or the default if no explicit setting is made anywhere;
+
+build.compiler=classic
+to use a compiler/Virtual Machine combination compatible with jdk1.2.
+
+On machines using Windows the home directory is selected to be C:\
+so the instructions in the build file will look there for .ant.properties.
+
+The filename is necessary for commonality with UNIX/LINUX systems
+but you will not be able to save or rename a file to this
+form of name using the Windows GUI directly. 
+At least two workarounds are possible
+(i) use Notepad (NOT Wordpad) to create, edit, rename or save the file
+(ii) go into a DOS window and use the DOS command Edit to create,
+edit, rename or save the file.
+After these operations the file will still be visible in the GUI.
+
+Compilation instructions for Peertrust
+=====================================
+
+If you want to compile Peertrust, you need to have following:
+- your compiler in your PATH
+- JAVA_HOME correctly set to where Java2 is installed
+- ANT_HOME correctly set to where ANT is installed
+- the additional libraries (jar files) in lib and ../../lib
+
+when these are right the command
+
+     build compile
+
+will do the job.
+With this arrangement problems with the set size of environment
+may arise for DOS command line windows,
+but a setting of 4096b should be ample on the Memory page 
+of the Property dialogue box.
+
+If something went wrong, go to the FAQ section below.
+
+Also, you'll note that reusing a single JVM instance for each task,
+increases tremendously the performance of the whole build system,
+compared to other tools (i.e. make or shell scripts) where a new JVM
+is started for each task.
+
+Build targets
+=============
+See the usage target.
+
+=================================== FAQ =======================================
+
+1) Why some of the classes present in the original jar are not built anymore?
+
+The Peertrust build system is very flexible:
+if a module requires a package that
+is not present in the classpath at build time, 
+the module is skipped but
+the built process is not stopped.
+
+2) I see a lot of warnings starting like this:
+        "Warning: file modified in the future:"
+Sometimes ant gives out this warnings,
+but the build is finished without any problems
+
+3) "ant run" doesn't work, XML classes are not found, what's wrong?
+Maybe you have hard-coded your ANT_HOME variable in the ant
+start-script.  This way it doesn't find it's own XML-libs.
+You need to set ANT_HOME in your shell.
+
+=========================================================================== -->
+
+<!-- ======================================================================
+     'build.xml' for Peertrust...
+     $Id: build.xml,v 1.1 2004/11/24 10:26:41 dolmedilla Exp $
+     ====================================================================== -->
+
+<project name="peertrust" default="jar" basedir=".">
+
+  <description>
+  	Automated Trust Negotiation for Peers on the Semantic Web
+	In the PeerTrust project we are developing and investigating policy languages to describe trust and security requirements on the Semantic Web. Such policies will be one component of a run-time system that can negotiate to establish trust on the Semantic Web. The PeerTrust system uses guarded distributed logic programs as the basis for a simple yet expressive policy and trust negotiation language, built upon the rule layer of the Semantic Web layer cake. 
+  </description>
+  
+  <!-- ====================================================================
+       Global Definitions
+       ==================================================================== -->
+  <target name="init">
+
+    <tstamp/>
+
+    <property environment="user"/>
+    <property name="project" value="peertrust"/>
+
+    <property name="mainclass" value="org.peertrust.config.PTConfigurator"/>
+
+    <property name="src" value="${basedir}/src"/>
+    <property name="lib" value="${basedir}/lib"/>
+    <property name="build" value="${basedir}/build"/>
+    <property name="classes" value="${build}/classes"/>
+    <property name="dist" value="${build}/dist"/>
+    <property name="doc" value="${build}/doc"/>
+    <property name="bin" value="${build}/bin"/>
+    <property name="release" value="1.0"/>
+
+    <property name="html" value="${user.HOME}/public_html/peertrust/javadoc/${name}"/>  
+
+    <property name="Name" value="Peertrust"/>
+    <property name="name" value="peertrust"/>
+
+    <property name="version" value="${release}-${DSTAMP}"/>
+    <property name="year" value="2004"/>
+
+    <property file="${user.home}/.trust.properties"/>
+    <property file=".trust.properties"/>
+
+    <property name="debug" value="on"/>
+    <property name="optimize" value="on"/>
+    <property name="deprecation" value="off"/>
+    <property name="verbose" value="off"/>
+
+    <echo message="============= ${Name} ${version} [${year}] =============="/>
+  	<echo message="==== Trust Negotiation for Peers on the Semantic Web ====="/>
+
+    <!-- Classpath for compiling base stuff -->
+    <path id="common.classpath">
+      <fileset dir="${lib}">
+        <include name="minrt.jar"/>
+        <include name="jsse.jar"/>
+        <include name="bouncyCastle.jar"/>
+        <include name="log4j.jar"/>
+      	<include name="jena.jar"/>
+      	<include name="xercesImpl.jar"/>
+      	<include name="commons-logging.jar"/>
+      	<include name="icu4j.jar"/>
+  	  </fileset>
+    </path>
+
+    <!-- Classpath for compiling the implementation and everything else -->
+    <path id="build.classpath">
+      <fileset dir="${lib}">
+        <include name="junit.jar"/>
+      </fileset>
+      <path refid="common.classpath"/>
+    </path>
+    
+  	<!-- Classpath for compiling things that need all Peertrust -->
+    <path id="peertrust.classpath">
+      <path refid="build.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	
+    <!-- Classpath for running -->
+    <path id="commonrun.classpath">
+      <path refid="peertrust.classpath"/>
+    </path>
+
+    <path id="jdepend.classpath">
+      <pathelement location="${lib}/jdepend.jar"/>
+    </path>
+  	 
+  </target>
+
+
+  <!-- ====================================================================
+       Prepare the environment
+       ==================================================================== -->
+  <target name="prepare" depends="init">
+    <echo message="================= Preparing Environment ================="/>
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="preparecompile" depends="prepare">
+    <echo message="=========== Preparing Compilation of Peertrust ==========="/>
+    <delete dir="${classes}"/>
+    <mkdir dir="${classes}"/>
+  </target>
+
+  <!-- ====================================================================
+       Compile Everything except ..
+       ==================================================================== -->
+  <target name="compile" depends="preparecompile">
+  <description>
+  compile:
+        Compiles everything, except test classes
+  </description>
+    <echo message="=============== Compiling basic Peertrust ================"/>
+    <javac debug="${debug}"
+       destdir="${classes}"
+	   includes="**"
+	   verbose="${verbose}"
+	   optimize="${optimize}"
+	   deprecation="${deprecation}">
+      <exclude name="test/**"/>
+      <exclude name="net/jxta/edutella/util/Config**"/>
+      <exclude name="net/jxta/edutella/util/Option*"/>
+      <exclude name="org/peertrust/meta/TrustClient*"/>
+      <exclude name="org/peertrust/meta/TrustApplet*"/>
+      <exclude name="org/peertrust/inference/*XsbProlog*"/>
+   	  <exclude name="org/peertrust/security/credentials/*CredentialLister*"/>
+   	  <exclude name="org/peertrust/security/credentials/x509/*X509CredentialBuilder*"/>
+   	  <exclude name="org/peertrust/security/credentials/gui/*Editor*"/>
+   	  <exclude name="org/peertrust/security/credentials/*CredentialPanel*"/>
+      <classpath refid="build.classpath"/>
+      <src path="${src}"/>
+    </javac>
+  </target>
+
+  <!-- ====================================================================
+       Compile Everything
+       ==================================================================== -->
+  <target name="compileall" depends="preparecompile">
+  <description>
+  compileall:
+        Compiles everything.
+  </description>
+    <echo message="=============== Compiling basic Edutella ================"/>
+    <mkdir dir="${classes}"/>
+    <javac debug="${debug}"
+       destdir="${classes}"
+	   verbose="${verbose}"
+	   optimize="${optimize}"
+	   deprecation="${deprecation}">
+      <classpath refid="build.classpath"/>
+      <src path="${src}"/>
+    </javac>
+  </target>
+
+  <!-- ====================================================================
+       Compile the applet
+       ==================================================================== -->
+  <target name="applet" depends="jar">
+  <description>
+  applet:
+        Compiles the applet classes make jar from them.
+  </description>
+    <echo message="============== Compiling the applet =============="/>
+    <property name="applet" value="${build}/applet"/>
+    <delete file="${lib}/${name}-applet.jar"/>
+    <mkdir dir="${applet}"/>
+    <javac debug="${debug}"
+       destdir="${applet}"
+	   includes="**"
+	   verbose="${verbose}"
+	   optimize="${optimize}"
+	   deprecation="${deprecation}">
+      <exclude name="test/**"/>
+      <exclude name="org/peertrust/inference/*XsbProlog*"/>
+   	  <exclude name="org/peertrust/security/credentials/*CredentialLister*"/>
+   	  <exclude name="org/peertrust/security/credentials/x509/*X509CredentialBuilder*"/>
+   	  <exclude name="org/peertrust/security/credentials/gui/*Editor*"/>
+   	  <exclude name="org/peertrust/security/credentials/*CredentialPanel*"/>
+      <classpath refid="build.classpath"/>
+      <src path="${src}"/>
+    </javac>
+    <jar basedir="${applet}"
+         jarfile="${dist}/${name}-applet.jar">
+    </jar>
+    <copy file="${dist}/${name}-applet.jar"
+          todir="${lib}"/>
+    <delete dir="${applet}"/>
+  </target>
+
+  <!-- ====================================================================
+       Create the jar-archive
+       ==================================================================== -->
+  <target name="jar" depends="compile">
+  <description>
+  jar:
+        Creates java archive (.jar) from all the basic classes.
+  </description>
+    <echo message="============== Creating basic Peertrust .jar ============="/>
+    <mkdir dir="${dist}"/>
+    <jar basedir="${classes}"
+         jarfile="${dist}/${name}.jar">
+    </jar>
+  </target>
+
+
+  <!-- ====================================================================
+       Create the distribution-archive
+       ==================================================================== -->
+  <target name="dist" depends="jar">
+  <description>
+  dist:
+        Creates a Peertrust distribution archive.
+  </description>
+    <echo message="======== Creating all ready to use distribution ========="/>
+    <property name="temp" value="${dist}/tmp"/>
+    <mkdir dir="${temp}"/>
+    <copy todir="${temp}">
+      <fileset dir="${lib}">
+        <include name="minrt.jar"/>
+        <include name="jsse.jar"/>
+        <include name="bouncyCastle.jar"/>
+      </fileset>
+    </copy> 
+    <jar basedir="${classes}"
+         jarfile="${temp}/${name}.jar">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+	<attribute name="Main-Class" value="${mainclass}"/>
+	<attribute name="Class-Path" value="./${name}.jar ./minrt.jar
+       ./jsse.jar ./bouncyCastle.jar"/>
+      </manifest>
+    </jar>
+
+    <zip zipfile="${dist}/${name}-${version}.zip" basedir="${temp}"
+       includes="${basedir}/README.txt">
+       <zipfileset dir="${temp}">
+         <include name="*.jar"/>
+       </zipfileset>
+    </zip>
+    <tar tarfile="${dist}/${name}-${version}.tar" basedir="${temp}"
+       includes="${basedir}/README.txt">
+       <tarfileset dir="${temp}">
+         <include name="*.jar"/>
+       </tarfileset>
+    </tar>
+    <gzip zipfile="${dist}/${name}-${version}.tar.gz"
+          src="${dist}/${name}-${version}.tar" />
+    <delete file="${dist}/${name}-${version}.tar"/>
+    <delete dir="${temp}"/>
+  </target>
+
+  <!-- ====================================================================
+       Create JDepend information about code quality
+       ==================================================================== -->
+  <target name="jdepend" depends="init,compile">
+    <echo>
+CC - Concrete Class Count 
+AC - Abstract Class (and Interface) Count 
+Ca - Afferent Couplings (Ca) 
+Ce - Efferent Couplings (Ce) 
+A - Abstractness (0-1) 
+I - Instability (0-1) 
+D - Distance from the Main Sequence (0-1) 
+Cyclic - If the package contains a dependency cycle 
+
+For details see http://www.clarkware.com/software/JDepend.html.
+    </echo>
+    <java classname="jdepend.swingui.JDepend" 
+          fork="true"
+          failonerror="true">
+      <arg value="${classes}"/> 
+      <classpath refid="jdepend.classpath"/>
+    </java>
+  </target>
+
+  <!-- ====================================================================
+       Help on usage
+       ==================================================================== -->
+  <target name="usage" depends="init">
+  <description>
+  usage:
+        Shows usage information of this makefile.
+  </description>
+    <echo>
+${Name} Build file
+-------------------------------------------------------------
+
+ available targets are:
+
+   jar        --> creates ${Name} .jar in ${dist}
+   dist       --> creates ${Name} .tar.gz and .zip in ${dist}
+   javadoc    --> writes the javadoc documentation to ${doc}
+   clean      --> cleans up the ${build} directory
+   distclean  --> cleans up the distribution directory, ${dist}
+   jdepend    --> obtain design quality metrics by applying JDepend
+   applet     --> create applet.jar in ${dist}
+   usage      --> show this message (default)
+   ---------------------------------------------------------------
+   chainsaw   --> starts a local log4j gui
+   metaServer --> starts a server metaInterpreter
+   metaClient --> starts a client metaInterpreter
+   client     --> starts a client
+
+ See the comments inside the build.xml file for more details.
+-------------------------------------------------------------
+    </echo>
+  </target>
+
+
+  <!-- ====================================================================
+	Chainsaw GUI for Log4J
+       ==================================================================== -->
+  <target name="chainsaw" depends="init">
+  <description>
+  </description>
+    <java classname="org.apache.log4j.chainsaw.Main"
+      classpathref="common.classpath" fork="true">
+    </java>
+  </target>
+	
+  <!-- ====================================================================
+       Clean the environment
+       ==================================================================== -->
+  <target name="clean" depends="init">
+  <description>
+  clean:
+        Cleans the build directory
+  </description>
+    <delete dir="${build}"/>
+  </target>
+
+  <!-- ====================================================================
+       Clean the complete environment
+       ==================================================================== -->
+  <target name="distclean" depends="clean, initstart">
+  <description>
+  distclean:
+        Cleans the build, dist and testenv directory
+  </description>
+    <delete dir="${dist}"/>
+    <delete dir="${testenv}"/>
+  </target>
+
+
+  <!-- ====================================================================
+       Create local javadoc documentation
+       ==================================================================== -->
+  <target name="javadoc" depends="jar">
+  <description>
+  javadoc:
+        Generates local javadoc documentation from
+        Java source files and writes them to doc subdirectory.
+  </description>
+  <property name="docdir" value="${basedir}/doc/javadoc"/>
+    <javadoc
+      packagenames="trust.*"
+      classpathref="commonrun.classpath"
+      defaultexcludes="yes"
+      destdir="${docdir}"
+      author="true"
+      version="true"
+      use="true"
+      source="1.4"
+      windowtitle="Peertrust API"
+      stylesheetfile="${basedir}/doc/stylesheet.css">
+      <sourcepath path="${src}"/>
+      <link href="http://www.learninglab.de/~olmedilla/"/>
+    </javadoc>
+    <copy file="${basedir}/doc/inherit.gif"
+          todir="${docdir}"/>
+    <copy file="${basedir}/doc/license.txt"
+          todir="${docdir}"/>
+    <copy file="${basedir}/doc/README"
+          todir="${docdir}"/>
+  </target>
+
+  <!-- ====================================================================
+       Create public javadoc documentation
+       ==================================================================== -->
+  <target name="html" depends="jar">
+  <description>
+  html:
+        Creates javadoc in unix-style users home public_html directory
+  </description>
+    <property name="webdir" value="${user.HOME}/public_html/trust"/>
+    <echo>Build will go to ${webdir}
+    </echo>
+    <javadoc
+      packagenames="trust.*"
+      classpathref="commonrun.classpath"
+      defaultexcludes="yes"
+      destdir="${webdir}"
+      author="true"
+      version="true"
+      use="true"
+      source="1.4"
+      windowtitle="Peertrust API"
+      stylesheetfile="${basedir}/doc/stylesheet.css">
+      <sourcepath path="${src}"/>
+      <link href="http://www.learninglab.de/~olmedilla/"/>
+    </javadoc>
+    <copy file="${basedir}/doc/license.txt"
+          todir="${webdir}"/>
+    <copy file="${basedir}/doc/inherit.gif"
+          todir="${webdir}"/>
+    <copy file="${basedir}/doc/README"
+          todir="${webdir}"/>
+  </target>
+
+
+  <!-- ====================================================================
+       ====================================================================
+                                                  #####
+                  #####     ##    #####    ##### #     #
+                  #    #   #  #   #    #     #         #
+                  #    #  #    #  #    #     #    #####
+                  #####   ######  #####      #   #
+                  #       #    #  #   #      #   #
+                  #       #    #  #    #     #   #######
+       ====================================================================
+       ==================================================================== -->
+
+
+  <!-- ====================================================================
+
+       ==================================================================== -->
+  <target name="initstart" depends="init,jar">
+    <property name="testenv" value="${basedir}/testenv"/>
+    <property name="basehome" value="${testenv}"/>
+    <property name="configdir" value="${basedir}/config"/>
+    <property name="resdir" value="${basedir}/resources"/>
+    <mkdir dir="${basedir}"/>
+    <path id="startpeertrust.classpath">
+    <path refid="commonrun.classpath"/>
+    </path>
+  </target>
+
+  <!-- ====================================================================
+
+       ==================================================================== -->
+  <target name="defaultstart">
+    <!-- <property name="tls.principal" value="edutella"/>
+    <property name="tls.password" value="edutella"/> -->
+  </target>
+
+  <!-- ====================================================================
+
+       ==================================================================== -->
+  <target name="start" depends="defaultstart">
+    <echo>Starting ${startclass} in ${startdir}</echo>
+    <mkdir dir="${startdir}"/>
+    <java classname="${startclass}"
+      classpathref="startpeertrust.classpath"
+	  maxmemory="256m"
+	  dir="${startdir}"
+	  fork="true">
+<!--    <jvmarg value="-classic"/> -->
+    <arg value="${configFile}"/>
+<!--	<jvmarg value="-Xms128m"/>
+	<jvmarg value="-Xss4m"/> -->
+	<!-- <jvmarg value="-Dnet.jxta.tls.principal=${tls.principal}"/>
+	<jvmarg value="-Dnet.jxta.tls.password=${tls.password}"/>  -->
+    </java>
+  </target>
+
+  <target name="copyFiles">
+    <echo>Copying files from ${configdir} in ${startdir}</echo>
+    <mkdir dir="${startdir}"/>
+  	<copy file="${configdir}/.logconfig" todir="${startdir}"/>
+  	<copy file="${configdir}/interpreter.mbc" todir="${startdir}"/>
+  	<copy file="${configdir}/load.mbc" todir="${startdir}"/>
+    <copy file="${configdir}/rdfParser.mbc" todir="${startdir}"/>
+    <copy file="${configdir}/entities.dat" todir="${startdir}"/>
+    <copy file="${configdir}/minervagui.mca" todir="${startdir}"/>
+  </target>
+	
+    <!-- ====================================================================
+    	MetaInterpreter
+       ==================================================================== -->
+  <target name="metaServer" depends="initstart">
+  <description>
+  metainterpreter:
+        Starts a metainterpreter for the server
+  </description>
+    <property name="startdir" value="${testenv}/metaServer"/>
+    <property name="startclass" value="org.peertrust.meta.PeertrustEngine"/>
+    <path id="startpeertrust.classpath">
+      <path refid="commonrun.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
+  	<copy file="${configdir}/eLearn.min" todir="${startdir}"/>
+  	<copy file="${configdir}/trustConfig.server.rdf" tofile="${startdir}/trustConfig.rdf"/>
+    <copy file="${configdir}/server_keystore" todir="${startdir}"/>
+    <antcall target="start" inheritAll="true" inheritRefs="true"/>
+  </target>
+
+  <!-- ====================================================================
+  	Client
+       ==================================================================== -->
+  <target name="metaClient" depends="initstart">
+  <description>
+  client:
+        Starts a metainterpreter for the client
+  </description>
+    <property name="startdir" value="${testenv}/metaClient"/>
+    <property name="startclass" value="org.peertrust.PeertrustEngine"/>
+    <path id="startpeertrust.classpath">
+      <path refid="commonrun.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
+	<copy file="${configdir}/alice.min" todir="${startdir}"/>
+  	<copy file="${configdir}/trustConfig.client.rdf" tofile="${startdir}/trustConfig.rdf"/>
+  	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
+    <antcall target="start" inheritAll="true" inheritRefs="true"/>
+  </target>
+
+  <!-- ====================================================================
+  	Client
+       ==================================================================== -->
+  <target name="client" depends="initstart">
+  <description>
+  client:
+        Starts a simple client
+  </description>
+    <property name="startdir" value="${testenv}/client"/>
+    <property name="startclass" value="org.peertrust.TrustClient"/>
+  	<property name="configFileName" value="peertrustConfig.client.rdf"/>
+    <path id="startpeertrust.classpath">
+      <path refid="commonrun.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
+  	<!-- <copy file="${configdir}/trust.properties.client" tofile="${startdir}/trust.properties"/> -->
+  	<copy file="${configdir}/alice.min" todir="${startdir}"/>
+  	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
+  	<copy file="${configdir}/${configFileName}" todir="${testenv}"/>
+  	<!-- <copy file="${configFile}" tofile="${testenv}/trustConfig.rdf"/> -->
+  	<property name="configFile" value="file:${testenv}/${configFileName}"/>
+    <antcall target="start" inheritAll="true" inheritRefs="true"/>
+  </target>
+	
+  <!-- ====================================================================
+  	Server
+       ==================================================================== -->
+  <target name="server" depends="initstart">
+  <description>
+  client:
+        Starts a server
+  </description>
+    <property name="startdir" value="${testenv}/server"/>
+    <property name="startclass" value="org.peertrust.TrustServer"/>
+  	<property name="configFileName" value="peertrustConfig.server.rdf"/>
+    <path id="startpeertrust.classpath">
+      <path refid="commonrun.classpath"/>
+      <pathelement location="${dist}/${name}.jar"/>
+    </path>
+  	<antcall target="copyFiles" inheritAll="true" inheritRefs="true"/>
+  	<!-- <copy file="${configdir}/trust.properties.client" tofile="${startdir}/trust.properties"/> -->
+  	<copy file="${configdir}/eLearn.min" todir="${startdir}"/>
+  	<copy file="${configdir}/client_keystore" todir="${startdir}"/>
+  	<copy file="${configdir}/${configFileName}" todir="${startdir}"/>
+  	<!-- <copy file="${configFile}" tofile="${testenv}/trustConfig.rdf"/> -->
+  	<property name="configFile" value="file:${startdir}/${configFileName}"/>
+    <antcall target="start" inheritAll="true" inheritRefs="true"/>
+  </target>
+	
+</project>

@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE rdf:RDF [
+        <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+        <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+        <!ENTITY pt 'http://www.l3s.de/~olmedilla/peertrust/Vocabulary#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;" xmlns:rdfs="&rdfs;" xmlns:pt="&pt;">
+
+ 	<!-- ======================================================================
+	PeertrustEngine
+	================================================================== -->
+	<pt:PeertrustEngine rdf:about="#PeertrustEngine">
+	</pt:PeertrustEngine>
+
+	<!-- ======================================================================
+	MetaInterpreter
+	================================================================== -->
+	<pt:MetaInterpreter rdf:about="#MetaInterpreter">
+		<pt:javaClass>org.peertrust.meta.MetaInterpreter</pt:javaClass>
+		<pt:peerName>Alice</pt:peerName>
+		<pt:entitiesFile>entities.dat</pt:entitiesFile>
+	</pt:MetaInterpreter>
+
+	<!-- ======================================================================
+	MetaInterpreterListener
+	================================================================== -->
+	<pt:MetaInterpreterListener rdf:about="#MetaInterpreterListener">
+		<pt:javaClass>org.peertrust.meta.MetaInterpreterListener</pt:javaClass>
+	</pt:MetaInterpreterListener>
+
+	<!-- ======================================================================
+	Inference Engine
+	================================================================== -->
+	<pt:InferenceEngine rdf:about="#InferenceEngine">
+		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
+		<!--<pt:baseFolder>${user.home}/trust/</pt:baseFolder> -->
+		<pt:baseFolder>${user.dir}/</pt:baseFolder>
+		<pt:prologFiles>alice.min</pt:prologFiles>
+		<pt:rdfFiles></pt:rdfFiles>
+		<pt:license>minervagui.mca</pt:license>
+	</pt:InferenceEngine>
+
+	<!-- ======================================================================
+	Queue
+	====================================================================== -->
+	<pt:Queue rdf:about="#Queue">
+		<pt:javaClass>org.peertrust.strategy.FIFOQueue</pt:javaClass>
+	</pt:Queue>
+
+	<!-- ======================================================================
+	Communication Channel
+	====================================================================== -->
+	<pt:CommunicationChannel rdf:about="#CommunicationChannel">
+		<pt:javaClass>org.peertrust.net.ssl.SecureSocketFactory</pt:javaClass>
+		<pt:keystoreFile>client_keystore</pt:keystoreFile>
+		<pt:keyPassword>clientpw</pt:keyPassword>
+		<pt:storePassword>clientstorepw</pt:storePassword>
+		<pt:host>localhost</pt:host>
+		<pt:port>32000</pt:port>
+	</pt:CommunicationChannel>
+	
+	<!-- ======================================================================
+	Event Listener
+	====================================================================== -->
+	<pt:EventListener rdf:about="#EventListener">
+		<pt:javaClass>org.peertrust.event.SimplePeer</pt:javaClass>
+	</pt:EventListener>
+
+	<!-- ======================================================================
+	Event Dispatcher
+	====================================================================== -->
+	<pt:EventDispatcher rdf:about="#EventDispatcher">
+		<pt:javaClass>org.peertrust.event.PeerTrustEventDispatcher</pt:javaClass>
+	</pt:EventDispatcher>
+
+	<!-- ======================================================================
+	Credential Store
+	====================================================================== -->
+	<pt:CredentialStore rdf:about="#CredentialStore">
+		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
+		<pt:file>client_keystore</pt:file>
+		<pt:storePassword>clientstorepw</pt:storePassword>
+	</pt:CredentialStore>
+</rdf:RDF>

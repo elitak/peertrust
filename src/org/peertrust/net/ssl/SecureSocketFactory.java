@@ -20,20 +20,22 @@
 package org.peertrust.net.ssl;
 
 import org.apache.log4j.Logger;
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.AbstractFactory;
 import org.peertrust.net.NetClient;
 import org.peertrust.net.NetServer;
 import org.peertrust.net.Peer;
 
 /**
- * $Id: SecureSocketFactory.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $
+ * $Id: SecureSocketFactory.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * Last changed  $Date: 2004/11/24 10:24:03 $
  * by $Author: dolmedilla $
  * @description
  */
-public class SecureSocketFactory implements AbstractFactory {
+public class SecureSocketFactory implements AbstractFactory, Configurable {
 
 	private static Logger log = Logger.getLogger(SecureSocketFactory.class);
 	
@@ -46,7 +48,14 @@ public class SecureSocketFactory implements AbstractFactory {
 	public SecureSocketFactory ()
 	{
 		super() ;
-		log.debug("$Id: SecureSocketFactory.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $");
+		log.debug("$Id: SecureSocketFactory.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $");
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		
 	}
 	
 	public Peer getServerPeer (String alias)

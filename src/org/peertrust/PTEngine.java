@@ -28,10 +28,10 @@ import org.peertrust.meta.MetaInterpreter;
 import org.peertrust.meta.MetaInterpreterListener;
 
 /**
- * $Id: PTEngine.java,v 1.1 2004/11/18 12:50:45 dolmedilla Exp $
+ * $Id: PTEngine.java,v 1.2 2004/11/24 10:24:03 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:45 $
+ * Last changed  $Date: 2004/11/24 10:24:03 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -55,7 +55,7 @@ public class PTEngine implements Configurable {
 	 */
 	public PTEngine() {
 		super();
-		log.debug("$Id: PTEngine.java,v 1.1 2004/11/18 12:50:45 dolmedilla Exp $");
+		log.debug("$Id: PTEngine.java,v 1.2 2004/11/24 10:24:03 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -78,7 +78,7 @@ public class PTEngine implements Configurable {
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook()) ;
 	}
 	
-	private void stop()
+	public void stop()
 	{
 		_metaInterpreter.stop() ;
 		_metaInterpreterListener.stop() ;
@@ -98,7 +98,7 @@ public class PTEngine implements Configurable {
      *
      * @author <a href="mailto:brunkhor@learninglab.de">Ingo Brunkhorst</a>
      * @author $Author: dolmedilla $
-     * @version $Revision: 1.1 $
+     * @version $Revision: 1.2 $
      */
     public class ShutdownHook extends Thread {
 
@@ -145,6 +145,13 @@ public class PTEngine implements Configurable {
 			MetaInterpreterListener interpreterListener) {
 		_metaInterpreterListener = interpreterListener;
 	}
+	/**
+	 * 
+	 */
+	public EventDispatcher getEventDispatcher() {
+		return _dispatcher ;
+	}
+	
 	/**
 	 * @param _dispatcher The _dispatcher to set.
 	 */

@@ -28,10 +28,10 @@ import org.peertrust.exception.ConfigurationException;
 import junit.framework.*;
 
 /**
- * $Id: PeertrustConfiguratorTest.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: PeertrustConfiguratorTest.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * Last changed  $Date: 2004/11/24 10:24:02 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -74,7 +74,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
-		assertEquals (ec.getInteger(), 33) ;
+		assertEquals (ec.getInteger(), 34) ;
 		assertEquals (ec.getLonginteger(), 33333) ;
 		Vector v1 = ec.getVector() ;
 		assertTrue (v1.contains("Element 1")) ;
@@ -83,7 +83,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec2 = ec.getExample2() ;
 		assertEquals (ec2.getString(), "testing2") ;
 		assertEquals (ec2.isBool(), false) ;
-		assertEquals (ec2.getInteger(), -99) ;
+		assertEquals (ec2.getInteger(), -98) ;
 		assertEquals (ec2.getLonginteger(), -99999) ;
 		Vector v2 = ec2.getVector() ;;
 		assertTrue (v2.contains("Element 3")) ;
@@ -118,7 +118,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
-		assertEquals (ec.getInteger(), 33) ;
+		assertEquals (ec.getInteger(), 34) ;
 		assertEquals (ec.getLonginteger(), 33333) ;
 		Vector v1 = ec.getVector() ;
 		assertTrue (v1.contains("Element 1")) ;
@@ -127,7 +127,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec2 = ec.getExample2() ;
 		assertEquals (ec2.getString(), "testing2") ;
 		assertEquals (ec2.isBool(), false) ;
-		assertEquals (ec2.getInteger(), -99) ;
+		assertEquals (ec2.getInteger(), -98) ;
 		assertEquals (ec2.getLonginteger(), -99999) ;
 		Vector v2 = ec2.getVector() ;;
 		assertTrue (v2.contains("Element 3")) ;
@@ -136,7 +136,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec3 = (TestClass) ec.getExtraExample() ;
 		assertEquals (ec3.getString(), "testing3") ;
 		assertEquals (ec3.isBool(), true) ;
-		assertEquals (ec3.getInteger(), -66) ;
+		assertEquals (ec3.getInteger(), -65) ;
 		assertEquals (ec3.getLonginteger(), -99) ;
 		Vector v3 = ec3.getVector() ;
 		assertTrue (v3.contains("Element 100")) ;
@@ -160,7 +160,7 @@ public class PeertrustConfiguratorTest extends TestCase {
 		TestClass ec = (TestClass) config.getComponent("Example1") ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
-		assertEquals (ec.getInteger(), 33) ;
+		assertEquals (ec.getInteger(), 34) ;
 		assertEquals (ec.getLonginteger(), 33333) ;
 		Vector v1 = ec.getVector() ;
 		assertTrue (v1.contains("Element 1")) ;

@@ -21,15 +21,18 @@ package test.org.peertrust.config;
 
 import java.util.Vector;
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
+
 /**
- * $Id: TestClass.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: TestClass.java,v 1.2 2004/11/24 10:24:02 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * Last changed  $Date: 2004/11/24 10:24:02 $
  * by $Author: dolmedilla $
  * @description
  */
-public class TestClass {
+public class TestClass implements Configurable {
 	private String string ;
 	private boolean bool ;
 	private int integer ;
@@ -43,6 +46,14 @@ public class TestClass {
 	 */
 	public TestClass() {
 		super();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		integer += 1 ;
+		
 	}
 	
 	/**

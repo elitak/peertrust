@@ -55,10 +55,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.2 2004/11/20 19:47:54 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:54 $
+ * Last changed  $Date: 2004/11/24 10:24:03 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -117,7 +117,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.2 2004/11/20 19:47:54 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.3 2004/11/24 10:24:03 dolmedilla Exp $");
 	}
 	/**
      * 
@@ -262,6 +262,11 @@ public class PTConfigurator {
             object = Class.forName(objectClass).newInstance();
             
             configure(model, identifier, object);
+            
+            if (object instanceof Configurable)
+            	( (Configurable) object).init() ;
+            else
+            	log.warn("Class " + object.getClass().getName() + " is not configurable") ;
                 
         } catch (RDFException rdfe) {
             log.error("RDFException ", rdfe);

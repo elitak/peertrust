@@ -21,35 +21,45 @@ package org.peertrust.strategy;
 
 import java.util.Vector;
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.meta.Tree;
 
 /**
- * $Id: FIFOQueue.java,v 1.2 2004/07/08 15:10:59 dolmedilla Exp $
+ * $Id: FIFOQueue.java,v 1.3 2004/11/24 10:24:01 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:59 $
+ * Last changed  $Date: 2004/11/24 10:24:01 $
  * by $Author: dolmedilla $
  * @description
  */
-public class FIFOQueue implements Queue
+public class FIFOQueue implements Queue, Configurable
 {
-	Vector queue = new Vector() ;
+	Vector _queue ;
 	
 	/**
 	 * @see org.peertrust.strategy.Queue#add(trust.meta.Tree)
 	 */
 	public synchronized void add(Tree tree)
 	{
-		queue.add(tree) ;
+		_queue.add(tree) ;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		_queue = new Vector() ;
+	}
+	
 	/**
 	 * @see org.peertrust.strategy.Queue#add(trust.meta.Tree)
 	 */
 	public synchronized void add(Tree[] trees)
 	{
 		for (int i = 0 ; i < trees.length ; i++)
-			queue.add(trees[i]) ;
+			_queue.add(trees[i]) ;
 	}
 
 	/**
@@ -58,17 +68,17 @@ public class FIFOQueue implements Queue
 	synchronized public Tree pop()
 	{
 		Tree tmp ;
-		for (int i = 0 ; i < queue.size() ; i++)
+		for (int i = 0 ; i < _queue.size() ; i++)
 		{
-			tmp = (Tree) queue.elementAt(i) ;
+			tmp = (Tree) _queue.elementAt(i) ;
 			if (tmp.isProcessable())
 			{
-				queue.remove(i) ;
+				_queue.remove(i) ;
 				return tmp ;
 			}
 			else
 				if (tmp.isOutDated())
-					queue.remove(i) ;
+					_queue.remove(i) ;
 		}
 			
 		return null ;
@@ -80,9 +90,9 @@ public class FIFOQueue implements Queue
 	public synchronized Tree getFirst()
 	{
 		Tree tmp ;
-		for (int i = 0 ; i < queue.size() ; i++)
+		for (int i = 0 ; i < _queue.size() ; i++)
 		{
-			tmp = (Tree) queue.elementAt(i) ;
+			tmp = (Tree) _queue.elementAt(i) ;
 			if (tmp.isProcessable())
 				return tmp ;
 		}
@@ -95,11 +105,11 @@ public class FIFOQueue implements Queue
 	 */
 	public synchronized Tree search(Tree pattern)
 	{
-		int index = queue.indexOf(pattern) ;
+		int index = _queue.indexOf(pattern) ;
 		if (index == -1)
 			return null ;
 		else
-			return (Tree) queue.elementAt(index) ; 
+			return (Tree) _queue.elementAt(index) ; 
 	}
 
 	/**
@@ -107,11 +117,11 @@ public class FIFOQueue implements Queue
 	 */
 	public synchronized int update(Tree pattern, Tree newTree)
 	{
-		int index = queue.indexOf(pattern) ;
+		int index = _queue.indexOf(pattern) ;
 		if (index == -1)
 			return -1 ;
 		else {
-			Tree tree = (Tree) queue.elementAt(index) ;
+			Tree tree = (Tree) _queue.elementAt(index) ;
 			tree.update(newTree) ;
 			//queue.setElementAt(tree, index) ;		
 			return 0 ;
@@ -124,21 +134,21 @@ public class FIFOQueue implements Queue
 	 */
 	public synchronized int replace(Tree pattern, Tree newTree)
 	{
-		int index = queue.indexOf(pattern) ;
+		int index = _queue.indexOf(pattern) ;
 		if (index == -1)
 			return -1 ;
 		else {
-			queue.setElementAt(newTree, index) ;
+			_queue.setElementAt(newTree, index) ;
 			return 0 ;
 		}
 	}
 	
 	public synchronized Tree remove (Tree pattern) 
 	{
-		int index = queue.indexOf(pattern) ;
+		int index = _queue.indexOf(pattern) ;
 		if (index == -1)
 			return null ;
 		else
-			return (Tree) queue.remove(index) ;
+			return (Tree) _queue.remove(index) ;
 	}
 }

@@ -28,10 +28,10 @@ import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: PTEventDispatcher.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
+ * $Id: PTEventDispatcher.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * Last changed  $Date: 2004/11/24 10:24:02 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -43,7 +43,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
 	public PTEventDispatcher() {
 		super();
-		log.debug("$Id: PTEventDispatcher.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $");
+		log.debug("$Id: PTEventDispatcher.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -106,7 +106,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 
 		// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
 		if (vector == null)
-			log.error("No listeners registered to catch event " + event.getClass().getName()) ;
+			log.debug("No listeners registered to catch event " + event.getClass().getName()) ;
 		else
 		{
 			log.debug(vector.size() + " elements registered for the event " + event.getClass().getName() ) ;
@@ -120,7 +120,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
         vector = (Vector) registry.get(PTEvent.class);
 
         if (vector == null)
-        	log.error("No listeners registered to catch event of type PeerTrustEvent") ;
+        	log.debug("No listeners registered to catch event of type PeerTrustEvent") ;
         else
         {
         	log.debug(vector.size() + " elements registered for the event PeerTrustEvent" ) ;
