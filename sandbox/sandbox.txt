@@ -1,3 +1,4 @@
 Description of each folder in the sandbox:
 
 service - An Edutella service to enable Peertrust to be used with Edutella
+Mailrank - An implementation of the Mailrank algorithm used for classifying mails
