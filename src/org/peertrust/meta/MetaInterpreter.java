@@ -40,10 +40,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.5 2005/01/11 17:46:58 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.6 2005/01/12 11:23:18 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:46:58 $
+ * Last changed  $Date: 2005/01/12 11:23:18 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -77,7 +77,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.5 2005/01/11 17:46:58 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.6 2005/01/12 11:23:18 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -295,8 +295,6 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 				else // we delegate
 				{
 					log.debug("Searching for delegator '" + delegator + "' in the entities table") ;
-					Object o = _entities.get(delegator) ;
-					log.debug ("pasado") ;
 					Peer peerDelegator = (Peer) _entities.get(delegator) ;
 					if (peerDelegator == null)
 					{
