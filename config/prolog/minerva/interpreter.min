@@ -97,10 +97,10 @@ demark :- retractall(markSignal).
 %    writelist_debug(['metaQuery - ',FinalGoal, ' - ', NewGoal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
 %    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
 
-metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-    \+(Goal = _ $ _),
-    writelist_debug(['entra sin requester',FinalGoal, ' - ', Goal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
-    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+%metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+%    \+(Goal = _ $ _),
+%    writelist_debug(['entra sin requester',FinalGoal, ' - ', Goal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
+%    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
 
 metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
     writelist_debug(['entra ',FinalGoal, ' -  ', Goal, ' -  ', Internal, ' - ', RestQueries, ' -  ', Proof, ' - ', Requester]),
@@ -124,13 +124,6 @@ meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(Fina
 % local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof))
 % remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator))
 
-% evaluate Prolog constraints directly
-local(tree(FinalGoal,query(constraint(Goal),_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof)) :-
-     !, write_actions(['evaluating constraint ', Goal]),
-     call(Goal).
-
-% now let's look at proving single literal goals
-
 % simplify 'Goal @ Issuer @ Issuer' to 'Goal @ Issuer'
 % Remark: this rule will become clear later, when we introduce credentials
 
@@ -143,6 +136,22 @@ remote(tree(FinalGoal,query(Goal @ Issuer1 @ Issuer2,Internal),RestQueries,Proof
      Issuer1 == Issuer2, !, 
      write_actions(['simplify ', Goal @ Issuer1 @ Issuer2, ' to ', Goal @ Issuer1]),
      remote(tree(FinalGoal,query(Goal @ Issuer1,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
+% evaluate Prolog constraints directly
+local(tree(FinalGoal,query(constraint(Goal),_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof)) :-
+     !, write_actions(['evaluating constraint ', Goal]),
+     call(Goal).
+
+% expand goal with requester
+local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-
+	\+(Goal = _ $ _),
+	local(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+
+remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator)) :-
+	\+(Goal = _ $ _),
+	remote(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator)).
+
+% now let's look at proving single literal goals
 
 % check if there is a policy for the current signed rule
 
@@ -162,6 +171,7 @@ local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(Fin
 checkPolicy(Goal,ExtraGuards,_) :-
     policy(Goal,ExtraGuards),!.
 checkPolicy(Goal,ExtraGuards,Requester) :-
+	\+(Goal == _ $ _),
     policy(Goal $ Requester, ExtraGuards).
 
 % we do not allow direct access from external peers to internal
