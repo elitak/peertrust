@@ -14,6 +14,7 @@
 		<pt:metaInterpreter rdf:resource="#MetaInterpreter"/>
 		<pt:metaInterpreterListener rdf:resource="#MetaInterpreterListener"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:eventListener rdf:resource="#PTEventListener"/>
 	</pt:PeertrustEngine>
 
 	<!-- ======================================================================
@@ -29,7 +30,7 @@
 	<pt:MetaInterpreter rdf:about="#MetaInterpreter">
 		<pt:javaClass>org.peertrust.meta.MetaInterpreter</pt:javaClass>
 		<pt:peerName>Alice</pt:peerName>
-		<pt:entitiesFile>entities.dat</pt:entitiesFile>
+		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
 		<pt:inferenceEngine rdf:resource="#InferenceEngine"/>
 		<pt:queue rdf:resource="#Queue"/>
 		<pt:credentialStore rdf:resource="#CredentialStore"/>
@@ -42,6 +43,7 @@
 	================================================================== -->
 	<pt:MetaInterpreterListener rdf:about="#MetaInterpreterListener">
 		<pt:javaClass>org.peertrust.meta.MetaInterpreterListener</pt:javaClass>
+		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
 		<pt:inferenceEngine rdf:resource="#InferenceEngine"/>
 		<pt:queue rdf:resource="#Queue"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
@@ -49,11 +51,19 @@
 	</pt:MetaInterpreterListener>
 
 	<!-- ======================================================================
+	Entities Table
+	====================================================================== -->
+	<pt:EntitiesTable rdf:about="#EntitiesTable">
+		<pt:javaClass>org.peertrust.net.EntitiesTable</pt:javaClass>
+		<pt:entitiesFile>${user.dir}/entities.dat</pt:entitiesFile>
+	</pt:EntitiesTable>
+
+	<!-- ======================================================================
 	Event Listener
 	====================================================================== -->
-	<pt:EventListener rdf:about="#EventListener">
+	<pt:EventListener rdf:about="#PTEventListener">
 		<pt:javaClass>org.peertrust.event.SimplePeer</pt:javaClass>
-		<pt:EventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
 	</pt:EventListener>
 	
 	<!-- ======================================================================
@@ -66,6 +76,7 @@
 		<pt:prologFiles>policies.alice</pt:prologFiles>
 		<pt:rdfFiles></pt:rdfFiles>
 		<pt:license>minervagui.mca</pt:license>
+		<pt:debugMode>true</pt:debugMode>
 	</pt:InferenceEngine>
 
 	<!-- ======================================================================

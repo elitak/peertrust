@@ -55,7 +55,7 @@
 	====================================================================== -->
 	<pt:EntitiesTable rdf:about="#EntitiesTable">
 		<pt:javaClass>org.peertrust.net.EntitiesTable</pt:javaClass>
-		<pt:entitiesFile>entities.dat</pt:entitiesFile>
+		<pt:entitiesFile>${user.dir}/entities.dat</pt:entitiesFile>
 	</pt:EntitiesTable>
 
 	<!-- ======================================================================

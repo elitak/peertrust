@@ -50,6 +50,10 @@ deb(List) :-
 
 % META-INTERPRETER
 
+processTree(tree(_Goal,_Queries,_Proof,_Requester),[]) :-
+	\+(peerName(_Peer)),!,
+	writelist_debug(['PeerName is not set']).
+
 processTree(tree(Goal,Queries,Proof,Requester),Results) :-
     selectQuery(query(Query,Internal),Queries,RestQueries),
     findall(tree(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal),
@@ -85,25 +89,37 @@ demark :- retractall(markSignal).
 % begin meta interpreter
 % ---------------------------------------
 
+%metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
+%	( (\+(Goal = _ $ _))
+%	-> NewGoal = Goal $ Requester
+%	; NewGoal = Goal
+%	),
+%    writelist_debug(['metaQuery - ',FinalGoal, ' - ', NewGoal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
+%    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+
 metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
     \+(Goal = _ $ _),
-    writelist_debug(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
+    writelist_debug(['entra sin requester',FinalGoal, ' - ', Goal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
     meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
 
 metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-    writelist_debug(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
+    writelist_debug(['entra ',FinalGoal, ' -  ', Goal, ' -  ', Internal, ' - ', RestQueries, ' -  ', Proof, ' - ', Requester]),
     meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
 
 % meta(tree(Goal,query(Query,Internal),RestQueries,Proof,Requester),treeR(Goal,NewQueries,NewProof,Delegator)),
 
 meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,nil,nil)) :-
      demark,
+     writelist_debug(['checking local']),
      local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)),
+     writelist_debug(['local passed']),
      mark.
 meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
      checkMark,
+     writelist_debug(['checking remote']),
 %     writelist(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
-     remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+     remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)),
+     writelist_debug(['remote passed']).
 
 % local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof))
 % remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator))
@@ -197,19 +213,25 @@ local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,N
 % we will not use this rule if Goal itself is a 
 % 'Goal @ Peer' structure
 remote(tree(FinalGoal,query(Goal @ Issuer,_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal)) :-
+	writelist_debug(['Remote1']),
      peerName(Peer),
+     writelist_debug(['Remote1 - Peer = ',Peer, ' - Issuer = ', Issuer, ' - Goal = ', Goal]),
      \+(Peer = Issuer),
      \+(Goal = _ @ _),
-     \+(signed(rule(Goal @ Issuer, _, _), _, _)), !.
+     \+(signed(rule(Goal @ Issuer, _, _), _, _)),
+     writelist_debug(['Finishing remote 1']), !.
 
-% we also have a variant, which transmits the Requester
+% we also have a variant, which changes/remove the requester to the current peer
 % (can also be a chain of requesters)
-remote(tree(FinalGoal,query(Goal @ Issuer $ Req,_),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal $ Req)) :-
+remote(tree(FinalGoal,query(Goal @ Issuer $ Req,_),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal)) :- % $ Peer)) :-
+	writelist_debug(['Remote2']),
      peerName(Peer),
+     writelist_debug(['Remote2 - Peer = ',Peer, ' - Issuer = ', Issuer, ' - Requester = ', Requester, ' - Req = ', Req, ' - Goal = ', Goal]),     
      \+(Peer = Issuer),
      \+(Peer = Requester),
      \+(Goal = _ @ _),
-     \+(signed(rule(Goal @ Issuer, _, _), _, _)), !.
+     \+(signed(rule(Goal @ Issuer, _, _), _, _)),
+     writelist_debug(['Finishing remote 2']),!.
 
 % To make it possible for peers to answer queries we will also assume,
 % that they can possess signed versions of clauses from other peers,

@@ -18,7 +18,7 @@
 	<pt:MetaInterpreter rdf:about="#MetaInterpreter">
 		<pt:javaClass>org.peertrust.meta.MetaInterpreter</pt:javaClass>
 		<pt:peerName>Alice</pt:peerName>
-		<pt:entitiesFile>entities.dat</pt:entitiesFile>
+		<pt:entitiesFile>${user.dir}/entities.dat</pt:entitiesFile>
 	</pt:MetaInterpreter>
 
 	<!-- ======================================================================

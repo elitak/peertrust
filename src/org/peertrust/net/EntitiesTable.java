@@ -30,10 +30,10 @@ import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: EntitiesTable.java,v 1.1 2005/01/11 17:47:52 dolmedilla Exp $
+ * $Id: EntitiesTable.java,v 1.2 2005/02/08 10:31:18 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:52 $
+ * Last changed  $Date: 2005/02/08 10:31:18 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -49,7 +49,7 @@ public class EntitiesTable implements Configurable {
 	 */
 	public EntitiesTable() {
 		super();
-		log.debug("$Id: EntitiesTable.java,v 1.1 2005/01/11 17:47:52 dolmedilla Exp $");
+		log.debug("$Id: EntitiesTable.java,v 1.2 2005/02/08 10:31:18 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -84,6 +84,7 @@ public class EntitiesTable implements Configurable {
 			log.error("Entities file not found: " + fileName, e) ;
 			throw new ConfigurationException (e) ;
 		}
+		
 		// Now we read the file, line by line, echoing each line to
 		// the terminal.
 		try {
