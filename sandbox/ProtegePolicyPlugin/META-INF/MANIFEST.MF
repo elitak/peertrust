@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Created-By: 1.4.1_02 (Sun Microsystems Inc.)
+
+Name: de.l3s.protege.policy.plugin.PolicyTabPlugin.class
+Tab-Widget: True
+
