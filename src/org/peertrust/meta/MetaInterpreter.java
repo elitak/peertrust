@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.11 2005/02/23 08:42:03 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.12 2005/03/12 11:40:13 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/23 08:42:03 $
+ * Last changed  $Date: 2005/03/12 11:40:13 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -80,7 +80,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.11 2005/02/23 08:42:03 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.12 2005/03/12 11:40:13 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -324,8 +324,19 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						
 						_queue.add(delegatedTree) ;
 						
+						log.debug("Initial requester: " + selectedTree.getRequester().getAlias()) ;
+						log.debug("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
+						
+						long relatedQuery ;
+						if (selectedTree.getRequester().getAlias() == delegatedTree.getDelegator().getAlias())
+							relatedQuery = selectedTree.getReqQueryId() ;
+						else
+							relatedQuery = Query.NO_RELATED_QUERY ;
+						
+						log.debug("Related Query is:" + relatedQuery) ;
+						
 						// and send query to remote delegator
-						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getDelegator(), delegatedTree.getId()) ;
+						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getDelegator(), delegatedTree.getId(), relatedQuery) ;
 											
 						log.debug("Sending request " + query.getGoal() + " to " + delegatedTree.getDelegator().getAlias() + " from " + query.getSource().getAlias()) ;
 						sendMessage(query) ;
