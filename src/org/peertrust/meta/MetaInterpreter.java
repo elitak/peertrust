@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.13 2005/03/31 14:02:51 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.14 2005/04/15 22:27:00 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/31 14:02:51 $
+ * Last changed  $Date: 2005/04/15 22:27:00 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -80,7 +80,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.13 2005/03/31 14:02:51 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.14 2005/04/15 22:27:00 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -187,7 +187,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
 			//_entities.put(query.getOrigin().getAlias(), query.getOrigin()) ;
-			Tree tree = new Tree (query.getGoal(), query.getSource(), query.getReqQueryId()) ;
+			Tree tree = new Tree (query.getGoal(), query.getSource(), query.getReqQueryId(), query.getNegotiationIdList()) ;
 
 			log.debug ("New query received from " + ( (query.getSource() == null) ? "null" : query.getSource().getAlias()) + ": " + query.getGoal()) ;
 			_queue.add(tree) ;
@@ -222,7 +222,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			
 			return ;
 		} // if the query is already answered, then we send the answer to the requester
-		else if ( ( (selectedTree.getStatus() == Tree.READY) && (selectedTree.getSubqueries().equals("[]")) ) ||
+		else if ( ( (selectedTree.getStatus() == Tree.READY) && (selectedTree.getResolvent().equals("[]")) ) ||
 				  ( selectedTree.getStatus() == Tree.ANSWERED) )
 		{
 			// query completely answered: send answer remotely
@@ -243,7 +243,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		}
 
 		// we create the appropriate logic query for the selected tree 
-		LogicQuery logicQuery = new LogicQuery(selectedTree.getGoal(), selectedTree.getSubqueries(), selectedTree.getRequester().getAlias()) ;
+		LogicQuery logicQuery = new LogicQuery(selectedTree.getGoal(), selectedTree.getResolvent(), selectedTree.getRequester().getAlias()) ;
 
 		//processing the tree
 	 	LogicAnswer [] results = null ;
@@ -271,6 +271,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		else
 		{
 			log.debug("results == " + results.length) ;
+			// flag to show if a new negotiation Id has already been created
+			boolean createdNewNegotiationId = false ;
 			
 			// we check all the different answers received from the inference engine
 			for (int i = 0 ; i < results.length ; i++)
@@ -297,7 +299,9 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 					else // otherwise, we add the query to the queue
 					{
 						// continue processing the queue
-						Tree newTree = new Tree(results[i].getGoal(), results[i].getSubgoals(), selectedTree.getProof(), Tree.READY, selectedTree.getRequester(), selectedTree.getReqQueryId()) ;
+						Tree newTree = new Tree(results[i].getGoal(), results[i].getSubgoals(), 
+								selectedTree.getProof(), Tree.READY, selectedTree.getRequester(), 
+								selectedTree.getReqQueryId(), selectedTree.getNegotiationIds()) ;
 						newTree.appendProof(results[i].getProof()) ;
 						_queue.add(newTree) ;
 					}
@@ -317,19 +321,27 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						
 						// look up the real address and port corresponding to the alias while creating the new tree
 
+						if (createdNewNegotiationId)
+							selectedTree.increaseNegotiationCounter() ;
+						else
+							// we add the new negotiation id 
+							selectedTree.addNegotiationId() ;
+						
 						Tree delegatedTree = new Tree (results[i].getGoal(), results[i].getSubgoals(),
 								selectedTree.getProof(), Tree.WAITING, selectedTree.getRequester(),
-								selectedTree.getReqQueryId(), peerDelegator, results[i].getGoalExpanded()) ;
+								selectedTree.getReqQueryId(), peerDelegator, results[i].getGoalExpanded(), 
+								selectedTree.getNegotiationIds()) ;
 						delegatedTree.appendProof(results[i].getProof()) ;
+						delegatedTree.addNegotiationId() ;
 						
 						_queue.add(delegatedTree) ;
 						
 						log.debug("Initial requester: " + selectedTree.getRequester().getAlias()) ;
 						log.debug("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
 						
-						long relatedQuery ;
+						long [] relatedQuery ;
 						if (selectedTree.getRequester().getAlias().equals(delegatedTree.getDelegator().getAlias()) )
-							relatedQuery = selectedTree.getReqQueryId() ;
+							relatedQuery = selectedTree.getNegotiationIds() ;
 						else
 							relatedQuery = Query.NO_RELATED_QUERY ;
 						

@@ -25,16 +25,18 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.3 2005/01/11 17:46:58 dolmedilla Exp $
+ * $Id: Tree.java,v 1.4 2005/04/15 22:27:00 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:46:58 $
+ * Last changed  $Date: 2005/04/15 22:27:00 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Tree
 {
- 	// tree(Id, Goal, Subqueries, Proof, Status, (Requester,QueryId))
+	private static Logger log = Logger.getLogger(Tree.class);
+	
+	// tree(Id, Goal, Subqueries, Proof, Status, (Requester,QueryId))
  	// -> Status = ready, waiting or failed
  	private final long MAX_TREE_LIFETIME = 600000 ;
  	
@@ -49,84 +51,127 @@ public class Tree
  	// value for trees without an id associated
  	public static final int NULL_ID = -1 ;
 
- 	private long id = NULL_ID ;
- 	private String originalGoal = null ;
- 	private String goal = null ;
- 	private String subqueries = null ;
- 	private String stringProof = null ;
- 	private Vector vectorProof ;
- 	private int status = UNSPECIFIED ;
- 	private Peer requester = null ;
- 	private long reqQueryId = NULL_ID ;
+ 	private long _id = NULL_ID ;
+ 	private String _originalGoal = null ;
+ 	private String _goal = null ;
+ 	private String _resolvent = null ;
+ 	private String _stringProof = null ;
+ 	private Vector _vectorProof ;
+ 	private int _status = UNSPECIFIED ;
+ 	private Peer _requester = null ;
+ 	private long _reqQueryId = NULL_ID ;
 
-	private Peer delegator = null ;
-	private String lastExpandedGoal = null ;
-	private long timeStamp = 0 ;
-	static private long currentId = 0 ;
+	private Peer _delegator = null ;
+	private String _lastExpandedGoal = null ;
+	private long _timeStamp = 0 ;
+	static private long _currentId = 0 ;
+
+	// addition to distinguish different negotiation paths
+	long _currentNegotiationCounter ;
+	Vector _negotiationIdList = new Vector() ;
+
+	public void addNegotiationId ()
+	{
+		resetNegotiationCounter () ;
+		_negotiationIdList.add(new Long (increaseNegotiationCounter())) ;
+	}
 	
-	private static Logger log = Logger.getLogger(Tree.class);
+	public void setNegotiationIds (long [] array)
+	{
+		_negotiationIdList = new Vector () ;
+		
+		for (int i = 0 ; i < array.length ; i++)
+			_negotiationIdList.add(new Long (array[i])) ;
+	}
 	
- 	Tree (long id, String goal, String subqueries, String proof, int status, Peer requester, long reqQueryId, Peer delegator, String lastExpandedGoal)
+	public long[] getNegotiationIds ()
+	{
+		long[] array = new long[_negotiationIdList.size()] ;
+		for (int i = 0 ; i < _negotiationIdList.size() ; i++)
+			array[i] = ( (Long) _negotiationIdList.elementAt(i)).longValue() ;
+		return array ;
+	}
+	
+	private synchronized void resetNegotiationCounter ()
+	{
+		_currentNegotiationCounter = 0 ;
+	}
+	
+	public synchronized long increaseNegotiationCounter ()
  	{
- 		this.id = id ;
- 		this.originalGoal = goal ;
- 		this.goal = goal ;
- 		this.subqueries = subqueries ;
+ 		_currentNegotiationCounter += 1 ;
+ 		return _currentNegotiationCounter ;
+ 	}
+	
+ 	Tree (long id, String goal, String subqueries, String proof, int status, Peer requester, 
+ 			long reqQueryId, Peer delegator, String lastExpandedGoal, long [] negotiationIdList)
+ 	{
+ 		this._id = id ;
+ 		this._originalGoal = goal ;
+ 		this._goal = goal ;
+ 		this._resolvent = subqueries ;
  		setProof(proof) ;
- 		this.status = status ;
- 		this.requester = requester ;	
- 		this.reqQueryId = reqQueryId ;
- 		this.delegator = delegator ;
- 		this.lastExpandedGoal = lastExpandedGoal ;
- 		timeStamp = System.currentTimeMillis() ;
+ 		this._status = status ;
+ 		this._requester = requester ;	
+ 		this._reqQueryId = reqQueryId ;
+ 		this._delegator = delegator ;
+ 		this._lastExpandedGoal = lastExpandedGoal ;
+ 		setNegotiationIds(negotiationIdList) ;
+ 		_timeStamp = System.currentTimeMillis() ;
  		log.debug("Created: " + this.toString()) ;
  	}
  	
  	// Constructor for a completely new query
- 	public Tree (String goal, Peer requester, long reqQueryId)
+ 	public Tree (String goal, Peer requester, long reqQueryId, long [] negotiationIdList)
 	{
- 		this(getNewId(), goal, "[query(" + goal + ",no)]", "[]", READY, requester, reqQueryId, null, null) ;
+ 		this(getNewId(), goal, "[query(" + goal + ",no)]", "[]", READY, requester, 
+ 				reqQueryId, null, null, negotiationIdList) ;
 	}
  	
-	Tree (String goal, String subqueries, String proof, int status, Peer requester, long reqQueryId, Peer delegator, String lastExpandedGoal)
+	Tree (String goal, String subqueries, String proof, int status, Peer requester, 
+			long reqQueryId, Peer delegator, String lastExpandedGoal, long [] negotiationIdList)
  	{
- 		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, delegator, lastExpandedGoal) ;
+ 		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
+ 				delegator, lastExpandedGoal, negotiationIdList) ;
  	}
 
-	public Tree (String goal, String subqueries, String proof, int status, Peer requester, long reqQueryId)
+	public Tree (String goal, String subqueries, String proof, int status, Peer requester, 
+			long reqQueryId, long [] negotiationIdList)
 	{
-		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, null, null) ;
+		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
+				null, null, negotiationIdList) ;
 	}
  	
 	Tree (long id, Peer requester, long reqQueryId)
 	{
-		this(id, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null) ;
+		this(id, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null, Query.NO_RELATED_QUERY) ;
 		log.debug("Created pattern tree. Id: |" + id + "|") ;
 	}
 	
 	// constructor with only tree Id (specially for searching by tree id)
  	public Tree (long id)
  	{
- 		this(id, null, null, null, UNSPECIFIED, null, NULL_ID, null, null) ;
+ 		this(id, null, null, null, UNSPECIFIED, null, NULL_ID, null, null, Query.NO_RELATED_QUERY) ;
  	}
  	
 	// constructor with only requester and requester Id (specially for searching by requester and requester query id)
  	public Tree (Peer requester, long reqQueryId)
  	{
- 		this(NULL_ID, null, null, null, UNSPECIFIED, null, NULL_ID, null, null) ;
+ 		this(NULL_ID, null, null, null, UNSPECIFIED, null, NULL_ID, null, null,  Query.NO_RELATED_QUERY) ;
  	}
 
  	// copy a tree but change the id
  	public Tree (Tree tree)
  	{
- 		this(getNewId(), tree.getGoal(), tree.getSubqueries(), tree.getProof(), tree.getStatus(),
- 				tree.getRequester(), tree.getReqQueryId(), tree.getDelegator(), tree.getLastExpandedGoal()) ;
+ 		this(getNewId(), tree.getGoal(), tree.getResolvent(), tree.getProof(), tree.getStatus(),
+ 				tree.getRequester(), tree.getReqQueryId(), tree.getDelegator(), 
+				tree.getLastExpandedGoal(), tree.getNegotiationIds()) ;
  	}
  	
 	static synchronized long getNewId ()
  	{
- 		currentId += 1 ;
- 		return currentId ;
+ 		_currentId += 1 ;
+ 		return _currentId ;
  	}
  	
  	public void update(Tree tree)
@@ -138,15 +183,15 @@ public class Tree
  		
  		tmpLong = tree.getId() ;
  		if (tmpLong != NULL_ID)
- 			this.id = tmpLong ;
+ 			this._id = tmpLong ;
  		
  		tmpString = tree.getGoal() ;
  		if (tmpString != null)
- 			this.goal = tmpString ;
+ 			this._goal = tmpString ;
  		
- 		tmpString = tree.getSubqueries() ;
+ 		tmpString = tree.getResolvent() ;
  		if (tmpString != null)
- 			this.subqueries = tmpString ;
+ 			this._resolvent = tmpString ;
  			
  		tmpString = tree.getProof() ;
  		if (tmpString != null)
@@ -154,18 +199,18 @@ public class Tree
  		
  		tmpByte = tree.getStatus() ;
  		if (tmpByte != UNSPECIFIED)
- 			this.status = tmpByte ;
+ 			this._status = tmpByte ;
  			
  		tmpPeer = tree.getRequester() ;
  		if (tmpPeer != null)
- 			this.requester = tmpPeer ;
+ 			this._requester = tmpPeer ;
  	}
  	
  	public boolean isProcessable ()
  	{
  		boolean ret = false ;
  		
- 		switch (status)
+ 		switch (_status)
  		{
  			case Tree.READY:
  			case Tree.ANSWERED:
@@ -183,7 +228,7 @@ public class Tree
  	
  	public boolean isOutDated ()
  	{
- 		if ( (System.currentTimeMillis() - timeStamp) > MAX_TREE_LIFETIME)
+ 		if ( (System.currentTimeMillis() - _timeStamp) > MAX_TREE_LIFETIME)
  			return true ;
  		else
  			return false ;
@@ -195,13 +240,13 @@ public class Tree
  		 
  		Tree tree = (Tree) object ;
  		
- 		if ( ( (this.getId() != NULL_ID) && (this.id != tree.getId()) ) ||
+ 		if ( ( (this.getId() != NULL_ID) && (this._id != tree.getId()) ) ||
 			// ( (tree.getGoal() != null) && (this.goal.compareTo(tree.getGoal() != 0))) ||
 			// ( (tree.getSubqueries() != null) && (this.subqueries.compareTo(tree.getSubqueries() != 0))) ||
 			// ( (tree.getProof() != null) && (this.proof.compareTo(tree.getProof() != 0))) ||
 			// ( (tree.getStatus() != UNSPECIFIED) && (this.status != tree.getStatus())) ||
-			( (this.getRequester() != null) && (this.requester.equals(tree.getRequester()) == false)) ||
-			( (this.getReqQueryId() != NULL_ID) && (this.reqQueryId != tree.reqQueryId)) )
+			( (this.getRequester() != null) && (this._requester.equals(tree.getRequester()) == false)) ||
+			( (this.getReqQueryId() != NULL_ID) && (this._reqQueryId != tree._reqQueryId)) )
  			same = false ;
  		
  		return same ;	
@@ -209,7 +254,7 @@ public class Tree
  	
 	public void appendProof (String proof2)
 	{
-		String proof1 = stringProof ;
+		String proof1 = _stringProof ;
 		
 		String previousProof = proof1.substring(1,proof1.length()-1) ;
 		String newProof =  proof2.substring(1,proof2.length()-1) ;
@@ -224,78 +269,78 @@ public class Tree
 			joinedProof += newProof ;
 		joinedProof += "]" ;	
 		
-		this.stringProof = joinedProof ;
-		this.vectorProof.addAll(generateProofVector(proof2)) ;
+		this._stringProof = joinedProof ;
+		this._vectorProof.addAll(generateProofVector(proof2)) ;
 	}
 
  	public long getId () {
- 		return id ; }
+ 		return _id ; }
  	
  	public void setId(long id) {
- 		this.id = id ;
+ 		this._id = id ;
  	}
  	
  	public String getGoal() {
- 		return goal ; }
+ 		return _goal ; }
  		
  	public void setGoal (String goal) {
- 		this.goal = goal ;
+ 		this._goal = goal ;
  	}
  		
- 	public String getSubqueries() {
- 		return subqueries ; }
+ 	public String getResolvent() {
+ 		return _resolvent ; }
  	
- 	public void setSubqueries(String subqueries) {
- 		this.subqueries = subqueries ;
+ 	public void setResolvent(String subqueries) {
+ 		this._resolvent = subqueries ;
  	}
  		
  	public String getProof() {
- 		return stringProof ; }
+ 		return _stringProof ; }
  		
  	public void setProof (String proof) {
- 		this.stringProof = proof ;
- 		this.vectorProof = generateProofVector (proof) ;
+ 		this._stringProof = proof ;
+ 		this._vectorProof = generateProofVector (proof) ;
  	}
  	
  	public int getStatus() {
- 		return status ; }
+ 		return _status ; }
  	
  	public void setStatus(int status) {
- 		this.status = status ;
+ 		this._status = status ;
  	}
  	public Peer getRequester() {
- 		return requester ; }
+ 		return _requester ; }
 
 	public void setRequester (Peer requester) {
-		this.requester = requester ;
+		this._requester = requester ;
 	}
 	
 	public long getReqQueryId () {
-		return reqQueryId ;
+		return _reqQueryId ;
 	}
 	
 	void setReqQueryId (long reqQueryId) {
-		this.reqQueryId = reqQueryId ;
+		this._reqQueryId = reqQueryId ;
 	}
 
 	public Peer getDelegator() {
-		return delegator ; }
+		return _delegator ; }
 	
 	public void setDelegator (Peer delegator) {
-		this.delegator = delegator ;
+		this._delegator = delegator ;
 	}
 
 	/**
 	 * @return Returns the lastExpandedGoal.
 	 */
 	public String getLastExpandedGoal() {
-		return lastExpandedGoal;
+		return _lastExpandedGoal;
 	}
 	/**
 	 * @param lastExpandedGoal The lastExpandedGoal to set.
 	 */
 	public void setLastExpandedGoal(String lastExpandedGoal) {
-		this.lastExpandedGoal = lastExpandedGoal;
+		this._lastExpandedGoal = lastExpandedGoal;
 	}
 	
 	public Vector generateProofVector(String proof) {
@@ -323,7 +368,7 @@ public class Tree
 	
 	public String toString()
 	{
-		return "Id: |" + id + "| - originalGoal: |" + originalGoal + "| - Goal: |" + goal + "| Subgoals: |" +
-			subqueries + "| - Proof: |" + stringProof + "| LastExpandedGoal: |" + lastExpandedGoal + "|"  ;
+		return "Id: |" + _id + "| - originalGoal: |" + _originalGoal + "| - Goal: |" + _goal + "| Subgoals: |" +
+			_resolvent + "| - Proof: |" + _stringProof + "| LastExpandedGoal: |" + _lastExpandedGoal + "|"  ;
 	}
 }

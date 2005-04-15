@@ -22,47 +22,55 @@ package org.peertrust.net;
 import java.io.Serializable;
 
 /**
- * $Id: Query.java,v 1.5 2005/03/12 11:40:13 dolmedilla Exp $
+ * $Id: Query.java,v 1.7 2005/04/15 22:27:00 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/12 11:40:13 $
+ * Last changed  $Date: 2005/04/15 22:27:00 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Query extends Message implements Serializable {
 
-	static public long NO_RELATED_QUERY = -1 ;
+	static public long [] NO_RELATED_QUERY = null ;
 	
- 	private String goal = null ;
- 	private long reqQueryId = -1 ;
+ 	private String _goal = null ;
+ 	private long _reqQueryId = -1 ;
+ 	private long [] _negotiationIdList = NO_RELATED_QUERY ;
 
-	public Query(String goal, Peer origin, Peer target, long reqQueryId, long relatedQueryId) {
+	public Query(String goal, Peer origin, Peer target, long reqQueryId, long [] negotiationIdList) {
 		super(origin, target) ;
-		this.goal = goal ;
-		this.reqQueryId = reqQueryId ;
+		this._goal = goal ;
+		this._reqQueryId = reqQueryId ;
+		this._negotiationIdList = negotiationIdList ;
 	}
 	/**
 	 * @return Returns the goal.
 	 */
 	public String getGoal() {
-		return goal;
+		return _goal;
 	}
 	/**
 	 * @param goal The goal to set.
 	 */
 	public void setGoal(String goal) {
-		this.goal = goal;
+		this._goal = goal;
 	}
 	/**
 	 * @return Returns the reqQueryId.
 	 */
 	public long getReqQueryId() {
-		return reqQueryId;
+		return _reqQueryId;
 	}
 	/**
 	 * @param reqQueryId The reqQueryId to set.
 	 */
 	public void setReqQueryId(long reqQueryId) {
-		this.reqQueryId = reqQueryId;
+		this._reqQueryId = reqQueryId;
+	}
+	/**
+	 * @return Returns the relatedQueryId.
+	 */
+	public long [] getNegotiationIdList() {
+		return _negotiationIdList;
 	}
 }
