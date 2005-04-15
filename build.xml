@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.3 2005/02/23 08:44:58 dolmedilla Exp $
+     $Id: build.xml,v 1.4 2005/04/15 14:52:03 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -165,13 +165,16 @@ You need to set ANT_HOME in your shell.
     <property name="doc" value="${build}/doc"/>
     <property name="bin" value="${build}/bin"/>
     <property name="release" value="1.0"/>
-
+    <property name="configdir" value="${basedir}/config"/>
+  	
     <property name="html" value="${user.HOME}/public_html/peertrust/javadoc/${name}"/>  
 
     <property name="Name" value="Peertrust"/>
     <property name="name" value="peertrust"/>
 
-    <property name="version" value="${release}-${DSTAMP}"/>
+  	<property name="date" value="${DSTAMP}"/>
+  	
+    <property name="version" value="${release}-${date}"/>
     <property name="year" value="2004"/>
 
     <property file="${user.home}/.trust.properties"/>
@@ -181,6 +184,13 @@ You need to set ANT_HOME in your shell.
     <property name="optimize" value="on"/>
     <property name="deprecation" value="off"/>
     <property name="verbose" value="off"/>
+  	
+  	<!-- properties for the protege plug-in -->
+  	<property name="protege.configdir" value="${configdir}/protege"/>
+    <property name="PluginMainClass" value="org.peertrust.protege.plugin.PolicyTabPlugin.class"/>
+  	<property name="PolicyTemplateSlot" value="org.peertrust.protege.plugin.PolicyTemplateSlotsWidget.class"/>
+  	<property name="plugin.name" value="ProtegePolicyPlugin"/>
+  	<!-- - - - - - - - - - - - - - - - - - - -->
 
     <echo message="============= ${Name} ${version} [${year}] =============="/>
   	<echo message="==== Trust Negotiation for Peers on the Semantic Web ====="/>
@@ -219,6 +229,14 @@ You need to set ANT_HOME in your shell.
       <path refid="peertrust.classpath"/>
     </path>
 
+  	<!-- Classpath for compiling Protege plug-in -->
+    <path id="protege.classpath">
+    	<fileset dir="${lib}">
+    	        <include name="protege.jar"/>
+  	    </fileset>
+    </path>
+  	<!-- - - - - - - - - - - - - - - - - - - -->
+  	
     <path id="jdepend.classpath">
       <pathelement location="${lib}/jdepend.jar"/>
     </path>
@@ -241,7 +259,7 @@ You need to set ANT_HOME in your shell.
   </target>
 
   <!-- ====================================================================
-       Compile Everything except ..
+       Compile Everything except .. and protege plugin
        ==================================================================== -->
   <target name="compile" depends="preparecompile">
   <description>
@@ -258,13 +276,13 @@ You need to set ANT_HOME in your shell.
       <exclude name="test/**"/>
       <exclude name="net/jxta/edutella/util/Config**"/>
       <exclude name="net/jxta/edutella/util/Option*"/>
-      <exclude name="org/peertrust/meta/TrustClient*"/>
       <exclude name="org/peertrust/meta/TrustApplet*"/>
       <exclude name="org/peertrust/inference/*XsbProlog*"/>
    	  <exclude name="org/peertrust/security/credentials/*CredentialLister*"/>
    	  <exclude name="org/peertrust/security/credentials/x509/*X509CredentialBuilder*"/>
    	  <exclude name="org/peertrust/security/credentials/gui/*Editor*"/>
    	  <exclude name="org/peertrust/security/credentials/*CredentialPanel*"/>
+      <exclude name="org/peertrust/protege/**"/>
       <classpath refid="build.classpath"/>
       <src path="${src}"/>
     </javac>
@@ -388,6 +406,56 @@ You need to set ANT_HOME in your shell.
   </target>
 
   <!-- ====================================================================
+       Compile the Protege Plug-in
+       ==================================================================== -->
+  <target name="-protege-compile" depends="preparecompile">
+  <description>
+  -compile-protege:
+        Compiles the protege plug-in
+  </description>
+    <echo message="=============== Compiling Protege Plug-in ================"/>
+    <javac debug="${debug}"
+       destdir="${classes}"
+	   includes="org/peertrust/protege/**"
+	   verbose="${verbose}"
+	   optimize="${optimize}"
+	   deprecation="${deprecation}">
+      <classpath refid="protege.classpath"/>
+      <src path="${src}"/>
+    </javac>
+  </target>
+
+  <!-- ====================================================================
+       Create the Protege Plug-in jar-archive
+       ==================================================================== -->
+  <target name="protege-jar" depends="-protege-compile">
+  <description>
+  protege-jar:
+        Creates a java archive ( .jar) from all the Protege Plug-in classes.
+  </description>
+    <echo message="============== Creating Protege Plug-in ${plugin.name}.jar ============="/>
+    <mkdir dir="${dist}"/>
+    <copy todir="${classes}">
+      <fileset dir="${protege.configdir}/images/">
+      	<include name="**"/>
+      </fileset>
+    </copy> 
+    <jar basedir="${classes}"
+         jarfile="${dist}/${plugin.name}.jar">
+    	<manifest>
+	  		<attribute name="Release-Date" value="${date}"/>
+	  		
+	  		<section name="${TabPluginClass}">
+		  		<attribute name="Tab-Widget" value="True"/>	
+	  		</section>
+	  		<section name="${PolicyTemplateSlot}">
+					<attribute name="Slot-Widget" value="True"/>		  		
+	  		</section>
+	  	</manifest>
+    </jar>
+  </target>
+	
+  <!-- ====================================================================
        Create JDepend information about code quality
        ==================================================================== -->
   <target name="jdepend" depends="init,compile">
@@ -425,20 +493,21 @@ ${Name} Build file
 
  available targets are:
 
-   jar        --> creates ${Name} .jar in ${dist}
-   dist       --> creates ${Name} .tar.gz and .zip in ${dist}
-   javadoc    --> writes the javadoc documentation to ${doc}
-   clean      --> cleans up the ${build} directory
-   distclean  --> cleans up the distribution directory, ${dist}
-   jdepend    --> obtain design quality metrics by applying JDepend
-   applet     --> create applet.jar in ${dist}
-   usage      --> show this message (default)
+   jar         --> creates ${Name} .jar in ${dist}
+   protege-jar --> creates
+   dist        --> creates ${Name} .tar.gz and .zip in ${dist}
+   javadoc     --> writes the javadoc documentation to ${doc}
+   clean       --> cleans up the ${build} directory
+   distclean   --> cleans up the distribution directory, ${dist}
+   jdepend     --> obtain design quality metrics by applying JDepend
+   applet      --> create applet.jar in ${dist}
+   usage       --> show this message (default)
    ---------------------------------------------------------------
-   chainsaw   --> starts a local log4j gui
-   server     --> starts a server
-   client     --> starts a client
-   demoServer --> starts a demo server
-   demoClient --> starts a demo client
+   chainsaw    --> starts a local log4j gui
+   server      --> starts a server
+   client      --> starts a client
+   demoServer  --> starts a demo server
+   demoClient  --> starts a demo client
 
  See the comments inside the build.xml file for more details.
 -------------------------------------------------------------
@@ -566,7 +635,6 @@ ${Name} Build file
   <target name="initstart" depends="init,jar">
     <property name="testenv" value="${basedir}/testenv"/>
     <property name="basehome" value="${testenv}"/>
-    <property name="configdir" value="${basedir}/config"/>
     <property name="resdir" value="${basedir}/resources"/>
     <mkdir dir="${basedir}"/>
     <path id="startpeertrust.classpath">
