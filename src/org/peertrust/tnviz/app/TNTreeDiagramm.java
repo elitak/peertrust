@@ -87,7 +87,7 @@ public class TNTreeDiagramm {
 			graph.getGraphLayoutCache().reload();
 			graphics.setRoot(source);
 		}
-		long related_id=query.getRelatedQueryId();
+		long [] related_id=query.getNegotiationIdList();
 		if(related_id!=Query.NO_RELATED_QUERY) {
 			TNNode source=(TNNode)getElement("node:"+related_id+":"+
 				sourceIdentifier);

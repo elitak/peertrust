@@ -25,10 +25,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.4 2005/04/15 22:27:00 dolmedilla Exp $
+ * $Id: Tree.java,v 1.5 2005/04/16 16:01:40 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/15 22:27:00 $
+ * Last changed  $Date: 2005/04/16 16:01:40 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -77,11 +77,12 @@ public class Tree
 	}
 	
 	public void setNegotiationIds (long [] array)
-	{
+	{		
 		_negotiationIdList = new Vector () ;
 		
-		for (int i = 0 ; i < array.length ; i++)
-			_negotiationIdList.add(new Long (array[i])) ;
+		if (array != null)		
+			for (int i = 0 ; i < array.length ; i++)
+				_negotiationIdList.add(new Long (array[i])) ;
 	}
 	
 	public long[] getNegotiationIds ()
