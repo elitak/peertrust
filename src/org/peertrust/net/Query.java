@@ -22,10 +22,10 @@ package org.peertrust.net;
 import java.io.Serializable;
 
 /**
- * $Id: Query.java,v 1.7 2005/04/15 22:27:00 dolmedilla Exp $
+ * $Id: Query.java,v 1.8 2005/04/16 21:29:41 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/15 22:27:00 $
+ * Last changed  $Date: 2005/04/16 21:29:41 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -72,5 +72,25 @@ public class Query extends Message implements Serializable {
 	 */
 	public long [] getNegotiationIdList() {
 		return _negotiationIdList;
+	}
+	
+	public String printNegotiationIdList()
+	{
+		String list = "[" ;
+		
+		if (_negotiationIdList != null)
+		{
+			for (int i = 0 ; i < _negotiationIdList.length ; i++)
+			{
+				list += _negotiationIdList[i] ;
+				
+				if (i != _negotiationIdList.length-1)
+					list += ","  ;
+			}
+			
+		}
+		list += "]" ;
+		
+		return list ;
 	}
 }

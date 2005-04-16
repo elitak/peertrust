@@ -25,10 +25,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.5 2005/04/16 16:01:40 dolmedilla Exp $
+ * $Id: Tree.java,v 1.6 2005/04/16 21:29:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/16 16:01:40 $
+ * Last changed  $Date: 2005/04/16 21:29:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -70,13 +70,17 @@ public class Tree
 	long _currentNegotiationCounter ;
 	Vector _negotiationIdList = new Vector() ;
 
-	public void addNegotiationId ()
+	public synchronized void addNegotiationId ()
 	{
-		resetNegotiationCounter () ;
-		_negotiationIdList.add(new Long (increaseNegotiationCounter())) ;
+//		resetNegotiationCounter () ;
+//		_negotiationIdList.add(new Long (increaseCounter())) ;
+		
+		log.debug ("---TNVizListener entra2") ;
+		_negotiationIdList.add(new Long (1)) ;
+		log.debug ("---TNVizListener sale2") ;
 	}
 	
-	public void setNegotiationIds (long [] array)
+	public synchronized void setNegotiationIds (long [] array)
 	{		
 		_negotiationIdList = new Vector () ;
 		
@@ -85,7 +89,7 @@ public class Tree
 				_negotiationIdList.add(new Long (array[i])) ;
 	}
 	
-	public long[] getNegotiationIds ()
+	public synchronized long[] getNegotiationIds ()
 	{
 		long[] array = new long[_negotiationIdList.size()] ;
 		for (int i = 0 ; i < _negotiationIdList.size() ; i++)
@@ -93,16 +97,54 @@ public class Tree
 		return array ;
 	}
 	
-	private synchronized void resetNegotiationCounter ()
+//	private synchronized void resetNegotiationCounter ()
+//	{
+//		_currentNegotiationCounter = 0 ;
+//	}
+	
+	public String printNegotiationIdList()
 	{
-		_currentNegotiationCounter = 0 ;
+		String list = "[" ;
+		
+		if (_negotiationIdList != null)
+		{
+			for (int i = 0 ; i < _negotiationIdList.size() ; i++)
+			{
+				list += ( (Long)_negotiationIdList.elementAt(i)).longValue() ;
+				
+				if (i != _negotiationIdList.size())
+					list += ","  ;
+			}
+			
+		}
+		list += "]" ;
+		
+		return list ;
 	}
 	
 	public synchronized long increaseNegotiationCounter ()
+	{
+		long id = -1 ;
+		
+		log.debug ("---TNVizListener entra " + this.printNegotiationIdList()) ;
+		if (_negotiationIdList.isEmpty() == false)
+		{ log.debug ("---TNVizListener 1") ;
+			id = ( (Long) _negotiationIdList.lastElement()).longValue() ;
+			id++ ;
+			log.debug ("---TNVizListener 2") ;
+			_negotiationIdList.setElementAt(new Long(id), _negotiationIdList.size()-1) ;
+		}
+		
+		log.debug ("---TNVizListener sale" + this.printNegotiationIdList()) ;
+		
+		return id ;
+	}
+	
+/*	synchronized long increaseCounter ()
  	{
- 		_currentNegotiationCounter += 1 ;
+ 		_currentNegotiationCounter ++ ;
  		return _currentNegotiationCounter ;
- 	}
+ 	}*/
 	
  	Tree (long id, String goal, String subqueries, String proof, int status, Peer requester, 
  			long reqQueryId, Peer delegator, String lastExpandedGoal, long [] negotiationIdList)

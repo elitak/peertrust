@@ -33,13 +33,15 @@ public class TNVizListener implements PTEventListener, Configurable {
 		if (event instanceof QueryEvent)
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
-			log.debug("New query received: " + query.getGoal() + " - " + query.getReqQueryId()) ;
+			log.debug("New query received from " + query.getSource().getAlias() + ": " + 
+					query.getGoal() + " - " + query.getReqQueryId() + " - " + query.printNegotiationIdList()) ;
 			graphics.addQuery(query);
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			Answer answer = ( (AnswerEvent) event).getAnswer() ;
-			log.debug("New answer received: " + answer.getGoal() + " - " + answer.getReqQueryId()) ;
+			log.debug("New answer received from " + answer.getSource().getAlias() + ": " + 
+					answer.getGoal() + " - " + answer.getReqQueryId()) ;
 			graphics.addAnswer(answer) ;
 		}
 		graphics.updateGraph();

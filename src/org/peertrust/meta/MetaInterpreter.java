@@ -41,10 +41,10 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.14 2005/04/15 22:27:00 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.15 2005/04/16 21:29:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/15 22:27:00 $
+ * Last changed  $Date: 2005/04/16 21:29:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -80,7 +80,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.14 2005/04/15 22:27:00 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.15 2005/04/16 21:29:42 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -271,6 +271,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		else
 		{
 			log.debug("results == " + results.length) ;
+			
 			// flag to show if a new negotiation Id has already been created
 			boolean createdNewNegotiationId = false ;
 			
@@ -324,8 +325,11 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						if (createdNewNegotiationId)
 							selectedTree.increaseNegotiationCounter() ;
 						else
+						{
 							// we add the new negotiation id 
 							selectedTree.addNegotiationId() ;
+							createdNewNegotiationId = true ;
+						}
 						
 						Tree delegatedTree = new Tree (results[i].getGoal(), results[i].getSubgoals(),
 								selectedTree.getProof(), Tree.WAITING, selectedTree.getRequester(),
