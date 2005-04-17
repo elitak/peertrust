@@ -35,10 +35,10 @@ import org.peertrust.net.Peer;
 import org.peertrust.net.Query ;
 
 /**
- * $Id: TrustClient.java,v 1.5 2005/03/12 11:39:50 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.6 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/12 11:39:50 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -68,7 +68,7 @@ public class TrustClient implements PTEventListener
 	public void sendQuery (String query)
 	{
 		_id++ ;
-		Query newQuery = new Query(query, _peer, null, _id, Query.NO_RELATED_QUERY) ;
+		Query newQuery = new Query(query, _peer, null, _id, null) ;
 		QueryEvent qe = new QueryEvent(this, newQuery) ;
 		
 		_ed.event(qe) ;

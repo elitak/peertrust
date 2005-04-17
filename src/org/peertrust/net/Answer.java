@@ -22,11 +22,13 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
+import org.peertrust.meta.Trace;
+
 /**
- * $Id: Answer.java,v 1.3 2005/02/15 17:36:22 dolmedilla Exp $
+ * $Id: Answer.java,v 1.4 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:22 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -41,8 +43,8 @@ public class Answer extends Message implements Serializable {
  	private int status = -1 ;
  	private long reqQueryId = -1 ;
 	
-	public Answer(String goal, String proof, int status, long reqQueryId, Peer source, Peer target) {
-		super(source, target) ;
+	public Answer(String goal, String proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
+		super(source, target, trace) ;
 		this.goal = goal ;
 		this.proof = proof ;
 		this.status = status ;

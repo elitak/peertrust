@@ -37,10 +37,10 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.10 2005/04/15 22:27:01 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.11 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/15 22:27:01 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -62,7 +62,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.10 2005/04/15 22:27:01 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.11 2005/04/17 20:44:42 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -176,8 +176,6 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					Tree pattern = new Tree (answer.getReqQueryId()) ;
 					Tree match = _queue.search(pattern) ;
 					
-					match.increaseNegotiationCounter() ;
-					
 					try {
 						_inferenceEngine.unifyTree(match,answer.getGoal()) ;
 					} catch (InferenceEngineException e) {
@@ -192,6 +190,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					
 					// we add the proof from the answer
 					newTree.appendProof(answer.getProof()) ;
+					newTree.setTrace(answer.getTrace()) ;
 					
 					_queue.add(newTree) ;
 					
@@ -212,8 +211,6 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					// the query waiting is removed from the queue
 					Tree match2 = _queue.remove(pattern2) ;
 					
-					match2.increaseNegotiationCounter() ;
-					
 					// unification of the query goal with the answer
 					try {
 						_inferenceEngine.unifyTree(match2,answer.getGoal()) ;
@@ -229,6 +226,8 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					
 					// add the proof from the answer
 					newTree2.appendProof(answer.getProof()) ;
+					newTree2.setTrace(answer.getTrace()) ;
+					
 					//queue.remove(pattern2) ;
 					_queue.add(newTree2) ;
 				

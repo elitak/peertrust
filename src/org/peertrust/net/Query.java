@@ -21,27 +21,26 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
+import org.peertrust.meta.Trace;
+
 /**
- * $Id: Query.java,v 1.8 2005/04/16 21:29:41 dolmedilla Exp $
+ * $Id: Query.java,v 1.9 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/16 21:29:41 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Query extends Message implements Serializable {
-
-	static public long [] NO_RELATED_QUERY = null ;
 	
  	private String _goal = null ;
  	private long _reqQueryId = -1 ;
- 	private long [] _negotiationIdList = NO_RELATED_QUERY ;
 
-	public Query(String goal, Peer origin, Peer target, long reqQueryId, long [] negotiationIdList) {
-		super(origin, target) ;
+	public Query(String goal, Peer origin, Peer target, long reqQueryId, Trace trace)
+	{
+		super(origin, target, trace) ;
 		this._goal = goal ;
 		this._reqQueryId = reqQueryId ;
-		this._negotiationIdList = negotiationIdList ;
 	}
 	/**
 	 * @return Returns the goal.
@@ -66,31 +65,5 @@ public class Query extends Message implements Serializable {
 	 */
 	public void setReqQueryId(long reqQueryId) {
 		this._reqQueryId = reqQueryId;
-	}
-	/**
-	 * @return Returns the relatedQueryId.
-	 */
-	public long [] getNegotiationIdList() {
-		return _negotiationIdList;
-	}
-	
-	public String printNegotiationIdList()
-	{
-		String list = "[" ;
-		
-		if (_negotiationIdList != null)
-		{
-			for (int i = 0 ; i < _negotiationIdList.length ; i++)
-			{
-				list += _negotiationIdList[i] ;
-				
-				if (i != _negotiationIdList.length-1)
-					list += ","  ;
-			}
-			
-		}
-		list += "]" ;
-		
-		return list ;
 	}
 }

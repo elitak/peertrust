@@ -17,6 +17,7 @@ import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.Port;
 
+import org.peertrust.meta.Trace;
 import org.peertrust.net.*;
 
 public class TNTreeDiagramm {
@@ -87,9 +88,9 @@ public class TNTreeDiagramm {
 			graph.getGraphLayoutCache().reload();
 			graphics.setRoot(source);
 		}
-		long [] related_id=query.getNegotiationIdList();
-		if(related_id!=Query.NO_RELATED_QUERY) {
-			TNNode source=(TNNode)getElement("node:"+related_id+":"+
+		Trace trace =query.getTrace();
+		if(trace.isEmptyTrace()) {
+			TNNode source=(TNNode)getElement("node:"+trace.printTrace()+":"+
 				sourceIdentifier);
 			if(source==null) {
 				listFalseQueries.add(query);

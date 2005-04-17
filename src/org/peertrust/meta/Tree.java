@@ -25,10 +25,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.6 2005/04/16 21:29:42 dolmedilla Exp $
+ * $Id: Tree.java,v 1.7 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/16 21:29:42 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -65,89 +65,11 @@ public class Tree
 	private String _lastExpandedGoal = null ;
 	private long _timeStamp = 0 ;
 	static private long _currentId = 0 ;
-
-	// addition to distinguish different negotiation paths
-	long _currentNegotiationCounter ;
-	Vector _negotiationIdList = new Vector() ;
-
-	public synchronized void addNegotiationId ()
-	{
-//		resetNegotiationCounter () ;
-//		_negotiationIdList.add(new Long (increaseCounter())) ;
-		
-		log.debug ("---TNVizListener entra2") ;
-		_negotiationIdList.add(new Long (1)) ;
-		log.debug ("---TNVizListener sale2") ;
-	}
 	
-	public synchronized void setNegotiationIds (long [] array)
-	{		
-		_negotiationIdList = new Vector () ;
-		
-		if (array != null)		
-			for (int i = 0 ; i < array.length ; i++)
-				_negotiationIdList.add(new Long (array[i])) ;
-	}
-	
-	public synchronized long[] getNegotiationIds ()
-	{
-		long[] array = new long[_negotiationIdList.size()] ;
-		for (int i = 0 ; i < _negotiationIdList.size() ; i++)
-			array[i] = ( (Long) _negotiationIdList.elementAt(i)).longValue() ;
-		return array ;
-	}
-	
-//	private synchronized void resetNegotiationCounter ()
-//	{
-//		_currentNegotiationCounter = 0 ;
-//	}
-	
-	public String printNegotiationIdList()
-	{
-		String list = "[" ;
-		
-		if (_negotiationIdList != null)
-		{
-			for (int i = 0 ; i < _negotiationIdList.size() ; i++)
-			{
-				list += ( (Long)_negotiationIdList.elementAt(i)).longValue() ;
-				
-				if (i != _negotiationIdList.size())
-					list += ","  ;
-			}
-			
-		}
-		list += "]" ;
-		
-		return list ;
-	}
-	
-	public synchronized long increaseNegotiationCounter ()
-	{
-		long id = -1 ;
-		
-		log.debug ("---TNVizListener entra " + this.printNegotiationIdList()) ;
-		if (_negotiationIdList.isEmpty() == false)
-		{ log.debug ("---TNVizListener 1") ;
-			id = ( (Long) _negotiationIdList.lastElement()).longValue() ;
-			id++ ;
-			log.debug ("---TNVizListener 2") ;
-			_negotiationIdList.setElementAt(new Long(id), _negotiationIdList.size()-1) ;
-		}
-		
-		log.debug ("---TNVizListener sale" + this.printNegotiationIdList()) ;
-		
-		return id ;
-	}
-	
-/*	synchronized long increaseCounter ()
- 	{
- 		_currentNegotiationCounter ++ ;
- 		return _currentNegotiationCounter ;
- 	}*/
+	Trace _trace ;
 	
  	Tree (long id, String goal, String subqueries, String proof, int status, Peer requester, 
- 			long reqQueryId, Peer delegator, String lastExpandedGoal, long [] negotiationIdList)
+ 			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
  		this._id = id ;
  		this._originalGoal = goal ;
@@ -159,48 +81,48 @@ public class Tree
  		this._reqQueryId = reqQueryId ;
  		this._delegator = delegator ;
  		this._lastExpandedGoal = lastExpandedGoal ;
- 		setNegotiationIds(negotiationIdList) ;
+ 		_trace = trace ;
  		_timeStamp = System.currentTimeMillis() ;
  		log.debug("Created: " + this.toString()) ;
  	}
  	
  	// Constructor for a completely new query
- 	public Tree (String goal, Peer requester, long reqQueryId, long [] negotiationIdList)
+ 	public Tree (String goal, Peer requester, long reqQueryId, Trace trace)
 	{
  		this(getNewId(), goal, "[query(" + goal + ",no)]", "[]", READY, requester, 
- 				reqQueryId, null, null, negotiationIdList) ;
+ 				reqQueryId, null, null, trace) ;
 	}
  	
 	Tree (String goal, String subqueries, String proof, int status, Peer requester, 
-			long reqQueryId, Peer delegator, String lastExpandedGoal, long [] negotiationIdList)
+			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
  		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
- 				delegator, lastExpandedGoal, negotiationIdList) ;
+ 				delegator, lastExpandedGoal, trace) ;
  	}
 
 	public Tree (String goal, String subqueries, String proof, int status, Peer requester, 
-			long reqQueryId, long [] negotiationIdList)
+			long reqQueryId, Trace trace)
 	{
 		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
-				null, null, negotiationIdList) ;
+				null, null, trace) ;
 	}
  	
 	Tree (long id, Peer requester, long reqQueryId)
 	{
-		this(id, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null, Query.NO_RELATED_QUERY) ;
+		this(id, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null, new Trace()) ;
 		log.debug("Created pattern tree. Id: |" + id + "|") ;
 	}
 	
 	// constructor with only tree Id (specially for searching by tree id)
  	public Tree (long id)
  	{
- 		this(id, null, null, null, UNSPECIFIED, null, NULL_ID, null, null, Query.NO_RELATED_QUERY) ;
+ 		this(id, null, null, null, UNSPECIFIED, null, NULL_ID, null, null, new Trace()) ;
  	}
  	
 	// constructor with only requester and requester Id (specially for searching by requester and requester query id)
  	public Tree (Peer requester, long reqQueryId)
  	{
- 		this(NULL_ID, null, null, null, UNSPECIFIED, null, NULL_ID, null, null,  Query.NO_RELATED_QUERY) ;
+ 		this(NULL_ID, null, null, null, UNSPECIFIED, null, NULL_ID, null, null,  new Trace()) ;
  	}
 
  	// copy a tree but change the id
@@ -208,7 +130,7 @@ public class Tree
  	{
  		this(getNewId(), tree.getGoal(), tree.getResolvent(), tree.getProof(), tree.getStatus(),
  				tree.getRequester(), tree.getReqQueryId(), tree.getDelegator(), 
-				tree.getLastExpandedGoal(), tree.getNegotiationIds()) ;
+				tree.getLastExpandedGoal(), tree.getTrace()) ;
  	}
  	
 	static synchronized long getNewId ()
@@ -371,6 +293,16 @@ public class Tree
 	
 	public void setDelegator (Peer delegator) {
 		this._delegator = delegator ;
+	}
+	
+	public Trace getTrace ()
+	{
+		return _trace ;
+	}
+	
+	public void setTrace (Trace trace)
+	{
+		this._trace = trace ;
 	}
 
 	/**

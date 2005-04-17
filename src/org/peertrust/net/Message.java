@@ -22,21 +22,34 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
+import org.peertrust.meta.Trace;
+
 
 /**
- * $Id: Message.java,v 1.3 2005/02/15 17:36:22 dolmedilla Exp $
+ * $Id: Message.java,v 1.4 2005/04/17 20:44:42 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:22 $
+ * Last changed  $Date: 2005/04/17 20:44:42 $
  * by $Author: dolmedilla $
  * @description
  */
 public class Message implements Serializable {
+	
  	Peer _source, _target ;
- 	
+ 	Trace _trace ;
+
  	Message (Peer source, Peer target) {
+ 		this (source, target, null) ;
+ 	}
+ 	
+ 	Message (Peer source, Peer target, Trace trace) {
  		_source  = source ;
  		_target = target ;
+ 		
+ 		if (trace == null)
+ 			this._trace = new Trace() ;
+ 		else
+ 			this._trace = trace ;
  	}
  	
 	/**
@@ -51,5 +64,10 @@ public class Message implements Serializable {
 	 */
 	public Peer getTarget() {
 		return _target;
+	}
+	
+	public Trace getTrace()
+	{
+		return _trace ;
 	}
  }
