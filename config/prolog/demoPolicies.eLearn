@@ -34,22 +34,43 @@ internal(get_record(project7, document_data), [], []).
 % Semantic Web paper example
 
 rule(request(Course,Session) $ Requester,
+     [policy2(request(Course),Requester)],
+     [get(Course,Session)]).
+
+rule(request(Course,Session) $ Requester,
      [policy1(request(Course),Requester)],
      [get(Course,Session)]).
 
 rule(policy1(request(spanishCourse),Requester),
      [drivingLicense(Requester) @ caState @ Requester,
-      policeOfficer(Requester) @ caStatePolice @ Requester],
+      policy3(request(Course),Requester)],
      []).
+
 rule(policy1(request(germanCourse),_),
      [],
      []).
+
 rule(policy1(request(Course),Requester),
      [employee(Requester) @ l3s @ Requester],
      []).
 
+rule(policy2(request(Course),Requester),
+     [partner(Requester) @ voLearn @ Requester],
+     []).
+
+rule(policy3(request(Course),Requester),
+     [policeOfficer(Requester) @ caStatePolice @ Requester],
+     []).
+
+rule(policy3(request(Course),Requester),
+     [authorized(Requester) @ voLearn @ Requester],
+     []).
+
 signed(rule(bbbMember(eLearn) @ bbb, [], []),
             bbb, signature(bbb)).
+
+policy(bbbMember(eLearn) @ bbb $ Requester,
+     [drivingLicense(Requester) @ caState @ Requester]).
 
 internal(get(spanishCourse,session1),[],[]).
 
