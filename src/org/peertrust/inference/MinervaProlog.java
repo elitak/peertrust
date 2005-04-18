@@ -37,10 +37,10 @@ import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.6 2005/03/01 13:53:05 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.7 2005/04/18 19:50:00 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/03/01 13:53:05 $
+ * Last changed  $Date: 2005/04/18 19:50:00 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -71,7 +71,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.6 2005/03/01 13:53:05 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.7 2005/04/18 19:50:00 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -470,7 +470,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			String query = "old(" + 
 									tree.getGoal() + "," +
 									tree.getLastExpandedGoal() + "," +
-									tree.getSubqueries() + ")" ;
+									tree.getResolvent() + ")" ;
 		
 			log.debug ("Unify new query: " + unifiedGoal + " and old query: " + query) ;
 			
@@ -498,7 +498,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		
 			tree.setLastExpandedGoal(null) ;
 			tree.setGoal((String)treeStrings[0]) ;
-			tree.setSubqueries((String)treeStrings[1]) ;		
+			tree.setResolvent((String)treeStrings[1]) ;		
 		}
 
 	private boolean isApplet ()
