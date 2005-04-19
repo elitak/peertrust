@@ -103,9 +103,7 @@ public class TNSeqDiagramm {
 			String id = createNode(targetAlias,targetAddress,targetAlias,targetPort);
 			target = getNode(id);
 		}
-		
-		connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,"");
-		
+		connectNodes(source,target,goal+" ?",goal,reqQueryId,true,false,-1,"");				
 	}
 	
 	public void addAnswer(Answer answer) {
@@ -146,10 +144,7 @@ public class TNSeqDiagramm {
 		else {
 			String id = createNode(targetAlias,targetAddress,targetAlias,targetPort);
 			target = getNode(id);
-		}
-				
-		connectNodes(source,target,goal,goal,reqQueryId,false,true,status,proof);
-		
+		}		connectNodes(source,target,goal,goal,reqQueryId,false,true,status,proof);				
 	}
 	
 	public TNNode getNode(String id) {
@@ -230,8 +225,7 @@ public class TNSeqDiagramm {
 		return connectNodes(getNode(nodeSource),getNode(nodeTarget),object,goal,reqQueryId,query,answer,status,proof);
 	}
 	
-	private String connectNodes(TNNode nodeSource, TNNode nodeTarget, Object object, String goal, long reqQueryId, boolean query, boolean answer, int status, String proof) {
-		
+	private String connectNodes(TNNode nodeSource, TNNode nodeTarget, Object object, String goal, long reqQueryId, boolean query, boolean answer, int status, String proof) {		
 		// Check the length of the edge label, and recompute the distance between the nodes.
 	    int labelWidth = graph.getFontMetrics(graph.getFont()).stringWidth(object.toString())+10;
 	    if ((nodeTarget.getX() > nodeSource.getX()) && (nodeTarget.getX() - nodeSource.getX()) < labelWidth) {
@@ -241,7 +235,7 @@ public class TNSeqDiagramm {
 	    else if ((nodeSource.getX() > nodeTarget.getX()) && (nodeSource.getX() - nodeTarget.getX()) < labelWidth) {
 	    	SEQ_DISTANCE_X = labelWidth;
 	    	repositionNodes();
-	    }
+	    }	    		if (lastY == SEQ_START_DISTANCE_Y) {			lastY = lastY+SEQ_DISTANCE_Y+NODE_HEIGHT;	    }	    else {	    	lastY = lastY+SEQ_DISTANCE_Y;	    }		int newY = lastY;
 	    /*
 	    if (SEQ_DISTANCE_X < labelWidth) {
 	    	SEQ_DISTANCE_X = labelWidth;
@@ -312,13 +306,13 @@ public class TNSeqDiagramm {
 	    GraphConstants.setSizeable(edgeAttributes,graphics.getEdgeMovable());
 	    GraphConstants.setEditable(edgeAttributes,graphics.getEdgeEditable());
 	    GraphConstants.setLineColor(edgeAttributes,graphics.getEdgeColor());
-	    
+	    /*
 	    if (lastY == SEQ_START_DISTANCE_Y) {
 	    	lastY = lastY+SEQ_DISTANCE_Y+NODE_HEIGHT;
 	    }
 	    else {
 	    	lastY = lastY+SEQ_DISTANCE_Y;
-	    }
+	    }*/
 	    
 	    /*
 	    if (lastInvisibleNodeSource.equals(nodeSource)) {
@@ -335,7 +329,7 @@ public class TNSeqDiagramm {
 	    cs.connect(invisibleEdgeSource,lastInvisibleNodeSource.getPort(),invisibleNodeSource.getPort());
 	    sourceElements.add(invisibleNodeSource);
 	    nodesInvisible.put(nodeSource,sourceElements);
-	    positionInvisibleNode(invisibleNodeSource,nodeSource.getX()+(nodeSource.getLabelWidth()/2),lastY);
+	    //positionInvisibleNode(invisibleNodeSource,nodeSource.getX()+(nodeSource.getLabelWidth()/2),lastY);	    positionInvisibleNode(invisibleNodeSource,nodeSource.getX()+(nodeSource.getLabelWidth()/2),newY);
 	    graph.getGraphLayoutCache().insert(new Object[]{invisibleEdgeSource},attributes,cs,null,null);
 	    
 	    attributes = new Hashtable();
@@ -345,7 +339,7 @@ public class TNSeqDiagramm {
 	    cs.connect(invisibleEdgeTarget,lastInvisibleNodeTarget.getPort(),invisibleNodeTarget.getPort());
 	    targetElements.add(invisibleNodeTarget);
 	    nodesInvisible.put(nodeTarget,targetElements);
-	    positionInvisibleNode(invisibleNodeTarget,nodeTarget.getX()+(nodeTarget.getLabelWidth()/2),lastY);
+	    //positionInvisibleNode(invisibleNodeTarget,nodeTarget.getX()+(nodeTarget.getLabelWidth()/2),lastY);	    positionInvisibleNode(invisibleNodeTarget,nodeTarget.getX()+(nodeTarget.getLabelWidth()/2),newY);
 	    graph.getGraphLayoutCache().insert(new Object[]{invisibleEdgeTarget},attributes,cs,null,null);
 	    
 	    attributes = new Hashtable();
