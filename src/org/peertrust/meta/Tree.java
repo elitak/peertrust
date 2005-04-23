@@ -19,16 +19,17 @@
 */
 package org.peertrust.meta;
 
+import java.util.Random;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.7 2005/04/17 20:44:42 dolmedilla Exp $
+ * $Id: Tree.java,v 1.8 2005/04/23 17:27:24 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/17 20:44:42 $
+ * Last changed  $Date: 2005/04/23 17:27:24 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -49,7 +50,7 @@ public class Tree
  	public static final int FAILED = 4 ;
  	
  	// value for trees without an id associated
- 	public static final int NULL_ID = -1 ;
+ 	public static final int NULL_ID = new Random().nextInt() ;
 
  	private long _id = NULL_ID ;
  	private String _originalGoal = null ;

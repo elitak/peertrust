@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.4 2005/04/15 14:52:03 dolmedilla Exp $
+     $Id: build.xml,v 1.5 2005/04/23 17:30:32 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -632,7 +632,7 @@ ${Name} Build file
   <!-- ====================================================================
 
        ==================================================================== -->
-  <target name="initstart" depends="init,jar">
+  <target name="initstart" depends="init">
     <property name="testenv" value="${basedir}/testenv"/>
     <property name="basehome" value="${testenv}"/>
     <property name="resdir" value="${basedir}/resources"/>

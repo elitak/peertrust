@@ -50,12 +50,12 @@ rule(policy1(request(germanCourse),_),
      [],
      []).
 
-rule(policy1(request(Course),Requester),
-     [employee(Requester) @ l3s @ Requester],
+rule(policy2(request(Course),Requester),
+     [student(Requester) @ naplesUniversity @ Requester],
      []).
 
 rule(policy2(request(Course),Requester),
-     [partner(Requester) @ voLearn @ Requester],
+     [student(Requester) @ hanoverUniversity @ Requester],
      []).
 
 rule(policy3(request(Course),Requester),
@@ -63,7 +63,7 @@ rule(policy3(request(Course),Requester),
      []).
 
 rule(policy3(request(Course),Requester),
-     [authorized(Requester) @ voLearn @ Requester],
+     [employee(Requester) @ caStatePolice @ Requester],
      []).
 
 signed(rule(bbbMember(eLearn) @ bbb, [], []),
