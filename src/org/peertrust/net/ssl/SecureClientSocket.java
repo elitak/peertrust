@@ -32,12 +32,17 @@ import org.peertrust.net.Peer;
 //import javax.security.cert.X509Certificate;
 
 /**
- * $Id: SecureClientSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: SecureClientSocket.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SecureClientSocket implements NetClient {
 	
@@ -59,7 +64,7 @@ public class SecureClientSocket implements NetClient {
 	private String _storePassword ;
 	
 	public SecureClientSocket(String keystoreFile, String keyPassword, String storePassword) {
-		log.debug("$Id: SecureClientSocket.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $");
+		log.debug("$Id: SecureClientSocket.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $");
 		
 		this._keystoreFile = keystoreFile ;
 		this._keyPassword = keyPassword ;

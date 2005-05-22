@@ -23,12 +23,20 @@ import org.apache.log4j.Logger;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: RunTimeOptions.java,v 1.2 2005/02/23 08:41:47 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/23 08:41:47 $
+ * <p>
+ * Specify general options for the application:
+ * <ul>
+ * <li>Mode of execution: normal or demo</li>
+ * </ul>
+ * </p><p>
+ * $Id: RunTimeOptions.java,v 1.3 2005/05/22 17:56:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class RunTimeOptions implements Configurable {
 	

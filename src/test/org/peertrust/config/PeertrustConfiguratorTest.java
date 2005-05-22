@@ -28,10 +28,10 @@ import org.peertrust.exception.ConfigurationException;
 import junit.framework.*;
 
 /**
- * $Id: PeertrustConfiguratorTest.java,v 1.3 2004/11/24 10:24:02 dolmedilla Exp $
+ * $Id: PeertrustConfiguratorTest.java,v 1.4 2005/05/22 17:56:44 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:02 $
+ * Last changed  $Date: 2005/05/22 17:56:44 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -53,8 +53,11 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
+		
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}
@@ -65,8 +68,10 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}
@@ -96,8 +101,10 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE2 } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			return ;
 		}
@@ -109,8 +116,11 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE3 } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
+		
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}
@@ -151,8 +161,11 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator(this) ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE4 } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
+		
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}
@@ -176,8 +189,11 @@ public class PeertrustConfiguratorTest extends TestCase {
 		PTConfigurator config = new PTConfigurator(this) ;
 		
 		String [] args = { Vocabulary4Tests.REAL_CONFIG_FILE } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
+		
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}

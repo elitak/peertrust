@@ -27,12 +27,17 @@ import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.meta.Tree;
 
 /**
- * $Id: InferenceEngine.java,v 1.3 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * <p>
+ * Any class querying an inference engine in the system must implement this interface.
+ * </p><p>
+ * $Id: InferenceEngine.java,v 1.4 2005/05/22 17:56:47 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed:  $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public interface InferenceEngine
 {

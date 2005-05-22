@@ -36,13 +36,18 @@ import edu.stanford.smi.protege.util.SelectionListener;
 import edu.stanford.smi.protege.widget.*;
 
 /**
+ * <p>
  * Class for displaying slot policies in a table[Nr,Type,Policy]. 
  * It also provide a toolbar with button to add and remove slot policies
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: SlotPolicyDisplayPanel.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: SlotPolicyDisplayPanel.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class SlotPolicyDisplayPanel extends JPanel {
 	/**

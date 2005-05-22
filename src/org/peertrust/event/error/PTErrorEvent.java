@@ -22,12 +22,17 @@ package org.peertrust.event.error;
 import org.peertrust.event.PTEvent;
 
 /**
- * $Id: PTErrorEvent.java,v 1.1 2005/02/08 10:02:37 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/08 10:02:37 $
+ * <p>
+ * General PeerTrust error event.
+ * </p><p>
+ * $Id: PTErrorEvent.java,v 1.2 2005/05/22 17:56:50 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:50 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class PTErrorEvent extends PTEvent {
 	

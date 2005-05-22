@@ -27,12 +27,17 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 
 /**
- * $Id: SimplePeer.java,v 1.5 2005/02/15 17:36:24 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:24 $
+ * <p>
+ * Simple listener which prints a trace with the events received.
+ * </p><p>
+ * $Id: SimplePeer.java,v 1.6 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SimplePeer implements PTEventListener, Configurable {
 	

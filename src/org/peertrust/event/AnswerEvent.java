@@ -22,12 +22,17 @@ package org.peertrust.event;
 import org.peertrust.net.Answer;
 
 /**
- * $Id: AnswerEvent.java,v 1.2 2004/11/18 12:50:46 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * <p>
+ * Event that represents an answer message.
+ * </p><p>
+ * $Id: AnswerEvent.java,v 1.3 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class AnswerEvent extends PTEvent {
 	/**

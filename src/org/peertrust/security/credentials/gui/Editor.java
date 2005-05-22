@@ -1,9 +1,30 @@
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.security.credentials.gui;
 
 import java.security.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.log4j.Logger;
+import org.peertrust.exception.CredentialException;
 import org.peertrust.security.credentials.*;
 
 import java.awt.*;
@@ -11,12 +32,22 @@ import java.awt.event.*;
 import java.io.*;
 
 /**
+ * <p>
  * This class allows editing of credentials.
- * 
+ * </p><p>
+ * $Id: Editor.java,v 1.2 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 14-Jan-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:46 $
+ * by $Author: dolmedilla $
+ * </p>
  * @author Eric Knauss (mailto: oerich@gmx.net)
  */
-public class Editor extends JFrame implements ActionListener, ListSelectionListener {
-
+public class Editor extends JFrame implements ActionListener, ListSelectionListener
+{
+    private static Logger log = Logger.getLogger(Editor.class);
+    
 	private String signer; // The one who edits the credential
 	private PrivateKey privKey; // The privateKey that should be
 											// used to sign the credential
@@ -126,11 +157,7 @@ public class Editor extends JFrame implements ActionListener, ListSelectionListe
 			}
 		} catch (HeadlessException e) {
 			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
+		} catch (CredentialException e) {
 			e.printStackTrace();
 		}
 
@@ -145,13 +172,7 @@ public class Editor extends JFrame implements ActionListener, ListSelectionListe
 				lastFile = fc.getSelectedFile();
 				credList.loadCredentials(fc.getSelectedFile());
 				this.setTitle("Credential Editor - "+lastFile.toString());
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
+			} catch (CredentialException e) {
 				e.printStackTrace();
 			}
 		}
@@ -165,6 +186,9 @@ public class Editor extends JFrame implements ActionListener, ListSelectionListe
 		log.debug("Shutting down...");
 		this.dispose();
 	}
-	
 
+	public static void main(String[] args) {
+		Editor test = new Editor();
+		test.init() ;
+	}
 }

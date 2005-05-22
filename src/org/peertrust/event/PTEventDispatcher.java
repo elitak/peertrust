@@ -28,12 +28,17 @@ import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: PTEventDispatcher.java,v 1.4 2005/02/08 10:01:10 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/08 10:01:10 $
+ * <p>
+ * PeerTrust event dispatcher.
+ * </p><p>
+ * $Id: PTEventDispatcher.java,v 1.5 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
@@ -43,7 +48,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
 	public PTEventDispatcher() {
 		super();
-		log.debug("$Id: PTEventDispatcher.java,v 1.4 2005/02/08 10:01:10 dolmedilla Exp $");
+		log.debug("$Id: PTEventDispatcher.java,v 1.5 2005/05/22 17:56:46 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException

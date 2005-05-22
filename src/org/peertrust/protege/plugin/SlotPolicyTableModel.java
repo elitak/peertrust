@@ -37,12 +37,17 @@ import edu.stanford.smi.protege.model.Instance;
 import edu.stanford.smi.protege.model.Slot;
 
 /**
+ * <p>
  * Table model for slot policy; The slot table has 3 column and uses a vector to cache policy data.
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: SlotPolicyTableModel.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: SlotPolicyTableModel.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class SlotPolicyTableModel extends AbstractTableModel implements InstanceListener,FrameListener,SlotListener{
 	//Nr Type Pol DefCls

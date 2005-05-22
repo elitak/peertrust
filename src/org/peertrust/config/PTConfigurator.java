@@ -55,12 +55,17 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
- * $Id: PTConfigurator.java,v 1.6 2005/02/22 17:43:35 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/22 17:43:35 $
+ * <p>
+ * This class reads a configuration file and set up the system accordingly.
+ * </p><p>
+ * $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class PTConfigurator {
 	
@@ -117,7 +122,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.6 2005/02/22 17:43:35 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}

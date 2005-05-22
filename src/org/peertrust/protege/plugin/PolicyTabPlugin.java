@@ -39,12 +39,17 @@ import edu.stanford.smi.protege.util.SelectionListener;
 import edu.stanford.smi.protege.widget.*;
 
 /**
- *Tab plugin to show and manipulate classes and slots with policies 
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * <p>
+ * Tab plugin to show and manipulate classes and slots with policies 
+ * </p><p>
+ * $Id: PolicyTabPlugin.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyTabPlugin.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class PolicyTabPlugin extends AbstractTabWidget {
 	  

@@ -22,12 +22,17 @@ package org.peertrust.net;
 import java.io.Serializable;
 
 /**
- * $Id: Peer.java,v 1.2 2004/10/20 19:26:39 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:39 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: Peer.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:44 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class Peer implements Serializable
 {

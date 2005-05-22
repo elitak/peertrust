@@ -26,12 +26,17 @@ import org.apache.log4j.Logger;
 import org.peertrust.net.*;
 
 /**
- * $Id: Tree.java,v 1.8 2005/04/23 17:27:24 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/23 17:27:24 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: Tree.java,v 1.9 2005/05/22 17:56:49 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class Tree
 {

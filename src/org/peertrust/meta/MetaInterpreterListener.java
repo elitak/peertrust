@@ -37,12 +37,17 @@ import org.peertrust.net.Query;
 import org.peertrust.strategy.Queue;
 
 /**
- * $Id: MetaInterpreterListener.java,v 1.11 2005/04/17 20:44:42 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/17 20:44:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class MetaInterpreterListener implements Runnable, Configurable
 {
@@ -62,7 +67,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.11 2005/04/17 20:44:42 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException

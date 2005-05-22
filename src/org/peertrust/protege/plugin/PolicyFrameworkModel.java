@@ -23,15 +23,17 @@ package org.peertrust.protege.plugin;
 import edu.stanford.smi.protege.model.*;
 import java.util.*;
 /**
+ * <p>
  * PolicyFrameworkModel provides a framework which ease the integration of security attributes with your ontology.
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: PolicyFrameworkModel.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyFrameworkModel.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
- * 
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * </p>
+ * @author Patrice Congo 
  */
 public class PolicyFrameworkModel {
 	/** container for a policy and its caracterising data.*/
@@ -351,9 +353,10 @@ public class PolicyFrameworkModel {
 		return;
 	}
 	/**
-	 * add a policy cls to the model. it is conatins a poliy and a policy type
+	 * Add a policy cls to the model. it contains a policy and a policy type
 	 */
-	public void addPolicyCls(){
+	public void addPolicyCls()
+	{
 		if(kb.getCls(DEFAULT_POLICY_CLS_NAME)!=null){
 			return;
 		}

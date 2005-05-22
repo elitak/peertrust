@@ -28,12 +28,17 @@ import org.peertrust.meta.MetaInterpreter;
 import org.peertrust.meta.MetaInterpreterListener;
 
 /**
- * $Id: PTEngine.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/01/11 17:47:51 $
+ * <p>
+ * Main class in charge of seting up the whole Security Agent.
+ * </p><p>
+ * $Id: PTEngine.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class PTEngine implements Configurable {
 	private static Logger log = Logger.getLogger(PTEngine.class);
@@ -55,7 +60,7 @@ public class PTEngine implements Configurable {
 	 */
 	public PTEngine() {
 		super();
-		log.debug("$Id: PTEngine.java,v 1.3 2005/01/11 17:47:51 dolmedilla Exp $");
+		log.debug("$Id: PTEngine.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -98,7 +103,7 @@ public class PTEngine implements Configurable {
      *
      * @author <a href="mailto:brunkhor@learninglab.de">Ingo Brunkhorst</a>
      * @author $Author: dolmedilla $
-     * @version $Revision: 1.3 $
+     * @version $Revision: 1.4 $
      */
     public class ShutdownHook extends Thread {
 

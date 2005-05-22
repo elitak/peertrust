@@ -1,30 +1,53 @@
-/*
- * X509CredentialBuilder.java
- *
- * Version 1.0: Initial implementation
- *     Author: Eric Knauss
- *     Date:   31/03/2004
- */
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.security.credentials.x509;
 
 import java.security.*;
 import java.security.cert.*;
 
+import org.apache.log4j.Logger;
 import org.peertrust.security.credentials.CryptTools;
 
 /**
  * <p>
  * A command-line tool that accepts a String-Representation of a credential,
  * a private-key, that is used as the CA-Key and a public-key that is used
- * as the subject-key. </p>
+ * as the subject-key.</p>
  * <p>All variables that need to be adjusted should be inside the main method.
  * Of course the methods of this class are usefull to build graphical tools
  * for credential management. They also show how X509Credentials can be 
- * created and added to a X509CredentialStore.</p>
- * @author Eric Knauss
+ * created and added to a X509CredentialStore.
+ * </p><p>
+ * $Id: X509CredentialBuilder.java,v 1.2 2005/05/22 17:56:50 dolmedilla Exp $
+ * <br/>
+ * Date: 31-Mar-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:50 $
+ * by $Author: dolmedilla $
+ * </p>
+ * @author Eric Knauss (mailto: oerich@gmx.net)
  */
-public class X509CredentialBuilder {
-
+public class X509CredentialBuilder
+{
+    private static Logger log = Logger.getLogger(X509CredentialBuilder.class);
+    
 	private static String _helpString = "Usage:\n"
 		+ "java X509CredentialBuilder -privKey <private key>"
 		+ " -pubKey <public key> -credential <credString\n"
@@ -114,13 +137,13 @@ public class X509CredentialBuilder {
 	/**
 	 * Creates a new X509Credential and adds it to the given X509CredentialStore. 
 	 * Use the setters of this class for setting the information that should be stored
-	 * befor invokation of this method.
+	 * before invokation of this method.
 	 * @param credentialStore The credential store this credential should be added to.
 	 */
-	public void createCredential( X509CredentialStore credentialStore ) throws Exception {
-		X509Certificate cert = CryptTools.createCert( getSubjectAlias(), getCredentialString(), getSubjectKey(), getIssuerDN(), _caKey );
-		credentialStore.addCredential( credentialStore.buildCredential( cert ) );
-	}
+//	public void createCredential( X509CredentialStore credentialStore ) throws Exception {
+//		X509Certificate cert = CryptTools.createCert( getSubjectAlias(), getCredentialString(), getSubjectKey(), getIssuerDN(), _caKey );
+//		credentialStore.addCredential( credentialStore.buildCredential( cert ) );
+//	}
 
 	/**
 	 * <p>
@@ -204,7 +227,7 @@ public class X509CredentialBuilder {
 				e.printStackTrace();
 			}
 			// Adding new credential:
-			builder.createCredential( store );
+//DOC			builder.createCredential( store );
 
 			// Saving CredentialStore
 			store.saveAllCredentialsToFile( storeFile );

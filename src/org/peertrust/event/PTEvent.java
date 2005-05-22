@@ -22,12 +22,17 @@ package org.peertrust.event;
 import org.apache.log4j.Logger;
 
 /**
- * $Id: PTEvent.java,v 1.2 2004/11/20 19:47:53 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * <p>
+ * General Peertrust Event
+ * </p><p>
+ * $Id: PTEvent.java,v 1.3 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed:  $Date: 2005/05/22 17:56:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class PTEvent implements Cloneable {
 	

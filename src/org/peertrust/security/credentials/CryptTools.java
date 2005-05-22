@@ -30,12 +30,17 @@ import java.util.*;
 import java.io.*;
 
 /**
- * $Id: CryptTools.java,v 1.1 2004/07/08 15:10:42 dolmedilla Exp $
- * @author Eric Knauss
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: CryptTools.java,v 1.2 2005/05/22 17:56:43 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:43 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author Eric Knauss
  */
 public class CryptTools {
 
@@ -256,6 +261,16 @@ public class CryptTools {
 		System.err.println("Cert to " + dn + " valid till " + certs[0].getNotAfter()) ;
 //			}
 		return dn ;
+	}
+
+	/**
+	 * @param string
+	 * @param message
+	 * @param priority
+	 */
+	public static void messageWriter(String string, String message, int priority) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

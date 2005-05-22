@@ -30,12 +30,17 @@ import org.peertrust.net.Peer;
 //import javax.security.cert.X509Certificate;
 
 /**
- * $Id: SimpleClientSocket.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/23 08:43:46 $
+ * <p>
+ * 
+ * </p><p> 
+ * $Id: SimpleClientSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SimpleClientSocket implements NetClient {
 	
@@ -45,7 +50,7 @@ public class SimpleClientSocket implements NetClient {
 	private final int MAX_NUM_TRIES = 5 ;
 
 	public SimpleClientSocket() {
-		log.debug("$Id: SimpleClientSocket.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $");
+		log.debug("$Id: SimpleClientSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $");
 	}
 
 	/* (non-Javadoc)

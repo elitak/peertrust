@@ -28,12 +28,17 @@ import org.peertrust.net.NetServer;
 import org.peertrust.net.Peer;
 
 /**
- * $Id: SimpleSocketFactory.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/23 08:43:46 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: SimpleSocketFactory.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SimpleSocketFactory implements AbstractFactory, Configurable {
 
@@ -45,7 +50,7 @@ public class SimpleSocketFactory implements AbstractFactory, Configurable {
 	public SimpleSocketFactory ()
 	{
 		super() ;
-		log.debug("$Id: SimpleSocketFactory.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $");
+		log.debug("$Id: SimpleSocketFactory.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $");
 	}
 	
 	/* (non-Javadoc)

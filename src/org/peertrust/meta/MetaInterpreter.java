@@ -41,12 +41,17 @@ import org.peertrust.security.credentials.CredentialStore;
 import org.peertrust.strategy.*;
 
 /**
- * $Id: MetaInterpreter.java,v 1.16 2005/04/17 20:44:42 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/17 20:44:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 {
@@ -80,7 +85,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.16 2005/04/17 20:44:42 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -125,7 +130,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		if (isDemoMode() == false)
 		{
 			//	_credStore = (CredentialStore) _configurator.createComponent(Vocabulary.CredentialStore, true) ;
-			Vector credentials = _credStore.getCredentials() ;
+			Vector credentials = _credStore.getAllCredentials() ;
 			//log.debug("TMP number of elements " + credentials.size()) ;
 			for (int i = 0 ; i < credentials.size() ; i++)
 			{

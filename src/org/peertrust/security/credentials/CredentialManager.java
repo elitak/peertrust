@@ -1,9 +1,22 @@
-/*
- * Created on May 15, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.security.credentials;
 
 import java.io.FileInputStream;
@@ -21,18 +34,24 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import net.jxta.edutella.util.Configurable;
-import net.jxta.edutella.util.Configurator;
 import net.jxta.edutella.util.Option;
 
 import org.apache.log4j.Logger;
+import org.peertrust.security.credentials.gui.Editor;
 
 
 /**
- * $Id: CredentialManager.java,v 1.2 2005/02/10 11:53:36 dolmedilla Exp $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: CredentialManager.java,v 1.3 2005/05/22 17:56:43 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:43 $
+ * by $Author: dolmedilla $
+ * </p>
  * @author $Author: dolmedilla $
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/10 11:53:36 $
- * @description
  */
 public class CredentialManager implements Configurable {
 
@@ -202,36 +221,40 @@ public class CredentialManager implements Configurable {
 	}
 
 	public static void main(String[] args) {
-		String PEERTRUST_ALIAS = "peertrust" ;
-		String PEERTRUST_AUTHORITY = "CN=Universitaet Hannover, OU=Learning Lab Niedersachsen, O=Universitaet Hannover, L=Hannover, ST=Niedersachsen, C=DE" ;
-		try {
-			Configurator cf = new Configurator("admin.trust.properties", args);
-			cf.setAppInfo("Atomated Trust Negotiation Peer");
-
-			// register objects which need configuration
-			CredentialManager manager = new CredentialManager();
-			cf.register(manager) ;
-			
-			// configure objects
-			cf.finishConfig();
-
-			manager.addCredential(PEERTRUST_ALIAS,
-					"signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))",
-					"CN=caState",
-					PEERTRUST_AUTHORITY) ;
-			
-			manager.addCredential(PEERTRUST_ALIAS,
-					"signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))",
-					"CN=caStatePolice",
-					PEERTRUST_AUTHORITY) ;
-			
-			manager.saveKeystore("/home/olmedilla/workspace/peertrust/newKeystore") ;
-			
-		} catch (Exception e) {
-			e.printStackTrace() ;
-		}
-	
+		Editor editor = new Editor() ;
 	}
+	
+//	public static void main(String[] args) {
+//		String PEERTRUST_ALIAS = "peertrust" ;
+//		String PEERTRUST_AUTHORITY = "CN=Universitaet Hannover, OU=Learning Lab Niedersachsen, O=Universitaet Hannover, L=Hannover, ST=Niedersachsen, C=DE" ;
+//		try {
+//			Configurator cf = new Configurator("admin.trust.properties", args);
+//			cf.setAppInfo("Atomated Trust Negotiation Peer");
+//
+//			// register objects which need configuration
+//			CredentialManager manager = new CredentialManager();
+//			cf.register(manager) ;
+//			
+//			// configure objects
+//			cf.finishConfig();
+//
+//			manager.addCredential(PEERTRUST_ALIAS,
+//					"signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))",
+//					"CN=caState",
+//					PEERTRUST_AUTHORITY) ;
+//			
+//			manager.addCredential(PEERTRUST_ALIAS,
+//					"signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))",
+//					"CN=caStatePolice",
+//					PEERTRUST_AUTHORITY) ;
+//			
+//			manager.saveKeystore("/home/olmedilla/workspace/peertrust/newKeystore") ;
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace() ;
+//		}
+//	
+//	}
 	/**
 	 * @return Returns the adminKeystoreFile.
 	 */

@@ -33,17 +33,18 @@ import javax.swing.table.TableCellEditor;
 import edu.stanford.smi.protege.model.Instance;
 
 /**
+ * <p>
  * Provides a combo box based cell editor. 
  * This cell editor allow the user to choose predifined value to fill the cell.
- * 
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: ChoiceCellEditor.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: ChoiceCellEditor.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
- * 
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * </p>
+ * @author Patrice Congo 
  */
 public class ChoiceCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener{
 	/** editor component*/

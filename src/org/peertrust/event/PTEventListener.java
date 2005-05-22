@@ -20,12 +20,18 @@
 package org.peertrust.event;
 
 /**
- * $Id: PTEventListener.java,v 1.1 2004/11/18 12:50:46 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * <p>
+ * Listens for the events generated in the systems. Any specific class 
+ * must implement this class in order to receive event notifications.
+ * </p><p>
+ * $Id: PTEventListener.java,v 1.2 2005/05/22 17:56:46 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public interface PTEventListener {
 	public void event(PTEvent event) ;

@@ -20,12 +20,17 @@
 package org.peertrust.exception;
 
 /**
- * $Id: InferenceEngineException.java,v 1.1 2004/10/20 19:26:40 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:40 $
+ * <p>
+ * Exception produced at the inference engine.
+ * </p><p>
+ * $Id: InferenceEngineException.java,v 1.2 2005/05/22 17:56:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public class InferenceEngineException extends PeertrustException {
 	/**

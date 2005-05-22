@@ -20,14 +20,18 @@
 
 package org.peertrust.net;
 
-
 /**
- * $Id: NetClient.java,v 1.2 2004/07/08 15:10:42 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: NetClient.java,v 1.3 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public interface NetClient {
 	public void send(Message message, Peer destination) ;

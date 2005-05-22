@@ -22,12 +22,11 @@ package test.org.peertrust.event;
 import org.peertrust.event.PTEvent;
 
 /**
- * $Id: PTEventTestB.java,v 1.1 2004/11/20 19:47:53 dolmedilla Exp $
- * @author olmedilla 
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * $Id: PTEventTestB.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * Date: 05-Dec-2003
+ * Last changed: $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * @author olmedilla 
  */
 public class PTEventTestB extends PTEvent {
 	/**

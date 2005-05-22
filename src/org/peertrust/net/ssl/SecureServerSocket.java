@@ -31,12 +31,17 @@ import org.peertrust.security.credentials.CryptTools;
 //import javax.net.ServerSocketFactory;
 
 /**
- * $Id: SecureServerSocket.java,v 1.4 2005/02/15 17:36:22 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:22 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: SecureServerSocket.java,v 1.5 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SecureServerSocket implements NetServer {
 	
@@ -57,7 +62,7 @@ public class SecureServerSocket implements NetServer {
    private SSLServerSocket _ss = null;
    
 	public SecureServerSocket(int port, String keystoreFile, String keyPassword, String storePassword) {
-		log.debug("$Id: SecureServerSocket.java,v 1.4 2005/02/15 17:36:22 dolmedilla Exp $");
+		log.debug("$Id: SecureServerSocket.java,v 1.5 2005/05/22 17:56:45 dolmedilla Exp $");
 		
 //		this.port=port;
 //		this.keystoreFile = keystoreFile ;

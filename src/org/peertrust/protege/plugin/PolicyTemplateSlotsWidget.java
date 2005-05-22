@@ -38,12 +38,17 @@ import edu.stanford.smi.protege.resource.*;
 import edu.stanford.smi.protege.util.*;
  
 /** 
+ * <p>
  * This class extends the TemplateSlotsWidget to displays Policy Information for policy tagged slotgs
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: PolicyTemplateSlotsWidget.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyTemplateSlotsWidget.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
  public class PolicyTemplateSlotsWidget extends TemplateSlotsWidget{//AbstractTableWidget {
 

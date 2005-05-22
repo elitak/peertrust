@@ -19,40 +19,39 @@
 */
 package org.peertrust.exception;
 
-import java.io.Serializable;
-
 /**
  * <p>
- * General PeerTrust Exception
+ * Exception produced from creation, modification or management of credentials
  * </p><p>
- * $Id: PeertrustException.java,v 1.2 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: CredentialException.java,v 1.1 2005/05/22 17:56:48 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
  * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
  * </p>
- * @author olmedilla
+ * @author olmedilla 
  */
-public class PeertrustException extends Exception implements Serializable{
-	/**
+public class CredentialException extends PeertrustException {
+
+    /**
 	 * 
 	 */
-	public PeertrustException() {
+	public CredentialException() {
 		super();
 	}
 
 	/**
 	 * @param message
 	 */
-	public PeertrustException(String message) {
+	public CredentialException(String message) {
 		super(message);
 	}
 	
 	/**
 	 * @param arg0
 	 */
-	public PeertrustException(Throwable arg0) {
+	public CredentialException(Throwable arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -60,7 +59,7 @@ public class PeertrustException extends Exception implements Serializable{
 	 * @param arg0
 	 * @param arg1
 	 */
-	public PeertrustException(String arg0, Throwable arg1) {
+	public CredentialException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 		// TODO Auto-generated constructor stub
 	}

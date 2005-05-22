@@ -37,12 +37,17 @@ import org.peertrust.meta.Tree;
 
 
 /**
- * $Id: MinervaProlog.java,v 1.7 2005/04/18 19:50:00 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/18 19:50:00 $
+ * <p>
+ * This class queries a Minerva Prolog inference engine.
+ * </p><p>
+ * $Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public class MinervaProlog implements InferenceEngine, Configurable
 {
@@ -71,7 +76,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.7 2005/04/18 19:50:00 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)

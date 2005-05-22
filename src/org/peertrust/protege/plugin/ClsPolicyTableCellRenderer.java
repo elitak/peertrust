@@ -32,14 +32,18 @@ import edu.stanford.smi.protege.model.Instance;
 import edu.stanford.smi.protege.resource.Icons;
 
 /**
+ * <p>
  * Provide a contomized renderer for table cell.
  * A specific renderer is return according the table column name. 
- * 
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: ClsPolicyTableCellRenderer.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: ClsPolicyTableCellRenderer.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class ClsPolicyTableCellRenderer implements TableCellRenderer {
 	

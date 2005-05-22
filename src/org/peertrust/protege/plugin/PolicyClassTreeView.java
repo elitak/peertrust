@@ -41,15 +41,19 @@ import edu.stanford.smi.protege.util.SelectionEvent;
 import edu.stanford.smi.protege.util.SelectionListener;
 
 /**
+ * <p>
  * This class is used to show the class with there policies.
  * The classes are shown in a tree; with the selected class as root
  * and it parents as "child". The class policies are shown in a table.
- * 
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: PolicyClassTreeView.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyClassTreeView.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class PolicyClassTreeView extends JPanel{//SelectableContainer {
 	class PolicyTreeNode extends DefaultMutableTreeNode{

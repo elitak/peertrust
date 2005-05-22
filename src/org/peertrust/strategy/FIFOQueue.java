@@ -26,12 +26,17 @@ import org.peertrust.exception.ConfigurationException;
 import org.peertrust.meta.Tree;
 
 /**
- * $Id: FIFOQueue.java,v 1.3 2004/11/24 10:24:01 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/24 10:24:01 $
+ * <p>
+ * Specific queue with a simple FIFO (First In First Out) strategy.
+ * </p><p>
+ * $Id: FIFOQueue.java,v 1.4 2005/05/22 17:56:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public class FIFOQueue implements Queue, Configurable
 {

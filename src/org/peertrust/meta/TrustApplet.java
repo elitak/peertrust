@@ -34,12 +34,17 @@ import org.peertrust.strategy.*;
 import net.jxta.edutella.util.Configurator ;
 
 /**
- * $Id: TrustApplet.java,v 1.3 2004/11/20 19:47:53 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/20 19:47:53 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: TrustApplet.java,v 1.4 2005/05/22 17:56:49 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class TrustApplet extends JApplet
 {

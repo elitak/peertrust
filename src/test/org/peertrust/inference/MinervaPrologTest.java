@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package test.org.peertrust.meta;
+package test.org.peertrust.inference;
 
 import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
@@ -32,10 +32,10 @@ import com.ifcomputer.minerva.MinervaTerm;
 import junit.framework.*;
 
 /**
- * $Id: MinervaPrologTest.java,v 1.3 2004/11/18 12:50:46 dolmedilla Exp $
+ * $Id: MinervaPrologTest.java,v 1.1 2005/05/22 17:56:49 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2004/11/18 12:50:46 $
+ * Last changed  $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -89,13 +89,16 @@ public class MinervaPrologTest extends TestCase {
 		PTConfigurator config = new PTConfigurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE } ;
+		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
+		String[] components = { defaultComponent } ;
+		
 		try {
-			config.startApp(args) ;
+			config.startApp(args, components) ;
 		} catch (ConfigurationException e) {
 			fail(e.getMessage()) ;
 		}
 		
-		MinervaProlog min = (MinervaProlog) config.createComponent(Vocabulary.InferenceEngine, false) ;
+		MinervaProlog min = (MinervaProlog) config.createComponent(Vocabulary.InferenceEngine) ;
 
 		min.init() ;
 		

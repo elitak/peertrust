@@ -26,12 +26,17 @@ import org.peertrust.meta.Trace;
 
 
 /**
- * $Id: Message.java,v 1.4 2005/04/17 20:44:42 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/17 20:44:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: Message.java,v 1.5 2005/05/22 17:56:44 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:44 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class Message implements Serializable {
 	

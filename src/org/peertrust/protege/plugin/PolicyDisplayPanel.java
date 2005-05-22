@@ -37,12 +37,17 @@ import java.util.*;
 import javax.swing.table.AbstractTableModel;
 
 /**
+ * <p>
  * Show selected cls, its super clses and the policy that apply to it.
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * </p><p>
+ * $Id: PolicyDisplayPanel.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyDisplayPanel.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class PolicyDisplayPanel extends JPanel implements SelectionListener {
 	///////////////////////////////////////////////////////////////////

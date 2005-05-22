@@ -27,15 +27,14 @@ import org.peertrust.meta.Tree;
 import junit.framework.*;
 
 /**
- * $Id: TreeTest.java,v 1.2 2004/10/20 19:26:41 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/10/20 19:26:41 $
+ * $Id: TreeTest.java,v 1.3 2005/05/22 17:56:49 dolmedilla Exp $
+ * Date: 05-Dec-2003
+ * Last changed: $Date: 2005/05/22 17:56:49 $
  * by $Author: dolmedilla $
- * @description
+ * @author olmedilla
  */
 public class TreeTest extends TestCase {
-	public MinervaProlog engine = new MinervaProlog(null) ;
+	public MinervaProlog engine = new MinervaProlog() ;
 	
 	public TreeTest ( String name ) {
 		super( name ) ;

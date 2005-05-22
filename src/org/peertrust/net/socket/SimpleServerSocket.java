@@ -27,12 +27,17 @@ import org.peertrust.net.Message;
 import org.peertrust.net.NetServer;
 
 /**
- * $Id: SimpleServerSocket.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/23 08:43:46 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: SimpleServerSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:47 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class SimpleServerSocket implements NetServer {
 	
@@ -44,7 +49,7 @@ public class SimpleServerSocket implements NetServer {
    private ServerSocket _ss = null;
    
 	public SimpleServerSocket(int port) {
-		log.debug("$Id: SimpleServerSocket.java,v 1.1 2005/02/23 08:43:46 dolmedilla Exp $");
+		log.debug("$Id: SimpleServerSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $");
 		
 		try {
 			_ss = new ServerSocket (port) ;			

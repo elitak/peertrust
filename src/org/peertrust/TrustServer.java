@@ -24,12 +24,17 @@ import org.peertrust.config.Vocabulary;
 import org.peertrust.exception.ConfigurationException;
 
 /**
- * $Id: TrustServer.java,v 1.3 2005/02/15 17:36:24 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/02/15 17:36:24 $
+ * <p>
+ * Simple server.
+ * </p><p>
+ * $Id: TrustServer.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public class TrustServer
 {

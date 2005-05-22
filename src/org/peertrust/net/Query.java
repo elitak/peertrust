@@ -24,12 +24,17 @@ import java.io.Serializable;
 import org.peertrust.meta.Trace;
 
 /**
- * $Id: Query.java,v 1.9 2005/04/17 20:44:42 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2005/04/17 20:44:42 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: Query.java,v 1.10 2005/05/22 17:56:44 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:44 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla 
  */
 public class Query extends Message implements Serializable {
 	

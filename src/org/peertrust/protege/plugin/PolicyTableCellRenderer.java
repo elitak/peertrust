@@ -30,12 +30,17 @@ import edu.stanford.smi.protege.model.FrameSlotCombination;
 import edu.stanford.smi.protege.model.Slot;
 
 /**
- * Renderer for slot policy table. use it only for the Policy Info column. 
- * @author Patrice Congo 
- * @date 30-Oct-2004
- * Last changed  $Date: 2005/04/01 10:04:05 $
+ * <p>
+ * Renderer for slot policy table. use it only for the Policy Info column.
+ * </p><p>
+ * $Id: PolicyTableCellRenderer.java,v 1.2 2005/05/22 17:56:45 dolmedilla Exp $
+ * <br/>
+ * Date: 30-Oct-2004
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:45 $
  * by $Author: dolmedilla $
- * $Id: PolicyTableCellRenderer.java,v 1.1 2005/04/01 10:04:05 dolmedilla Exp $
+ * </p>
+ * @author Patrice Congo 
  */
 public class PolicyTableCellRenderer extends JPanel
 									implements TableCellRenderer {

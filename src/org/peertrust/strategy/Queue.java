@@ -22,12 +22,18 @@ package org.peertrust.strategy;
 import org.peertrust.meta.Tree;
 
 /**
- * $Id: Queue.java,v 1.2 2004/07/08 15:10:59 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2004/07/08 15:10:59 $
+ * <p>
+ * Queue of queries pending to be evaluated. The selection process of a query 
+ * from the queue allows to have different strategies.
+ * </p><p>
+ * $Id: Queue.java,v 1.3 2005/05/22 17:56:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2005/05/22 17:56:48 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author olmedilla
  */
 public interface Queue
 {
