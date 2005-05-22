@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.5 2005/04/23 17:30:32 dolmedilla Exp $
+     $Id: build.xml,v 1.6 2005/05/22 18:12:52 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -167,7 +167,7 @@ You need to set ANT_HOME in your shell.
     <property name="release" value="1.0"/>
     <property name="configdir" value="${basedir}/config"/>
   	
-    <property name="html" value="${user.HOME}/public_html/peertrust/javadoc/${name}"/>  
+    <property name="html" value="${user.HOME}/public_html/research/peertrust/javadoc/${name}"/>  
 
     <property name="Name" value="Peertrust"/>
     <property name="name" value="peertrust"/>
@@ -207,6 +207,7 @@ You need to set ANT_HOME in your shell.
       	<include name="commons-logging.jar"/>
       	<include name="icu4j.jar"/>
       	<include name="jgraph.jar"/>
+      	<include name="interprolog.jar"/>
   	  </fileset>
     </path>
 
@@ -216,6 +217,7 @@ You need to set ANT_HOME in your shell.
         <include name="junit.jar"/>
       </fileset>
       <path refid="common.classpath"/>
+      <path refid="protege.classpath"/>
     </path>
     
   	<!-- Classpath for compiling things that need all Peertrust -->
@@ -273,7 +275,7 @@ You need to set ANT_HOME in your shell.
 	   verbose="${verbose}"
 	   optimize="${optimize}"
 	   deprecation="${deprecation}">
-      <exclude name="test/**"/>
+      <exclude name="test/org/peertrust/security/credentials/**"/>
       <exclude name="net/jxta/edutella/util/Config**"/>
       <exclude name="net/jxta/edutella/util/Option*"/>
       <exclude name="org/peertrust/meta/TrustApplet*"/>
@@ -303,6 +305,9 @@ You need to set ANT_HOME in your shell.
 	   verbose="${verbose}"
 	   optimize="${optimize}"
 	   deprecation="${deprecation}">
+        <exclude name="org/peertrust/meta/TrustApplet*"/>
+        <exclude name="org/peertrust/inference/*XsbProlog*"/>
+        <exclude name="test/org/peertrust/security/credentials/**"/>
       <classpath refid="build.classpath"/>
       <src path="${src}"/>
     </javac>
@@ -358,6 +363,20 @@ You need to set ANT_HOME in your shell.
     </jar>
   </target>
 
+  <!-- ====================================================================
+       Create the jar-archive with everything
+       ==================================================================== -->
+  <target name="jarall" depends="compileall">
+  <description>
+  jar:
+        Creates java archive (.jar) from all the classes.
+  </description>
+    <echo message="============== Creating basic Peertrust .jar ============="/>
+    <mkdir dir="${dist}"/>
+    <jar basedir="${classes}"
+         jarfile="${dist}/${name}.jar">
+    </jar>
+  </target>
 
   <!-- ====================================================================
        Create the distribution-archive
@@ -561,8 +580,8 @@ ${Name} Build file
   </description>
   <property name="docdir" value="${basedir}/doc/javadoc"/>
     <javadoc
-      packagenames="trust.*"
-      classpathref="commonrun.classpath"
+      packagenames="org.peertrust.*"
+      classpathref="build.classpath"
       defaultexcludes="yes"
       destdir="${docdir}"
       author="true"
@@ -570,9 +589,11 @@ ${Name} Build file
       use="true"
       source="1.4"
       windowtitle="Peertrust API"
+      charset="iso-8859-1"
+      breakiterator="yes"
       stylesheetfile="${basedir}/doc/stylesheet.css">
       <sourcepath path="${src}"/>
-      <link href="http://www.learninglab.de/~olmedilla/"/>
+      <link href="http://www.l3s.de/~olmedilla/"/>
     </javadoc>
     <copy file="${basedir}/doc/inherit.gif"
           todir="${docdir}"/>
@@ -590,12 +611,12 @@ ${Name} Build file
   html:
         Creates javadoc in unix-style users home public_html directory
   </description>
-    <property name="webdir" value="${user.HOME}/public_html/trust"/>
+    <property name="webdir" value="${user.HOME}/public_html/research/javadoc/peertrust"/>
     <echo>Build will go to ${webdir}
     </echo>
     <javadoc
-      packagenames="trust.*"
-      classpathref="commonrun.classpath"
+      packagenames="org.peertrust.*"
+      classpathref="build.classpath"
       defaultexcludes="yes"
       destdir="${webdir}"
       author="true"
@@ -603,9 +624,11 @@ ${Name} Build file
       use="true"
       source="1.4"
       windowtitle="Peertrust API"
+      charset="iso-8859-1"
+      breakiterator="yes"
       stylesheetfile="${basedir}/doc/stylesheet.css">
       <sourcepath path="${src}"/>
-      <link href="http://www.learninglab.de/~olmedilla/"/>
+      <link href="http://www.l3s.de/~olmedilla/"/>
     </javadoc>
     <copy file="${basedir}/doc/license.txt"
           todir="${webdir}"/>

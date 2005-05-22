@@ -20,7 +20,6 @@
 package org.peertrust.security.credentials.x509;
 
 import java.security.*;
-import java.security.cert.*;
 
 import org.apache.log4j.Logger;
 import org.peertrust.security.credentials.CryptTools;
@@ -35,11 +34,11 @@ import org.peertrust.security.credentials.CryptTools;
  * for credential management. They also show how X509Credentials can be 
  * created and added to a X509CredentialStore.
  * </p><p>
- * $Id: X509CredentialBuilder.java,v 1.2 2005/05/22 17:56:50 dolmedilla Exp $
+ * $Id: X509CredentialBuilder.java,v 1.3 2005/05/22 18:16:50 dolmedilla Exp $
  * <br/>
  * Date: 31-Mar-2004
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:50 $
+ * Last changed: $Date: 2005/05/22 18:16:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author Eric Knauss (mailto: oerich@gmx.net)
