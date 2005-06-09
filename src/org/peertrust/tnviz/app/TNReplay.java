@@ -26,111 +26,147 @@ import org.peertrust.tnviz.gui.TNGui;
 
 /**
  * <p>
- * 
+ * The TNReplay class provides the means to visualize the sequence in which a
+ * graph was built. When activated, the class reads out the data from the given
+ * diagramm and highlights each node and edge one after another in the correct
+ * order in which they were created.
  * </p><p>
- * $Id: TNReplay.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: TNReplay.java,v 1.4 2005/06/09 05:51:31 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/06/09 05:51:31 $
  * by $Author: dolmedilla $
  * </p>
- * @author Sebastian Wittler and Michael Sch?fer
+ * @author Michael Schaefer and Sebastian Wittler
  */
 public class TNReplay extends Thread {
-	
-	private TNGui gui;
-	private Graphics graphics;
-	private Vector graphPath;
-	private boolean running;
-	
-	public TNReplay(TNGui gui, Graphics graphics, Vector graphPath) {
-		this.gui = gui;
-		this.graphics = graphics;
-		this.graphPath = graphPath;
-		running = true;
-	}
-	
-	public void run() {
-		String id = "";
-		Object current = null;
-		Object previous = null;
-		
-		for (Enumeration en=graphPath.elements(); en.hasMoreElements() ; ) {
-			if (!running) {
-				break;
-			}
-			current = (Object)en.nextElement();
-			if (current instanceof TNNode) {
-				// Test if the node is invisible.
-				if (((TNNode)current).isInvisible()) {
-					// If the graphPath has more elements, then continue with the next iteration. 
-					// Otherwise reset the color of the last node.
-					if (en.hasMoreElements()) {
-						continue;
-					}
-					else {
-						if (previous != null && previous instanceof TNNode) {
-							graphics.setNodeColor((TNNode)previous,graphics.getNodeBorderColor(),graphics.getNodeBackgroundColor());
-						}
-						else if (previous != null && previous instanceof TNEdge) {
-							graphics.setEdgeColor((TNEdge)previous,graphics.getEdgeColor());
-						}
-					}
-				}
-				graphics.setNodeColor((TNNode)current,graphics.getNodeBorderColor(),Color.GREEN);
-			}
-			else if (current instanceof TNEdge) {
-				// Test if the edge is invisible.
-				if (((TNEdge)current).isInvisible()) {
-					// If the graphPath has more elements, then continue with the next iteration. 
-					// Otherwise reset the color of the last node.
-					if (en.hasMoreElements()) {
-						continue;
-					}
-					else {
-						if (previous != null && previous instanceof TNNode) {
-							graphics.setNodeColor((TNNode)previous,graphics.getNodeBorderColor(),graphics.getNodeBackgroundColor());
-						}
-						else if (previous != null && previous instanceof TNEdge) {
-							graphics.setEdgeColor((TNEdge)previous,graphics.getEdgeColor());
-						}
-					}
-				}
-				graphics.setEdgeColor((TNEdge)current,Color.GREEN);
-			}
-			if (previous != null && previous instanceof TNNode) {
-				graphics.setNodeColor((TNNode)previous,graphics.getNodeBorderColor(),graphics.getNodeBackgroundColor());
-			}
-			else if (previous != null && previous instanceof TNEdge) {
-				graphics.setEdgeColor((TNEdge)previous,graphics.getEdgeColor());
-			}
-			graphics.refreshGraph();
-			previous = current;
-			try {
-				Thread.sleep(400);
-			} 
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		if (current != null && current instanceof TNNode) {
-			graphics.setNodeColor((TNNode)current,graphics.getNodeBorderColor(),graphics.getNodeBackgroundColor());
-		}
-		else if (current != null && current instanceof TNEdge) {
-			graphics.setEdgeColor((TNEdge)current,graphics.getEdgeColor());
-		}
-		
-		gui.setReplayEnabled(true);
-		graphics.refreshGraph();
-	}
-	
-	public void startReplay() {
-		this.start();
-	}
-	
-	public void stopReplay() {
-		running = false;
-	}
+
+    private TNGui gui;
+    private Graphics graphics;
+    private Vector graphPath;
+    private boolean running;
+
+    /**
+     * Constructor for this class. In order to wirk correctly, the gui object,
+     * the graphics object and the graphPath are needed. The graphPath is 
+     * a vector with the graph elements in the order in which they have been
+     * created.
+     * @param gui The gui object.
+     * @param graphics The graphics object.
+     * @param graphPath The graphPath with the graph elements.
+     */
+    public TNReplay(TNGui gui, Graphics graphics, Vector graphPath) {
+        this.gui = gui;
+        this.graphics = graphics;
+        this.graphPath = graphPath;
+        running = true;
+    }
+
+    /**
+     * This method reads out the data from the graphPath and then highlights
+     * the graph elements on after another in the order in which they were
+     * created. Each node and edge will be highlighted by changing its color
+     * for 400 milliseconds. Only nodes which are not invisible will be
+     * highlighted. Invisible nodes will be ignored.
+     */
+    public void run() {
+        String id = "";
+        Object current = null;
+        Object previous = null;
+        for (Enumeration en = graphPath.elements(); en.hasMoreElements();) {
+            if (!running) {
+                break;
+            }
+            current = (Object) en.nextElement();
+            if (current instanceof TNNode) {
+                // Test if the node is invisible.
+                if (((TNNode) current).isInvisible()) {
+                    // If the graphPath has more elements, then continue with
+                    // the next iteration.
+                    // Otherwise reset the color of the last node.
+                    if (en.hasMoreElements()) {
+                        continue;
+                    }
+                    else {
+                        if (previous != null && previous instanceof TNNode) {
+                            graphics.setNodeColor((TNNode) previous, graphics
+                                    .getNodeBorderColor(), graphics
+                                    .getNodeBackgroundColor());
+                        }
+                        else if (previous != null && previous instanceof TNEdge) {
+                            graphics.setEdgeColor((TNEdge) previous, graphics
+                                    .getEdgeColor());
+                        }
+                    }
+                }
+                graphics.setNodeColor((TNNode) current, graphics
+                        .getNodeBorderColor(), Color.GREEN);
+            }
+            else if (current instanceof TNEdge) {
+                // Test if the edge is invisible.
+                if (((TNEdge) current).isInvisible()) {
+                    // If the graphPath has more elements, then continue with
+                    // the next iteration.
+                    // Otherwise reset the color of the last node.
+                    if (en.hasMoreElements()) {
+                        continue;
+                    }
+                    else {
+                        if (previous != null && previous instanceof TNNode) {
+                            graphics.setNodeColor((TNNode) previous, graphics
+                                    .getNodeBorderColor(), graphics
+                                    .getNodeBackgroundColor());
+                        }
+                        else if (previous != null && previous instanceof TNEdge) {
+                            graphics.setEdgeColor((TNEdge) previous, graphics
+                                    .getEdgeColor());
+                        }
+                    }
+                }
+                graphics.setEdgeColor((TNEdge) current, Color.GREEN);
+            }
+            if (previous != null && previous instanceof TNNode) {
+                graphics.setNodeColor((TNNode) previous, graphics
+                        .getNodeBorderColor(), graphics
+                        .getNodeBackgroundColor());
+            }
+            else if (previous != null && previous instanceof TNEdge) {
+                graphics.setEdgeColor((TNEdge) previous, graphics
+                        .getEdgeColor());
+            }
+            graphics.refreshGraph();
+            previous = current;
+            try {
+                Thread.sleep(400);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (current != null && current instanceof TNNode) {
+            graphics.setNodeColor((TNNode) current, graphics
+                    .getNodeBorderColor(), graphics.getNodeBackgroundColor());
+        }
+        else if (current != null && current instanceof TNEdge) {
+            graphics.setEdgeColor((TNEdge) current, graphics.getEdgeColor());
+        }
+        gui.setReplayEnabled(true);
+        graphics.refreshGraph();
+    }
+
+    /**
+     * Starts the replay thread.
+     */
+    public void startReplay() {
+        this.start();
+    }
+
+    /** 
+     * Stops the replay.
+     */
+    public void stopReplay() {
+        running = false;
+    }
 
 }

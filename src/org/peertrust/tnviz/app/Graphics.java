@@ -27,99 +27,102 @@ import org.peertrust.tnviz.gui.TNGui;
 
 /**
  * <p>
- * 
+ * The interface for the Graphics classes.
  * </p><p>
- * $Id: Graphics.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: Graphics.java,v 1.4 2005/06/09 05:51:31 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/06/09 05:51:31 $
  * by $Author: dolmedilla $
  * </p>
- * @author Sebastian Wittler and Michael Sch?fer
+ * @author Michael Schaefer and Sebastian Wittler
  */
 public interface Graphics {
-	
-	public static final int TREE_LAYOUT = 0;
-	public static final int SEQ_LAYOUT = 1;
-	
-	public abstract void wipeGraph();
-	
-	public abstract JGraph getGraph();
-	
-	public abstract void refreshGraph();
-	
-	public abstract void addQuery(Query query);
-	
-	public abstract void addAnswer(Answer answer);
-	
-	public abstract Color getEdgeColor();
-	
-	public abstract void setEdgeColor(Color color);
-	
-	public abstract void setEdgeColor(TNEdge edge, Color color);
-		
-	public abstract Color getNodeBorderColor();
-	
-	public abstract Color getNodeBackgroundColor();
-	
-	public abstract void setNodeColor(Color borderColor, Color backgroundColor);
-	
-	public abstract void setNodeColor(TNNode node, Color borderColor, Color backgroundColor);
-	
-	public abstract boolean getEdgeEditable();
-	
-	public abstract void setEdgeEditable(boolean editable);
-	
-	public abstract boolean getEdgeMovable();
-	
-	public abstract void setEdgeMovable(boolean movable);
-	
-	public abstract boolean getNodeEditable();
-	
-	public abstract void setNodeEditable(boolean editable);
-	
-	public abstract boolean getNodeMovable();
-	
-	public abstract void setNodeMovable(boolean movable);
-	
-	public abstract void collapse(TNNode node);
-	
-	public abstract void expand(TNNode node);
-	
-	public abstract void startReplayGraphPath();
-	
-	public abstract void stopReplayGraphPath();
-	
-	public abstract int getNodeBoundsX();
-	
-	public abstract void setNodeBoundsX(int nodeBoundsX);
-	
-	public abstract int getNodeBoundsY();
-	
-	public abstract void setNodeBoundsY(int nodeBoundsY);
-		
-	public abstract int getNRadius();
-	
-	public abstract void setNRadius(int nRadius);
-	
-	public abstract int getLayout();
-	
-	public abstract void setLayout(int layout);
-	
-	public abstract TNNode getRoot();
 
-	public abstract void setRoot(TNNode node);
-	
-	public abstract void setFScaleX(double fScaleX);
-	
-	public abstract double getFScaleX();
-	
-	public abstract int getRadiusNormal();
-	
-	public abstract TNGui getGui();
-	
-	public abstract int getMinRadius();
+    public static final int TREE_LAYOUT = 0;
 
-	public abstract void updateGraph();
+    public static final int SEQ_LAYOUT = 1;
+
+    public abstract void wipeGraph();
+
+    public abstract JGraph getGraph();
+
+    public abstract void refreshGraph();
+
+    public abstract void addQuery(Query query);
+
+    public abstract void addAnswer(Answer answer);
+
+    public abstract Color getEdgeColor();
+
+    public abstract void setEdgeColor(Color color);
+
+    public abstract void setEdgeColor(TNEdge edge, Color color);
+
+    public abstract Color getNodeBorderColor();
+
+    public abstract Color getNodeBackgroundColor();
+
+    public abstract void setNodeColor(Color borderColor, Color backgroundColor);
+
+    public abstract void setNodeColor(TNNode node, Color borderColor,
+            Color backgroundColor);
+
+    public abstract boolean getEdgeEditable();
+
+    public abstract void setEdgeEditable(boolean editable);
+
+    public abstract boolean getEdgeMovable();
+
+    public abstract void setEdgeMovable(boolean movable);
+
+    public abstract boolean getNodeEditable();
+
+    public abstract void setNodeEditable(boolean editable);
+
+    public abstract boolean getNodeMovable();
+
+    public abstract void setNodeMovable(boolean movable);
+
+    public abstract void collapse(TNNode node);
+
+    public abstract void expand(TNNode node);
+
+    public abstract void startReplayGraphPath();
+
+    public abstract void stopReplayGraphPath();
+
+    public abstract int getNodeBoundsX();
+
+    public abstract void setNodeBoundsX(int nodeBoundsX);
+
+    public abstract int getNodeBoundsY();
+
+    public abstract void setNodeBoundsY(int nodeBoundsY);
+
+    public abstract int getNRadius();
+
+    public abstract void setNRadius(int nRadius);
+
+    public abstract int getLayout();
+
+    public abstract void setLayout(int layout);
+
+    public abstract TNNode getRoot();
+
+    public abstract void setRoot(TNNode node);
+
+    public abstract void setFScaleX(double fScaleX);
+
+    public abstract double getFScaleX();
+
+    public abstract int getRadiusNormal();
+
+    public abstract TNGui getGui();
+
+    public abstract int getMinRadius();
+
+    public abstract void updateGraph();
+
 }
