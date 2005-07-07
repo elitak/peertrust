@@ -30,11 +30,11 @@ import org.peertrust.net.Query;
  * <p>
  * Simple listener which prints a trace with the events received.
  * </p><p>
- * $Id: SimplePeer.java,v 1.6 2005/05/22 17:56:46 dolmedilla Exp $
+ * $Id: SimplePeer.java,v 1.7 2005/07/07 15:34:43 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:46 $
+ * Last changed: $Date: 2005/07/07 15:34:43 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -77,17 +77,20 @@ public class SimplePeer implements PTEventListener, Configurable {
 		{
 			Query query = ( (QueryEvent) event).getQuery() ;
 			log.debug("New query " + query.getGoal() + " from " + query.getSource().getAlias() + " to " + query.getTarget().getAlias()) ;
+			log.debug("reQueryId: " + query.getReqQueryId()) ;
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			Answer answer = ( (AnswerEvent) event).getAnswer() ;
 			log.debug("New answer " + answer.getGoal() + " from " + answer.getSource().getAlias() + " to " + answer.getTarget().getAlias()) ;
+			log.debug("reqQueryId: " + answer.getReqQueryId()) ;
 			switch(answer.getStatus())
 			{
 				case Answer.ANSWER:
+					log.info("Request successful.The answer is " + answer.getGoal()) ;
+					break;
 				case Answer.LAST_ANSWER:
-					log.info("Request successful") ;
-					log.info("The answer is " + answer.getGoal()) ;
+					log.info("Request successful.The last answer is " + answer.getGoal()) ;
 					break;
 				case Answer.FAILURE:
 					log.info("Request failed") ;
