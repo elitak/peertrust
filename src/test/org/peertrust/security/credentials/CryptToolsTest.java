@@ -30,6 +30,7 @@ public class CryptToolsTest extends TestCase {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		return ks ;
 	}
 
 	public CryptToolsTest ( String name ) {

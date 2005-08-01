@@ -34,6 +34,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import net.jxta.edutella.util.Configurable;
+import net.jxta.edutella.util.Configurator;
 import net.jxta.edutella.util.Option;
 
 import org.apache.log4j.Logger;
@@ -44,11 +45,11 @@ import org.peertrust.security.credentials.gui.Editor;
  * <p>
  * 
  * </p><p>
- * $Id: CredentialManager.java,v 1.3 2005/05/22 17:56:43 dolmedilla Exp $
+ * $Id: CredentialManager.java,v 1.4 2005/08/01 11:53:45 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:43 $
+ * Last changed: $Date: 2005/08/01 11:53:45 $
  * by $Author: dolmedilla $
  * </p>
  * @author $Author: dolmedilla $
@@ -220,41 +221,41 @@ public class CredentialManager implements Configurable {
 		this.storePassword = storePassword;
 	}
 
-	public static void main(String[] args) {
-		Editor editor = new Editor() ;
-	}
-	
 //	public static void main(String[] args) {
-//		String PEERTRUST_ALIAS = "peertrust" ;
-//		String PEERTRUST_AUTHORITY = "CN=Universitaet Hannover, OU=Learning Lab Niedersachsen, O=Universitaet Hannover, L=Hannover, ST=Niedersachsen, C=DE" ;
-//		try {
-//			Configurator cf = new Configurator("admin.trust.properties", args);
-//			cf.setAppInfo("Atomated Trust Negotiation Peer");
-//
-//			// register objects which need configuration
-//			CredentialManager manager = new CredentialManager();
-//			cf.register(manager) ;
-//			
-//			// configure objects
-//			cf.finishConfig();
-//
-//			manager.addCredential(PEERTRUST_ALIAS,
-//					"signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))",
-//					"CN=caState",
-//					PEERTRUST_AUTHORITY) ;
-//			
-//			manager.addCredential(PEERTRUST_ALIAS,
-//					"signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))",
-//					"CN=caStatePolice",
-//					PEERTRUST_AUTHORITY) ;
-//			
-//			manager.saveKeystore("/home/olmedilla/workspace/peertrust/newKeystore") ;
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace() ;
-//		}
-//	
+//		Editor editor = new Editor() ;
 //	}
+	
+	public static void main(String[] args) {
+		String PEERTRUST_ALIAS = "peertrust" ;
+		String PEERTRUST_AUTHORITY = "CN=Universitaet Hannover, OU=Learning Lab Niedersachsen, O=Universitaet Hannover, L=Hannover, ST=Niedersachsen, C=DE" ;
+		try {
+			Configurator cf = new Configurator("admin.trust.properties", args);
+			cf.setAppInfo("Atomated Trust Negotiation Peer");
+
+			// register objects which need configuration
+			CredentialManager manager = new CredentialManager();
+			cf.register(manager) ;
+			
+			// configure objects
+			cf.finishConfig();
+
+			manager.addCredential(PEERTRUST_ALIAS,
+					"signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))",
+					"CN=caState",
+					PEERTRUST_AUTHORITY) ;
+			
+			manager.addCredential(PEERTRUST_ALIAS,
+					"signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))",
+					"CN=caStatePolice",
+					PEERTRUST_AUTHORITY) ;
+			
+			manager.saveKeystore("/home/olmedilla/workspace/peertrust/newKeystore") ;
+			
+		} catch (Exception e) {
+			e.printStackTrace() ;
+		}
+	
+	}
 	/**
 	 * @return Returns the adminKeystoreFile.
 	 */

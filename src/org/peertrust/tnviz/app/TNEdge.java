@@ -27,11 +27,11 @@ import org.jgraph.graph.DefaultEdge;
  * needed information like the two nodes this edge connects, and proof and
  * reqQueryId data. This data can be easily accessed through the class methods. 
  * </p><p>
- * $Id: TNEdge.java,v 1.3 2005/06/09 05:51:31 dolmedilla Exp $
+ * $Id: TNEdge.java,v 1.4 2005/08/01 11:50:36 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/06/09 05:51:31 $
+ * Last changed: $Date: 2005/08/01 11:50:36 $
  * by $Author: dolmedilla $
  * </p>
  * @author Michael Schaefer and Sebastian Wittler
@@ -147,7 +147,7 @@ public class TNEdge extends DefaultEdge {
      * Sets the goal to the given string.
      * @param goal The new goal.
      */
-    public void setGoal(String goal) 
+    public void setGoal(String goal) { 
         this.goal = goal;
     }
 
