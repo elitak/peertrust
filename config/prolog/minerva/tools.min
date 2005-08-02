@@ -1,0 +1,234 @@
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+:- op(601, yfx, $).
+
+% ---------------------------------------
+
+% begin utility predicates for printing etc.
+
+prettyprint([], _) :- !.
+prettyprint([Proof | Rest], N) :-
+    !, prettyprint(Proof, N),
+    prettyprint(Rest, N).
+prettyprint(r(Goal, [], []) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint(r(Goal, hidden, hidden) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint(r(Goal, ProofGuard, []) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard(ProofGuard, N1).
+prettyprint(r(Goal, ProofGuard, ProofBody) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because']), 
+    prettyprint(ProofBody, N1),
+    prettyprint_guard(ProofGuard, N1).
+prettyprint(signed(r(Goal, [], []),
+                   Credential) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_credential(Credential, N).
+prettyprint(signed(r(Goal, ProofGuard, []), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint(signed(r(Goal, ProofGuard, ProofBody), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because']), 
+    prettyprint(ProofBody, N1),
+    prettyprint_guard(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint(proved_by(Peer, ProofGoal), N) :-
+    !, N1 is N + 2,
+    writelist(N, [Peer, ' successfully proved that ']), 
+    prettyprint(ProofGoal, N1).
+% the following is just another clause for debugging
+prettyprint(ProofGoal, _) :-
+    writelist(['Error: I do not know how to prettyprint ', ProofGoal]).
+
+prettyprint2([], _) :- !.
+prettyprint2([Proof | Rest], N) :-
+    !, prettyprint2(Proof, N),
+    prettyprint2(Rest, N).
+prettyprint2(r(Goal, [], []) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint2(r(Goal, hidden, hidden) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]).
+prettyprint2(r(Goal, ProofGuard, []) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard2(ProofGuard, N1).
+prettyprint2(r(Goal, ProofGuard, ProofBody) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because ', ProofBody]), 
+    prettyprint_guard2(ProofGuard, N1).
+prettyprint2(signed(r(Goal, [], []), 
+                   Credential) @ Peer, N) :-
+    !, 
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_credential(Credential, N).
+prettyprint2(signed(r(Goal, ProofGuard, []), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer]), 
+    prettyprint_guard2(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+prettyprint2(signed(r(Goal, ProofGuard, ProofBody), 
+                   Credential) @ Peer, N) :-
+    !, N1 is N + 2,
+    writelist(N, [Goal, ' is true at ', Peer, ' because ', ProofBody]), 
+    prettyprint_guard2(ProofGuard, N1),
+    prettyprint_credential(Credential, N).
+%prettyprint2(proved_by(Peer, ProofGoal), N) :-
+%    !, N1 is N + 2,
+%    writelist(N, [Peer, ' successfully proved that ']),
+%    prettyprint2(ProofGoal, N1).
+% the following is just another clause for debugging
+prettyprint2(proved_by(Peer), N) :-
+    !, writelist(N, [Peer, ' successfully proved that ']).
+% the following is just another clause for debugging
+prettyprint2(ProofGoal, _) :-
+    writelist(['Error: I do not know how to prettyprint ', ProofGoal]).
+
+prettyprint_guard2([], _) :- !.
+prettyprint_guard2(ProofGuard, N) :-
+    N1 is N + 2,
+    writelist(N, ['protected by ']),
+    writelist(N1,ProofGuard).
+
+prettyprint_guard([], _) :- !.
+prettyprint_guard(ProofGuard, N) :-
+    N1 is N + 2,
+    writelist(N, ['protected by ']),
+    prettyprint(ProofGuard, N1).
+
+prettyprint_credential(Credential, N) :-
+    N1 is N + 2,
+    N2 is N + 4,
+    writelist(N1, ['certified by ']),
+    writecommalist(N2, Credential).
+
+prettyprint_list(_,[]).
+prettyprint_list(N,[H|T]) :-
+     writelist(N, [H]),
+     prettyprint_list(N,T).
+
+% print the actions of a peer with the same indention
+write_actions(L) :-
+    peerName(Peer),
+    write(Peer),write(': '),
+    writelist(L).
+
+write_peer_KBs([]).
+write_peer_KBs([Peer | Peers]) :-
+    writelist([Peer, ' KB: ']),
+    write_rules(Peer),
+    write_signed_rules(Peer),
+    write_peer_KBs(Peers).
+
+write_rules(Peer) :-
+    rule(Goal, Guard, Body),
+    peerName(Peer),
+    writelist(2, [Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    fail.
+write_rules(_).
+
+write_signed_rules(_) :-
+    signed(rule(Goal, Guard, Body), _, Credential),
+    writelist([Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    write_credential(Credential),
+    fail.
+write_signed_rules(_).
+
+write_guard([]) :- !.
+write_guard(Guard) :-
+    write('    policy:     '),
+    writecommalist(Guard).
+write_body([]) :- !.
+write_body(Body) :-
+    write('    body:       '),
+    writecommalist(Body).
+write_credential(Credential) :-
+    write('    credential: '),
+    writecommalist(Credential).
+
+%% writelist_debug(List)
+
+writelist_debug(List) :-
+    debug_on,
+    writelist(List),!.
+writelist_debug(_).
+
+%% log_info == writelist
+
+log_info(List) :-
+    writelist(List).
+
+%% log_debug == writelist_debug
+log_debug(List) :-
+    writelist_debug(List).
+
+writelist(N, List) :-
+    writeId(Id),
+    numBlanks(Id, L),
+    writeblank(L),
+    write(Id),
+    write(' '), %% or tab(1)
+    writeblank(N),
+    writelist(List).
+
+%% writelist(List)
+
+writelist([]) :-
+    nl.
+writelist([First | Rest]) :-
+    write(First),
+    writelist(Rest).
+
+numBlanks(Id,4) :-
+    Id < 10,!.
+numBlanks(Id,3) :-
+    Id < 100,!.
+numBlanks(Id,2) :-
+    Id < 1000,!.
+numBlanks(_,1).
+
+writecommalist(N, L) :-
+    writeId(Id),
+    numBlanks(Id, X),
+    writeblank(X),
+    write(Id),
+    write(' '),
+    writeblank(N),
+    writecommalist(L).
+writecommalist([Single]) :-
+    !, write(Single),
+    nl.
+writecommalist([]) :-
+    nl.
+writecommalist([First, Second | Rest]) :-
+    write(First),
+    write(', '),
+    writecommalist([Second | Rest]).
+
+writeblank(0) :- !.
+writeblank(N) :-
+    write(' '),
+    N1 is N - 1,
+    writeblank(N1).
+
