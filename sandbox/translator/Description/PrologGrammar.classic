@@ -1,0 +1,32 @@
+<Program>    -> <Rule> | <Rule><Program>
+<Rule>       -> <SimpleRule>
+              | <SignedRule>
+              | <PolicyRule>
+<SimpleRule> -> rule( <Head>, <Guards>, <Body> ).
+<SignedRule> -> signed( rule( <Head>, <Guards>, <Body> ), <String>, signature(<String>) ).
+<PolicyRule> -> policy( <Head>, <Body> ).
+<Head>       -> <ExtendedLiteral>
+<Guards>     -> [<ExtendedLiteral><ExtendedLiterals>]
+<Body>       -> [<ExtendedLiteral><ExtendedLiterals>]
+<ExtendedLiterals> ->
+                E
+              | , <ExtendedLiteral><ExtendedLiterals>
+<ExtendedLiteral> ->
+                <Literal>
+              | <Literal> @ <Issuer>
+              | <Literal> $ <Requester>
+              | <Literal> @ <Issuer> $ <Requester>
+<Issuer>     -> <String>
+              | <String> @ <Issuer>
+<Requester>  -> <String>
+              | <String> $ <Requester>
+<Literal>    -> <String> ( <ListOfStrings> )
+<ListOfStrings> ->
+                E
+              | <String><ListOfStrings>
+              | [ <String> , <String> <Strings> ] <ListOfStrings>
+<Strings>    -> E
+              | , <String><Strings>
+<String>      -> <Char>
+              | <Char><String>
+<Char>       -> a | b | ... | z | A | B | ... | Z | 0 | 1 | ... | 9 | _

@@ -3,6 +3,6 @@ Description of each folder in the sandbox:
 service - An Edutella service to enable Peertrust to be used with Edutella
 Mailrank - An implementation of the Mailrank algorithm used for classifying mails
 securityExt - Security extensions (implementation of the authenticatesTo-predicate, verification of the proof tree and credentials)
-
+Translator - Parser to translate from PeerTrust language to the internal prolog representation and viceversa
 ProtegePolicyPlugin plugin for protege to model policy aware ontologies
  

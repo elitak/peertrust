@@ -1,0 +1,63 @@
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Neue Seite 1</title>
+</head>
+
+<body>
+
+<p>&lt;Program&gt; -&gt; &lt;Rule&gt; | &lt;Rule&gt;&lt;Program&gt;<br>
+&lt;Rule&gt; -&gt; &lt;SimpleRule&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;SignedRule&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;PolicyRule&gt;<br>
+&lt;SimpleRule&gt; -&gt; rule( &lt;Head&gt;, &lt;Guards&gt;, &lt;Body&gt; ).<br>
+&lt;SignedRule&gt; -&gt; signed( rule( &lt;Head&gt;, &lt;Guards&gt;, &lt;Body&gt; ), &lt;String&gt;, 
+signature(&lt;String&gt;) ).<br>
+&lt;PolicyRule&gt; -&gt; policy( &lt;Head&gt;, &lt;Body&gt; ).<br>
+&lt;Head&gt; -&gt; &lt;ExtendedLiteral&gt;<br>
+&lt;Guards&gt; -&gt; [&lt;ExtendedLiteral&gt;&lt;ExtendedLiterals&gt;]<br>
+&lt;Body&gt; -&gt; [&lt;ExtendedLiteral&gt;&lt;ExtendedLiterals&gt;]<br>
+&lt;ExtendedLiterals&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| , &lt;ExtendedLiteral&gt;&lt;ExtendedLiterals&gt;<br>
+&lt;ExtendedLiteral&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&lt;Literal&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; @ &lt;Issuer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; $ &lt;Requester&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; @ &lt;Issuer&gt; $ &lt;Requester&gt;<br>
+&lt;Issuer&gt; -&gt; &lt;String&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt; @ &lt;Issuer&gt;<br>
+&lt;Requester&gt; -&gt; &lt;String&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt; $ &lt;Requester&gt;<br>
+&lt;Literal&gt; -&gt; &lt;String&gt; ( &lt;ListOfStrings&gt; )<br>
+&lt;ListOfStrings&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt;&lt;ListOfStrings&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| [ &lt;String&gt; , &lt;String&gt; &lt;Strings&gt; ] &lt;ListOfStrings&gt;<br>
+&lt;Strings&gt; -&gt; E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| , &lt;String&gt;&lt;Strings&gt;<br>
+&lt;String&gt; -&gt; &lt;Char&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Char&gt;&lt;String&gt;<br>
+&lt;Char&gt; -&gt; a | b | ... | z | A | B | ... | Z | 0 | 1 | ... | 9 | _</p>
+
+</body>
+
+</html>

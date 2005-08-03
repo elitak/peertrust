@@ -1,0 +1,34 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="de">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Neue Seite 1</title>
+</head>
+
+<body>
+
+<p>Translators were written in Java using <a href="https://javacc.dev.java.net/">
+javacc</a> automatic parser generator. Appropriate *.jj files for PeerTrust and 
+Prolog parser generation can be found in JavaCC directory. Besides in 
+this directory there are description of both grammars in &quot;classic&quot; form. <bc>
+In directory Source all developed source codes including test files are placed.<br><br>
+To make <b>using of translators</b> possible <b>in your own java program</b>, follow next 2 steps:<br>
+<b>1)</b> include appropriate package with PeerTrust or Prolog translator<br>
+<b>2)</b> add to your code call to one of static methods SyntaxCheck or ConvertRules.<br> 
+First one is useful if you are going only to check syntax (or convert one single rule), second one 
+to convert program saved to a file. <br><br>For example <br>
+Vector result = PeerTrustGrammar.SyntaxCheck("validClient(alice)."); <br><br>
+Results are returned in vector because some PeerTrust rules are translated to two rules i.e. strings in Prolog.<br><br>
+If you want a program in a file containing some rules get translated call for example<br>
+PeerTrustGrammar.ConvertRules( String inputPath, String outputPath)<br> with pathes to input and output files.<br><br>
+
+<b>Note</b> that you can call something like <br>
+PrologGrammar.SyntaxCheck("rule(a(), [ ], [ ]).", "policy(a(), b()).");<br>
+when working with Prolog translator because in Prolog syntax two strings are needed for one rule with policy.
+
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="de">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Neue Seite 1</title>
+</head>
+
+<body>
+
+
+<p>&lt;Program&gt; -&gt; &lt;Rule&gt; | &lt;Rule&gt;&lt;Program&gt;<br>
+&lt;Rule&gt; -&gt; &lt;RuleHead&gt; &lt;- &lt;RuleBody&gt;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;RuleHead&gt; signedBy[&lt;String&gt;] &lt;SignedBody&gt;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;RuleHead&gt;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;RuleHead&gt; &lt;- .<br>
+&lt;RuleHead&gt; -&gt; &lt;ExtendedLiteral&gt;<br>
+&lt;ExtendedLiteral&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&lt;Literal&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; @ &lt;Issuer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; $ &lt;Requester&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Literal&gt; @ &lt;Issuer&gt; $ &lt;Requester&gt;<br>
+&lt;RuleBody&gt; -&gt; signedBy[&lt;String&gt;] &lt;SignedBody&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;ExtendedLiterals&gt; signedBy[&lt;String&gt;] &lt;SignedBody&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;ExtendedLiterals&gt; &quot;|&quot; signedBy[&lt;String&gt;] &lt;SignedBody&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;SignedBody&gt;<br>
+&lt;SignedBody&gt; -&gt; &lt;ExtendedLiterals&gt; &quot;|&quot; &lt;ExtendedLiterals&gt;<br>
+&lt;ExtendedLiterals&gt; -&gt; &lt;ExtendedLiteral&gt; &lt;ExtendedLiteralList&gt;<br>
+&lt;ExtendedLiteralList&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| , &lt;ExtendedLiteral&gt; &lt;ExtendedLiteralList&gt;<br>
+&lt;Issuer&gt; -&gt; &lt;String&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt; @ &lt;Issuer&gt;<br>
+&lt;Requester&gt; -&gt; &lt;String&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt; $ &lt;Requester&gt;<br>
+&lt;Literal&gt; -&gt; &lt;String&gt; ( &lt;ListOfStrings&gt; )<br>
+&lt;ListOfStrings&gt; -&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;String&gt;&lt;ListOfStrings&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| [ &lt;String&gt; , &lt;String&gt; &lt;Strings&gt; ] &lt;ListOfStrings&gt;<br>
+&lt;Strings&gt; -&gt; E<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| , &lt;String&gt;&lt;Strings&gt;<br>
+&lt;String&gt; -&gt; &lt;Char&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+| &lt;Char&gt;&lt;String&gt;<br>
+&lt;Char&gt; -&gt; a | b | ... | z | A | B | ... | Z | 0 | 1 | ... | 9 | _</p>
+
+
+</body>
+
+</html>

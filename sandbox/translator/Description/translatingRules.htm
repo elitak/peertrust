@@ -1,0 +1,75 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="de">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Neue Seite 1</title>
+</head>
+
+<body>
+
+Next examples are biderictional, so translating PeerTrust rule would produce appropriate Prolog rule and translating Prolog rule would produce appropriate PeerTrust rule<br><br>
+
+<b>PeerTrust rules without body will be translated in next way:</b><br><br>
+<i>PeerTrust:</i><br>
+validClient(alice).<br>
+<i>Prolog:</i><br>
+rule(validClient(alice), [ ], [ ]).<br><br>
+<i>PeerTrust:</i><br>
+validClient(alice) @ issuer $ req.<br>
+<i>Prolog:</i><br>
+rule(validClient(alice) @ issuer $ req, [ ], [ ]).<br><br>
+
+<b>PeerTrust rules with simple body will be translated in next way:</b><br><br>
+<i>PeerTrust:</i><br>
+discountEnroll(Course, Requester) $ Requester <- eligibleForDiscount(Requester, Course).<br>
+<i>Prolog:</i><br>
+rule( discountEnroll(Course,Requester)$Requester, [ ], [eligibleForDiscount(Requester,Course)] ).<br><br>
+
+<b>PeerTrust rules with body containing guards will be translated in next way:<br>
+</b><br>
+<i>PeerTrust:</i><br>
+h() @I $R <- g(), g2(a, [b, c]) | d(f, e).<br>
+<i>Prolog:</i><br>
+rule( h()@I$R, [g(),g2(a,[b,c])], [d(f,e)] ).<br><br>
+
+<b>PeerTrust signed rules will be translated in next way:<br></b><br>
+<i>PeerTrust:</i><br>
+h(x) signedBy[123].<br>
+<i>Prolog:</i><br>
+signed( rule( h(x), [ ], [ ] ), 123, signature( 123 ) ).<br>
+<i>PeerTrust:</i><br>
+h(Z)  <- signedBy[s] sG() @i $r | sB().<br>
+<i>Prolog:</i><br>
+signed( rule( h(Z), [sG()@i$r], [sB()] ), s, signature( s ) ).<br><br>
+
+<b>PeerTrust rules with policy will be translated in next way:<br></b><br>
+<i>PeerTrust:</i><br>
+h() <- lb(12, fg) signedBy[someBody] sg() | sb(54).<br>
+<i>Prolog:</i><br>
+signed( rule( h(), [sg()], [sb(54)] ), someBody, signature( someBody ) ).<br>
+policy( h(), [lb(12,fg)] ).<br>
+<i>PeerTrust:</i><br>
+p(X,Z,a,T) <- z(X,Z,a), s(Y,[1,2,3]) signedBy [t] f(X, T) | g(X, Z, T).<br>
+<i>Prolog:</i><br>
+signed( rule( p(X,Z,a,T), [f(X,T)], [g(X,Z,T)] ), t, signature( t ) ).<br>
+policy( p(X,Z,a,T), [z(X,Z,a),s(Y,[1,2,3])] ).<br><br>
+
+<b>Besides there are some features in PeerTrust syntax to make programming more comfortable. These are</b><br>
+a(b, c) <-. <b>is equal to</b> a(b, c).<br>
+a() <- signedBy[s]. <b>is equal to</b> a() signedBy[s].<br>
+a() <- signedBy[s] d | f. <b>is equal to</b> a() signedBy[s] d | f.<br>
+a() <- b | signedBy[s]. <b>is equal to</b> a() <- b signedBy[s].<br>
+a() <- b | signedBy[s] d | f. <b>is equal to</b> a() <- b signedBy[s] d | f.<br><br>
+Note that syntax on the left hand is just alternative allowed syntax and such expressions will be translated as appropriate right hand expression. 
+But appropriate Prolog expressions will be translated only to the right hand syntax, so<br>
+<i>Prolog rule</i><br>
+rule(a(), [ ], [ ]).
+will be translated to <i>PeerTrust rule</i> <br>
+a().<br>
+but not to<br>
+a() <- .<br>
+
+</body></html>

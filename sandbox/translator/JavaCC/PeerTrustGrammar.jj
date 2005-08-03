@@ -1,0 +1,182 @@
+options 
+{
+  COMMON_TOKEN_ACTION = true;
+  STATIC = false;
+}   
+
+PARSER_BEGIN( PeerTrustGrammar )
+
+   /**
+    * This class represents PeerTrust parser. It consists of two methods
+    * ConvertRules() and SyntaxCheck() to be used for converting PeerTrust
+    * programs to Prolog and automatically generated methods for parsing.
+    *
+    * @author Bogdan Vlasenko
+    */
+
+import java.util.Vector;
+
+public class PeerTrustGrammar
+{
+    public static Vector tokens = new Vector(0, 1);
+
+   /**
+    * Converts PeerTrust program saved to a file to prolog syntax and saves
+    * result to another file. Throws IOException or FileNotFoundException
+    * if load / save operations were unsuccessful or ParseException if
+    * syntax of input was wrong.
+    *
+    * @param  inputPath path to input file
+    *         outputPath path to output file
+    */
+
+    public static void ConvertRules( String inputPath, String outputPath)
+    throws ParseException, java.io.FileNotFoundException, java.io.IOException
+    {
+        System.out.println("Getting rules from " + inputPath );
+        java.io.FileInputStream inStream = new java.io.FileInputStream( inputPath );
+        java.io.FileWriter outFile = new java.io.FileWriter( outputPath, false );
+        tokens = new Vector(0, 1);
+        PeerTrustGrammar parser = new PeerTrustGrammar( inStream );
+        parser.Input();
+        Vector convertedRules = PeerTrustSemanticAnalyzer.analyze(tokens);
+        for( int i = 0; i < convertedRules.capacity(); i++ )
+        {
+            String str = ((String) convertedRules.elementAt(i)) + "\n";        
+            outFile.write(str, 0, str.length());
+        }
+        inStream.close();
+        outFile.close();
+        System.out.println("Syntax looks to be ok, converted rules saved to " + outputPath);
+    }
+
+   /**
+    * Check syntax of given PeerTrust rule. Throws ParseException if
+    * syntax of input was wrong.
+    *
+    * @param  stringToCheck PeerTrust rule to be checked
+    *
+    * @return Vector with one or two (in case of policy rule) strings
+    * which are translation of given PeerTrust rule to Prolog
+    */
+
+public static Vector SyntaxCheck( String stringToCheck )
+throws ParseException, java.io.IOException
+{
+    //System.out.println("Checking rule: " + stringToCheck );
+    java.io.StringBufferInputStream inStream = new java.io.StringBufferInputStream( stringToCheck);
+    tokens = new Vector(0, 1);
+    PeerTrustGrammar parser = new PeerTrustGrammar( inStream );
+    parser.Input();
+
+    Vector convertedRules = PeerTrustSemanticAnalyzer.analyze(tokens);
+
+    //System.out.println("Syntax looks to be ok " + (String)convertedRules.elementAt(0));
+    return( convertedRules );
+}
+
+}
+
+PARSER_END( PeerTrustGrammar )
+
+TOKEN_MGR_DECLS : 
+{ 
+    static void CommonTokenAction(Token token) 
+    {
+        InputToken peerTrustToken = new InputToken();
+        peerTrustToken.kind = token.kind;
+        peerTrustToken.beginLine = token.beginLine;
+        peerTrustToken.beginColumn = token.beginColumn;
+        peerTrustToken.endLine = token.endLine;
+        peerTrustToken.endColumn = token.endColumn;
+        peerTrustToken.image = token.image;
+
+        PeerTrustGrammar.tokens.add(peerTrustToken);
+    } 
+} 
+
+SKIP :
+{
+    " "
+  | "\t"
+  | "\n"
+  | "\r"
+}
+
+void Input() :
+{}
+{
+    ( Rule() )+ <EOF>
+}
+void Rule() :
+{}
+{
+    Head()
+        ( ( "<-" Body() )
+        | ( "signedBy" "[" String() "]" SignedBody() )
+        )?
+    "."
+}
+void Head() :
+{}
+{
+    ExtendedLiteral()
+}
+void ExtendedLiteral() :
+{}
+{       
+    Literal() ( "@" Issuer() )? ( "$" Requester() )?
+}
+void Body() :
+{}
+{
+    ( ExtendedLiteral() ( "," ExtendedLiteral() )* )?
+    (
+      ( "signedBy" "[" String() "]" SignedBody() )
+    | ( "|" 
+        (
+          ( ExtendedLiteral() ( "," ExtendedLiteral() )* )
+        | ( "signedBy" "[" String() "]" SignedBody() )
+        )
+      )
+    )?
+}
+void SignedBody() :
+{}
+{
+    ( ExtendedLiteral() ( "," ExtendedLiteral() )* 
+      ( "|" ExtendedLiteral() ( "," ExtendedLiteral() )* )?
+    )?
+}
+
+void Issuer() :
+{}
+{
+    String() ( "@" Issuer() )?
+}
+void Requester() :
+{}
+{
+    String() ( "$" Requester() )?
+}
+void Literal() :
+{}
+{
+    ListOfStrings() "(" ( ListOfStrings() )? ( "," ListOfStrings() )*  ")"
+}
+void ListOfStrings() :
+{}
+{
+    ( ( String() ) | ( "[" String() "," ListOfStrings() ( "," ListOfStrings() )* "]") )
+}
+void String() :
+{}
+{
+    ( <DIGITS> | <SMALLLETTERS> | <BIGLETTERS> | "_" )+
+}
+TOKEN :
+{
+    <DIGITS : ["0"-"9"]>
+  | <SMALLLETTERS : ["a"-"z"]>
+  | <BIGLETTERS : ["A"-"Z"]>
+}
