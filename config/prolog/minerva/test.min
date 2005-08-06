@@ -1,0 +1,74 @@
+
+%:- package('interpreter').
+%:- ensure_loaded('interpreter').
+:- include('interpreter.min').
+
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+:- op(601, yfx, $).
+
+% rules
+
+% ---------------------------------------
+% Semantic Web paper example
+
+rule(goldClient(bob),[validClient(bob)],[sellings(bob,S),constraint(S>1000)]).
+
+rule(validClient(bob),[],[]).
+rule(sellings(bob,2000),[],[]).
+
+internal(silverClient(bob),[validClient(bob)],[sellings(bob,S),constraint(S>500)]).
+     
+signed(rule(drivingLicense(alice) @ caState, [], []),
+            caState, signature(caState)).
+
+signed(rule(policeOfficer(alice) @ caStatePolice, [], []),
+            caStatePolice, signature(caStatePolice)).
+
+policy(policeOfficer(alice) @ caStatepolice $ Requester,
+            [bbbMember(Requester) @ bbb @ Requester]).
+
+signed(rule(student(alice) @ uniHannover $ _Requester,[], []),
+       uniHannover,signature(uniHannover)).
+
+:- include('../demoPolicies.alice').
+
+debug_on.
+debug_extra.
+
+peerName(alice).
+
+test0(Results) :-
+	processTree(tree(validClient(X),[query(validClient(X),no)],doc),Results).
+
+test1(Results) :-
+	processTree(tree(goldClient(X),[query(goldClient(X),no)],doc),Results).
+
+test2(Results) :-
+	processTree(tree(goldClient(anna),[query(goldClient(anna),no)],doc),Results).
+
+test3(Results) :-
+	processTree(tree(goldClient(bob),[query(goldClient(bob),no)],doc),Results).
+
+test4(Results) :-
+	processTree(tree(silverClient(X),[query(silverClient(X),no)],doc),Results).
+
+test5(Results) :-
+	processTree(tree(policeOfficer(X) @ caStatePolice,[query(policeOfficer(X) @ caStatePolice,no)],doc),Results).
+
+test6(Results) :-
+	processTree(tree(student(X) @ uniHannover,[query(student(X) @ uniHannover,no)],doc),Results).
+
+evaluateTest1(Result) :-
+	evaluate(tree(goldClient(X),[query(goldClient(X),no)],doc),Result).
+
+test10(Results) :-
+	processTree(tree(@(isPharmacy(alice),fda),[query(@(isPharmacy(alice),fda),no)],elearn),Results).
+
+
+validate1 :-
+	validateProof(orderDrugs(_,_),elearn,[rule(orderDrugs(_V27108604,alice)$alice,[],[isPharmacy(alice)@fda@alice])@elearn,signed(rule(isPharmacy(alice)@fda,[],[]),fda,signature(fda))@alice,policy(isPharmacy(alice)@fda,[isPharmacy(alice)@massBP])@alice,signed(rule(isPharmacy(alice)@massBP$elearn,[],[]),massBP,signature(massBP))@alice,policy(isPharmacy(alice)@massBP$elearn,[isPharmaceuticalCo(elearn)@fda@elearn])@alice,signed(rule(isPharmaceuticalCo(elearn)@fda,[],[]),fda,signature(fda))@elearn]).

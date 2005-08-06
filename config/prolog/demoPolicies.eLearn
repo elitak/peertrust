@@ -75,3 +75,10 @@ policy(bbbMember(eLearn) @ bbb $ Requester,
 internal(get(spanishCourse,session1),[],[]).
 
 internal(get(germanCourse,session2),[],[]).
+
+%---------------------------------------
+% Pharmaceutical example
+
+rule( orderDrugs(Drug,Requester)$Requester, [], [isPharmacy(Requester)@fda@Requester] ).
+
+signed( rule( isPharmaceuticalCo(elearn)@fda, [], [] ), fda, signature( fda ) ).

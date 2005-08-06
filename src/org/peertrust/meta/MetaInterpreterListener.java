@@ -40,11 +40,11 @@ import org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.13 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -67,7 +67,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.13 2005/08/06 07:59:50 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -194,7 +194,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					newTree.setStatus(Tree.READY) ;
 					
 					// we add the proof from the answer
-					newTree.appendProof(answer.getProof()) ;
+					newTree.getProof().appendProof(answer.getProof()) ;
 					newTree.setTrace(answer.getTrace()) ;
 					
 					_queue.add(newTree) ;
@@ -230,7 +230,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					newTree2.setStatus(Tree.READY) ;
 					
 					// add the proof from the answer
-					newTree2.appendProof(answer.getProof()) ;
+					newTree2.getProof().appendProof(answer.getProof()) ;
 					newTree2.setTrace(answer.getTrace()) ;
 					
 					//queue.remove(pattern2) ;

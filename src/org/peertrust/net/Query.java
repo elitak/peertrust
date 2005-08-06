@@ -21,17 +21,18 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
+import org.peertrust.meta.Proof;
 import org.peertrust.meta.Trace;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Query.java,v 1.10 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: Query.java,v 1.11 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 

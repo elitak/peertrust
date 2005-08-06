@@ -12,26 +12,14 @@
 :- dynamic(internal/3).
 :- dynamic(rule/3).
 :- dynamic(peerName/1).
-:- dynamic(proof/1).
+
+:- dynamic(runningpeer/2).
+:- dynamic(maxdepth/1).
 
 :- include('tools.min').
 
 % load the properties of the current peer
 %:- include('local_properties.min').
-
-init :- 
-    retractall(writId(_)),
-    asserta(writId(0)).
-
-writeId(NewId) :-
-     retract(writId(Id)),
-     NewId is Id+1,
-     asserta(writId(NewId)).
-
-deb(N,List) :-
-     writelist(N,List).
-deb(List) :-
-     writelist(0,List).
 
 % begin meta meta interpreter
 % ---------------------------------------
@@ -50,25 +38,56 @@ deb(List) :-
 %:- op(601, xfy, $).
 :- op(601, yfx, $).
 
+%%% --------------
+%%% EVALUATION
+%%% --------------
+
 % META-INTERPRETER
 
-processTree(tree(_Goal,_Queries,_Proof,_Requester),[]) :-
+% processTree(Goal,ResultList)
+% processTree(tree(
+processTree(tree(_Goal,_Resolvent,_Requester),[]) :-
 	\+(peerName(_Peer)),!,
-	writelist_debug(['PeerName is not set']).
+	log_error(['PeerName is not set']).
 
-processTree(tree(Goal,Queries,Proof,Requester),Results) :-
-    selectQuery(query(Query,Internal),Queries,RestQueries),
-    findall(tree(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal),
-	metaQuery(tree(Goal,query(Query,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)),
-	Results).
+processTree(tree(Goal,Resolvent,Requester),Results) :-
+	log_info(['Starting evaluation']),
+	findall(resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator),
+		evaluate(tree(Goal,Resolvent,Requester),resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator)),
+		Results),
+	log_info(['Evaluation finished']).
 
+evaluate(tree(Goal,[],_Requester),resultTree(Goal,[],[],[],nil,nil)) :- !,
+	log_debug(['No more queries to evaluate']).
+
+evaluate(tree(Goal,Resolvent,Requester),resultTree(Goal,FinalResolvent,FinalProof,FinalTrace,FinalRemoteGoal,FinalDelegator)) :-
+	selectQuery(Query,Resolvent,RestResolvent),
+	log_debug(['Evaluating ',Query]),
+	evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)),
+	log_debug(['Query ', Query,' evaluated. NewQueries: ', NewQueries]),
+	append(NewQueries,RestResolvent,NewResolvent),
+%	( ( Delegator == nil, \+(NewQueries == []) )
+	( ( Delegator == nil )
+	->
+	    log_debug(['Delegator = nil']),
+	    log_extra(['New call to evaluate with ',tree(Goal,NewResolvent,Requester)]),
+	    evaluate(tree(Goal,NewResolvent,Requester),resultTree(Goal,FinalResolvent,NewProof,NewTrace,FinalRemoteGoal,FinalDelegator))
+	;
+	    log_debug(['Delegator not nil']),
+	    FinalResolvent = NewQueries, NewProof = [], NewTrace = [], FinalRemoteGoal = RemoteGoal, FinalDelegator = Delegator
+	),
+	append(Proof,NewProof,FinalProof),
+	append(Trace,NewTrace,FinalTrace).
+
+% selectQuery(SelectedQuery,Resolvent,NewResolvent)
 selectQuery(Query,[Query|Rest], Rest).
 
-addQueries(Guard,Body,RestQueries,NewListQueries,Internal) :-
+% addQueries
+addQueries(Guard,Body,Internal,NewListQueries) :-
      append(Guard,Body,NewList),
-     createQueries(NewList,Internal,QueryList),
-     append(QueryList,RestQueries,NewListQueries).
+     createQueries(NewList,Internal,NewListQueries).
 
+% createQueries
 createQueries([],_,[]).
 createQueries([H|T],Internal,[query(H,Internal)|Rest]) :-
      createQueries(T,Internal,Rest).
@@ -76,108 +95,127 @@ createQueries([H|T],Internal,[query(H,Internal)|Rest]) :-
 addQueryStrategy(Query,QueryList,NewQueryList) :-
      append(Query,QueryList,NewQueryList).
 
-% addProof(NewFact,OldProof,NewProof,InternalRule)
-addProof(NewFact,OldProof,NewProof,no) :-
-     peerName(Peer), !,
-     append(OldProof,[NewFact @ Peer],NewProof).
-addProof(_,Proof,Proof,yes).
+% createProof(NewFact,InternalRule,Proof)
+% If it is an internal rule, it is not added to the proof
+createProof(_,yes,[]).
+% Otherwise, we add it to the proof with the peer where it was proven
+createProof(NewFact,no,[NewFact @ Peer]) :-
+     peerName(Peer), !.
 
-:- dynamic(markSignal/0).
-mark :- \+(markSignal),!,asserta(markSignal).
-mark.
-checkMark :- \+(markSignal).
-demark :- retractall(markSignal).
+createTrace(_NewFact,_InternalRule,[]).
+%createTrace(NewFact,InternalRule,Trace) :-
+%	createProof(NewFact,InternalRule,Trace).
 
+%
 % begin meta interpreter
 % ---------------------------------------
 
-%metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-%	( (\+(Goal = _ $ _))
-%	-> NewGoal = Goal $ Requester
-%	; NewGoal = Goal
-%	),
-%    writelist_debug(['metaQuery - ',FinalGoal, ' - ', NewGoal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
-%    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
-
-%metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-%    \+(Goal = _ $ _),
-%    writelist_debug(['entra sin requester',FinalGoal, ' - ', Goal, ' - ', Internal, ' - ', RestQueries, ' - ', Proof, ' - ', Requester]),
-%    meta(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
-
-metaQuery(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-    writelist_debug(['entra ',FinalGoal, ' -  ', Goal, ' -  ', Internal, ' - ', RestQueries, ' -  ', Proof, ' - ', Requester]),
-    meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
-
-% meta(tree(Goal,query(Query,Internal),RestQueries,Proof,Requester),treeR(Goal,NewQueries,NewProof,Delegator)),
-
-meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,nil,nil)) :-
-     demark,
-     writelist_debug(['checking local']),
-     local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)),
-     writelist_debug(['local passed']),
-     mark.
-meta(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-     checkMark,
-     writelist_debug(['checking remote']),
-%     writelist(['entra ',FinalGoal, ' ', Goal, ' ', Internal, ' ', RestQueries, ' ', Proof, ' ', Requester]),
-     remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)),
-     writelist_debug(['remote passed']).
-
-% local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof))
-% remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator))
+%evaluateQuery(tree(Goal,[],_Requester),resultTree(Goal,[],[],[],_RemoteGoal,_Delegator)).
 
 % simplify 'Goal @ Issuer @ Issuer' to 'Goal @ Issuer'
-% Remark: this rule will become clear later, when we introduce credentials
+evaluateQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)) :-
+	log_extra(['Can ',SubGoal,' be simplified?']),
+	SubGoal == G @ Issuer @ Issuer,
+	!,
+	log_debug(['Simplifying ',SubGoal]),
+	evaluateQuery(tree(Goal,query(G @ Issuer,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)).
 
-local(tree(FinalGoal,query(Goal @ Issuer1 @ Issuer2,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-
-     Issuer1 == Issuer2, !, 
-     write_actions(['simplify ', Goal @ Issuer1 @ Issuer2, ' to ', Goal @ Issuer1]),
-     local(tree(FinalGoal,query(Goal @ Issuer1,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,nil,nil)) :-
+	log_extra(['Start local evaluation of ',Query]),
+	demark(Query),
+	localQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace)),
+	log_debug(['Local answer found']),
+	mark(Query).
 
-remote(tree(FinalGoal,query(Goal @ Issuer1 @ Issuer2,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)) :-
-     Issuer1 == Issuer2, !, 
-     write_actions(['simplify ', Goal @ Issuer1 @ Issuer2, ' to ', Goal @ Issuer1]),
-     remote(tree(FinalGoal,query(Goal @ Issuer1,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator,RemoteGoal)).
+evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)) :-
+	log_extra(['Checking for remote evaluation of ',Query]),
+	checkMark(Query),
+	log_extra(['Start remote evaluation of ',Query]),
+	remoteQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)),
+	log_debug(['Remote query required']).
 
 % evaluate Prolog constraints directly
-local(tree(FinalGoal,query(constraint(Goal),_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof)) :-
-     !, write_actions(['evaluating constraint ', Goal]),
-     call(Goal).
+localQuery(tree(Goal,query(constraint(SubGoal),Internal),_Requester),resultTree(Goal,[],Proof,Trace)) :-
+	!,
+%	( (ground(SubGoal) )
+%	( (var(SubGoal) )
+%	->
+%	    log_error(['Constraint ', SubGoal,' is not grounded']),
+%	    fail
+%	;
+%	    (
+	      log_debug(['Calling ',SubGoal]),
+	      call(SubGoal),
+	      log_debug(['Call to ',SubGoal,' successful']),
+	      createProof(constraint(SubGoal),Internal,Proof),
+	      createTrace(constraint(SubGoal),Internal,Trace).
 
-% expand goal with requester
-local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-
-	\+(Goal = _ $ _),
-	local(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+%	    )
+%	).
 
-remote(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator)) :-
-	\+(Goal = _ $ _),
-	remote(tree(FinalGoal,query(Goal $ Requester,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof,Delegator)).
+% expand Query with requester
+localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_extra(['Can ',SubGoal,' have $ added?']),
+	\+(SubGoal = _ $ _),
+	log_debug(['Adding the $ to ',SubGoal]),
+	localQuery(tree(Goal,query(SubGoal $ Requester,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)).
 
-% now let's look at proving single literal goals
+% if we have a single Goal, we search for rules with Goal in their
+% head, and then evaluate their guard and body literals
+localQuery(tree(Goal,query(SubGoal,Internal),_Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_debug(['Checking for rule for query: ',SubGoal]),
+	rule(SubGoal, Guard, Body),
+	peerName(Peer),
+	log_debug([Peer, ' is using rule: ', SubGoal, ' if ', Body, ' protected by ', Guard]),
+	createProof(rule(SubGoal,Guard,Body),Internal,Proof),
+	createTrace(rule(SubGoal,Guard,Body),Internal,Trace),
+	addQueries(Guard,Body,Internal,NewQueries).
 
-% check if there is a policy for the current signed rule
+% internal rules can be used in the context of an internal computation
+% just like ordinary rules, but we will not include them in the proof
 
-local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,NewQueries,NewProof)) :-	
-	 writelist_debug(['checking for policy for goal: ', Goal]),
-         signed(rule(Goal, Guard, Body), Issuer, Credential),
-	 writelist_debug(['signed rule found']),
-	 checkPolicy(Goal, ExtraGuards, Requester), !,
-	 writelist_debug(['policy rule found with literals: ', ExtraGuards]),
-%	 selectQuery(NewGoal,ExtraGuards,RestExtraGuards),
-%	 append(Guard,Body,SignedQueries),
-  addQueries(Guard,Body,RestQueries,NewListQueries,Internal),
-%	 append(ExtraGuards,SignedQueries,NewRestQueries),
-  addQueries(ExtraGuards,[],NewListQueries,NewQueries,Internal),
-%	 append(NewRestQueries,RestQueries,NewQueries),
-	 addProof(signed(r(Goal,Guard,Body),Issuer,Credential),Proof,ModifiedProof,Internal),
-	 addProof(policy(Goal,ExtraGuards),ModifiedProof,NewProof,Internal).
-%	 local(tree(FinalGoal,query(NewGoal,Internal),FinalRestQueries,NewModifiedProof,Requester),treeR(FinalGoal,NewQueries,NewProof)).
+localQuery(tree(Goal,query(SubGoal,Internal),_Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_debug(['Checking for internal rule for query: ',SubGoal]),
+	internal(SubGoal,Guard,Body),
+	peerName(Peer),
+	log_debug([Peer, ' is using internal rule: ', SubGoal, ' if ', Body, ' protected by ', Guard]),
+	createProof(rule(SubGoal,hidden,hidden),Internal,Proof),
+	createTrace(rule(SubGoal,hidden,hidden),Internal,Trace),
+	addQueries(Guard,Body,yes,NewQueries).
 
-checkPolicy(Goal,ExtraGuards,_) :-
-    policy(Goal,ExtraGuards),!.
+localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	(SubGoal = _ @ Issuer ; SubGoal = _ @ Issuer $ _),
+	log_debug(['Checking for signed rule for query: ', SubGoal]),
+	signed(rule(SubGoal, Guard, Body), Issuer, Credential),
+	log_extra(['Signed rule found']),
+	peerName(Peer),
+	log_debug([Peer, ' is using signed rule: ', SubGoal, ' if ', Body, ' protected by ', Guard, ' signed by ',Issuer]),
+	% check if there is a policy for the current signed rule
+	log_debug(['Checking for policy for query: ', SubGoal]),
+	checkPolicy(SubGoal, ExtraGuards, Requester), !,
+	log_debug([Peer, ' is using protecting policy: ', SubGoal, ' if ', ExtraGuards]),
+	addQueries(Guard,Body,Internal,NewListQueries),
+	addQueries(ExtraGuards,[],Internal,NewListQueries2),
+	append(NewListQueries2,NewListQueries,NewQueries),
+	createProof(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Proof1),
+	createTrace(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Trace1),
+	( (ExtraGuards == [])
+	->
+	    Proof = Proof1,
+	    Trace = Trace1
+	;
+	    createProof(policy(SubGoal,ExtraGuards),Internal,Proof2),
+	    append(Proof1,Proof2,Proof),
+	    createTrace(policy(SubGoal,ExtraGuards),Internal,Trace2),
+	    append(Trace1,Trace2,Trace)	
+	).
+
+checkPolicy(Goal,ExtraGuards,_Requester) :-
+	policy(Goal,ExtraGuards),!.
 checkPolicy(Goal,ExtraGuards,Requester) :-
-	\+(Goal == _ $ _),
-    policy(Goal $ Requester, ExtraGuards).
+	\+(Goal = _ $ _),
+	policy(Goal $ Requester, ExtraGuards),!.
+checkPolicy(_Goal,[],_Requester).
 
 % we do not allow direct access from external peers to internal
 % predicates, which we store as special 'internal' rules
@@ -188,181 +226,128 @@ internal([Goal | _]) :-
 internal([_ | Rest]) :-
     internal(Rest).
 
-% if we have a single Goal, we search for rules with Goal in their
-% head, and then evaluate their guard and body literals
-local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
-    writelist_debug(['checking for rule for goal: ', Goal]),
-%    writelist_debug(['guard -', Guard, '- Body -', Body, '-']),
-    rule(Goal, Guard, Body),
-	writelist_debug(['rule selected']),
-    peerName(Peer),
-    write_actions([Peer, ' is using rule: ', Goal, ' if ', Body, ' protected by ', Guard]),
-    addProof(r(Goal,Guard,Body),Proof,NewProof,Internal),
-    addQueries(Guard,Body,RestQueries,NewQueries,Internal).
-
-% internal rules can be used in the context of an internal computation
-% just like ordinary rules, but we will not include them in the proof
-
-local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
-    writelist_debug(['checking for internal rule for goal: ', Goal]),
-    internal(Goal, Guard, Body),
-    peerName(Peer),
-    write_actions([Peer, ' is using internal rule: ', Goal, ' if ', Body, ' protected by ', Guard]),
-    addProof(r(Goal,hidden,hidden),Proof,NewProof,Internal),
-    addQueries(Guard,Body,RestQueries,NewQueries,yes).
-
-% and, of course, a Peer can also prove a 'Goal @ Issuer', if he has a
-% signed rule for it
-local(tree(FinalGoal,query(Goal,Internal),RestQueries,Proof,_),treeR(FinalGoal,NewQueries,NewProof)) :-
-    writelist_debug(['checking for signed rule for goal: ', Goal]),
-    signed(rule(Goal, Guard, Body), Issuer, Credential),
-    (Goal = _ @ Issuer ; Goal = _ @ Issuer $ _),
-    peerName(Peer),
-    write_actions([Peer, ' is using signed rule: ', Goal, ' if ', Body, ' protected by ', Guard, ', certified by ', Credential]),
-    addQueries(Guard,Body,RestQueries,NewQueries,Internal),
-    addProof(signed(r(Goal,Guard,Body),Issuer,Credential),Proof,NewProof,Internal).
-
 % we try to call the remote peer, but only if we do not find a signed
 % rule (i.e. we can use signed rules as a cache)
 
 % we will not use this rule if Goal itself is a 
 % 'Goal @ Peer' structure
-remote(tree(FinalGoal,query(Goal @ Issuer,_),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal)) :-
-	writelist_debug(['Remote1']),
+remoteQuery(tree(Goal,query(SubGoal,_),_),resultTree(Goal,[],[],[],G,Issuer)) :-
+	log_debug(['Checking for remote rule query: ', SubGoal]),
+	( SubGoal = G @ Issuer ; SubGoal = G @ Issuer $ _),
 	peerName(Peer),
-	writelist_debug(['Remote1 - Peer = ',Peer, ' - Issuer = ', Issuer, ' - Goal = ', Goal]),
 	\+(Peer = Issuer),
-	\+(Goal = _ @ _),
-	\+(signed(rule(Goal @ Issuer, _, _), _, _)),
-	writelist_debug(['Finishing remote 1']), !.
+%	\+(SubGoal = _ @ _),
+%	\+(signed(rule(Goal @ Issuer, _, _), _, _)),
+	log_debug([Peer, ' is delegating query ', G, ' to ', Issuer]).
 
-% we also have a variant, which changes/remove the requester to the current peer
-% (can also be a chain of requesters)
-remote(tree(FinalGoal,query(Goal @ Issuer $ Req,_),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,Proof,Issuer,Goal)) :- % $ Peer)) :-
-	writelist_debug(['Remote2']),
-     peerName(Peer),
-     writelist_debug(['Remote2 - Peer = ',Peer, ' - Issuer = ', Issuer, ' - Requester = ', Requester, ' - Req = ', Req, ' - Goal = ', Goal]),     
-     \+(Peer = Issuer),
-     \+(Peer = Requester),
-     \+(Goal = _ @ _),
-     \+(signed(rule(Goal @ Issuer, _, _), _, _)),
-     writelist_debug(['Finishing remote 2']),!.
-
-% To make it possible for peers to answer queries we will also assume,
-% that they can possess signed versions of clauses from other peers,
-% so that they can answer on behalf of these other peers. We will use
-% signed rules 'signed(Rule, Credential, Issuer)', where 'Rule' has
-% the usual rule structure 'rule(Goal, Guard, Body, Issuer)', which
-% tell us that the truth of 'Clause' is certified by the 'Credential',
-% issued by 'Issuer'.  
-% we use cached and signed rules like ordinary rules, but include 
-% 'Credential' in the proof tree
-% we represent these credentials as lists of 'attribute(value)' terms
-
-% so we can also ask not the Issuer, but another Delegate about a
-% certain goal (this is the second clause using the remote_call
-% predicate)
-
-% in this case, however, the proof has to be properly signed
-remote(tree(FinalGoal,query(Goal @ Issuer @ Delegate,Internal),RestQueries,Proof,_),treeR(FinalGoal,RestQueries,NewProof,Delegate,Goal @ Issuer)) :-
-     \+(Issuer == Delegate), !, % cut here, we always transfer control
-                                % to Delegate in this case
-      % we allow 'Goal @ Issuer' to be proved at the 'Delegate'
-     addProof(proved_by(Delegate),Proof,NewProof, Internal).
-      % properly_signed could ask for all pieces of the
-      % proof to be signed (i.e. a complete credential chain), but this
-      % might be too much?
-      % not checked right now
-      % properly_signed(ProofGoal).
-
-% and the variant for transmitting the Requester (or Requester chain):
-remote(tree(FinalGoal,query(Goal @ Issuer @ Delegate,Internal),RestQueries,Proof,Requester),treeR(FinalGoal,RestQueries,NewProof,Delegate,Goal @ Issuer)) :-
-    peerName(Peer),
-    \+(Requester = Peer),
-    \+(Issuer == Delegate), !, % cut here, we always transfer control
-                                 % to Delegate in this case
-    % we allow 'Goal @ Issuer' to be proved at the 'Delegate'
-     addProof(proved_by(Delegate),Proof,NewProof,Internal).
+%%% --------------
+%%% UNIFICATION
+%%% --------------
 
 unification(old(Goal,CurrentQuery,RestQueries),ResolvedQuery,new(Goal,RestQueries)) :-
-    writelist_debug(['Unificando ', CurrentQuery, ' with ', ResolvedQuery, ' - Goal: ', Goal]),
+    log_debug(['Unificando ', CurrentQuery, ' with ', ResolvedQuery, ' - Goal: ', Goal]),
     CurrentQuery = ResolvedQuery.
 
+
+%%% --------------
+%%% VERIFICATION
+%%% --------------
+
+:- dynamic(proof/1).
+
 % validateProof(Goal, Proof)
-validateProof(Goal, Proof) :-
+validateProof(Goal,Peer,Proof) :-
 	removeProof,
-	writelist_debug(['Proof cleaned']),
+	log_debug(['Proof cleaned']),
 	insertProof(Proof),
-	writelist_debug(['Proof asserted']),
-	validate([Goal]).
+	log_debug(['Proof asserted']),
+	peerName(Requester),
+	validate([Goal],Peer,Requester).
 
 removeProof :-
 	retractall(proof(_)).
 
 insertProof([]).
-insertProof([proved_by(_)@_|R]) :- !,
-	   insertProof(R).
-	   
 insertProof([F|R]) :-
 	asserta(proof(F)),
 	insertProof(R).
 
-validate([]).
+validate([],_Peer,_Requester).
 
-validate([Goal|GoalTail]) :-
-	writelist_debug(['Validating goal ', Goal]),
-	validateTop(Goal,NewGoals),
-	append(NewGoals,GoalTail,NewList),
-	validate(NewList).
+validate([Goal|GoalTail],Peer,Requester) :-
+	log_debug(['Validating goal ', Goal,' at ',Peer,' from ',Requester]),
+	validateGoal(Goal,Peer,Requester),
+	validate(GoalTail,Peer,Requester).
 
-validateTop(Goal,NewGoals) :-
-	validateGoal(r(Goal,_,_)@_, NewGoals).
-validateTop(Goal,NewGoals) :-
-	validateGoal(signed(r(Goal,_,_),_,_)@_,NewGoals).
+% predicate that checks that the statement is said by who can state it
+checkAuthenticity(_Goal @ Peer,Peer) :- !.
+% and the versions with $
+checkAuthenticity(_Goal @ Peer $ _Requester,Peer) :- !.
 
-	
-validateGoal(r(Goal,hidden,hidden)@Peer,[]) :-
-	writelist_debug(['Checking hidden goal ', Goal]),
-	proof(r(Goal,hidden,hidden)@Peer),
-	writelist_debug(['Validate hidden goal ', Goal]).
+checkAuthenticity(Goal,_Peer) :-
+	\+(Goal = _ @ _),
+	\+(Goal = _ @ _ $ _).
 
-validateGoal(r(Goal,Guards,Body)@Peer,List) :-
-	writelist_debug(['Checking rule goal ', Goal]),
-	proof(r(Goal,Guards,Body)@Peer),
-	writelist_debug(['Validate rule goal ', Goal]),
-	append(Guards,Body,List).
+% checking for internal rules
+validateGoal(Goal,Peer,Requester) :-
+	checkAuthenticity(Goal,Peer),
+	log_extra(['Checking for internal rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof(rule(Goal,hidden,hidden)@Peer),
+	log_debug(['Found an internal proof for ',Goal,' at ',Peer,' from ',Requester]).
 
-validateGoal(signed(r(Goal @Peer1 @Peer2,Guards,Body)@Peer,Issuer,Signature),List) :-
-	writelist_debug(['Checking signed @ goal ', Goal]),
-	proof(signed(r(Goal @Peer1,Guards,Body)@Peer2,Issuer,Signature)),
-	writelist_debug(['Validate signed @ goal ', Goal]),	
-	append(Guards,Body,List).
+% checking for rules
+validateGoal(Goal,Peer,Requester) :-
+	checkAuthenticity(Goal,Peer),
+	log_extra(['Checking for rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof(rule(Goal,Guard,Body)@Peer),
+	log_debug(['Found a proof rule for ',Goal,' at ',Peer,' from ',Requester]),
+	append(Guard,Body,NewGoal),
+	validate(NewGoal,Peer,Requester).
 
-validateGoal(signed(r(Goal,Guards,Body)@Peer,Issuer,Signature),List) :-
-	writelist_debug(['Checking signed goal ', Goal]),
-	proof(signed(r(Goal,Guards,Body)@Peer,Issuer,Signature)),
-	writelist_debug(['Validate signed goal ', Goal]),	
-	append(Guards,Body,List).
+% checking for signed rules
+validateGoal(Goal,Peer,Requester) :-
+	( (Goal = SubGoal @ Issuer) ; (Goal = SubGoal @ Issuer $ Requester) ),
+	log_extra(['Checking for signed rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof(signed(rule(Goal,Guard,Body),Issuer,_Signature)@_Peer),
+	log_debug(['Found a signed proof for ',Goal,' at ',Peer,' from ',Requester]),
+	validatePolicy(Goal,Peer,Requester),
+	append(Guard,Body,NewGoal),
+	validate(NewGoal,Peer,Requester).
 
-% same version with $
-validateGoal(r(Goal,hidden,hidden)@Peer,[]) :-
-	writelist_debug(['Checking hidden $ goal ', Goal]),
-	proof(r(Goal $ _,hidden,hidden)@Peer),
-	writelist_debug(['Validate hidden $ goal ', Goal]).
+% checking for delegation rules
+validateGoal(Goal@Peer1,Peer2,Requester) :-
+	log_extra(['Checking for delegation rule ',Goal,' at ',Peer1,' from ',Requester]),
+	validateGoal(Goal,Peer1,Peer2).	
 
-validateGoal(r(Goal,Guards,Body)@Peer,List) :-
-	writelist_debug(['Checking rule $ goal ', Goal]),
-	proof(r(Goal $ _,Guards,Body)@Peer),
-	writelist_debug(['Validate rule $ goal ', Goal]),
-	append(Guards,Body,List).
+% extending with requester
+validateGoal(Goal,Peer,Requester) :-
+	\+(Goal = _ $ _),
+	log_debug(['Extending ',Goal,' with requester ',Requester]),
+	validateGoal(Goal $ Requester,Peer,Requester).
 
-validateGoal(signed(r(Goal,Guards,Body)@Peer,Issuer,Signature),List) :-
-	writelist_debug(['Checking signed $ goal ', Goal]),
-	proof(signed(r(Goal $ _,Guards,Body)@Peer,Issuer,Signature)),
-	writelist_debug(['Validate signed $ goal ', Goal]),	
-	append(Guards,Body,List).	
-	
+validatePolicy(Goal,Peer,Requester) :-
+	( (Goal = SubGoal @ Issuer) ; (Goal = SubGoal @ Issuer $ Requester) ),
+	log_extra(['Checking for protecting policy ',Goal,' at ',Peer,' from ',Requester]),
+	proof(policy(Goal,ExtraGuards)@Peer),!,
+	log_debug(['Found a protecting policy proof for ',Goal,' at ',Peer]),	
+	validate(ExtraGuards,Peer,Requester).
+validatePolicy(_Goal,_Peer,_Requester).
 
-:- dynamic(runningpeer/2).
-:- dynamic(maxdepth/1).
-:- dynamic(debug_on/0).
+				%checkPolicy(Goal@Issuer,Peer) :-
+%	\+(proof(policy(Goal@Issuer,_)@Peer)).
+
+%% --------------------------
+
+printResultTree(_) :- init,fail.
+printResultTree(X) :-
+	printResultSubTree(X).
+
+printResultSubTree([]).
+printResultSubTree([resultTree(Goal,SubQueries,Proof,Trace,RemoteGoal,Delegator)|Rest]) :-
+	writelist(2,[Goal]),
+	writelist(5,SubQueries),
+	writelist(5,Proof),
+	writelist(5,Trace),
+	writelist(5,[RemoteGoal]),
+	writelist(5,[Delegator]),nl,
+	printResultSubTree(Rest).

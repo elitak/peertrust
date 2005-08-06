@@ -44,11 +44,11 @@ import org.peertrust.strategy.*;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.18 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -85,7 +85,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.18 2005/08/06 07:59:50 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -217,6 +217,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			return ;
 		}
 			
+		log.debug("Selected Tree: " + selectedTree) ;
+		
 		Trace trace = selectedTree.getTrace() ;
 		
 		// if the query is a failure, we forward the failure to the requester
@@ -259,6 +261,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		} catch (InferenceEngineException e) {
 			log.error ("Error processing tree", e) ;
 		}
+		
 		// if there is no answers to the query we set the tree's status to FAILED and add it to the queue
 	 	// 		so it will be send a failure to the requester in the next time it is selected
 		if (results == null)
@@ -298,7 +301,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 
 						Tree answeredTree = new Tree(selectedTree) ;
 						answeredTree.setGoal(results[i].getGoal()) ;
-						answeredTree.appendProof(results[i].getProof()) ;
+						answeredTree.getProof().appendProof(results[i].getProof()) ;
+						answeredTree.getTrace().appendTrace(results[i].getTrace()) ;
 						answeredTree.setStatus(Tree.ANSWERED) ;
 						
 						log.debug("Tree " + answeredTree.getGoal() + " answered") ;
@@ -310,7 +314,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						Tree newTree = new Tree(results[i].getGoal(), results[i].getSubgoals(), 
 								selectedTree.getProof(), Tree.READY, selectedTree.getRequester(), 
 								selectedTree.getReqQueryId(), (Trace)trace.clone()) ;
-						newTree.appendProof(results[i].getProof()) ;
+						newTree.getProof().appendProof(results[i].getProof()) ;
+						newTree.getTrace().appendTrace(results[i].getTrace()) ;
 						_queue.add(newTree) ;
 					}
 				}
@@ -336,14 +341,15 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 								selectedTree.getProof(), Tree.WAITING, selectedTree.getRequester(),
 								selectedTree.getReqQueryId(), peerDelegator, results[i].getGoalExpanded(), 
 								newTrace) ;
-						delegatedTree.appendProof(results[i].getProof()) ;
+						delegatedTree.getProof().appendProof(results[i].getProof()) ;
+						delegatedTree.getTrace().appendTrace(results[i].getTrace()) ;
 						
 						_queue.add(delegatedTree) ;
 						
 						log.debug("Initial requester: " + selectedTree.getRequester().getAlias()) ;
 						log.debug("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
 						
-						log.debug("Trace is:" + newTrace.printTrace()) ;
+						log.debug("Trace is:" + newTrace) ;
 						
 						// and send query to remote delegator
 						Query query = new Query(delegatedTree.getLastExpandedGoal(), _localPeer, delegatedTree.getDelegator(), delegatedTree.getId(), (Trace)newTrace.clone()) ;

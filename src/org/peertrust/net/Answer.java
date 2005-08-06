@@ -22,17 +22,18 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
+import org.peertrust.meta.Proof;
 import org.peertrust.meta.Trace;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Answer.java,v 1.5 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: Answer.java,v 1.6 2005/08/06 07:59:49 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/08/06 07:59:49 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -44,16 +45,18 @@ public class Answer extends Message implements Serializable {
  	public static final int LAST_ANSWER = 6 ;
 
  	private String goal = null ;
- 	private String proof = null ;
+ 	private Proof proof = null ;
  	private int status = -1 ;
  	private long reqQueryId = -1 ;
+ 	private Trace _trace = null ;
 	
-	public Answer(String goal, String proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
+	public Answer(String goal, Proof proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
 		super(source, target, trace) ;
 		this.goal = goal ;
 		this.proof = proof ;
 		this.status = status ;
 		this.reqQueryId = reqQueryId ;
+		_trace = trace ;
 	}
 		
 	/**
@@ -71,13 +74,13 @@ public class Answer extends Message implements Serializable {
 	/**
 	 * @return Returns the proof.
 	 */
-	public String getProof() {
+	public Proof getProof() {
 		return proof;
 	}
 	/**
 	 * @param proof The proof to set.
 	 */
-	public void setProof(String proof) {
+	public void setProof(Proof proof) {
 		this.proof = proof;
 	}
 	/**

@@ -26,6 +26,7 @@ import java.util.Vector ;
 import java.applet.Applet;
 import com.ifcomputer.minerva.*;
 
+import org.peertrust.inference.PrologTools ;
 
 import java.util.StringTokenizer;
 
@@ -40,11 +41,11 @@ import org.peertrust.meta.Tree;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.9 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:47 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -76,7 +77,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.9 2005/08/06 07:59:50 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -115,7 +116,8 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			_engine.load(_baseFolder + META_INTERPRETER_FILENAME) ;
 			
 			if (_debugMode)
-				insert("debug_on") ;
+				insert("debug_extra") ;
+				//insert("debug_on") ;
 			
 			_engine.execute(INIT_PREDICATE) ;
 			
@@ -199,39 +201,6 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		_varList.clear() ;
 	}
 	
-	private Object [] extractTerms (String query)
-	{
-		Vector terms = new Vector () ;
-		int numberBrackets = 0 ;
-		int numberSquareBrackets = 0 ;
-		StringBuffer currentTerm = new StringBuffer("") ;
-		for (int i = 0 ; i < query.length() ; i++)
-		{
-			char car = query.charAt (i) ;
-			if (car == '(')
-				numberBrackets ++ ;
-			else if (car == '[')
-				numberSquareBrackets ++ ;
-			else if (car == ')')
-				numberBrackets -- ;
-			else if (car == ']')
-				numberSquareBrackets -- ;
-			else if ( (car == ',') && (numberBrackets == 0) && (numberSquareBrackets == 0) )
-			{ 
-				terms.add(currentTerm.toString()) ;
-				currentTerm = new StringBuffer ("") ;
-				continue ;
-			}
-			
-			currentTerm.append(car) ;
-		}
-		
-		if (currentTerm.length() > 0)
-			terms.add(currentTerm.toString()) ;
-					
-		return terms.toArray() ;
-	}
-	
 	public MinervaTerm parse (String originalQuery)
 	{
 		String query = originalQuery.trim() ;
@@ -245,11 +214,11 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			int indexL = query.lastIndexOf(']') ;
 			
 			// is a list
-			Object [] list = extractTerms (query.substring(1, query.length() - 1)) ;
-			MinervaTerm [] minervaArgs = new MinervaTerm[list.length] ;
+			Vector list = PrologTools.extractTerms (query.substring(1, query.length() - 1)) ;
+			MinervaTerm [] minervaArgs = new MinervaTerm[list.size()] ;
 				
-			for (int i = 0 ; i < list.length ; i++)
-				minervaArgs[i] = parse ((String) list[i]) ;
+			for (int i = 0 ; i < list.size() ; i++)
+				minervaArgs[i] = parse ((String) list.elementAt(i)) ;
 			term = MinervaList.create(minervaArgs) ;
 
 //			StringTokenizer list = new StringTokenizer (query.substring(1, query.length() - 1), ",") ;
@@ -286,13 +255,13 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				index = query.indexOf('(') ;
 				// it is a predicate with arguments
 				String predicate = query.substring(0, index) ;
-				Object [] args = extractTerms (query.substring(index + 1, query.length() - 1)) ;
-				if (args.length > 0)
+				Vector args = PrologTools.extractTerms (query.substring(index + 1, query.length() - 1)) ;
+				if (args.size() > 0)
 				{
-					MinervaTerm [] minervaArgs = new MinervaTerm[args.length] ;
+					MinervaTerm [] minervaArgs = new MinervaTerm[args.size()] ;
 				
-					for (int i = 0 ; i < args.length ; i++)
-						minervaArgs[i] = parse ((String) args[i]) ;
+					for (int i = 0 ; i < args.size() ; i++)
+						minervaArgs[i] = parse ((String) args.elementAt(i)) ;
 					term = new MinervaCompound (predicate, minervaArgs) ;
 				}
 				else
@@ -409,7 +378,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		String query = "tree(" + 
 								logicQuery.getGoal() + "," +
 								logicQuery.getSubgoals() + "," +
-								"[]," +
+//								"[]," +
 								logicQuery.getRequester() + ")" ;
 		
 		log.debug ("Query: " + query) ;
@@ -438,30 +407,31 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		String result = unparse (resultVar) ;
 		log.debug("Parsed results: " + result) ;
 				
-		Object [] answerStrings = extractTerms (result.substring(1,result.length()-1)) ;
+		Vector answerStrings = PrologTools.extractTerms (result.substring(1,result.length()-1)) ;
 		
-		if (answerStrings.length > 0)
+		if (answerStrings.size() > 0)
 		{
-			LogicAnswer [] answers = new LogicAnswer[answerStrings.length] ;
-			for (int i = 0 ; i < answerStrings.length ; i++)
+			LogicAnswer [] answers = new LogicAnswer[answerStrings.size()] ;
+			for (int i = 0 ; i < answerStrings.size() ; i++)
 			{
-				String currentTreeString = (String) answerStrings[i] ;
+				String currentTreeString = (String) answerStrings.elementAt(i) ;
 
 				log.debug("Current tree string: " + currentTreeString) ;
 				
-				Object [] answerArgs = extractTerms (currentTreeString.substring("tree(".length(), currentTreeString.length() - 1)) ;
+				Vector answerArgs = PrologTools.extractTerms (currentTreeString.substring("resultTree(".length(), currentTreeString.length() - 1)) ;
 			
-				String delegator = (String) answerArgs[3] ;
+				String delegator = (String) answerArgs.elementAt(5) ;
 			
 				log.debug ("Delegator: " + delegator) ;
 				
 				if (delegator.equals("nil"))
 					delegator = null ;
 					
-				answers[i] = new LogicAnswer(	(String) answerArgs[0],
-												(String) answerArgs[4],
-												(String) answerArgs[1],
-												(String) answerArgs[2],
+				answers[i] = new LogicAnswer(	(String) answerArgs.elementAt(0),
+												(String) answerArgs.elementAt(4),
+												(String) answerArgs.elementAt(1),
+												(String) answerArgs.elementAt(2),
+												(String) answerArgs.elementAt(3),
 												delegator) ;	
 			}
 			return answers ;
@@ -499,11 +469,11 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			
 			log.debug ("Unified parsed results: " + result) ;
 		
-			Object [] treeStrings = extractTerms (result.substring("new(".length(),result.length()-1)) ;
+			Vector treeStrings = PrologTools.extractTerms (result.substring("new(".length(),result.length()-1)) ;
 		
 			tree.setLastExpandedGoal(null) ;
-			tree.setGoal((String)treeStrings[0]) ;
-			tree.setResolvent((String)treeStrings[1]) ;		
+			tree.setGoal((String)treeStrings.elementAt(0)) ;
+			tree.setResolvent((String)treeStrings.elementAt(1)) ;		
 		}
 
 	private boolean isApplet ()

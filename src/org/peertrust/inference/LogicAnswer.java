@@ -20,16 +20,18 @@
 package org.peertrust.inference;
 
 import org.apache.log4j.Logger;
+import org.peertrust.meta.Proof;
+import org.peertrust.meta.Trace;
 
 /**
  * <p>
  * Answer received from an inference engine.
  * </p><p>
- * $Id: LogicAnswer.java,v 1.3 2005/05/22 17:56:47 dolmedilla Exp $
+ * $Id: LogicAnswer.java,v 1.4 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:47 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -38,15 +40,18 @@ public class LogicAnswer {
 
  	private String goal = null ;
  	private String subgoals = null ;
- 	private String proof = null ;
+ 	private Trace _trace = null ;
+ 	private Proof _proof = null ;
+// 	private String proof = null ;
  	private String goalExpanded = null ;
  	private String delegator = null ;
  	private static Logger log = Logger.getLogger(LogicAnswer.class);
  	
-	public LogicAnswer(String goal, String goalExpanded, String subgoals, String proof, String delegator) {
+	public LogicAnswer(String goal, String goalExpanded, String subgoals, String proof, String trace, String delegator) {
 		this.goal = goal ;
 		this.subgoals = subgoals ;
-		this.proof = proof ;
+		setTrace(trace) ;
+		setProof(proof) ;
 		this.delegator = delegator ;
 		this.goalExpanded = goalExpanded ;
 		log.debug("Created: " + this.toString()) ;
@@ -67,14 +72,26 @@ public class LogicAnswer {
 	/**
 	 * @return Returns the proof.
 	 */
-	public String getProof() {
-		return proof;
+	public Proof getProof() {
+		return _proof ;
 	}
 	/**
 	 * @param proof The proof to set.
 	 */
 	public void setProof(String proof) {
-		this.proof = proof;
+		_proof = new Proof(PrologTools.extractListTerms(proof));
+	}
+	/**
+	 * @return Returns the trace.
+	 */
+	public Trace getTrace() {
+		return _trace ;
+	}
+	/**
+	 * @param trace The trace to set.
+	 */
+	public void setTrace(String trace) {
+		_trace = new Trace(PrologTools.extractListTerms(trace));
 	}
 	/**
 	 * @return Returns the query.
@@ -103,7 +120,7 @@ public class LogicAnswer {
 	
 	public String toString ()
 	{
-		return "Goal: |" + goal + "| - Subgoals: |" + subgoals + "| - Proof: |" + proof + "|" ; 
+		return "Goal: |" + goal + "| - Subgoals: |" + subgoals + "| - Proof: |" + _proof + "| - Trace: " + _trace + "|" ; 
 	}
 	/**
 	 * @return Returns the goalExpanded.

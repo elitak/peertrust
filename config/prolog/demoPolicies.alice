@@ -30,3 +30,15 @@ signed(rule(policeOfficer(alice) @ caStatePolice, [], []),
 
 policy(policeOfficer(alice) @ caStatepolice $ Requester,
             [bbbMember(Requester) @ bbb @ Requester]).
+
+
+%---------------------------------------
+% Pharmaceutical example
+
+signed( rule( isPharmacy(alice)@fda, [], [] ), fda, signature( fda ) ).
+
+policy( isPharmacy(X)@fda, [isPharmacy(X)@massBP] ).
+
+signed( rule( isPharmacy(alice)@massBP$_Requester, [], [] ), massBP, signature( massBP ) ).
+
+policy( isPharmacy(alice)@massBP$Requester, [isPharmaceuticalCo(Requester)@fda@Requester] ).

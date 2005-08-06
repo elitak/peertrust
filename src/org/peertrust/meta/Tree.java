@@ -29,11 +29,11 @@ import org.peertrust.net.*;
  * <p>
  * 
  * </p><p>
- * $Id: Tree.java,v 1.9 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: Tree.java,v 1.10 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -61,8 +61,8 @@ public class Tree
  	private String _originalGoal = null ;
  	private String _goal = null ;
  	private String _resolvent = null ;
- 	private String _stringProof = null ;
- 	private Vector _vectorProof ;
+ 	private Proof _proof = null ;
+ 	private Trace _trace = null ;
  	private int _status = UNSPECIFIED ;
  	private Peer _requester = null ;
  	private long _reqQueryId = NULL_ID ;
@@ -72,16 +72,21 @@ public class Tree
 	private long _timeStamp = 0 ;
 	static private long _currentId = 0 ;
 	
-	Trace _trace ;
-	
- 	Tree (long id, String goal, String subqueries, String proof, int status, Peer requester, 
+ 	Tree (long id, String goal, String subqueries, Proof proof, int status, Peer requester, 
  			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
  		this._id = id ;
  		this._originalGoal = goal ;
  		this._goal = goal ;
  		this._resolvent = subqueries ;
- 		setProof(proof) ;
+ 		if (proof == null)
+ 			_proof = new Proof() ;
+ 		else
+ 			_proof = proof ;
+ 		if (trace == null)
+ 			_trace = new Trace() ;
+ 		else
+ 			_trace = trace ;
  		this._status = status ;
  		this._requester = requester ;	
  		this._reqQueryId = reqQueryId ;
@@ -95,18 +100,18 @@ public class Tree
  	// Constructor for a completely new query
  	public Tree (String goal, Peer requester, long reqQueryId, Trace trace)
 	{
- 		this(getNewId(), goal, "[query(" + goal + ",no)]", "[]", READY, requester, 
+ 		this(getNewId(), goal, "[query(" + goal + ",no)]", null, READY, requester, 
  				reqQueryId, null, null, trace) ;
 	}
  	
-	Tree (String goal, String subqueries, String proof, int status, Peer requester, 
+	Tree (String goal, String subqueries, Proof proof, int status, Peer requester, 
 			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
  		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
  				delegator, lastExpandedGoal, trace) ;
  	}
 
-	public Tree (String goal, String subqueries, String proof, int status, Peer requester, 
+	public Tree (String goal, String subqueries, Proof proof, int status, Peer requester, 
 			long reqQueryId, Trace trace)
 	{
 		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
@@ -151,6 +156,9 @@ public class Tree
  		String tmpString ;
  		Peer tmpPeer ;
  		int tmpByte ;
+ 		Proof tmpProof ;
+ 		Trace tmpTrace ;
+ 		
  		
  		tmpLong = tree.getId() ;
  		if (tmpLong != NULL_ID)
@@ -164,9 +172,13 @@ public class Tree
  		if (tmpString != null)
  			this._resolvent = tmpString ;
  			
- 		tmpString = tree.getProof() ;
- 		if (tmpString != null)
- 			setProof(tmpString) ;
+ 		tmpProof = tree.getProof() ;
+ 		if (tmpProof != null)
+ 			setProof(tmpProof) ;
+ 		
+ 		tmpTrace = tree.getTrace() ;
+ 		if (tmpTrace != null)
+ 			setTrace(tmpTrace) ;
  		
  		tmpByte = tree.getStatus() ;
  		if (tmpByte != UNSPECIFIED)
@@ -223,26 +235,28 @@ public class Tree
  		return same ;	
  	}
  	
-	public void appendProof (String proof2)
-	{
-		String proof1 = _stringProof ;
-		
-		String previousProof = proof1.substring(1,proof1.length()-1) ;
-		String newProof =  proof2.substring(1,proof2.length()-1) ;
-		String joinedProof = "[" ;
-		if (previousProof.length() > 2)
-		{
-			joinedProof += previousProof ;
-			if (newProof.length() > 2)
-				joinedProof +="," + newProof ;
-		}
-		else
-			joinedProof += newProof ;
-		joinedProof += "]" ;	
-		
-		this._stringProof = joinedProof ;
-		this._vectorProof.addAll(generateProofVector(proof2)) ;
-	}
+//	public void appendProof (Proof proof2)
+//	{
+//		_proof.append(proof2) ;
+//		
+//		String proof1 = _stringProof ;
+//		
+//		String previousProof = proof1.substring(1,proof1.length()-1) ;
+//		String newProof =  proof2.substring(1,proof2.length()-1) ;
+//		String joinedProof = "[" ;
+//		if (previousProof.length() > 2)
+//		{
+//			joinedProof += previousProof ;
+//			if (newProof.length() > 2)
+//				joinedProof +="," + newProof ;
+//		}
+//		else
+//			joinedProof += newProof ;
+//		joinedProof += "]" ;	
+//		
+//		this._stringProof = joinedProof ;
+//		this._vectorProof.addAll(generateProofVector(proof2)) ;
+//	}
 
  	public long getId () {
  		return _id ; }
@@ -265,12 +279,11 @@ public class Tree
  		this._resolvent = subqueries ;
  	}
  		
- 	public String getProof() {
- 		return _stringProof ; }
+ 	public Proof getProof() {
+ 		return _proof ; }
  		
- 	public void setProof (String proof) {
- 		this._stringProof = proof ;
- 		this._vectorProof = generateProofVector (proof) ;
+ 	public void setProof (Proof proof) {
+ 		_proof = proof ;
  	}
  	
  	public int getStatus() {
@@ -349,7 +362,10 @@ public class Tree
 	
 	public String toString()
 	{
-		return "Id: |" + _id + "| - originalGoal: |" + _originalGoal + "| - Goal: |" + _goal + "| Subgoals: |" +
-			_resolvent + "| - Proof: |" + _stringProof + "| LastExpandedGoal: |" + _lastExpandedGoal + "|"  ;
+		return "Id: |" + _id + "| - originalGoal: |" + _originalGoal +
+		"\n\t| - Goal: |" + _goal + "| Subgoals: |" + _resolvent + 
+		"\n\t| - Proof: |" + _proof +
+		"\n\t| - Trace: |" + _trace +
+		"\n\t| - LastExpandedGoal: |" + _lastExpandedGoal + "|"  ;
 	}
 }

@@ -1,3 +1,6 @@
+:- dynamic(debug_on/0).
+:- dynamic(debug_extra/0).
+
 % we use two special infix operators
 % infix operator definition for @ (remote predicate call)
 :- op(600, yfx, @).
@@ -7,6 +10,27 @@
 :- op(601, yfx, $).
 
 % ---------------------------------------
+
+init :- 
+    retractall(writId(_)),
+    asserta(writId(0)).
+
+writeId(NewId) :-
+     retract(writId(Id)),
+     NewId is Id+1,
+     asserta(writId(NewId)).
+
+%:- dynamic(markSignal/0).
+%mark :- \+(markSignal),!,asserta(markSignal).
+%mark.
+%checkMark :- \+(markSignal).
+%demark :- retractall(markSignal).
+
+:- dynamic(markSignal/1).
+mark(X) :- \+(markSignal(X)),!,asserta(markSignal(X)).
+mark(_).
+checkMark(X) :- \+(markSignal(X)).
+demark(X) :- retractall(markSignal(X)).
 
 % begin utility predicates for printing etc.
 
@@ -169,10 +193,10 @@ write_credential(Credential) :-
 
 %% writelist_debug(List)
 
-writelist_debug(List) :-
-    debug_on,
-    writelist(List),!.
-writelist_debug(_).
+%writelist_debug(List) :-
+%    debug_on,
+%    writelist(List),!.
+%writelist_debug(_).
 
 %% log_info == writelist
 
@@ -180,8 +204,21 @@ log_info(List) :-
     writelist(List).
 
 %% log_debug == writelist_debug
+
 log_debug(List) :-
-    writelist_debug(List).
+	( debug_on ; debug_extra ),!,
+	writelist(List).
+log_debug(_List).
+
+%% log_extra == writelist_
+
+log_extra(List) :-
+	debug_extra,!,
+	writelist(List).
+log_extra(_List).
+
+log_error(List) :-
+    writelist(['Error: '|List]).
 
 writelist(N, List) :-
     writeId(Id),
@@ -231,4 +268,3 @@ writeblank(N) :-
     write(' '),
     N1 is N - 1,
     writeblank(N1).
-

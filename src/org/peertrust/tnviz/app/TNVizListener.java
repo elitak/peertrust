@@ -32,11 +32,11 @@ import org.peertrust.net.Query;
  * maintain the diagramms. The listener waits for new events, and visualizes
  * received queries and answers.
  * </p><p>
- * $Id: TNVizListener.java,v 1.8 2005/08/01 11:50:36 dolmedilla Exp $
+ * $Id: TNVizListener.java,v 1.9 2005/08/06 07:59:48 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/08/01 11:50:36 $
+ * Last changed: $Date: 2005/08/06 07:59:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author Michael Schaefer and Sebastian Wittler
@@ -84,7 +84,7 @@ public class TNVizListener implements PTEventListener, Configurable {
             log.debug("New query received from " + query.getSource().getAlias()
                     + ": " +
                     query.getGoal() + " - " + query.getReqQueryId() + " - "
-                    + query.getTrace().printTrace());
+                    + query.getTrace());
             graphics.addQuery(query);
         }
         else if (event instanceof AnswerEvent) {
@@ -107,7 +107,7 @@ public class TNVizListener implements PTEventListener, Configurable {
             log.debug(message + "received from "
                     + answer.getSource().getAlias() + ": " +
                     answer.getGoal() + " - " + answer.getReqQueryId() + " - "
-                    + answer.getTrace().printTrace());
+                    + answer.getTrace());
             graphics.addAnswer(answer);
         }
         graphics.updateGraph();

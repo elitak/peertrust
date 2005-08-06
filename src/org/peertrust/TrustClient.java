@@ -38,11 +38,11 @@ import org.peertrust.net.Query ;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.7 2005/05/22 17:56:45 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.8 2005/08/06 07:59:49 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:45 $
+ * Last changed: $Date: 2005/08/06 07:59:49 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -145,6 +145,7 @@ public class TrustClient implements PTEventListener
 		
 		TrustClient tc = new TrustClient(dispatcher) ;
 		
+		//tc.sendQuery("orderDrugs(Drug,Requester) @ elearn") ;
 		tc.sendQuery("request(spanishCourse,Session) @ elearn") ;
 		
 		long time = System.currentTimeMillis() ;

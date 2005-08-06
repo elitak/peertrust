@@ -23,16 +23,17 @@ import java.io.Serializable;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.inference.PrologTools;
 
 /**
  * <p>
- * 
+ * Trace of the inference engine
  * </p><p>
- * $Id: Trace.java,v 1.2 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: Trace.java,v 1.3 2005/08/06 07:59:50 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2005/08/06 07:59:50 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -45,27 +46,38 @@ public class Trace implements Cloneable, Serializable {
 	static public String FAILURE = "-fail-" ;
 	
 	// addition to distinguish different negotiation paths
-	Vector _trace = new Vector() ;
+	Vector _trace = null ;
 	
 	public Trace ()
 	{
-		this (null) ;
+		this ((String) null) ;
 	}
 	
-	public Trace (String [] trace)
+	public Trace (String trace)
 	{
 		super() ;
+		//log.debug("Creating from " + trace) ;
 		if (trace != null)
-			for (int i = 0 ; i < trace.length ; i++)
-				_trace.add(trace[i]) ;
+			_trace = PrologTools.extractListTerms(trace) ;
+		else
+			_trace = new Vector() ;
+		log.debug("Created: " + this) ;
 	}
 	
-	public synchronized String [] getTrace ()
+	public Trace (Vector trace)
 	{
-		String [] array = new String[_trace.size()] ;
-		for (int i = 0 ; i < _trace.size() ; i++)
-			array[i] = (String) _trace.elementAt(i) ;
-		return array ;
+		super() ;
+		//log.debug("Creating from trace " + trace + " with " + trace.size() + " elements.") ;
+		if (trace != null)
+			_trace = trace ;
+		else
+			_trace = new Vector() ;
+		log.debug("Created: " + this) ;
+	}
+	
+	public synchronized Vector getTrace ()
+	{
+		return _trace ;
 	}
 	
 	public synchronized String printTrace()
@@ -87,6 +99,23 @@ public class Trace implements Cloneable, Serializable {
 		return list ;
 	}
 	
+	public String toString ()
+	{
+		return printTrace() ;
+	}
+	
+	public Trace appendTrace (String trace2)
+	{
+		Vector tmp = PrologTools.extractListTerms(trace2) ;
+		return appendTrace (new Trace(tmp)) ;
+	}
+	
+	public Trace appendTrace (Trace trace2)
+	{
+		_trace.addAll(trace2.getTrace()) ;
+		return this ;
+	}
+
 	private synchronized Trace addElement (String element)
 	{
 		_trace.add(element) ;
@@ -110,7 +139,7 @@ public class Trace implements Cloneable, Serializable {
 	
 	public Object clone ()
 	{
-		return new Trace (this.getTrace()) ;
+		return new Trace ((Vector)_trace.clone()) ;
 	}
 	
 	public boolean isEmptyTrace ()
