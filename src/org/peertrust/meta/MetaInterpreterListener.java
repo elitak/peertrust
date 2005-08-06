@@ -40,11 +40,11 @@ import org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.13 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.14 2005/08/06 08:30:14 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2005/08/06 08:30:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -67,7 +67,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.13 2005/08/06 07:59:50 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.14 2005/08/06 08:30:14 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -176,20 +176,40 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			switch (answer.getStatus())
 			{
 				// new answer
+				// last answer to a query
 				case Answer.ANSWER:
+				case Answer.LAST_ANSWER:
+					
+					// to-do
+					// CHECK IF THERE IS AN ERROR BECAUSE IT IS NOT IN THE QUEUE 
+				
 					// it is an answer, we unify the answer with the the corresponding query
 					Tree pattern = new Tree (answer.getReqQueryId()) ;
-					Tree match = _queue.search(pattern) ;
+				
+					Tree match ; 
+					if (answer.getStatus() == Answer.ANSWER)
+						match = _queue.search(pattern) ;
+					else
+						// the query waiting is removed from the queue
+						match = _queue.remove(pattern) ;
 					
+					// validating the proof
+
+					// unification of the query goal with the answer
 					try {
 						_inferenceEngine.unifyTree(match,answer.getGoal()) ;
 					} catch (InferenceEngineException e) {
 						log.error("Error unifying " + match.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
 					}
 					
-					log.debug ("New answer received: " + answer.getGoal()) ;
+					if (answer.getStatus() == Answer.ANSWER)
+						log.debug ("New answer received: " + answer.getGoal()) ;
+					else
+						log.debug("Last answer received: " + answer.getGoal()) ;
 					
-					// we duplicate the tree (one still wait for new answers and the copy can continue being processed)
+					// for an answer: we duplicate the tree (the original still remains in the queue)
+					//    (one still wait for new answers and the copy can continue being processed)
+					// for a last answer: we add the updated one (the original was removed from the queue)
 					Tree newTree = new Tree (match) ;
 					newTree.setStatus(Tree.READY) ;
 					
@@ -199,43 +219,14 @@ public class MetaInterpreterListener implements Runnable, Configurable
 					
 					_queue.add(newTree) ;
 					
-					// we update the waiting query
-					if (match.getStatus() == Tree.WAITING)
-					{
-						match.setStatus(Tree.ANSWERED_AND_WAITING) ;
-						_queue.update(pattern, match) ;
-					}
-					break ;
-					
-				// last answer to a query
-				case Answer.LAST_ANSWER:
-					// to-do
-					// CHECK IF THERE IS AN ERROR BECAUSE IT IS NOT IN THE QUEUE 
-					Tree pattern2 = new Tree (answer.getReqQueryId()) ;
+					if (answer.getStatus() == Answer.ANSWER)
+						// we update the waiting query
+						if (match.getStatus() == Tree.WAITING)
+						{
+							match.setStatus(Tree.ANSWERED_AND_WAITING) ;
+							_queue.update(pattern, match) ;
+						}
 
-					// the query waiting is removed from the queue
-					Tree match2 = _queue.remove(pattern2) ;
-					
-					// unification of the query goal with the answer
-					try {
-						_inferenceEngine.unifyTree(match2,answer.getGoal()) ;
-					} catch (InferenceEngineException e) {
-						log.error("Error unifying " + match2.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
-					}
-					
-					log.debug("Last answer received: " + answer.getGoal()) ;
-
-					// and we add the updated one
-					Tree newTree2 = new Tree (match2) ;
-					newTree2.setStatus(Tree.READY) ;
-					
-					// add the proof from the answer
-					newTree2.getProof().appendProof(answer.getProof()) ;
-					newTree2.setTrace(answer.getTrace()) ;
-					
-					//queue.remove(pattern2) ;
-					_queue.add(newTree2) ;
-				
 					break ;
 
 				// failure
