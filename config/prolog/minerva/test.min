@@ -23,24 +23,28 @@ rule(sellings(bob,2000),[],[]).
 
 internal(silverClient(bob),[validClient(bob)],[sellings(bob,S),constraint(S>500)]).
      
-signed(rule(drivingLicense(alice) @ caState, [], []),
-            caState, signature(caState)).
+%signed(rule(drivingLicense(alice) @ caState, [], []),
+%            caState, signature(caState)).
 
-signed(rule(policeOfficer(alice) @ caStatePolice, [], []),
-            caStatePolice, signature(caStatePolice)).
+%signed(rule(policeOfficer(alice) @ caStatePolice, [], []),
+%            caStatePolice, signature(caStatePolice)).
 
-policy(policeOfficer(alice) @ caStatepolice $ Requester,
-            [bbbMember(Requester) @ bbb @ Requester]).
+%policy(policeOfficer(alice) @ caStatepolice $ Requester,
+%            [bbbMember(Requester) @ bbb @ Requester]).
 
-signed(rule(student(alice) @ uniHannover $ _Requester,[], []),
-       uniHannover,signature(uniHannover)).
+%signed(rule(student(alice) @ uniHannover $ _Requester,[], []),
+%       uniHannover,signature(uniHannover)).
 
-:- include('../demoPolicies.alice').
+%:- include('../demoPolicies.alice').
+%peerName(alice).
+
+:- include('../demoPolicies.eLearn').
+peerName(elearn).
 
 debug_on.
 debug_extra.
 
-peerName(alice).
+
 
 test0(Results) :-
 	processTree(tree(validClient(X),[query(validClient(X),no)],doc),Results).
@@ -69,6 +73,15 @@ evaluateTest1(Result) :-
 test10(Results) :-
 	processTree(tree(@(isPharmacy(alice),fda),[query(@(isPharmacy(alice),fda),no)],elearn),Results).
 
+test11(Results) :-
+	processTree(tree(request(spanishCourse,V27978063),[query(request(spanishCourse,V27978063),no)],alice),Return),
+	Results = [resultTree(request(spanishCourse,V29422309),[query(policy3(request(V9090824),alice),no),query(get(spanishCourse,V29422309),no)],[@(rule($(request(spanishCourse,V29422309),alice),[policy1(request(spanishCourse),alice)],[get(spanishCourse,V29422309)]),elearn),@(rule(policy1(request(spanishCourse),alice),[@(@(drivingLicense(alice),caState),alice),policy3(request(V9090824),alice)],[]),elearn)],[],@(drivingLicense(alice),caState),alice),resultTree(request(spanishCourse,V16165899),[query(get(spanishCourse,V16165899),no)],[@(rule($(request(spanishCourse,V16165899),alice),[policy2(request(spanishCourse),alice)],[get(spanishCourse,V16165899)]),elearn),@(rule(policy2(request(spanishCourse),alice),[@(@(student(alice),hanoverUniversity),alice)],[]),elearn)],[],@(student(alice),hanoverUniversity),alice),resultTree(request(spanishCourse,V10040532),[query(get(spanishCourse,V10040532),no)],[@(rule($(request(spanishCourse,V10040532),alice),[policy2(request(spanishCourse),alice)],[get(spanishCourse,V10040532)]),elearn),@(rule(policy2(request(spanishCourse),alice),[@(@(student(alice),naplesUniversity),alice)],[]),elearn)],[],@(student(alice),naplesUniversity),alice)].
 
 validate1 :-
 	validateProof(orderDrugs(_,_),elearn,[rule(orderDrugs(_V27108604,alice)$alice,[],[isPharmacy(alice)@fda@alice])@elearn,signed(rule(isPharmacy(alice)@fda,[],[]),fda,signature(fda))@alice,policy(isPharmacy(alice)@fda,[isPharmacy(alice)@massBP])@alice,signed(rule(isPharmacy(alice)@massBP$elearn,[],[]),massBP,signature(massBP))@alice,policy(isPharmacy(alice)@massBP$elearn,[isPharmaceuticalCo(elearn)@fda@elearn])@alice,signed(rule(isPharmaceuticalCo(elearn)@fda,[],[]),fda,signature(fda))@elearn]).
+
+validate2 :-
+	validateProof(request(spanishCourse,_V5167364),elearn,[rule(request(spanishCourse,V29422309)$alice,[policy1(request(spanishCourse),alice)],[get(spanishCourse,V29422309)])@elearn,rule(policy1(request(spanishCourse),alice),[drivingLicense(alice)@caState@alice,policy3(request(_V9090824),alice)],[])@elearn,rule(request(spanishCourse,V16165899)$alice,[policy2(request(spanishCourse),alice)],[get(spanishCourse,V16165899)])@elearn,rule(policy2(request(spanishCourse),alice),[student(alice)@hanoverUniversity@alice],[])@elearn,rule(request(spanishCourse,V10040532)$alice,[policy2(request(spanishCourse),alice)],[get(spanishCourse,V10040532)])@elearn,rule(policy2(request(spanishCourse),alice),[student(alice)@naplesUniversity@alice],[])@elearn,signed(rule(drivingLicense(alice)@caState,[],[]),caState,signature(caState))@alice]).
+
+validate3 :-
+	validateProof(drivingLicense(alice)@caState,alice,[signed(rule(drivingLicense(alice)@caState,[],[]),caState,signature(caState))@alice]).

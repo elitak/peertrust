@@ -24,17 +24,19 @@ import java.applet.Applet;
 
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
+import org.peertrust.meta.Proof;
 import org.peertrust.meta.Tree;
+import org.peertrust.net.Peer;
 
 /**
  * <p>
  * Any class querying an inference engine in the system must implement this interface.
  * </p><p>
- * $Id: InferenceEngine.java,v 1.4 2005/05/22 17:56:47 dolmedilla Exp $
+ * $Id: InferenceEngine.java,v 1.5 2005/08/07 08:35:13 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed:  $Date: 2005/05/22 17:56:47 $
+ * Last changed:  $Date: 2005/08/07 08:35:13 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -45,6 +47,7 @@ public interface InferenceEngine
 	public LogicAnswer [] processTree (LogicQuery query) throws InferenceEngineException ;
 	public void unifyTree (Tree tree, String newQuery) throws InferenceEngineException ;
 	public boolean execute (String query) throws InferenceEngineException ;
+	public boolean validate(String Goal,Peer prover,Proof proof) throws InferenceEngineException ;
 	
 	public void insert (String clause) throws InferenceEngineException ;
 	public void setDebugMode (boolean debug) throws InferenceEngineException ;

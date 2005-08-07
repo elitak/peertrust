@@ -29,11 +29,11 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Answer.java,v 1.6 2005/08/06 07:59:49 dolmedilla Exp $
+ * $Id: Answer.java,v 1.7 2005/08/07 08:35:11 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:49 $
+ * Last changed: $Date: 2005/08/07 08:35:11 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -44,67 +44,76 @@ public class Answer extends Message implements Serializable {
  	public static final int ANSWER = 5 ;
  	public static final int LAST_ANSWER = 6 ;
 
- 	private String goal = null ;
- 	private Proof proof = null ;
- 	private int status = -1 ;
- 	private long reqQueryId = -1 ;
- 	private Trace _trace = null ;
+ 	private String _goal = null ;
+ 	private Proof _proof = null ;
+ 	private int _status = -1 ;
+ 	private long _reqQueryId = -1 ;
 	
 	public Answer(String goal, Proof proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
 		super(source, target, trace) ;
-		this.goal = goal ;
-		this.proof = proof ;
-		this.status = status ;
-		this.reqQueryId = reqQueryId ;
+		this._goal = goal ;
+		this._proof = proof ;
+		this._status = status ;
+		this._reqQueryId = reqQueryId ;
 		_trace = trace ;
 	}
-		
+			
 	/**
 	 * @return Returns the goal.
 	 */
 	public String getGoal() {
-		return goal;
+		return _goal;
 	}
 	/**
 	 * @param goal The goal to set.
 	 */
 	public void setGoal(String goal) {
-		this.goal = goal;
+		this._goal = goal;
 	}
 	/**
 	 * @return Returns the proof.
 	 */
 	public Proof getProof() {
-		return proof;
+		return _proof;
 	}
 	/**
 	 * @param proof The proof to set.
 	 */
 	public void setProof(Proof proof) {
-		this.proof = proof;
+		this._proof = proof;
 	}
 	/**
 	 * @return Returns the reqQueryId.
 	 */
 	public long getReqQueryId() {
-		return reqQueryId;
+		return _reqQueryId;
 	}
 	/**
 	 * @param reqQueryId The reqQueryId to set.
 	 */
 	public void setReqQueryId(long reqQueryId) {
-		this.reqQueryId = reqQueryId;
+		this._reqQueryId = reqQueryId;
 	}
 	/**
 	 * @return Returns the status.
 	 */
 	public int getStatus() {
-		return status;
+		return _status;
 	}
 	/**
 	 * @param status The status to set.
 	 */
 	public void setStatus(int status) {
-		this.status = status;
+		this._status = status;
+	}
+
+	public String toString()
+	{
+		String message = super.toString() ;
+		return "ANSWER "+ message +
+		"\n\t| - Goal: " + _goal +
+		"\n\t| - ReqQueryId: " + _reqQueryId +
+		"\n\t| - Proof: " + _proof +
+		"\n\t| - Status: " + _status ;
 	}
 }

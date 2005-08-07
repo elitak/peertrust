@@ -21,18 +21,17 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
-import org.peertrust.meta.Proof;
 import org.peertrust.meta.Trace;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Query.java,v 1.11 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: Query.java,v 1.12 2005/08/07 08:35:10 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2005/08/07 08:35:10 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -71,5 +70,13 @@ public class Query extends Message implements Serializable {
 	 */
 	public void setReqQueryId(long reqQueryId) {
 		this._reqQueryId = reqQueryId;
+	}
+	
+	public String toString()
+	{
+		String message = super.toString() ;
+		return "QUERY "+ message +
+		"\n\t| - Goal: " + _goal +
+		"\n\t| - ReqQueryId: " + _reqQueryId ;
 	}
 }

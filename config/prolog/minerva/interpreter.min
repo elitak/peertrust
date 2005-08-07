@@ -74,7 +74,7 @@ evaluate(tree(Goal,Resolvent,Requester),resultTree(Goal,FinalResolvent,FinalProo
 	    evaluate(tree(Goal,NewResolvent,Requester),resultTree(Goal,FinalResolvent,NewProof,NewTrace,FinalRemoteGoal,FinalDelegator))
 	;
 	    log_debug(['Delegator not nil']),
-	    FinalResolvent = NewQueries, NewProof = [], NewTrace = [], FinalRemoteGoal = RemoteGoal, FinalDelegator = Delegator
+	    FinalResolvent = NewResolvent, NewProof = Proof, NewTrace = Trace, FinalRemoteGoal = RemoteGoal, FinalDelegator = Delegator
 	),
 	append(Proof,NewProof,FinalProof),
 	append(Trace,NewTrace,FinalTrace).
@@ -153,13 +153,6 @@ localQuery(tree(Goal,query(constraint(SubGoal),Internal),_Requester),resultTree(
 %	    )
 %	).
 
-% expand Query with requester
-localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
-	log_extra(['Can ',SubGoal,' have $ added?']),
-	\+(SubGoal = _ $ _),
-	log_debug(['Adding the $ to ',SubGoal]),
-	localQuery(tree(Goal,query(SubGoal $ Requester,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)).
-
 % if we have a single Goal, we search for rules with Goal in their
 % head, and then evaluate their guard and body literals
 localQuery(tree(Goal,query(SubGoal,Internal),_Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
@@ -210,6 +203,13 @@ localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueri
 	    append(Trace1,Trace2,Trace)	
 	).
 
+% expand Query with requester
+localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_extra(['Can ',SubGoal,' have $ added?']),
+	\+(SubGoal = _ $ _),
+	log_debug(['Adding the $ to ',SubGoal]),
+	localQuery(tree(Goal,query(SubGoal $ Requester,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)).
+
 checkPolicy(Goal,ExtraGuards,_Requester) :-
 	policy(Goal,ExtraGuards),!.
 checkPolicy(Goal,ExtraGuards,Requester) :-
@@ -231,9 +231,10 @@ internal([_ | Rest]) :-
 
 % we will not use this rule if Goal itself is a 
 % 'Goal @ Peer' structure
-remoteQuery(tree(Goal,query(SubGoal,_),_),resultTree(Goal,[],[],[],G,Issuer)) :-
+remoteQuery(tree(Goal,query(SubGoal,_Internal),_Requester),resultTree(Goal,[],[],[],G,Issuer)) :-
 	log_debug(['Checking for remote rule query: ', SubGoal]),
-	( SubGoal = G @ Issuer ; SubGoal = G @ Issuer $ _),
+%	( SubGoal = G @ Issuer ; SubGoal = G @ Issuer $ _),
+	SubGoal = G @ Issuer,
 	peerName(Peer),
 	\+(Peer = Issuer),
 %	\+(SubGoal = _ @ _),

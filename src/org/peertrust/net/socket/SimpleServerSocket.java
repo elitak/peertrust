@@ -30,11 +30,11 @@ import org.peertrust.net.NetServer;
  * <p>
  * 
  * </p><p>
- * $Id: SimpleServerSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * $Id: SimpleServerSocket.java,v 1.3 2005/08/07 08:35:16 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:47 $
+ * Last changed: $Date: 2005/08/07 08:35:16 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -49,7 +49,7 @@ public class SimpleServerSocket implements NetServer {
    private ServerSocket _ss = null;
    
 	public SimpleServerSocket(int port) {
-		log.debug("$Id: SimpleServerSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $");
+		log.debug("$Id: SimpleServerSocket.java,v 1.3 2005/08/07 08:35:16 dolmedilla Exp $");
 		
 		try {
 			_ss = new ServerSocket (port) ;			
@@ -81,7 +81,7 @@ public class SimpleServerSocket implements NetServer {
 
 					message = (Message) objIn.readObject() ;
 					
-					log.debug("Message received from " + message.getSource().getAlias());
+					log.debug("listen(): " + message);
 				}
 				catch (ClassNotFoundException cnfe) {
 					log.error( "Class Not Found", cnfe);

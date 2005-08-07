@@ -34,18 +34,20 @@ import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
+import org.peertrust.meta.Proof;
 import org.peertrust.meta.Tree;
+import org.peertrust.net.Peer;
 
 
 /**
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.9 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.10 2005/08/07 08:35:14 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2005/08/07 08:35:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -58,6 +60,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	private final String PROLOG_PARSER_FILENAME = "load" ;
 	private final String PROLOG_PARSER_PREDICATE = "read_prolog_file" ;
 	private final String INIT_PREDICATE = "init" ;
+	private final String VALIDATE_PREDICATE = "validateProof" ;
 	
 	private Minerva _engine ;
 	private Hashtable _varList = new Hashtable() ;
@@ -77,7 +80,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.9 2005/08/06 07:59:50 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.10 2005/08/07 08:35:14 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -266,7 +269,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				}
 				else
 				{
-					System.err.println ("minerva: error at '" + query + "'. Predicates without arguments are not allowed") ;
+					log.error("minerva: error at '" + query + "'. Predicates without arguments are not allowed") ;
 					term = new MinervaAtom("nil") ;
 				}										
 			}
@@ -462,7 +465,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				_engine.execute("unification", minQuery, minNewQuery, resultVar) ;
 			}
 			catch (MinervaSystemError e) {
-				System.err.println ("Minerva: error unificating in Minerva: " + e.getMessage()) ;
+				log.error("Minerva: error unificating in Minerva: " + e.getMessage()) ;
 			}
 		
 			String result = unparse (resultVar) ;
@@ -554,7 +557,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		
 		//engine.insert("peerName(alice)") ;
 		
-		System.out.println (engine.execute("peerName(alice)")) ;
+		log.debug(new Boolean(engine.execute("peerName(alice)"))) ;
 //		MinervaProlog engine = new MinervaProlog() ;		
 //		MinervaVariable var = new MinervaVariable() ;
 //
@@ -578,16 +581,28 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		//String query = "prueba(tree(_) @ x, Var, atom, 20, [atom, Var2, [32, Var2, Var, Segunda], tree(juego)], final(Segunda))" ;
 		//String query = "tree(prueba @ x $ n, maria(X,j @ t) @ test) $ final" ;
 		//String query = "tree(document(project7,V12039161),[query(policy1(document(project7,V12039161,V8970080)),no),query(policy2(document(project7,V12039161,V8970080)),no),query(get_record(project7,V12039161),no)],[r(document(project7,V12039161),[policy1(document(project7,V12039161,V8970080)),policy2(document(project7,V12039161,V8970080))],[get_record(project7,V12039161)])@company7],manuel)" ;
-		System.out.println ("Result execute: " + engine.execute("write('prueba')")) ;
+		log.debug ("Result execute: " + engine.execute("write('prueba')")) ;
 		
 		String query = "[tree(employee(alice7,microsoft)@microsoft@alice7,[],[signed(r(employee(alice7,microsoft)@microsoft,[],[]),microsoft,signature(microsoft))@alice7,proved_by(alice7)@company7],manuel)]" ;
-		System.out.println ("Initial: " + query) ;
+		log.debug ("Initial: " + query) ;
 		
 		MinervaTerm term = engine.parse(query) ;
-		System.out.println ("Minerva: " + term.toString()) ;
+		log.debug ("Minerva: " + term.toString()) ;
 		
 		String query2 = engine.unparse(term) ;
-		System.out.println ("Query: " + query2) ;
+		log.debug ("Query: " + query2) ;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.inference.InferenceEngine#validate(java.lang.String, org.peertrust.net.Peer, org.peertrust.meta.Proof)
+	 */
+	public boolean validate(String goal, Peer prover, Proof proof) throws InferenceEngineException
+	{
+		log.debug("Validating Goal " + goal + " at " + prover.getAlias() + " with proof \n\t" + proof) ;
+		
+		String query = VALIDATE_PREDICATE + "(" + goal + "," + prover.getAlias() + "," + proof.toString() + ")" ;
+		
+		return execute(query) ;
 	}
 }
  

@@ -29,11 +29,11 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Message.java,v 1.5 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: Message.java,v 1.6 2005/08/07 08:35:11 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/08/07 08:35:11 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -74,5 +74,13 @@ public class Message implements Serializable {
 	public Trace getTrace()
 	{
 		return _trace ;
+	}
+	
+	public String toString()
+	{
+		return "MESSAGE: " +
+		"\n\t| - Source: " + _source +
+		"\n\t| - Target: " + _target +
+		"\n\t| - Trace: " + _trace ;
 	}
  }

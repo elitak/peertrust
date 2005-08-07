@@ -33,11 +33,11 @@ import org.peertrust.net.Peer;
  * <p>
  * 
  * </p><p> 
- * $Id: SimpleClientSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $
+ * $Id: SimpleClientSocket.java,v 1.3 2005/08/07 08:35:17 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:47 $
+ * Last changed: $Date: 2005/08/07 08:35:17 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -50,7 +50,7 @@ public class SimpleClientSocket implements NetClient {
 	private final int MAX_NUM_TRIES = 5 ;
 
 	public SimpleClientSocket() {
-		log.debug("$Id: SimpleClientSocket.java,v 1.2 2005/05/22 17:56:47 dolmedilla Exp $");
+		log.debug("$Id: SimpleClientSocket.java,v 1.3 2005/08/07 08:35:17 dolmedilla Exp $");
 	}
 
 	/* (non-Javadoc)
@@ -61,7 +61,7 @@ public class SimpleClientSocket implements NetClient {
 	 */
 	public void send(Message message, Peer peer)
 	{
-		log.debug("Send() " + message.toString() + " to " + peer.getAlias()) ;
+		log.debug("Send() " + message) ;
 		//int tries = 0 ;
 		//boolean sent = false ;
 		

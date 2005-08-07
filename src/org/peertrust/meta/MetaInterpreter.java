@@ -44,11 +44,11 @@ import org.peertrust.strategy.*;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreter.java,v 1.18 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.19 2005/08/07 08:35:15 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2005/08/07 08:35:15 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -85,7 +85,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.18 2005/08/06 07:59:50 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.19 2005/08/07 08:35:15 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -366,6 +366,9 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	{
 		PTEvent ptevent = null ;
 		Peer destination = message.getTarget() ;
+		
+		log.debug("Sending " + message) ;
+		
 		if (message instanceof Query)
 		{
 			log.debug("Send query to " + destination.getAddress() + ":" + destination.getPort() + " from " + message.getSource().getAlias()) ;

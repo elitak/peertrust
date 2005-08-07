@@ -40,11 +40,11 @@ import org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.14 2005/08/06 08:30:14 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.15 2005/08/07 08:35:16 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 08:30:14 $
+ * Last changed: $Date: 2005/08/07 08:35:16 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -67,7 +67,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.14 2005/08/06 08:30:14 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.15 2005/08/07 08:35:16 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -176,8 +176,8 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			switch (answer.getStatus())
 			{
 				// new answer
-				// last answer to a query
 				case Answer.ANSWER:
+				// last answer to a query
 				case Answer.LAST_ANSWER:
 					
 					// to-do
@@ -193,13 +193,28 @@ public class MetaInterpreterListener implements Runnable, Configurable
 						// the query waiting is removed from the queue
 						match = _queue.remove(pattern) ;
 					
-					// validating the proof
-
+					log.debug("A new answer to be validated. \n\tTree: " + match + "\n\tProof: " + answer.getProof()) ;
+					try {
+						// validating the proof
+						if (_inferenceEngine.validate(
+								match.getLastExpandedGoal(),
+								match.getDelegator(),
+								answer.getProof()) == false)
+						{
+							log.error("Error proving " + match.getLastExpandedGoal() + " with \n\t" + answer.getProof()) ;
+							return ;
+						}
+					} catch (InferenceEngineException e1) {
+						log.error("Error proving " + match.getLastExpandedGoal() + " with \n\t" + answer.getProof()) ;
+						return ;
+					}
+					
 					// unification of the query goal with the answer
 					try {
 						_inferenceEngine.unifyTree(match,answer.getGoal()) ;
 					} catch (InferenceEngineException e) {
 						log.error("Error unifying " + match.getLastExpandedGoal() + " and " + answer.getGoal(), e) ;
+						return ;
 					}
 					
 					if (answer.getStatus() == Answer.ANSWER)

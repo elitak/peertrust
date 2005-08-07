@@ -29,11 +29,11 @@ import org.peertrust.net.*;
  * <p>
  * 
  * </p><p>
- * $Id: Tree.java,v 1.10 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: Tree.java,v 1.11 2005/08/07 08:35:14 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2005/08/07 08:35:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -363,9 +363,9 @@ public class Tree
 	public String toString()
 	{
 		return "Id: |" + _id + "| - originalGoal: |" + _originalGoal +
-		"\n\t| - Goal: |" + _goal + "| Subgoals: |" + _resolvent + 
-		"\n\t| - Proof: |" + _proof +
-		"\n\t| - Trace: |" + _trace +
-		"\n\t| - LastExpandedGoal: |" + _lastExpandedGoal + "|"  ;
+		"\n\t| - Goal: " + _goal + " | Subgoals: |" + _resolvent + 
+		"\n\t| - Proof: " + _proof +
+		"\n\t| - Trace: " + _trace +
+		"\n\t| - LastExpandedGoal: " + _lastExpandedGoal  ;
 	}
 }

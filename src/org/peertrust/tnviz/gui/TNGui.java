@@ -46,6 +46,9 @@ import javax.swing.JOptionPane;
 
 import org.jgraph.graph.DefaultGraphCell;
 
+import org.peertrust.meta.Tree;
+import org.peertrust.net.Answer;
+import org.peertrust.net.Message;
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
@@ -54,11 +57,11 @@ import org.peertrust.tnviz.app.TNNode;
  * <p>
  * 
  * </p><p>
- * $Id: TNGui.java,v 1.3 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: TNGui.java,v 1.4 2005/08/07 08:35:17 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:48 $
+ * Last changed: $Date: 2005/08/07 08:35:17 $
  * by $Author: dolmedilla $
  * </p>
  * @author Sebastian Wittler and Michael Sch?fer
@@ -229,9 +232,19 @@ public class TNGui extends JFrame implements MouseListener, KeyListener, ActionL
 								"Goal: "+clickedEdge.getGoal()+"\n"+
 								"ReqQueryId: "+clickedEdge.getReqQueryId()+"\n";
 			if (clickedEdge.isAnswer()) {
-				informationText += 	"Type: Answer\n"+
-									"Status: "+clickedEdge.getStatus()+"\n"+
-									"Proof: "+clickedEdge.getProof();
+				informationText += 	"Type: Answer\nStatus: ";
+				switch(clickedEdge.getStatus())
+				{
+					case Answer.ANSWER:
+						informationText += "Answer" ;
+						break ;
+					case Answer.LAST_ANSWER:
+						informationText += "Last Answer" ;
+						break ;
+					case Answer.FAILURE:
+						informationText += "Failure" ;
+				}
+				informationText += "\n"+"Proof: "+clickedEdge.getProof();
 			}
 			else if (clickedEdge.isQuery()) {
 				informationText += "Type: Query";

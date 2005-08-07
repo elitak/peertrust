@@ -25,11 +25,11 @@ import java.io.Serializable;
  * <p>
  * 
  * </p><p>
- * $Id: Peer.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: Peer.java,v 1.4 2005/08/07 08:35:11 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/08/07 08:35:11 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -37,15 +37,15 @@ import java.io.Serializable;
 public class Peer implements Serializable
 {
 //	private static final int DEFAULT_PORT = 30000 ;
-	private String alias ;
-	private String address ;
-	private int port ;
+	private String _alias ;
+	private String _address ;
+	private int _port ;
 	
 	public Peer (String alias, String address, int port)
 	{
-		this.alias = alias ;
-		this.address = address ;
-		this.port = port ;
+		this._alias = alias ;
+		this._address = address ;
+		this._port = port ;
 	}
 	
 //	public Peer (String alias, String address)
@@ -61,34 +61,38 @@ public class Peer implements Serializable
 	public boolean equals (Object object)
 	{
 		Peer peer = (Peer) object ;
-		if (this.address.compareTo(peer.getAddress()) == 0)
+		if (this._address.compareTo(peer.getAddress()) == 0)
 			return true ;
 		else
 			return false ;
 	}
 	
 	public String getAlias() {
-		return alias ;
+		return _alias ;
 	}
 	
 	public void setAlias(String alias) {
-		this.alias = alias ;
+		this._alias = alias ;
 	}
 	
 	public String getAddress() {
-		return address ;
+		return _address ;
 	}
 	
 	public void setAddress(String address) {
-		this.address = address ;
+		this._address = address ;
 	}
 	
 	public int getPort () {
-		return port ;
+		return _port ;
 	}
 	
 	public void setPort(int port) {
-		this.port = port ;
+		this._port = port ;
 	}
 	
+	public String toString()
+	{
+		return "Peer " + _alias + " at " + _address + ":" + _port ;
+	}
 }
