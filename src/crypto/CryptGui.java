@@ -2,7 +2,6 @@ package crypto;
 
 import javax.swing.*;
 
-import org.peertrust.security.credentials.*;
 //import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;

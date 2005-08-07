@@ -44,11 +44,11 @@ import org.peertrust.net.Query;
  * sequence diagramm. It is being used by the TNGraphics class in order to
  * visualize the sequence of queries and answers.
  * </p><p>
- * $Id: TNSeqDiagramm.java,v 1.8 2005/08/06 07:59:48 dolmedilla Exp $
+ * $Id: TNSeqDiagramm.java,v 1.9 2005/08/07 12:06:52 dolmedilla Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:48 $
+ * Last changed: $Date: 2005/08/07 12:06:52 $
  * by $Author: dolmedilla $
  * </p>
  * @author Michael Schaefer and Sebastian Wittler
@@ -175,7 +175,9 @@ public class TNSeqDiagramm {
         String goal = answer.getGoal();
         long reqQueryId = answer.getReqQueryId();
         int status = answer.getStatus();
-        String proof = answer.getProof().toString();
+        String proof = "" ;
+        if (answer.getProof() != null)
+        	proof = answer.getProof().toString();
         TNNode source = null;
         TNNode target = null;
 

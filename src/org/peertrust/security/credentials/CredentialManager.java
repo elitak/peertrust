@@ -38,18 +38,17 @@ import net.jxta.edutella.util.Configurator;
 import net.jxta.edutella.util.Option;
 
 import org.apache.log4j.Logger;
-import org.peertrust.security.credentials.gui.Editor;
 
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: CredentialManager.java,v 1.4 2005/08/01 11:53:45 dolmedilla Exp $
+ * $Id: CredentialManager.java,v 1.5 2005/08/07 12:06:55 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/01 11:53:45 $
+ * Last changed: $Date: 2005/08/07 12:06:55 $
  * by $Author: dolmedilla $
  * </p>
  * @author $Author: dolmedilla $

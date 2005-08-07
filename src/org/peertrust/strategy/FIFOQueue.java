@@ -29,11 +29,11 @@ import org.peertrust.meta.Tree;
  * <p>
  * Specific queue with a simple FIFO (First In First Out) strategy.
  * </p><p>
- * $Id: FIFOQueue.java,v 1.4 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: FIFOQueue.java,v 1.5 2005/08/07 12:06:54 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:48 $
+ * Last changed: $Date: 2005/08/07 12:06:54 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -155,5 +155,14 @@ public class FIFOQueue implements Queue, Configurable
 			return null ;
 		else
 			return (Tree) _queue.remove(index) ;
+	}
+	
+	public String toString()
+	{
+		StringBuffer message = new StringBuffer("QUEUE with " + _queue.size() + " elements\n") ;
+		for (int i = 0 ; i < _queue.size() ; i++)
+			message.append("Element " + i + ": " + _queue.elementAt(i) + "\n") ;
+		
+		return message.toString() ;
 	}
 }

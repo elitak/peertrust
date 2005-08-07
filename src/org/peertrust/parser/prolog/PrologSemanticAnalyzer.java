@@ -20,15 +20,22 @@
 
 package org.peertrust.parser.prolog;
 
-/**
- * This class is used for semantic analyze of tokens returned by
- * Prolog parser and converting them to PeerTrust syntax
- *
- * @author Bogdan Vlasenko
- */
-
 import java.util.Vector;
 
+/**
+ * <p>
+ * This class is used for semantic analyze of tokens returned by
+ * Prolog parser and converting them to PeerTrust syntax
+ * </p><p>
+ * $Id: PrologSemanticAnalyzer.java,v 1.2 2005/08/07 12:06:52 dolmedilla Exp $
+ * <br/>
+ * Date: 15-Aug-2004
+ * <br/>
+ * Last changed: $Date: 2005/08/07 12:06:52 $
+ * by $Author: dolmedilla $
+ * </p>
+ * @author Bogdan Vlasenko
+ */
 public class PrologSemanticAnalyzer
 {
 

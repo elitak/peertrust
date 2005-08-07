@@ -10,11 +10,6 @@ import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.*;
 
-import org.bouncycastle.asn1.*;
-import org.bouncycastle.jce.*;
-import org.bouncycastle.asn1.x509.*;
-import org.peertrust.security.credentials.*;
-
 import java.util.*;
 import java.io.*;
 

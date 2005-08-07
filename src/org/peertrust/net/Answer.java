@@ -29,11 +29,11 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Answer.java,v 1.7 2005/08/07 08:35:11 dolmedilla Exp $
+ * $Id: Answer.java,v 1.8 2005/08/07 12:06:53 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:11 $
+ * Last changed: $Date: 2005/08/07 12:06:53 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -109,11 +109,32 @@ public class Answer extends Message implements Serializable {
 
 	public String toString()
 	{
-		String message = super.toString() ;
-		return "ANSWER "+ message +
+		return getStatusString(_status) + super.toString() +
 		"\n\t| - Goal: " + _goal +
 		"\n\t| - ReqQueryId: " + _reqQueryId +
 		"\n\t| - Proof: " + _proof +
 		"\n\t| - Status: " + _status ;
+	}
+	
+	public static String getStatusString (int status)
+	{
+		String message ;
+		
+		switch (status)
+		{
+		case ANSWER:	
+			message = "ANSWER " ;
+			break ;
+		case LAST_ANSWER:
+			message = "LAST ANSWER " ;
+			break ;
+		case FAILURE:
+			message = "FAILURE " ;
+			break ;
+		default:
+			message = "UNKNOWN " ;
+		}
+		
+		return message ;
 	}
 }

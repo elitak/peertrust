@@ -25,11 +25,11 @@ import java.io.Serializable;
  * <p>
  * 
  * </p><p>
- * $Id: Peer.java,v 1.4 2005/08/07 08:35:11 dolmedilla Exp $
+ * $Id: Peer.java,v 1.5 2005/08/07 12:06:53 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:11 $
+ * Last changed: $Date: 2005/08/07 12:06:53 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -61,7 +61,11 @@ public class Peer implements Serializable
 	public boolean equals (Object object)
 	{
 		Peer peer = (Peer) object ;
-		if (this._address.compareTo(peer.getAddress()) == 0)
+		// if (this._address.compareTo(peer.getAddress()) == 0)
+		
+		if ( (_alias.equals(peer.getAlias())) &&
+				( (_address == null) || (peer.getAddress() == null) || (_address.equals(peer.getAddress())) )
+				)
 			return true ;
 		else
 			return false ;

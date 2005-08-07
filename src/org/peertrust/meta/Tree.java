@@ -29,11 +29,11 @@ import org.peertrust.net.*;
  * <p>
  * 
  * </p><p>
- * $Id: Tree.java,v 1.11 2005/08/07 08:35:14 dolmedilla Exp $
+ * $Id: Tree.java,v 1.12 2005/08/07 12:06:53 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:14 $
+ * Last changed: $Date: 2005/08/07 12:06:53 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -96,7 +96,7 @@ public class Tree
  		_timeStamp = System.currentTimeMillis() ;
  		log.debug("Created: " + this.toString()) ;
  	}
- 	
+
  	// Constructor for a completely new query
  	public Tree (String goal, Peer requester, long reqQueryId, Trace trace)
 	{
@@ -124,6 +124,11 @@ public class Tree
 		log.debug("Created pattern tree. Id: |" + id + "|") ;
 	}
 	
+	// Complete constructor is:
+	// Tree (long id, String goal, String subqueries, Proof proof, int status, Peer requester, 
+	//	long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
+	
+	
 	// constructor with only tree Id (specially for searching by tree id)
  	public Tree (long id)
  	{
@@ -133,7 +138,7 @@ public class Tree
 	// constructor with only requester and requester Id (specially for searching by requester and requester query id)
  	public Tree (Peer requester, long reqQueryId)
  	{
- 		this(NULL_ID, null, null, null, UNSPECIFIED, null, NULL_ID, null, null,  new Trace()) ;
+ 		this(NULL_ID, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null,  new Trace()) ;
  	}
 
  	// copy a tree but change the id
@@ -219,6 +224,8 @@ public class Tree
  	
  	public boolean equals (Object object)
  	{
+ 		log.debug("COMPARING():\nThis: " + (Tree)object + "\nwith:" + this) ;
+ 		
  		boolean same = true  ;
  		 
  		Tree tree = (Tree) object ;
@@ -366,6 +373,38 @@ public class Tree
 		"\n\t| - Goal: " + _goal + " | Subgoals: |" + _resolvent + 
 		"\n\t| - Proof: " + _proof +
 		"\n\t| - Trace: " + _trace +
-		"\n\t| - LastExpandedGoal: " + _lastExpandedGoal  ;
+		"\n\t| - LastExpandedGoal: " + _lastExpandedGoal +
+		"\n\t| - Requester: " + _requester +
+		"\n\t| - ReqQueryId: " + _reqQueryId +
+		"\n\t| - Status: " + getStatusString(_status) ;
 	}
+	
+ 	public static String getStatusString (int status)
+ 	{
+ 		String result ;
+ 		switch (status)
+		{
+ 			case UNSPECIFIED:
+ 				result = "UNSPECIFIED" ;
+ 				break ;
+ 			case READY:
+ 				result = "READY" ;
+ 				break ;
+ 			case WAITING:
+ 				result = "WAITING" ;
+ 				break ;
+ 			case ANSWERED_AND_WAITING:
+ 				result = "ANSWERED_AND_WAITING" ;
+ 				break ;
+ 			case ANSWERED:
+ 				result = "ANSWERED" ;
+ 				break ;
+ 			case FAILED:
+ 				result = "FAILED" ;
+ 				break ;
+ 			default:
+ 				result = "UNKNOWN" ;
+		}
+ 		return result ;
+ 	}
 }

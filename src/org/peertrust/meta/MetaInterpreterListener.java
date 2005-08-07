@@ -40,11 +40,11 @@ import org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.15 2005/08/07 08:35:16 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.16 2005/08/07 12:06:53 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:16 $
+ * Last changed: $Date: 2005/08/07 12:06:53 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -67,7 +67,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.15 2005/08/07 08:35:16 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.16 2005/08/07 12:06:53 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -247,19 +247,35 @@ public class MetaInterpreterListener implements Runnable, Configurable
 				// failure
 				case Answer.FAILURE:
 					Tree pattern3 = new Tree (answer.getReqQueryId()) ;
+				
+					// checking if it is the last tree for that query or not
+					log.debug("Checking if tree " + pattern3 + " from a failure is in the queue") ;
+					log.debug("Current content of the queue: " + _queue) ;
 					Tree match3 = _queue.search(pattern3) ;
+
+					log.debug("Failure received: " + answer.getGoal()) ;
 					
-					// if no answers were received so far, the query is updated to FAILED
-					if (match3.getStatus() == Tree.WAITING)
+					// checking if there is any other active query with same goal
+					Tree treePattern = new Tree (match3.getRequester(), match3.getReqQueryId()) ;
+					
+					log.debug("Checking if tree " + treePattern + " is the last tree on that goal") ;
+					log.debug("Current content of the queue: " + _queue) ;
+					if (_queue.search(treePattern) == null)
 					{
-						log.debug("Failure received: " + answer.getGoal()) ;
-						
+						// keep the failure tree in order to forward the failure to requester
+						log.debug("Keeping the failure " + answer) ;
 						match3.setStatus(Tree.FAILED) ;
 						_queue.update(pattern3, match3) ;
 					}
-					else // if at least one query was received, we just remove the pending query from the queue
+					else
+					{
+						// if there are some other queries dealing with the same goal then
+						//    remove this failed tree from the queue and let's the other pending
+						//    trees to decide whether it fails or succeds 
+						log.debug("Discarding failure " + answer) ;
+						log.debug("Removing tree " + match3) ;
 						_queue.remove(match3) ;
-
+					}
 					break ;				
 			}
 		}

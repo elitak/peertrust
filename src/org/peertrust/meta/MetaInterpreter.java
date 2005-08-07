@@ -44,11 +44,11 @@ import org.peertrust.strategy.*;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreter.java,v 1.19 2005/08/07 08:35:15 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.20 2005/08/07 12:06:53 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:15 $
+ * Last changed: $Date: 2005/08/07 12:06:53 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -85,7 +85,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.19 2005/08/07 08:35:15 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.20 2005/08/07 12:06:53 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -226,7 +226,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		{
 			Answer failure = new Answer(selectedTree.getGoal(), null, Answer.FAILURE, selectedTree.getReqQueryId(), _localPeer, selectedTree.getRequester(), trace.addFailure(Trace.FAILURE)) ; 
 			
-			log.debug("Sending answer of " + failure.getGoal() + " to " + selectedTree.getRequester().getAlias()) ;
+			log.debug("Sending failure of " + failure.getGoal() + " to " + selectedTree.getRequester().getAlias()) ;
 			sendMessage (failure) ;
 			
 			return ;
@@ -239,8 +239,14 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			
 			int status ;
 			
+			// checking if it is the last tree for that query or not
+			log.debug("Checking if tree " + pattern + " is the last tree on that goal") ;
+			log.debug("Current content of the queue: " + _queue) ;
 			if (_queue.search(pattern) == null)
+			{
 				status = Answer.LAST_ANSWER ;
+				log.debug("Last answer") ;
+			}
 			else
 				status = Answer.ANSWER ;
 			
@@ -326,7 +332,19 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 					if (peerDelegator == null)
 					{
 						log.warn ("Delegator '" + delegator + "' is unknown") ;
-						log.warn ("Ignoring query " + results[i].getGoalExpanded()) ;
+						//log.warn ("Ignoring query " + results[i].getGoalExpanded()) ;
+						log.warn ("Forcing failure of query " + results[i].getGoalExpanded()) ;
+						// query completely answered: send answer remotely
+						Tree pattern = new Tree (selectedTree.getRequester(), selectedTree.getReqQueryId()) ;
+						
+						// checking if it is the last tree for that query or not
+						log.debug("Checking if failed tree " + pattern + " is the last tree on that goal") ;
+						if (_queue.search(pattern) == null)
+						{
+							selectedTree.setStatus(Tree.FAILED) ;
+							log.warn("Tree forced to failure: " + selectedTree) ;
+							_queue.add(selectedTree) ;
+						}						
 					}
 					else
 					{						

@@ -2,7 +2,6 @@ package crypto;
 
 import java.io.*;
 
-import org.peertrust.security.credentials.*;
 
 public class CryptTest {
 
