@@ -38,53 +38,91 @@ import org.peertrust.net.Query ;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.8 2005/08/06 07:59:49 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.9 2005/08/09 13:47:55 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:49 $
+ * Last changed: $Date: 2005/08/09 13:47:55 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 public class TrustClient implements PTEventListener
-{
-	public static final String PREFIX = "Client app.: " ;
+{	
+	static final String DEFAULT_ALIAS = "Client" ;
 
-	public final String ALIAS = "Client" ;
+	static public int DEFAULT_TIMEOUT = 15000 ;
+	static public int DEFAULT_SLEEP_INTERVAL = 200 ;
+
+	final String PREFIX_MESSAGE = "CLIENT: " ;
+	final String INFO_MESSAGE = PREFIX_MESSAGE + "INFO: " ;
+	final String ERROR_MESSAGE = PREFIX_MESSAGE + "ERROR: " ;
+	final String WARN_MESSAGE = PREFIX_MESSAGE + "WARN: " ;
+	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;
+	
 	EventDispatcher _ed ;
 	private String _query ;
-	private int _id ;
+	private long _id ;
 	
 	private Hashtable _queries ;
 	
 	private Peer _peer ;
+
+	String _alias ;
+	int _timeout ;
+	int _sleepInterval ;
 	
 //	private String localAlias ;
 	
-	TrustClient (EventDispatcher ed)
+	public TrustClient (String [] configurationArgs, String [] components) throws ConfigurationException
 	{
-		_ed = ed ;
+		this(configurationArgs, components, true) ;
+	}
+	
+	public TrustClient (String [] configurationArgs, String [] components, boolean localClient) throws ConfigurationException
+	{	
+		PTConfigurator config = new PTConfigurator() ;
+
+		config.startApp(configurationArgs, components) ;
+		
+		PTEngine engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
+		_ed = engine.getEventDispatcher() ;
+		
+		_ed.register(this, PTEvent.class) ;
+		
+		if (_ed == null)
+		{
+			System.out.println(ERROR_MESSAGE + "No event dispatcher has been found") ;
+		}
+		
 		_id = 0 ;
 		_queries = new Hashtable() ;
-		_peer = new Peer (ALIAS.toLowerCase(), null, -1) ;
+		
+		setAlias(DEFAULT_ALIAS) ;
+		setTimeout(DEFAULT_TIMEOUT) ;
+		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
 	}
 
-	public void sendQuery (String query)
+	public long sendQuery (String query)
 	{
 		_id++ ;
 		
-//		Trace trace = new Trace () ;
-//		trace.addQuery(query) ;
-//		
-//		Query newQuery = new Query(query, _peer, null, _id, trace) ;
-		
+		// Peer target and Trace are ignored and set to null
 		Query newQuery = new Query(query, _peer, null, _id, null) ;
 		QueryEvent qe = new QueryEvent(this, newQuery) ;
 		
 		_ed.event(qe) ;
 		
-		_queries.put(query + _id, new Vector()) ;
+		_queries.put(new Long(_id), new QueryEntry(_id)) ;
+		
+		return _id ;
+	}
+	
+	public void removeQuery(long id)
+	{
+		QueryEntry tmp = (QueryEntry) _queries.remove(new Long(id)) ;
+		if (tmp == null)
+			System.out.println(ERROR_MESSAGE + "Query with id " + id + " does not exist") ;
 	}
 	
 	/* (non-Javadoc)
@@ -95,28 +133,106 @@ public class TrustClient implements PTEventListener
 		{
 			QueryEvent qe = (QueryEvent) event ;
 			Query q = qe.getQuery() ;
-			System.out.println (PREFIX + "Query sent " + q.getReqQueryId() + ": " + q.getGoal()) ;
+			System.out.println(INFO_MESSAGE + "Query sent " + q.getReqQueryId() + ": " + q.getGoal()) ;
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			AnswerEvent ae = (AnswerEvent) event ;
 			Answer a = ae.getAnswer() ;
-			System.out.println (PREFIX + "Answer to query " + a.getReqQueryId() + ": " + a.getGoal()) ;
+			System.out.println(INFO_MESSAGE + "Answer to query " + a.getReqQueryId() + ": " + a.getGoal()) ;
+			QueryEntry queryEntry = (QueryEntry) _queries.get(new Long(a.getReqQueryId())) ;
+			if (queryEntry != null)
+				queryEntry.addAnswer(a) ;
+			else
+				if (a.getTarget().equals(_peer))
+					System.out.println(ERROR_MESSAGE + "Received an answer with a wrong id: " + a.getReqQueryId()) ;
+				else
+					System.out.println(DEBUG_MESSAGE + "Received answer to a query which was originally posted by: " + a.getTarget().getAlias()) ;
 		}
 		else
-			System.out.println (PREFIX + "Unknown event of class " + event.getClass().getName()) ;
+			System.out.println(WARN_MESSAGE + "Unknown event of class " + event.getClass().getName()) ;
 	}
 
-	public static void main(String[] args) throws ConfigurationException
+	private QueryEntry checkQuery (long id) throws IllegalArgumentException
 	{
-		final String PREFIX = TrustClient.PREFIX ;
+		QueryEntry qe = (QueryEntry) _queries.get(new Long(id)) ;
+		
+		if (qe == null)
+		{
+			String message = ERROR_MESSAGE + "Wrong id: " + id ;
+			System.out.println(message) ;
+			throw new IllegalArgumentException(message) ;
+		}
+		return qe ;
+	}
+	
+	public String[] getAnswers (long queryId)
+	{
+		QueryEntry qe = checkQuery(queryId) ;
+		
+		Vector v = qe.getAnswers() ;
+		
+		String [] answers = new String[v.size()] ;
+		
+		for (int i = 0 ; i < v.size() ; i++)
+		{
+			answers[i] = ((Answer) v.elementAt(i)).getGoal() ;
+		}
+		return answers ;
+	}
+		
+	public boolean isQueryFinished (long queryId)
+	{
+		QueryEntry qe = checkQuery(queryId) ;
+		
+		return qe.isFinished() ;
+	}
+	
+	public Boolean isQuerySuccessful(long queryId)
+	{
+		QueryEntry qe = checkQuery(queryId) ;
+		
+		return qe.isSuccessful() ;
+	}
+
+	public Boolean waitForQuery(long id)
+	{
+		long time = System.currentTimeMillis() ;
+
+		while (System.currentTimeMillis() - time < _timeout )
+		{
+			//System.out.println ("CURRENT QUERY IS " + isQueryFinished(id) + " FINISHED") ;
+			if (isQueryFinished(id) == true)
+				break ;
+			else
+				try {
+					Thread.sleep(_sleepInterval) ;
+				} catch (InterruptedException e) {
+					// ignore
+				}
+		}
+		
+		return isQuerySuccessful(id) ;
+	}
+	
+	public static void main(String[] args) throws ConfigurationException
+	{	
+		
+		//tc.sendQuery("orderDrugs(Drug,Requester) @ elearn") ;
+		//		tc.sendQuery("employee(alice, microsoft) @ microsoft") ;
+//		tc.sendQuery("access(result1)") ;
+//		tc.sendQuery("document(project7,V15595312, ibm)") ;
+//		tc.sendQuery("document(project7, _) @ company7") ;
+//		tc.sendQuery("document(project7,V15595312)") ;
+//		tc.sendQuery("employee(alice7,V32048085)@V32048085@alice7") ;
+//		tc.sendQuery("constraint(peerName(alice7))") ;
+//		tc.sendQuery("policeOfficer(alice) @ caStatePolice") ;
+		
+		String DEFAULT_QUERY = "request(spanishCourse,Session) @ elearn" ;
 		
 		String defaultConfigFile = "file:peertrustConfig.rdf" ;
-		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
-		
-		int TIMEOUT = 15000 ;
-		int SLEEP_INTERVAL = 500 ;
-		
+		String [] defaultComponents = { Vocabulary.PeertrustEngine.toString() } ;
+			
 		String newArgs[] = new String[1] ;
 		
 		if (args.length < 1)
@@ -130,44 +246,33 @@ public class TrustClient implements PTEventListener
 	
 		//	java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 		
-		PTConfigurator config = new PTConfigurator() ;
+		TrustClient tc = new TrustClient (newArgs, defaultComponents) ;
+
+		long id = tc.sendQuery(DEFAULT_QUERY) ;
 		
-		String[] components = { defaultComponent } ;
-		config.startApp(newArgs, components) ;
+		tc.waitForQuery(id) ;
+
+		System.out.println("Query finished: " + tc.isQueryFinished(id)) ;
 		
-		PTEngine engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
-		EventDispatcher dispatcher = engine.getEventDispatcher() ;
-		if (dispatcher == null)
+		Boolean querySuccessful = tc.isQuerySuccessful(id) ;
+		String message = "Query successful: " ;
+		if (querySuccessful == null)
+			message += "undefined" ;
+		else
 		{
-			System.out.println ("No event dispatcher has been found") ;
-			System.out.println (PREFIX + "No event dispatcher has been found") ;
-		}
+			message += querySuccessful.booleanValue() ;
+			
+			if (querySuccessful.booleanValue() == true)
+			{
+				String [] answers = tc.getAnswers(id) ;
 		
-		TrustClient tc = new TrustClient(dispatcher) ;
-		
-		//tc.sendQuery("orderDrugs(Drug,Requester) @ elearn") ;
-		tc.sendQuery("request(spanishCourse,Session) @ elearn") ;
-		
-		long time = System.currentTimeMillis() ;
-		
-		while (System.currentTimeMillis() - time < TIMEOUT )
-			try {
-				Thread.sleep(SLEEP_INTERVAL) ;
-			} catch (InterruptedException e) {
-				// ignore
+				System.out.println("Answers: ") ;
+				for (int i = 0 ; i < answers.length ; i++)
+					System.out.println("\t" + answers[i]) ;
 			}
+		}
 
-		System.out.println (PREFIX + "Stopping") ;
-		engine.stop() ;
-
-//		tc.sendQuery("employee(alice, microsoft) @ microsoft") ;
-//		tc.sendQuery("access(result1)") ;
-//		tc.sendQuery("document(project7,V15595312, ibm)") ;
-//		tc.sendQuery("document(project7, _) @ company7") ;
-//		tc.sendQuery("document(project7,V15595312)") ;
-//		tc.sendQuery("employee(alice7,V32048085)@V32048085@alice7") ;
-//		tc.sendQuery("constraint(peerName(alice7))") ;
-//		tc.sendQuery("policeOfficer(alice) @ caStatePolice") ;
+		tc.removeQuery (id) ;
 	}
 	
 		//		java.net.InetAddress i = null ;
@@ -206,55 +311,132 @@ public class TrustClient implements PTEventListener
 
 // 		 String hostName = request.getRemoteAddr();
 	
-//	public void init()
-//	{
-//		AbstractFactory factory = new SecureSocketFactory() ;
-//		NetClient netClient = factory.createNetClient(config) ;
-//		
-////		SecureClientSocket ssc = new SecureClientSocket(destination.getAddress(),
-////				destination.getPort(),
-////				config.getValue(Vocabulary.BASE_FOLDER_TAG)  + config.getValue(Vocabulary.KEYSTORE_FILE_TAG),
-////				config.getValue(Vocabulary.KEY_PASSWORD_TAG),
-////				config.getValue(Vocabulary.STORE_PASSWORD_TAG));
-//		
-//		// sending an object using serialization
-//		log.debug("Starting a new request: " + query) ;
-//		
-//		//ssc.send(new Query(query, new Peer(LOCAL_ALIAS,config.getValue(Vocabulary.LOCAL_ADDRESS_TAG), LOCAL_PORT), -1));
-//		
-//		netClient.send(new Query(query, new Peer(config.getValue(Vocabulary.PEERNAME),config.getValue(Vocabulary.LOCAL_ADDRESS_TAG), Integer.parseInt(config.getValue(Vocabulary.SERVER_PORT_TAG))), -1),
-//				destination);
-//		//ssc.send(new Tree(query, "[query(" + query + ",no)]", "[]", Tree.READY, new Peer(localAlias,config.getValue(LOCAL_ADDRESS_TAG), LOCAL_PORT), -1));
-//		
-//		NetServer netServer = factory.createNetServer(config) ; 
-//		
-//		Message message = netServer.listen() ;
-//		log.debug("Connection accepted.");
-//		
-//			if ( (message != null) && (message instanceof Answer) )
-//			{
-//				Answer answer = (Answer) message ;
-//				
-//				if (answer.getStatus() == Tree.FAILED)
-//				{
-//					log.debug("Negotiation of " + query + " failed") ;
-//					
-//					solution = "" ;
-//				}
-//				else
-//				{
-//					log.debug ("Negotiation of " + query + " succeed") ;
-//
-//					log.info("Answer: " + answer.getGoal()) ;
-//					
-//					log.info("Proof: " + answer.getProof()) ;
-//
-//					solution = answer.getGoal() ;
-//				}
-//			}
-//			else
-//			{
-//				log.error("Invalid answer") ;
-//			}
-//	}
+	class QueryEntry
+	{
+		long id ;
+		Vector answers ;
+		boolean finished = false ;
+		Boolean successful = null ;
+		
+		QueryEntry (long id)
+		{
+			this.id = id ;
+			answers = new Vector() ;
+		}
+		
+		
+		void addAnswer (Answer answer)
+		{
+			switch(answer.getStatus())
+			{
+				case Answer.ANSWER:
+					setSuccessful(new Boolean(true)) ;
+					answers.add(answer) ;
+					break ;
+				case Answer.LAST_ANSWER:
+					setSuccessful(new Boolean(true)) ;
+					setFinished(true) ;
+					answers.add(answer) ;
+					break ;
+				case Answer.FAILURE:
+					Boolean succeeded = isSuccessful() ;
+				
+					// if no previous answer was received, then the query has failed
+					if (succeeded == null)
+						setSuccessful (new Boolean(false)) ;
+					setFinished(true) ;
+					break ;
+				default:
+					System.out.println("ERROR: Wrong status in answer " + answer) ;
+			}
+			
+		}
+		
+		/**
+		 * @return Returns the answers.
+		 */
+		Vector getAnswers() {
+			return answers;
+		}
+		/**
+		 * @param answers The answers to set.
+		 */
+//		void setAnswers(Vector answers) {
+//			this.answers = answers;
+//		}
+		/**
+		 * @return Returns the finished.
+		 */
+		boolean isFinished() {
+			return finished;
+		}
+		/**
+		 * @param finished The finished to set.
+		 */
+		void setFinished(boolean finished) {
+			this.finished = finished;
+		}
+		/**
+		 * @return Returns the id.
+		 */
+		long getId() {
+			return id;
+		}
+		/**
+		 * @param id The id to set.
+		 */
+		void setId(long id) {
+			this.id = id;
+		}
+		/**
+		 * @return Returns the successful.
+		 */
+		Boolean isSuccessful() {
+			return successful;
+		}
+		/**
+		 * @param successful The successful to set.
+		 */
+		void setSuccessful(Boolean successful) {
+			this.successful = successful;
+		}
+	}
+	
+	/**
+	 * @return Returns the alias.
+	 */
+	public String getAlias() {
+		return _alias;
+	}
+	/**
+	 * @param alias The alias to set.
+	 */
+	public void setAlias(String alias) {
+		this._alias = alias;
+		_peer = new Peer (_alias, Peer.UNSPECIFIED_ADDRESS, Peer.UNSPECIFIED_PORT) ;
+	}
+	/**
+	 * @return Returns the sleepInterval.
+	 */
+	public int getSleepInterval() {
+		return _sleepInterval;
+	}
+	/**
+	 * @param sleepInterval The sleepInterval to set.
+	 */
+	public void setSleepInterval(int sleepInterval) {
+		this._sleepInterval = sleepInterval;
+	}
+	/**
+	 * @return Returns the timeout.
+	 */
+	public int getTimeout() {
+		return _timeout;
+	}
+	/**
+	 * @param timeout The timeout to set.
+	 */
+	public void setTimeout(int timeout) {
+		this._timeout = timeout;
+	}
 }

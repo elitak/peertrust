@@ -19,13 +19,13 @@
 */
 package org.peertrust.event;
 
-import org.peertrust.net.Answer;
+import org.peertrust.net.Message;
 
 /**
  * <p>
- * Event that represents an answer message.
+ * Event that represents a query message.
  * </p><p>
- * $Id: AnswerEvent.java,v 1.4 2005/08/09 13:47:55 dolmedilla Exp $
+ * $Id: NewMessageEvent.java,v 1.1 2005/08/09 13:47:55 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
@@ -34,19 +34,19 @@ import org.peertrust.net.Answer;
  * </p>
  * @author olmedilla 
  */
-public class AnswerEvent extends NewMessageEvent {
+public class NewMessageEvent extends PTEvent {
 	/**
 	 * 
 	 */
-	Answer _answer ;
-	
-	public AnswerEvent(Object source, Answer answer) {
-		super(source,answer);
-		_answer = answer ;
+	Message _message ;
+
+	public NewMessageEvent(Object source, Message message) {
+		super(source);
+		_message = message ;
 	}
 	
-	public Answer getAnswer ()
+	public Message getMessage ()
 	{
-		return _answer ;
-	}
+		return _message ;
+	}	
 }

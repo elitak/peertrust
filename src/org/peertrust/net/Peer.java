@@ -25,17 +25,19 @@ import java.io.Serializable;
  * <p>
  * 
  * </p><p>
- * $Id: Peer.java,v 1.5 2005/08/07 12:06:53 dolmedilla Exp $
+ * $Id: Peer.java,v 1.6 2005/08/09 13:47:54 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 12:06:53 $
+ * Last changed: $Date: 2005/08/09 13:47:54 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
 public class Peer implements Serializable
 {
+	public static final String UNSPECIFIED_ADDRESS = null ;
+	public static final int UNSPECIFIED_PORT = -1 ;
 //	private static final int DEFAULT_PORT = 30000 ;
 	private String _alias ;
 	private String _address ;

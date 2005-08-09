@@ -24,6 +24,7 @@ import org.peertrust.config.Configurable;
 import org.peertrust.config.RunTimeOptions;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
+import org.peertrust.event.NewMessageEvent;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
@@ -40,11 +41,11 @@ import org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.16 2005/08/07 12:06:53 dolmedilla Exp $
+ * $Id: MetaInterpreterListener.java,v 1.17 2005/08/09 13:47:55 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 12:06:53 $
+ * Last changed: $Date: 2005/08/09 13:47:55 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -67,7 +68,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.16 2005/08/07 12:06:53 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.17 2005/08/09 13:47:55 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -280,7 +281,10 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			}
 		}
 		else
-			log.error("Unknown message type") ;
+		{
+			log.warn("Unknown message type" + message) ;
+			_dispatcher.event(new NewMessageEvent(this, message)) ;
+		}
 			
 	}
 	

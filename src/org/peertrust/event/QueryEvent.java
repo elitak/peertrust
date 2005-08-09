@@ -25,46 +25,28 @@ import org.peertrust.net.Query;
  * <p>
  * Event that represents a query message.
  * </p><p>
- * $Id: QueryEvent.java,v 1.4 2005/05/22 17:56:46 dolmedilla Exp $
+ * $Id: QueryEvent.java,v 1.5 2005/08/09 13:47:55 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:46 $
+ * Last changed: $Date: 2005/08/09 13:47:55 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class QueryEvent extends PTEvent {
+public class QueryEvent extends NewMessageEvent {
 	/**
 	 * 
 	 */
 	Query _query ;
 	
 	public QueryEvent(Object source, Query query) {
-		super(source);
+		super(source,query);
 		_query = query ;
-		// TODO Auto-generated constructor stub
-		//TrustClient client = new TrustClient("request(spanishCourse,Session) @ eLearn", new Peer("alice","localhost", 32000), config) ;
 	}
 	
 	public Query getQuery ()
 	{
 		return _query ;
 	}
-	
-//	public Peer getSourcePeer()
-//	{
-//		if (_query == null)
-//			return null ;
-//		else
-//			return _query.getSource() ;
-//	}
-//	
-//	public Peer getTargetPeer()
-//	{
-//		if (_query == null)
-//			return null ;
-//		else
-//			return _query.getTarget() ;
-//	}
 }
