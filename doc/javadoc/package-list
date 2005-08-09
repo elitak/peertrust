@@ -8,6 +8,8 @@ org.peertrust.meta
 org.peertrust.net
 org.peertrust.net.socket
 org.peertrust.net.ssl
+org.peertrust.parser.peertrust
+org.peertrust.parser.prolog
 org.peertrust.protege.plugin
 org.peertrust.security.credentials
 org.peertrust.security.credentials.gui
