@@ -29,11 +29,11 @@ import org.peertrust.net.*;
  * <p>
  * 
  * </p><p>
- * $Id: Tree.java,v 1.12 2005/08/07 12:06:53 dolmedilla Exp $
+ * $Id: Tree.java,v 1.13 2005/08/10 12:02:43 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 12:06:53 $
+ * Last changed: $Date: 2005/08/10 12:02:43 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -56,7 +56,9 @@ public class Tree
  	
  	// value for trees without an id associated
  	public static final int NULL_ID = new Random().nextInt() ;
-
+ 	
+	static private long _currentId = 0 ;
+ 	
  	private long _id = NULL_ID ;
  	private String _originalGoal = null ;
  	private String _goal = null ;
@@ -70,14 +72,16 @@ public class Tree
 	private Peer _delegator = null ;
 	private String _lastExpandedGoal = null ;
 	private long _timeStamp = 0 ;
-	static private long _currentId = 0 ;
 	
- 	Tree (long id, String goal, String subqueries, Proof proof, int status, Peer requester, 
+	long _negotiationId ;
+	
+ 	Tree (long id, String goal, long negotiationId, String subqueries, Proof proof, int status, Peer requester, 
  			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
  		this._id = id ;
  		this._originalGoal = goal ;
  		this._goal = goal ;
+ 		_negotiationId = negotiationId ;
  		this._resolvent = subqueries ;
  		if (proof == null)
  			_proof = new Proof() ;
@@ -98,53 +102,53 @@ public class Tree
  	}
 
  	// Constructor for a completely new query
- 	public Tree (String goal, Peer requester, long reqQueryId, Trace trace)
+ 	public Tree (String goal, long negotiationId, Peer requester, long reqQueryId, Trace trace)
 	{
- 		this(getNewId(), goal, "[query(" + goal + ",no)]", null, READY, requester, 
+ 		this(getNewId(), goal, negotiationId, "[query(" + goal + ",no)]", null, READY, requester, 
  				reqQueryId, null, null, trace) ;
 	}
  	
-	Tree (String goal, String subqueries, Proof proof, int status, Peer requester, 
+	Tree (String goal, long negotiationId, String subqueries, Proof proof, int status, Peer requester, 
 			long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
  	{
- 		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
+ 		this(getNewId(), goal, negotiationId, subqueries, proof, status, requester, reqQueryId, 
  				delegator, lastExpandedGoal, trace) ;
  	}
 
-	public Tree (String goal, String subqueries, Proof proof, int status, Peer requester, 
+	public Tree (String goal, long negotiationId, String subqueries, Proof proof, int status, Peer requester, 
 			long reqQueryId, Trace trace)
 	{
-		this(getNewId(), goal, subqueries, proof, status, requester, reqQueryId, 
+		this(getNewId(), goal, negotiationId, subqueries, proof, status, requester, reqQueryId, 
 				null, null, trace) ;
 	}
  	
 	Tree (long id, Peer requester, long reqQueryId)
 	{
-		this(id, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null, new Trace()) ;
+		this(id, null, NULL_ID, null, null, UNSPECIFIED, requester, reqQueryId, null, null, new Trace()) ;
 		log.debug("Created pattern tree. Id: |" + id + "|") ;
 	}
 	
 	// Complete constructor is:
-	// Tree (long id, String goal, String subqueries, Proof proof, int status, Peer requester, 
+	// Tree (long id, String goal, long negotiationId, String subqueries, Proof proof, int status, Peer requester, 
 	//	long reqQueryId, Peer delegator, String lastExpandedGoal, Trace trace)
 	
 	
 	// constructor with only tree Id (specially for searching by tree id)
  	public Tree (long id)
  	{
- 		this(id, null, null, null, UNSPECIFIED, null, NULL_ID, null, null, new Trace()) ;
+ 		this(id, null, NULL_ID, null, null, UNSPECIFIED, null, NULL_ID, null, null, new Trace()) ;
  	}
  	
 	// constructor with only requester and requester Id (specially for searching by requester and requester query id)
  	public Tree (Peer requester, long reqQueryId)
  	{
- 		this(NULL_ID, null, null, null, UNSPECIFIED, requester, reqQueryId, null, null,  new Trace()) ;
+ 		this(NULL_ID, null, NULL_ID, null, null, UNSPECIFIED, requester, reqQueryId, null, null,  new Trace()) ;
  	}
 
  	// copy a tree but change the id
  	public Tree (Tree tree)
  	{
- 		this(getNewId(), tree.getGoal(), tree.getResolvent(), tree.getProof(), tree.getStatus(),
+ 		this(getNewId(), tree.getGoal(), tree.getNegotiationId(), tree.getResolvent(), tree.getProof(), tree.getStatus(),
  				tree.getRequester(), tree.getReqQueryId(), tree.getDelegator(), 
 				tree.getLastExpandedGoal(), tree.getTrace()) ;
  	}
@@ -154,7 +158,7 @@ public class Tree
  		_currentId += 1 ;
  		return _currentId ;
  	}
- 	
+	
  	public void update(Tree tree)
  	{
  		long tmpLong ;
@@ -407,4 +411,16 @@ public class Tree
 		}
  		return result ;
  	}
+	/**
+	 * @return Returns the negotiationId.
+	 */
+	public long getNegotiationId() {
+		return _negotiationId;
+	}
+	/**
+	 * @param negotiationId The negotiationId to set.
+	 */
+	public void setNegotiationId(long negotiationId) {
+		this._negotiationId = negotiationId;
+	}
 }

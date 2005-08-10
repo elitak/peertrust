@@ -17,19 +17,17 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 package org.peertrust.net;
 
 import java.io.Serializable;
 
 import org.peertrust.meta.Trace;
 
-
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Message.java,v 1.7 2005/08/10 12:02:43 dolmedilla Exp $
+ * $Id: NegotiationMessage.java,v 1.1 2005/08/10 12:02:43 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
@@ -38,33 +36,45 @@ import org.peertrust.meta.Trace;
  * </p>
  * @author olmedilla 
  */
-public class Message implements Serializable {
+public class NegotiationMessage extends Message implements Serializable {
 	
- 	Peer _source, _target ;
+ 	Trace _trace ;
+ 	long _negotiationId ;
 
- 	Message (Peer source, Peer target) {
- 		_source  = source ;
- 		_target = target ;
- 	}
- 	
-	/**
-	 * @return Returns the source.
-	 */
-	public Peer getSource() {
-		return _source;
-	}
-		
-	/**
-	 * @return Returns the target.
-	 */
-	public Peer getTarget() {
-		return _target;
+	public NegotiationMessage(Peer origin, Peer target, long negotiationId, Trace trace)
+	{
+		super(origin, target) ;
+ 		
+		_negotiationId = negotiationId ;
+ 		if (trace == null)
+ 			this._trace = new Trace() ;
+ 		else
+ 			this._trace = trace ;
 	}
 	
+	public Trace getTrace()
+	{
+		return _trace ;
+	}
+
 	public String toString()
 	{
-		return "MESSAGE: " +
-		"\n\t| - Source: " + _source +
-		"\n\t| - Target: " + _target ;
+		String message = super.toString() ;
+		return " NEGOTIATION "+ message +
+			"\n\t| - NegotiationId: " + _negotiationId +
+			"\n\t| - Trace: " + _trace ;
+		
 	}
- }
+	/**
+	 * @return Returns the negotiationId.
+	 */
+	public long getNegotiationId() {
+		return _negotiationId;
+	}
+	/**
+	 * @param negotiationId The negotiationId to set.
+	 */
+	public void setNegotiationId(long negotiationId) {
+		this._negotiationId = negotiationId;
+	}
+}

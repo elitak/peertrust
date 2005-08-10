@@ -27,26 +27,41 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Query.java,v 1.12 2005/08/07 08:35:10 dolmedilla Exp $
+ * $Id: Query.java,v 1.13 2005/08/10 12:02:43 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:10 $
+ * Last changed: $Date: 2005/08/10 12:02:43 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class Query extends Message implements Serializable {
+public class Query extends NegotiationMessage implements Serializable {
 	
  	private String _goal = null ;
  	private long _reqQueryId = -1 ;
 
-	public Query(String goal, Peer origin, Peer target, long reqQueryId, Trace trace)
+ 	static private long _currentNegotiationId = 0 ;
+
+	public Query(String goal, long negotiationId, Peer origin, Peer target, long reqQueryId, Trace trace)
 	{
-		super(origin, target, trace) ;
+		super(origin, target, negotiationId, trace) ;
 		this._goal = goal ;
 		this._reqQueryId = reqQueryId ;
 	}
+	
+	// new Query without negotiationId, what means that it starts a new negotiation
+	public Query(String goal, Peer origin, Peer target, long reqQueryId, Trace trace)
+	{
+		this (goal, getNewNegotiationId(), origin, target, reqQueryId, trace) ;
+	}
+	
+	static synchronized long getNewNegotiationId ()
+ 	{
+ 		_currentNegotiationId += 1 ;
+ 		return _currentNegotiationId ;
+ 	}
+	
 	/**
 	 * @return Returns the goal.
 	 */

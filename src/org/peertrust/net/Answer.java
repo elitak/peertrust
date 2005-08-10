@@ -29,16 +29,16 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Answer.java,v 1.8 2005/08/07 12:06:53 dolmedilla Exp $
+ * $Id: Answer.java,v 1.9 2005/08/10 12:02:43 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 12:06:53 $
+ * Last changed: $Date: 2005/08/10 12:02:43 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class Answer extends Message implements Serializable {
+public class Answer extends NegotiationMessage implements Serializable {
 
  	public static final int FAILURE = 3 ;
  	public static final int ANSWER = 5 ;
@@ -49,8 +49,8 @@ public class Answer extends Message implements Serializable {
  	private int _status = -1 ;
  	private long _reqQueryId = -1 ;
 	
-	public Answer(String goal, Proof proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
-		super(source, target, trace) ;
+	public Answer(String goal, long negotiationId, Proof proof, int status, long reqQueryId, Peer source, Peer target, Trace trace) {
+		super(source, target, negotiationId, trace) ;
 		this._goal = goal ;
 		this._proof = proof ;
 		this._status = status ;
