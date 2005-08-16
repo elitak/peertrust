@@ -34,15 +34,17 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Peer;
 import org.peertrust.net.Query ;
 
+import com.hp.hpl.jena.rdf.model.Resource;
+
 /**
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.9 2005/08/09 13:47:55 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.10 2005/08/16 14:13:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/09 13:47:55 $
+ * Last changed: $Date: 2005/08/16 14:13:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -60,6 +62,7 @@ public class TrustClient implements PTEventListener
 	final String WARN_MESSAGE = PREFIX_MESSAGE + "WARN: " ;
 	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;
 	
+	PTConfigurator _config ;
 	EventDispatcher _ed ;
 	private String _query ;
 	private long _id ;
@@ -81,11 +84,11 @@ public class TrustClient implements PTEventListener
 	
 	public TrustClient (String [] configurationArgs, String [] components, boolean localClient) throws ConfigurationException
 	{	
-		PTConfigurator config = new PTConfigurator() ;
+		_config = new PTConfigurator() ;
 
-		config.startApp(configurationArgs, components) ;
+		_config.startApp(configurationArgs, components) ;
 		
-		PTEngine engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
+		PTEngine engine = (PTEngine) _config.getComponent(Vocabulary.PeertrustEngine) ;
 		_ed = engine.getEventDispatcher() ;
 		
 		_ed.register(this, PTEvent.class) ;
@@ -103,6 +106,14 @@ public class TrustClient implements PTEventListener
 		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
 	}
 
+	public Object getComponent (Resource resource)
+	{
+		if (_config == null)
+			return null ;
+		else
+			return _config.getComponent(resource) ; 
+	}
+	
 	public long sendQuery (String query)
 	{
 		_id++ ;
@@ -228,27 +239,46 @@ public class TrustClient implements PTEventListener
 //		tc.sendQuery("constraint(peerName(alice7))") ;
 //		tc.sendQuery("policeOfficer(alice) @ caStatePolice") ;
 		
+		String USAGE_MESSAGE = "Usage: program <configFile> <queryString>" ;
+		int USAGE_RETURN_ERROR = 1 ; 
 		String DEFAULT_QUERY = "request(spanishCourse,Session) @ elearn" ;
 		
 		String defaultConfigFile = "file:peertrustConfig.rdf" ;
 		String [] defaultComponents = { Vocabulary.PeertrustEngine.toString() } ;
 			
 		String newArgs[] = new String[1] ;
-		
+		String query = null ;
 		if (args.length < 1)
 		{
-			System.out.println ("Args: <configFile.rdf>") ;
-			//return ;
+			System.out.println (USAGE_MESSAGE) ;
 			newArgs[0] = defaultConfigFile ; 
+			query = DEFAULT_QUERY ;
 		}
 		else
-			newArgs[0] = args[0] ;
+		{
+			if (args.length > 2)
+			{
+				System.out.println(USAGE_MESSAGE) ;
+				System.exit(USAGE_RETURN_ERROR) ;
+			}
+			else
+			{
+				newArgs[0] = args[0] ;
+				if ( (args.length == 1) ||
+						( (args.length == 2) && 
+								(args[1] == null) || (args[1].equals("")))
+								)
+					query = DEFAULT_QUERY ;
+				else
+					query = args[1] ;
+			}
+		}
 	
 		//	java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 		
 		TrustClient tc = new TrustClient (newArgs, defaultComponents) ;
 
-		long id = tc.sendQuery(DEFAULT_QUERY) ;
+		long id = tc.sendQuery(query) ;
 		
 		tc.waitForQuery(id) ;
 
@@ -266,12 +296,14 @@ public class TrustClient implements PTEventListener
 			{
 				String [] answers = tc.getAnswers(id) ;
 		
-				System.out.println("Answers: ") ;
+				message += "\nAnswers:\n" ;
 				for (int i = 0 ; i < answers.length ; i++)
-					System.out.println("\t" + answers[i]) ;
+					message += "\t" + answers[i] + "\n" ;
 			}
 		}
 
+		System.out.println(message) ;
+		
 		tc.removeQuery (id) ;
 	}
 	

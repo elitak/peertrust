@@ -29,11 +29,11 @@ import org.peertrust.meta.Trace;
  * <p>
  * 
  * </p><p>
- * $Id: Message.java,v 1.7 2005/08/10 12:02:43 dolmedilla Exp $
+ * $Id: Message.java,v 1.8 2005/08/16 14:13:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/10 12:02:43 $
+ * Last changed: $Date: 2005/08/16 14:13:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -42,7 +42,7 @@ public class Message implements Serializable {
 	
  	Peer _source, _target ;
 
- 	Message (Peer source, Peer target) {
+ 	public Message (Peer source, Peer target) {
  		_source  = source ;
  		_target = target ;
  	}

@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.6 2005/05/22 18:12:52 dolmedilla Exp $
+     $Id: build.xml,v 1.7 2005/08/16 14:13:29 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -154,6 +154,9 @@ You need to set ANT_HOME in your shell.
 
     <property environment="user"/>
     <property name="project" value="peertrust"/>
+  	
+  	<!-- queryString is empty unless it is specified as a command line argument -->
+    <property name="queryString" value=""/>
 
     <property name="mainclass" value="org.peertrust.config.PTConfigurator"/>
 
@@ -686,6 +689,7 @@ ${Name} Build file
 	  fork="true">
 <!--    <jvmarg value="-classic"/> -->
     <arg value="${configFile}"/>
+    <arg value="${queryString}"/>
 <!--	<jvmarg value="-Xms128m"/>
 	<jvmarg value="-Xss4m"/> -->
 	<!-- <jvmarg value="-Dnet.jxta.tls.principal=${tls.principal}"/>
