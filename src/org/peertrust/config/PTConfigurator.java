@@ -58,11 +58,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.8 2005/08/18 14:37:08 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:48 $
+ * Last changed: $Date: 2005/08/18 14:37:08 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -76,6 +76,8 @@ public class PTConfigurator {
 	private static Logger log ; //= Logger.getLogger(PeertrustConfigurator.class);
 	
 	private final Object EMPTY = "\\?$Empty@~?" ;
+	private final String SCAPE_CHARACTER_REG_EXP = "\\\\" ;
+	private final String SCAPE_CHARACTER_REPLACEMENT = "\\\\" ;
 
     // The Configuration File (stored as a Jena RDF Model)
     private Model _configuration ;
@@ -122,7 +124,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.8 2005/08/18 14:37:08 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -392,7 +394,10 @@ public class PTConfigurator {
             	        while(matcher.find())
             	        {
             	        	String group = matcher.group() ;
-            	            matcher.appendReplacement(sb, System.getProperty(group.substring("${".length(), group.length()-"}".length())));
+            	        	String propertyString = System.getProperty(group.substring("${".length(), group.length()-"}".length())) ;
+            	        	String newPropertyString = propertyString.replaceAll(SCAPE_CHARACTER_REG_EXP, SCAPE_CHARACTER_REPLACEMENT) ;
+            	        	
+            	            matcher.appendReplacement(sb, newPropertyString);
             	        }
 
             	        // Add the last segment of input to 
