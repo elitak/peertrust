@@ -58,11 +58,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: PTConfigurator.java,v 1.8 2005/08/18 14:37:08 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.9 2005/08/18 14:52:31 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/18 14:37:08 $
+ * Last changed: $Date: 2005/08/18 14:52:31 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -77,7 +77,7 @@ public class PTConfigurator {
 	
 	private final Object EMPTY = "\\?$Empty@~?" ;
 	private final String SCAPE_CHARACTER_REG_EXP = "\\\\" ;
-	private final String SCAPE_CHARACTER_REPLACEMENT = "\\\\" ;
+	private final String SCAPE_CHARACTER_REPLACEMENT = "\\\\\\\\" ;
 
     // The Configuration File (stored as a Jena RDF Model)
     private Model _configuration ;
@@ -124,7 +124,7 @@ public class PTConfigurator {
         
         log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
 
-		log.debug("$Id: PTConfigurator.java,v 1.8 2005/08/18 14:37:08 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.9 2005/08/18 14:52:31 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
