@@ -126,10 +126,10 @@ log4j.appender.selected.layout.ConversionPattern=%p %t %c - %m%n
 #
 # Appender for logging to Chainsaw
 #
-log4j.appender.Chainsaw=org.apache.log4j.net.SocketAppender
-log4j.appender.Chainsaw.remoteHost=localhost
-log4j.appender.Chainsaw.port=4445
-log4j.appender.Chainsaw.locationInfo=true
+#log4j.appender.Chainsaw=org.apache.log4j.net.SocketAppender
+#log4j.appender.Chainsaw.remoteHost=localhost
+#log4j.appender.Chainsaw.port=4445
+#log4j.appender.Chainsaw.locationInfo=true
 
 #
 # Setting categories

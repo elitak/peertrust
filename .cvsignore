@@ -1,7 +1,3 @@
-.project
-.logconfig
-.classpath
-.cvsignore
 testenv
 build
 tmp
