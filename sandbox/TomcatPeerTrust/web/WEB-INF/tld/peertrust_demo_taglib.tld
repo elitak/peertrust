@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+  
+
+<!-- jspversion>1.1</jspversion -->
+<!-- shortname>peertrust demo tag lib</shortname -->
+ <description>JSTL 1.1 core library</description>
+  <display-name>JSTL core</display-name>
+  <tlib-version>1.1</tlib-version>
+  <short-name>c</short-name>
+  <uri>http://java.sun.com/jsp/jstl/core</uri>
+
+<!-- pt header -->
+<tag>
+	<description>Contains pet attributes creation</description>
+	<name>PT_Header</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.PTHeaderTag</tag-class>	
+	<body-content>JSP</body-content>
+	<!-- ptEvaluatorClassName -->
+	<attribute><!-- name of the param; required -->
+		<name>ptEvaluatorClassName</name>
+		<required>true</required> 
+	</attribute>
+	
+	<attribute><!-- name of the param; required -->
+		<name>cacheKey</name>
+		<required>true</required>  
+	</attribute>
+	
+</tag>
+
+<!-- to create a named parameter -->
+<tag>
+	<description>create a named Parameter.</description>
+	<name>PT_ParamCreate</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.PTParamCreateTag</tag-class>	
+	<body-content>JSP</body-content>
+	
+	<attribute><!-- name of the param; required -->
+		<name>name</name>
+		<required>true</required> 
+	</attribute>
+	
+</tag>
+
+<!-- set a parameter a specific value if peer holds a property  -->
+<tag>
+	<description>Sets a parameter value if propery hold</description>
+	<name>IfPropertyHold</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.IfPropertyHoldTag</tag-class>
+	
+	<body-content>empty</body-content>
+	
+	<attribute><!-- property specification -->
+		<name>property</name>
+		<required>true</required> 
+	</attribute>
+	
+	<attribute><!-- value to set if property holds -->
+		<name>valueToSet</name>
+		<required>true</required> 
+	</attribute>
+</tag>
+<!--  -->
+<tag>
+	<description>To show if access denied</description>
+	<name>ElseIfPropertyHold</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.ElseIfPropertyHoldTag</tag-class>	
+	<body-content>empty</body-content>
+	
+	<attribute><!-- property specification --> 
+		<name>property</name>
+		<required>true</required> 
+	</attribute>
+	
+	<attribute><!-- value to set if property holds -->
+		<name>valueToSet</name>
+		<required>true</required> 
+	</attribute>
+	
+</tag>
+
+<tag>
+	<description>set param value</description>
+	<name>ElseNoPropertyHold</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.ElseNoPropertyHoldTag</tag-class>	
+	<body-content>empty</body-content>
+	 
+	<attribute><!-- value to set -->
+		<name>valueToSet</name>
+		<required>true</required> 
+	</attribute>
+</tag>
+
+<!-- *************************************************************************** -->
+<!-- pt header -->
+<tag>
+	<description>Hold negotiable containt</description>
+	<name>PT_NegotiableContent</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.PTNegotiableContentTag</tag-class>	
+	<body-content>JSP</body-content>
+	<!-- ptEvaluatorClassName -->
+	<attribute><!-- name of the param; required -->
+		<name>cacheKey</name>
+		<required>true</required> 
+		<!-- rtexprvalue>true</rtexprvalue -->
+		
+	</attribute>
+</tag>
+
+<!-- set a parameter a specific value if peer holds a property  -->
+<tag>
+	<description>executes body if name/value in cache</description>
+	<name>IfExhibitAttribute</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.IfExhibitAttributeTag</tag-class>
+	
+	<body-content>JSP</body-content>
+	
+	<attribute><!-- name of the parameter -->
+		<name>name</name>
+		<required>true</required> 
+	</attribute>
+	
+	<attribute><!-- required value of the parameter -->
+		<name>value</name>
+		<required>true</required> 
+	</attribute>
+</tag>
+<!--  -->
+<tag>
+	<description>Executes body if name/value in cache</description>
+	<name>ElseIfExhibitAttribute</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.ElseIfExhibitAttributeTag</tag-class>	
+	<body-content>JSP</body-content>
+	
+	<attribute><!-- property specification -->
+		<name>name</name>
+		<required>true</required> 
+	</attribute>
+	
+	<attribute><!-- value to set if property holds -->
+		<name>value</name>
+		<required>true</required> 
+	</attribute>
+	
+</tag>
+
+<tag>
+	<description>Define default content</description>
+	<name>ElseExhibitNoAttribute</name>
+	<tag-class>org.peertrust.demo.servlet.jsptags.ElseExhibitNoAttribute</tag-class>	
+	<body-content>JSP</body-content>
+</tag>
+
+</taglib>

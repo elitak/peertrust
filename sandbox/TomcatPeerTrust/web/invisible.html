@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+	<title>Untitled</title>
+	<script src="js/menu_view.js"></script>
+</head>
+
+<body>
+<h2>Configuration</h2>
+<hr/>
+<br/>
+<script>
+	
+	
+</script>
+<div id="passwordDlg" style="visibility:hidden;height=2px">
+Name:  
+<input 	id="userName" 
+		type="text" 
+		name="userName" 
+		checked=""
+		style="text-align:left;width:auto"
+		onclick=""/>
+<br/>
+Password:
+<input 	id="usePassword" 
+		type="password" 
+		name="userPassword" 
+		style="text-align:left;width:auto"
+		 onclick=""/>
+<br/>
+</div>
+<input 	type="button" 
+		name="comitPeertrustConfig" 
+		value="Commit" 
+		onclick='hideDIV("passwordDlg");'
+		style="width: 200px"/>
+		<br/>
+<input 	type="button" 
+		name="comitPeertrustConfig1" 
+		value="Commit" 
+		onclick='showDIV("passwordDlg","0px");' 
+		style="width: 200px"/>
+
+<br/>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<ptInstall isIntalled="false">
+	<filesToInstall>
+		<file ID="installFile">serverInstall.xml</file>
+		<file ID="prologFiles">eLearn.min</file>
+		<file ID="entitiesFile">entities.dat</file>
+		<file ID="configFile">demoPeertrustConfig.server.rdf</file>
+		<file ID="license">minervagui.mca</file>
+		<file ID="keystore">server_keystore</file>
+		<file ID="interpreter">interpreter.mbc</file>
+		<file ID="load">load.mbc</file>
+		<file ID="local_properties">local_properties.min</file>
+		<file ID="rdfParser">rdfParser.mbc</file>
+		<file ID="peer_cert">server_cert</file>
+		<!-- file ID=""></file -->
+		
+	</filesToInstall>
+</ptInstall>

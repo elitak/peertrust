@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry sourcepath="/peertrust/src" kind="lib" path="web/jws/peertrust.jar"/>
+	<classpathentry kind="lib" path="ext_lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="ext_lib/jnlp.jar"/>
+	<classpathentry kind="lib" path="web/jws/commons-httpclient-3.0-rc2.jar"/>
+	<classpathentry kind="lib" path="web/jws/jena.jar"/>
+	<classpathentry kind="lib" path="web/jws/log4j.jar"/>
+	<classpathentry kind="lib" path="ext_lib/catalina-ant.jar"/>
+	<classpathentry kind="lib" path="ext_lib/plugin.jar"/>
+	<classpathentry kind="lib" path="web/jws/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="web/jws/commons-logging.jar"/>
+	<classpathentry kind="lib" path="web/jws/commons-logging-api.jar"/>
+	<classpathentry kind="lib" path="web/jws/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="ext_lib/jsp-api.jar"/>
+	<classpathentry kind="output" path="web/WEB-INF/classes"/>
+</classpath>

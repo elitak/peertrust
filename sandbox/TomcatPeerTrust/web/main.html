@@ -1,0 +1,46 @@
+<html>
+<head>
+	<title>Main Page</title>
+	<style> 
+		div.reduced{
+			width:"10px";
+			height:"200px"
+		}
+	</style>
+	<script> 
+		function hideDIV(theDIVId){
+			/*var theDocument=top.document;
+			var theDivToHide= theDocument.getElementById(theDIVId);
+			if(theDivToHide){
+				//theDivToHide.style.visibility="hidden";
+				theDivToHide.style.width="0px";
+				theDivToHide.style.height="0px";
+			}else{
+				alert("Cannot hide"+theDIVId);
+			}/**/
+			if(top){
+				top.cols="10%,90%";
+			}else{
+				alert("no frameset");
+			}
+			return;
+		}
+		
+		function showDIV(theDIVId){
+			var theDocument=top.document;
+			var theDiv= theDocument.getElementById(theDIVId);
+			if(theDiv){
+				//theDiv.style.visibility="visible";
+				theDiv.style.width="200px";
+				theDiv.style.height="200px";
+				theDiv.setAttribute("style","width:200px;height:200px;border:solid");
+			}
+			return;
+		}		
+	</script>
+</head>
+<frameset cols="50%,50%" id="main_frameset">
+	<frame id='applet_div' name="applet_frame" noResize="false">
+	<frame id='display_frame'  name="display_frame" src="./visible1.html" noResize="false">dada</frame>
+</frameset>	
+</html>

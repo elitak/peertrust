@@ -1,0 +1,9 @@
+<jnlp-versions>
+      <resource>
+         <pattern>
+           <name>DemoClient.jar</name>
+            <version-id>0.0</version-id>
+         </pattern>
+         <file>DemoClient.jar</file>
+      </resource>
+</jnlp-versions>

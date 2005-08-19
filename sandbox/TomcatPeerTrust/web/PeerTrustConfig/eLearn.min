@@ -1,0 +1,52 @@
+:- dynamic(signed/3).
+:- dynamic(policy/2).
+:- dynamic(internal/3).
+:- dynamic(rule/3).
+
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+:- op(601, yfx, $).
+
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+% example(access(url)).
+
+rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+rule(validClient(localhost,'http://result1'), [],[]).
+
+
+
+
+% ---------------------------------------
+% Semantic Web paper example
+
+rule(request(Course,Session) $ Requester,
+     [policy1(request(Course),Requester)],
+     [get(Course,Session)]).
+
+rule(policy1(request(spanishCourse),Requester),
+     [drivingLicense(Requester) @ caState @ Requester,
+      policeOfficer(Requester) @ caStatePolice @ Requester],
+     []).
+rule(policy1(request(germanCourse),_),
+     [],
+     []).
+
+signed(rule(bbbMember(eLearn) @ bbb, [], []),
+            bbb, signature(bbb)).
+
+internal(get(spanishCourse,session1),[],[]).
+
+internal(get(germanCourse,session2),[],[]).
+
+
+     
+internal(acmMember(Member)@ acm, [acmMemberPolicy(Member) @ acm @ Member], []).
+internal(ieeeMember(Member)@ ieee, [ieeeMemberPolicy(Member) @ ieee @ Member], []).
+     

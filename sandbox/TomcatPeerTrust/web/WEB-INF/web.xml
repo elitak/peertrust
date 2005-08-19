@@ -1,0 +1,102 @@
+<web-app version="2.4">
+	<!-- 
+     <servlet>
+        <servlet-name>JnlpDownloadServlet</servlet-name>
+        <servlet-class>com.sun.javaws.servlet.JnlpDownloadServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+        <servlet-name>JnlpDownloadServlet</servlet-name>
+        <url-pattern>/app/*</url-pattern>
+     </servlet-mapping>
+-->
+	<!-- mapping for the demo servlet:DemoPeerTrustServlet -->
+	<context-param>
+		<param-name>ServiceServletPath</param-name>
+		<!--  param-value>/DemoPeerTrustServlet/service</param-value -->
+		<param-value>/jsp/service.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>setup</param-name>
+		<param-value>res/setup.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>configuration</param-name>
+		<param-value>res/configuration.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>links</param-name>
+		<param-value>res/links.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>presentation</param-name>
+		<param-value>res/presentation.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>defaultResource</param-name>
+		<param-value>res/defaultResource.jsp</param-value>
+	</context-param>
+	<context-param>
+		<param-name>username=kbs</param-name>
+		<param-value>kbs</param-value>
+	</context-param>
+	<context-param>
+		<param-name>freePages</param-name>
+		<param-value>setup,links,presentation</param-value>
+	</context-param>
+	<context-param>
+		<param-name>peetrustFolderRelativePath</param-name>
+		<param-value>/PeerTrustConfig</param-value>		
+	</context-param>
+	
+	<context-param>
+		<param-name>serverPTInstallXML</param-name>
+		<param-value>/PeerTrustConfig/serverInstall.xml/</param-value>		
+	</context-param>
+	<!-- jsp-config>
+	<taglib>
+		<taglib-uri>/jslt/core_rt</taglib-uri>
+		<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+	</taglib>
+</jsp-config -->
+	<servlet>
+		<servlet-name>DemoPeerTrustServlet</servlet-name>
+		<servlet-class>org.peertrust.demo.servlet.DemoPeerTrustServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DemoPeerTrustServlet</servlet-name>
+		<url-pattern>/DemoPeerTrustServlet/*</url-pattern>
+	</servlet-mapping>
+	<!--  PeerTrust communication servlet -->
+	<servlet>
+		<servlet-name>PeerTrustCommunicationServlet</servlet-name>
+		<servlet-class>org.peertrust.demo.servlet.PeerTrustCommunicationServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PeerTrustCommunicationServlet</servlet-name>
+		<url-pattern>/PeerTrustCommunicationServlet/*</url-pattern>
+	</servlet-mapping>
+	<!-- filter for no cache no store -->
+	<!-- filter>
+		<filter-name>NoCacheNoStore</filter-name>
+		<filter-class>org.peertrust.demo.servlet.MainFilter</filter-class>
+	</filter -->
+	
+	<filter>
+		<filter-name>TrustFilter</filter-name>
+		<filter-class>org.peertrust.demo.servlet.TrustFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>TrustFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<taglib>
+		<taglib-uri>/peertrustTags</taglib-uri>
+		<taglib-location>/WEB-INF/tld/peertrust_demo_taglib.tld</taglib-location>
+	</taglib>
+	
+	 <listener>
+		<listener-class>org.peertrust.demo.servlet.PTHttpSessionListener</listener-class>
+	</listener>
+</web-app>

@@ -1,0 +1,29 @@
+<!-- jsp:plugin 
+		type="applet" 
+		code="org.peertrust.demo.client.applet.DemoApplet.class"
+		archive="./jws/DemoApplet.jar,./jws/DemoClient.jar,./jws/jena.jar,
+				./jws/commons-httpclient-3.0-rc2.jar,./jws/xercesImpl.jar,
+				./jws/minrt.jar,./jws/peertrust.jar,./jws/bouncyCastle.jar,
+				./jws/commons-codec-1.3.jar,./jws/commons-logging.jar,
+				./jws/commons-logging-api.jar,./jws/commons-logging-optional.jar,
+				./jws/log4j.jar,./jws/icu4j.jar,./jws/jsse.jar,./jws/xercesImpl.jar"
+		codebase="http://" 
+		jreversion="1.5"
+		nspluginurl="http://java.sun.com/j2se/1.5.0/download.html"  
+		name="_pt_applet">
+		
+<jsp:params> 
+    	<jsp:param name="CODE_BASE_STR" value=""/> 
+		<jsp:param name="negoSessionID"  value=""/>
+		<jsp:param name="id"  value="_pt_applet"/>			
+		 <jsp:param name="negoResource"  value="blablaRes"/>
+		 <jsp:param name="remotePeerIP"  value=""/>
+		 <jsp:param name="appContext"  value="myapp-0.1-dev/"/>
+		 <jsp:param name="serviceServletPath"  value="PeerTrustCommunicationServlet"/>
+		 <jsp:param name="webAppURLPath"  value="/myapp-0.1-dev/PeerTrustCommunicationServlet"/>
+	</jsp:params>
+		
+<jsp:fallback>
+       <p> Unable to start Plug-in. </p>
+</jsp:fallback>
+</jsp:plugin -->

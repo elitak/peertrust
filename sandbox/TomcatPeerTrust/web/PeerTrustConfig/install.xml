@@ -1,0 +1,21 @@
+<ptInstall version="0.0.1">
+	<!-- furtute splitt user specific and customisable and user indepandent files-->
+	<appFiles>
+		<!--file ID="installFile">install.xml</file -->
+		<!-- file ID="prologFiles">alice.min</file -->
+		<file ID="entitiesFile">entities.dat</file>
+		<file ID="configFile">demoPeertrustConfig.client.rdf</file>
+		<file ID="license">minervagui.mca</file>
+		<file ID="keystore">client_keystore</file>
+		<file ID="interpreter">interpreter.mbc</file>
+		<file ID="load">load.mbc</file>
+		<file ID="local_properties">local_properties.min</file>
+		<file ID="rdfParser">rdfParser.mbc</file>
+		<file ID="client_cert">client_cert</file>
+		<!-- file ID=""></file -->		
+	</appFiles>
+	
+	<userCustomFiles>
+		<file ID="prologFiles">alice.min</file>		
+	</userCustomFiles>
+</ptInstall>

@@ -1,0 +1,10 @@
+<context path="/myapp-0.1-dev">             
+	<parameter>             
+    	<name>launchPage</name> <value>/jsp/launch.jsp</value>         
+    </parameter>  
+    <parameter>
+    	<name>ServiceServletPath</name>
+    	<!--  value>/PeerTrustCommunicationServlet</value -->
+    	<value>/jsp/service</value>
+    </parameter>
+</context>             
