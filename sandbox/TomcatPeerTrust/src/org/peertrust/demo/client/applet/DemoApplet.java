@@ -238,7 +238,13 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		props.setProperty(ClientConstants.CODEBASE_URL_STR_KEY,
 						getParameter(ClientConstants.CODEBASE_URL_STR_KEY));
 		
-		String home= System.getProperty("user.home");
+		String home= null;
+		//TODO get home in a more flexible way
+		try{
+			home=System.getProperty("user.home");
+		}catch(Exception e){
+			home="/home/pat_dev";
+		}
 		File instDir= new File(home,"pt");
 		//boolean gotException=false;
 //		File instDir= new File("c:/temp/pt");

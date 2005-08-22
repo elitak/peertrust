@@ -193,6 +193,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 				context.setAttribute(	NegotiationObjects.class.getName(), 
 										negoObjects);
 				negoObjects.logger.info("NegotiationObjects created");
+				
 			}
 		} catch (Throwable th) {
 			th.printStackTrace();
@@ -212,25 +213,26 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 //		int TIMEOUT = 15000 ;
 //		int SLEEP_INTERVAL = 500 ;
 		
-		PTConfigurator config=null;// = new PTConfigurator() ;
+		//PTConfigurator config=null;// = new PTConfigurator() ;
 		
 		String[] components = { defaultComponent } ;
 		String[]configFiles={configFilePath};
 		try {		
 			//config.startApp(configFiles, components) ;
 			trustClient= new TrustClient(configFiles,components);
-			config=trustClient.getPTConfigurator();
+			//config=trustClient.getPTConfigurator();
 		} catch (ConfigurationException e) {
 			logger.error("--starting peertrust server fail",e);
 		}
 		try {
-			engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine);
+			//engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine);
+			engine = (PTEngine) trustClient.getComponent(Vocabulary.PeertrustEngine);
 //			InferenceEngine interpreter = 
 //				(InferenceEngine) config.getComponent(Vocabulary.InferenceEngine);
 //			
 			comFactory=
 				(ServletSideHTTPCommunicationFactory)
-						config.getComponent(
+						trustClient.getComponent(
 								Vocabulary.CommunicationChannelFactory);
 			netClient=(ServletSideNetClient)comFactory.createNetClient();
 			netServer=(ServletSideNetServer)comFactory.createNetServer();
@@ -374,7 +376,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	
 	private void registerNewPeerEntity(Peer newPeer){
 		EntitiesTable entitiesTable = 
-			(EntitiesTable) trustClient.getPTConfigurator().getComponent(Vocabulary.EntitiesTable) ;
+			(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 		entitiesTable.put(newPeer.getAlias(),newPeer);
 	}
 	

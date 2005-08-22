@@ -17,7 +17,7 @@ signed(rule(acmMember(alice) @ acm, [], []),
 signed(rule(ieeeMember(alice) @ ieee, [], []),
             ieee, signature(ieee)).
 
-policy(acmMember(alice) @ acm $ Requester,
+policy(acmMember(alice) @ acm,
             [bbbMember(Requester) @ bbb @ Requester]).
             
 policy(ieeeMember(alice) @ ieee $ Requester,

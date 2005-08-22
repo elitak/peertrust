@@ -46,7 +46,19 @@ internal(get(spanishCourse,session1),[],[]).
 internal(get(germanCourse,session2),[],[]).
 
 
-     
-internal(acmMember(Member)@ acm, [acmMemberPolicy(Member) @ acm @ Member], []).
-internal(ieeeMember(Member)@ ieee, [ieeeMemberPolicy(Member) @ ieee @ Member], []).
+
+rule(canAccessACMLevelContent2(Res,RequestingPeer),
+     [acmMember(RequestingPeer) @ acm @ RequestingPeer],
+     []).
+rule(canAccessACMLevelContent1(RequestingPeer),
+     [acmMember(RequestingPeer) @ acm @ RequestingPeer],
+     []).    
+
+rule(canAccess(RequestingPeer),
+     [],
+     []).    
+
+rule(acmMemberPolicy(Member), [acmMember(Member)$Member@acm@Member], []).
+rule(ieeeMemberPolicy(alice)@ ieee, [ieeeMember(alice) @ ieee @ alice], []).
+
      

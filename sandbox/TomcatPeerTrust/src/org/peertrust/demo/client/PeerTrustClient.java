@@ -293,15 +293,16 @@ public class PeerTrustClient   implements PTEventListener{
 			newArgs[0]=configFileName;
 		}
 		
-		PTConfigurator config = null;//(appletPTConfigurator==null)?new PTConfigurator():appletPTConfigurator ;
+		//PTConfigurator config = null;//(appletPTConfigurator==null)?new PTConfigurator():appletPTConfigurator ;
 		
 		String[] components = { defaultComponent } ;
 		showMessage(defaultConfigFile);
 		try {
 			trustClient= new TrustClient(newArgs,components);
 			//config.startApp(newArgs, components) ;
-			config=trustClient.getPTConfigurator();
-			engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
+			//config=trustClient.getPTConfigurator();
+			//engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
+			engine=(PTEngine)trustClient.getComponent(Vocabulary.PeertrustEngine);
 			EventDispatcher dispatcher = engine.getEventDispatcher() ;
 			ClientSidePTEventListener ptEventListener=
 				(ClientSidePTEventListener)engine.getEventListener();
@@ -309,8 +310,11 @@ public class PeerTrustClient   implements PTEventListener{
 			dispatcher.register(ptEventListener);//is that needed?
 			
 			//engine.setEventListener(this);
+//			comFac=
+//				(ClientSideHTTPCommunicationFactory)config.getComponent(Vocabulary.CommunicationChannelFactory);
 			comFac=
-				(ClientSideHTTPCommunicationFactory)config.getComponent(Vocabulary.CommunicationChannelFactory);
+				(ClientSideHTTPCommunicationFactory)trustClient.getComponent(
+											Vocabulary.CommunicationChannelFactory);
 			comFac.setServerIP(this.peerIP);
 			comFac.setServerPort(this.peerPort);
 			comFac.setWebAppURLPath(this.appContextStr+"/PeerTrustCommunicationServlet");
@@ -323,7 +327,9 @@ public class PeerTrustClient   implements PTEventListener{
 				(ClientSideNetClient)comFac.createNetClient();
 			ptClient.addNewsListener(newsListener);
 			ptServer.setConfigNotEnded(false);
-			EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
+			//EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
+			EntitiesTable entitiesTable = 
+				(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 			Peer server= new Peer("eLearn",this.peerIP,this.peerPort);
 			entitiesTable.put("eLearn",server);
 			//todo change how to set local peer data

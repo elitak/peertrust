@@ -107,6 +107,7 @@ public class TrustFilter implements Filter{
 			NegotiationObjects.createAndAddForAppContext(
 									filterConfig.getServletContext());
 		trustManager=negoObjects.getTrustManager();
+		System.out.println("TrustManager just created:"+trustManager);
 		return;
 	}
 
