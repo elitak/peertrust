@@ -60,11 +60,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: PTConfigurator.java,v 1.11 2005/08/23 12:55:19 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.10 2005/08/23 12:53:58 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/23 12:55:19 $
+ * Last changed: $Date: 2005/08/23 12:53:58 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -138,13 +138,14 @@ public class PTConfigurator {
 		}
 		else
 		{
+			BasicConfigurator.configure();
 			PropertyConfigurator.configure(logConfig) ;
 			log.info("Log4j configured based on file \"" + logConfig + "\"") ;
 		}
         
         
 
-		log.debug("$Id: PTConfigurator.java,v 1.11 2005/08/23 12:55:19 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.10 2005/08/23 12:53:58 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
