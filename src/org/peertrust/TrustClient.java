@@ -40,12 +40,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.10 2005/08/16 14:13:29 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.11 2005/08/23 11:05:20 token77 Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/16 14:13:29 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2005/08/23 11:05:20 $
+ * by $Author: token77 $
  * </p>
  * @author olmedilla
  */
@@ -444,7 +444,7 @@ public class TrustClient implements PTEventListener
 	 * @param alias The alias to set.
 	 */
 	public void setAlias(String alias) {
-		this._alias = alias;
+		this._alias = alias.toLowerCase();
 		_peer = new Peer (_alias, Peer.UNSPECIFIED_ADDRESS, Peer.UNSPECIFIED_PORT) ;
 	}
 	/**
