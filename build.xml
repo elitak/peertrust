@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.7 2005/08/16 14:13:29 dolmedilla Exp $
+     $Id: build.xml,v 1.8 2005/08/23 12:53:38 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -700,7 +700,7 @@ ${Name} Build file
   <target name="copyFiles">
     <echo>Copying files from ${configdir} in ${startdir}</echo>
     <mkdir dir="${startdir}"/>
-  	<copy file="${configdir}/.logconfig" todir="${startdir}"/>
+  	<copy file="${configdir}/logconfig" todir="${startdir}"/>
   	<copy file="${configdir}/prolog/minerva/interpreter.mbc" todir="${startdir}"/>
   	<copy file="${configdir}/prolog/minerva/load.mbc" todir="${startdir}"/>
     <copy file="${configdir}/prolog/minerva/rdfParser.mbc" todir="${startdir}"/>

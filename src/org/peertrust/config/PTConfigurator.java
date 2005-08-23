@@ -23,6 +23,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
 
 import net.jxta.edutella.util.RdfUtilities;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.peertrust.exception.ConfigurationException;
@@ -58,11 +60,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: PTConfigurator.java,v 1.9 2005/08/18 14:52:31 dolmedilla Exp $
+ * $Id: PTConfigurator.java,v 1.11 2005/08/23 12:55:19 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/18 14:52:31 $
+ * Last changed: $Date: 2005/08/23 12:55:19 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -70,10 +72,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
 public class PTConfigurator {
 	
 	// name of the log configuration file
-	private static final String LOG_CONFIG_FILE = ".logconfig" ;
+	private static final String LOG4J_CONFIGURATION_PROPERTY = "log4j.configuration" ;
+	private static final String DEFAULT_LOG_CONFIG_FILE = "logconfig" ;
 	private static final String CONFIGURATOR_PARENT_NAME = "ConfiguratorParent" ;
 	
-	private static Logger log ; //= Logger.getLogger(PeertrustConfigurator.class);
+	private static Logger log = Logger.getLogger(PTConfigurator.class);
 	
 	private final Object EMPTY = "\\?$Empty@~?" ;
 	private final String SCAPE_CHARACTER_REG_EXP = "\\\\" ;
@@ -118,13 +121,30 @@ public class PTConfigurator {
 	
 	private void init ()
 	{
-		// Configure logging
-		PropertyConfigurator.configure(LOG_CONFIG_FILE) ;
-		log = Logger.getLogger(PTConfigurator.class);
+		String logConfig = System.getProperty(LOG4J_CONFIGURATION_PROPERTY) ;
+		
+		if (logConfig == null)
+			//System.setProperty(LOG4J_CONFIGURATION_PROPERTY, LOG_CONFIG_FILE) ;
+			logConfig = DEFAULT_LOG_CONFIG_FILE ;
+		
+		File configFile = new File (logConfig) ;
+		
+		// Configure logging		
+		if (configFile.exists() == false)
+		{
+			log.info("File " + System.getProperty("user.dir") + File.separator + logConfig + " does not exist") ;
+			BasicConfigurator.configure();
+			log.info("Log4j configured based on BasicConfigurator") ;
+		}
+		else
+		{
+			PropertyConfigurator.configure(logConfig) ;
+			log.info("Log4j configured based on file \"" + logConfig + "\"") ;
+		}
         
-        log.info("Log4j configured based on file \"" + LOG_CONFIG_FILE + "\"");
+        
 
-		log.debug("$Id: PTConfigurator.java,v 1.9 2005/08/18 14:52:31 dolmedilla Exp $");
+		log.debug("$Id: PTConfigurator.java,v 1.11 2005/08/23 12:55:19 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
