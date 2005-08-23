@@ -43,12 +43,12 @@ import org.peertrust.net.Peer;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.10 2005/08/07 08:35:14 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.11 2005/08/23 11:44:18 token77 Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 08:35:14 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2005/08/23 11:44:18 $
+ * by $Author: token77 $
  * </p>
  * @author olmedilla
  */
@@ -80,7 +80,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.10 2005/08/07 08:35:14 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.11 2005/08/23 11:44:18 token77 Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -395,7 +395,6 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		try {
 			log.debug("Sending to the engine:" + "processTree(" + minQuery + ",Return)") ;
 			_engine.execute("processTree", minQuery, resultVar) ;
-			log.debug("Receiving from the engine:" + resultVar.getValue().toString()) ;
 		}
 		catch (MinervaSystemError e) {
 			log.error("Error processing the tree in Minerva", e) ;
@@ -406,6 +405,8 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			log.debug("No answers") ;
 			return null ;
 		}
+		else
+			log.debug("Receiving from the engine:" + resultVar.getValue().toString()) ;
 		
 		String result = unparse (resultVar) ;
 		log.debug("Parsed results: " + result) ;
