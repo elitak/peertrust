@@ -1,0 +1,140 @@
+# Set root logger level to DEBUG and its only appender to A1.
+log4j.rootLogger=FATAL, stdout, all, selected, Chainsaw
+
+# Priorities are ALL, DEBUG, INFO, WARN, ERROR, FATAL and OFF
+#
+# c 		for the category name "a.b.c",
+#			the pattern %c{2} will output "b.c"
+#
+# C	!	for the class name "org.apache.xyz.SomeClass",
+#			the pattern %C{1} will output "SomeClass"
+#
+# d		%d{HH:mm:ss,SSS} or %d{dd MMM yyyy HH:mm:ss,SSS} or
+#			%d{ISO8601} or %d{ABSOLUTE}
+#
+# F	!!!	Used to output the file name 
+#			where the logging request was issued.
+#
+# l	!!!	Used to output location information 
+#			of the caller which generated the logging event.
+#
+# L	!!!	Used to output the line number 
+#			from where the logging request was issued.
+#
+# m		Used to output the application supplied message 
+#			associated with the logging event.
+#
+# M	!!!	Used to output the method name 
+#			where the logging request was issued.
+#
+# n		Outputs the platform dependent line separator character 
+#			or characters.
+#
+# p		Used to output the priority of the logging event.
+#
+#
+# r		Used to output the number of milliseconds elapsed 
+#			since the start of the application 
+#			until the creation of the logging event.
+#
+# t		Used to output the name of the thread 
+#			that generated the logging event.
+#
+# x		Used to output the NDC (nested diagnostic context) 
+#			associated with the thread 
+#			that generated the logging event.
+#
+# X		Used to output the MDC (mapped diagnostic context) 
+#			associated with the thread
+#			that generated the logging event.
+#
+# %		The sequence %% outputs a single percent sign.
+#
+# ! == SPEED IMPACT, !!! == EXTREME SPEED IMPACT
+#
+#
+# Format 	left 	minimum maximum
+# modifier	justify	width	width		comment
+# --------	-------	-----	-----		-------
+#
+# %20c		false	20	none	Left pad with spaces
+#					if the category name is
+#					less than 20 characters long.
+#
+# %-20c		true	20	none	Right pad with spaces
+#					if the category name is less
+#					than 20 characters long.
+#
+# %.30c		NA	none	30	Truncate from the beginning
+#					if the category name is longer
+#					than 30 characters.
+#
+# %20.30c	false	20	30	Left pad with spaces 
+#					if the category name is shorter
+#					than 20 characters.
+#					However, if category name is longer 
+#					than 30 characters,
+#					then truncate from the beginning.
+#
+# %-20.30c	true	20	30	Right pad with spaces 
+#					if the category name is shorter
+#					than 20 characters.
+#					However, if category name is longer
+#					than 30 characters, 
+#					then truncate from the beginning.
+#
+#
+# For more information read:
+#
+# http://www.learninglab.uni-hannover.de/~brunkhor/javadoc/log4j/
+#	org/apache/log4j/PatternLayout.html
+#	org/apache/log4j/Level.html
+#
+
+#
+# Appender for logging to Console (stdout)
+#
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+# Pattern to output the caller's file name and line number.
+log4j.appender.stdout.layout.ConversionPattern=%-5p [%t] (%C{1}:%L) - %m%n
+
+
+#
+# Appender for logging all messages to File (all)
+#
+log4j.appender.all=org.apache.log4j.RollingFileAppender
+log4j.appender.all.File=all.log
+log4j.appender.all.MaxFileSize=16384KB
+log4j.appender.all.MaxBackupIndex=9
+
+log4j.appender.all.layout=org.apache.log4j.PatternLayout
+log4j.appender.all.layout.ConversionPattern=%-5p %30.45d{ISO8601} [%t] %C%n %F:%L %m%n
+
+#
+# Appender for logging only messages of specifig interest (selected)
+#
+log4j.appender.selected=org.apache.log4j.RollingFileAppender
+log4j.appender.selected.File=selected.log
+log4j.appender.selected.MaxFileSize=4096KB
+log4j.appender.selected.MaxBackupIndex=4
+
+log4j.appender.selected.layout=org.apache.log4j.PatternLayout
+log4j.appender.selected.layout.ConversionPattern=%p %t %c - %m%n
+
+#
+# Appender for logging to Chainsaw
+#
+#log4j.appender.Chainsaw=org.apache.log4j.net.SocketAppender
+#log4j.appender.Chainsaw.remoteHost=localhost
+#log4j.appender.Chainsaw.port=4445
+#log4j.appender.Chainsaw.locationInfo=true
+
+#
+# Setting categories
+#
+log4j.logger.org.peertrust=DEBUG
+log4j.logger.net.jxta=WARN
+log4j.logger.net.jxta.edutella=DEBUG
+

@@ -3,18 +3,23 @@
  */
 package org.peertrust.demo.servlet.jsptags;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.PageContext;
 
 import org.peertrust.TrustClient;
 import org.peertrust.demo.servlet.NegotiationObjects;
+import org.peertrust.net.Peer;
 
 /**
  * @author pat_dev
  *
  */
 public class TagsPeerTrustEvaluator implements PTPropertyEvaluator {
+	static final public String PEER_NAME_PLACE_HOLDER="Requester"; 
 	NegotiationObjects negoObjects;
 	TrustClient trustClient;
+	HttpSession session;
 	/**
 	 * 
 	 */
@@ -36,6 +41,15 @@ public class TagsPeerTrustEvaluator implements PTPropertyEvaluator {
 	}
 
 	public String buildQuery(String propertySpec){
+		if(session!=null){
+			Peer peer= negoObjects.getSessionPeer(session.getId());
+			String peerName= null;
+			if(peer!=null){
+				peerName=peer.getAlias();
+				propertySpec= propertySpec.replaceAll(PEER_NAME_PLACE_HOLDER,peerName);
+			}
+			System.out.println("resulting query:"+propertySpec);
+		}
 		return propertySpec;
 	}
 	
@@ -47,6 +61,7 @@ public class TagsPeerTrustEvaluator implements PTPropertyEvaluator {
 			NegotiationObjects.createAndAddForAppContext(context.getServletConfig());
 		trustClient=negoObjects.getTrustClient();
 		trustClient.setTimeout(1000*60);
+		session=context.getSession();
 	}
 
 }

@@ -1,26 +1,11 @@
-:- dynamic(signed/3).
-:- dynamic(policy/2).
-:- dynamic(internal/3).
-:- dynamic(rule/3).
-
-% we use two special infix operators
-% infix operator definition for @ (remote predicate call)
-:- op(600, yfx, @).
-
-% infix operator definition for $ (operator to express calling peer)
-%:- op(601, xfy, $).
-:- op(601, yfx, $).
-
-% ------------------------------------------------------
+                       
 signed(rule(acmMember(alice) @ acm, [], []),
             acm, signature(acm)).
 signed(rule(ieeeMember(alice) @ ieee, [], []),
             ieee, signature(ieee)).
 
-policy(acmMember(alice) @ acm,
+policy(acmMember(alice) @ acm $ Requester,
             [bbbMember(Requester) @ bbb @ Requester]).
             
 policy(ieeeMember(alice) @ ieee $ Requester,
             [bbbMember(Requester) @ bbb @ Requester]).
-
-            

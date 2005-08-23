@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 public class TrustManager {
 
 	class SimplePolicyEvaluator implements PolicyEvaluator{
+		static final public String PEER_NAME_SPACE_HOLDER="Requester";
 		private TrustClient trustClient;
 		
 		public SimplePolicyEvaluator(TrustClient trustClient){
@@ -48,7 +49,8 @@ public class TrustManager {
 		}
 		
 		private String buildQuery(String polValue, String negotiatinPeerName){
-			polValue=polValue.replaceAll("Requester",negotiatinPeerName);
+			polValue=polValue.replaceAll(PEER_NAME_SPACE_HOLDER,negotiatinPeerName);
+			System.out.println("parsed query:"+polValue);
 			return polValue;
 		}
 	}

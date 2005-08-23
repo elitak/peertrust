@@ -70,7 +70,7 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 		//make unique client
 		ptClient= 
 			new ClientSideNetClient(webAppURLPath, randomAlias,logger);
-		
+		ptClient.setHttpServer(getServerPeer(randomAlias));
 		//create unique net server
 		ptServer=
 			new ClientSideNetServer(	
@@ -103,6 +103,7 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	public void setServerIP(String serverIP) {
 		this.serverIP = serverIP;
 		ptServer.getServer().setAddress(serverIP);
+		ptClient.getHttpServer().setAddress(serverIP);
 	}
 	/**
 	 * @return Returns the serverPort.
@@ -116,6 +117,7 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	public void setServerPort(int serverPort) {
 		this.serverPort = serverPort;
 		ptServer.getServer().setPort(serverPort);
+		ptClient.getHttpServer().setPort(serverPort);
 	}
 	/**
 	 * @return Returns the webAppURLPath.

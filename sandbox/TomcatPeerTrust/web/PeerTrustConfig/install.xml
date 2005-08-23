@@ -12,6 +12,7 @@
 		<file ID="local_properties">local_properties.min</file>
 		<file ID="rdfParser">rdfParser.mbc</file>
 		<file ID="client_cert">client_cert</file>
+		<file ID="logConfig">.logconfig</file>
 		<!-- file ID=""></file -->		
 	</appFiles>
 	

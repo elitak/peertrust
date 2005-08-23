@@ -14,10 +14,10 @@
 <pt:PT_Header 	ptEvaluatorClassName="org.peertrust.demo.servlet.jsptags.TagsPeerTrustEvaluator"
 				cacheKey="cacheKey">
 	<pt:PT_ParamCreate name="membership">
-		<pt:IfPropertyHold 	property="acmMember(alice)"
+		<pt:IfPropertyHold 	property="acmMemberPolicy(Requester)"
 							valueToSet="acm"/>
 		
-		<pt:ElseIfPropertyHold 	property="ieeeMember(alice)"
+		<pt:ElseIfPropertyHold 	property="ieeeMemberPolicy(Requester)"
 							valueToSet="ieee"/>
 		
 		<pt:ElseNoPropertyHold 	valueToSet="nothing"/>

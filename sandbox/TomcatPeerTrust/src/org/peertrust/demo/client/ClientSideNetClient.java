@@ -42,6 +42,8 @@ public class ClientSideNetClient 	extends NewsServer
 	HttpClient httpClient;
 	String randomPeerAlias=null;
 	Logger logger;
+	Peer httpServer;
+	
 	public ClientSideNetClient(String webAppURLPath, String peerAlias, Logger logger){
 		this.webAppURLPath=webAppURLPath;
 		this.httpClient= new HttpClient();
@@ -148,7 +150,8 @@ public class ClientSideNetClient 	extends NewsServer
 			ObjectInputStream objIn= 
 				new ObjectInputStream(postMethod.getResponseBodyAsStream());
 			Object obj= objIn.readObject();
-			fireNewsEvent(new NewsEvent(this,""+obj));			
+			fireNewsEvent(new NewsEvent(this,""+obj));	
+			System.out.println("Sending:"+obj);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -162,12 +165,13 @@ public class ClientSideNetClient 	extends NewsServer
 	
 	private String makeHTTPAdress(Message mes, Peer server){
 		
+		httpServer.setAlias(server.getAlias());
 		strBuffer.delete(0,strBuffer.length());
 		
 		strBuffer.append("http://");
-		strBuffer.append(server.getAddress());
+		strBuffer.append(httpServer.getAddress());
 		strBuffer.append(":");
-		strBuffer.append(server.getPort());
+		strBuffer.append(httpServer.getPort());
 		strBuffer.append(webAppURLPath);
 		strBuffer.append("?action=send");
 				
@@ -185,5 +189,14 @@ public class ClientSideNetClient 	extends NewsServer
 	
 	public void destroy(){
 		
+	}
+	
+	
+	
+	public Peer getHttpServer() {
+		return httpServer;
+	}
+	public void setHttpServer(Peer httpServer) {
+		this.httpServer = httpServer;
 	}
 }

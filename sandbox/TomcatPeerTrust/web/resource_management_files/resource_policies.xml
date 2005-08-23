@@ -1,13 +1,13 @@
 <policySystem type="..">
 	<policy
 		policyName="acmMember"
-		policyValue="acmLevelContent(Requester)"
+		policyValue="acmMemberPolicy(Requester)"
 		includedPolicy="" 
 		/>
 		
 	<policy
 		policyName="ieeeMember"
-		policyValue="request(spanishCourse,Session) @ elearn § Requester"
+		policyValue="ieeeMemberPolicy(Requester)"
 		includedPolicy="" 
 		/>
 </policySystem>
