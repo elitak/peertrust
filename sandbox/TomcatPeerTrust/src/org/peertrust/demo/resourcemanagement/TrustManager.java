@@ -3,9 +3,13 @@
  */
 package org.peertrust.demo.resourcemanagement;
 
+import java.io.IOException;
 import java.util.Vector;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.peertrust.TrustClient;
+import org.xml.sax.SAXException;
 
 /**
  * @author pat_dev
@@ -28,8 +32,10 @@ public class TrustManager {
 			Policy pol=null;
 			long id;
 			Boolean result;
+			
 			for(int i=0; i<SIZE;i++){
 				pol=(Policy)policyVector.elementAt(i);
+				
 				id=trustClient.sendQuery(buildQuery(pol.getPolicyValue(),negotiatingPeerName));
 				result=trustClient.waitForQuery(id);
 				if(result==null){
@@ -42,6 +48,7 @@ public class TrustManager {
 		}
 		
 		private String buildQuery(String polValue, String negotiatinPeerName){
+			polValue=polValue.replaceAll("Requester",negotiatinPeerName);
 			return polValue;
 		}
 	}
@@ -66,11 +73,48 @@ public class TrustManager {
 	}
 
 	private ResourceClassifier makeResourceClassifier(String classifierXMLSetupFilePath){
-		return new OntologyBasedResourceClassifier(classifierXMLSetupFilePath);
+		
+		try {
+			OntologyBasedResourceClassifier classifier=
+				new OntologyBasedResourceClassifier();
+			classifier.setup(classifierXMLSetupFilePath);
+			return classifier;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private PolicySystem makePolicySystem(String policySystemXMLSetupFilePath){
-		return new OntologyBasedPolicySystem(policySystemXMLSetupFilePath);
+		try {
+			OntologyBasedPolicySystem polSystem=
+				new OntologyBasedPolicySystem();
+			polSystem.setup(policySystemXMLSetupFilePath);
+			return polSystem;
+		} catch (UnsupportedFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private PolicyEvaluator makePolicyEvaluator(String policyEvaluatorXMLSetupPath, 
@@ -91,13 +135,13 @@ public class TrustManager {
 			if(policyName==null){
 				throw 
 					new IllegalAccessPolicyAssociation(
-							"Policy name associated with "+res.getVirtualURL()+
+							"Policy name associated with "+res.getUrl()+
 							" is null");
 			}
 			if(policyName.trim().length()==0) {
 				throw 
 					new IllegalAccessPolicyAssociation(
-						"Policy name associated with "+res.getVirtualURL()+
+						"Policy name associated with "+res.getUrl()+
 						" is empty");
 			}
 			
@@ -110,7 +154,7 @@ public class TrustManager {
 			}
 			
 			//evaluate
-			int result=policyEvaluator.eval(associatePolicies, null);
+			int result=policyEvaluator.eval(associatePolicies, negotiatingPeerName);
 			if(result==PolicyEvaluator.SUCCESS_FLAG){
 				((ProtectedResource)res).setCanAccess(true);
 			}else{
@@ -123,5 +167,9 @@ public class TrustManager {
 		}
 		
 		return res;
+	}
+	
+	static public void main(String[] args){
+		System.out.println("dadad Requester ggg Requester".replaceAll("Requester","alice"));
 	}
 }

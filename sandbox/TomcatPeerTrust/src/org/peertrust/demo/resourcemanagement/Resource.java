@@ -9,20 +9,22 @@ package org.peertrust.demo.resourcemanagement;
  */
 abstract public class Resource {
 	//final static public String PROTECTION_
-	protected String virtualURL=null;
-	protected String realURL=null;
+	//protected String virtualURL=null;
+	//protected String realURL=null;
+	protected String url=null;
 	protected String matchingStrategy=null;
 	
-	public Resource(String matchingStrategy, String realURL, String virtualURL) {
+	public Resource(String matchingStrategy, String url){//String realURL, String virtualURL) {
 		super();
-		if(matchingStrategy==null || realURL==null || virtualURL==null){
+		if(matchingStrategy==null || url==null){
 			throw new NullPointerException("Any paramerter must not be null");
 		}
 		
 		
 		this.matchingStrategy = matchingStrategy;
-		this.realURL = realURL;
-		this.virtualURL = virtualURL;
+		this.url=url;
+//		this.realURL = realURL;
+//		this.virtualURL = virtualURL;
 		
 	}
 
@@ -34,19 +36,28 @@ abstract public class Resource {
 		this.matchingStrategy = matchingStrategy;
 	}
 
-	public String getRealURL() {
-		return realURL;
+	/**
+	 * @return Returns the url.
+	 */
+	public String getUrl() {
+		return url;
 	}
 
-	public void setRealURL(String realURL) {
-		this.realURL = realURL;
+	/**
+	 * @param url The url to set.
+	 */
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
-	public String getVirtualURL() {
-		return virtualURL;
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return 	"url:"+url+
+				" matchingStrategy:"+ matchingStrategy;
+		
 	}
 
-	public void setVirtualURL(String virtualURL) {
-		this.virtualURL = virtualURL;
-	}		
+			
 }

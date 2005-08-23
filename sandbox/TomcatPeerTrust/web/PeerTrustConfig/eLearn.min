@@ -47,11 +47,11 @@ internal(get(germanCourse,session2),[],[]).
 
 
 
-rule(canAccessACMLevelContent2(Res,RequestingPeer),
+rule(acmLevelContent2(Res,RequestingPeer),
      [acmMember(RequestingPeer) @ acm @ RequestingPeer],
      []).
-rule(canAccessACMLevelContent1(RequestingPeer),
-     [acmMember(RequestingPeer) @ acm @ RequestingPeer],
+rule(acmLevelContent(Requester),
+     [acmMember(Requester) @ acm @ Requester],
      []).    
 
 rule(canAccess(RequestingPeer),
@@ -59,6 +59,6 @@ rule(canAccess(RequestingPeer),
      []).    
 
 rule(acmMemberPolicy(Member), [acmMember(Member)$Member@acm@Member], []).
-rule(ieeeMemberPolicy(alice)@ ieee, [ieeeMember(alice) @ ieee @ alice], []).
+rule(ieeeMemberPolicy(Requester)$Requester, [ieeeMember(Requester) @ ieee @ Requester], []).
 
      

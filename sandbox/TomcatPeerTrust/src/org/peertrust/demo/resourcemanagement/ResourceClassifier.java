@@ -5,6 +5,10 @@ package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 /**
  * @author pat_dev
  *
@@ -29,6 +33,8 @@ public interface ResourceClassifier {
 	 * @param urlOfXMLConfigFile -- url of the config file
 	 * @throws IOException -- if any IO exception 
 	 * @throws UnsupportedFormatException -- if xml config file type is not supported
+	 * @throws ParserConfigurationException 
+	 * @throws SAXException 
 	 */
-	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException;
+	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException;
 }

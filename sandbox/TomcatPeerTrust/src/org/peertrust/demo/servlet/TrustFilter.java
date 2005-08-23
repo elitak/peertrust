@@ -43,11 +43,11 @@ public class TrustFilter implements Filter{
 			Resource res= trustManager.classifyResource(url);
 			if(res instanceof PublicResource){
 				System.out.println("filtering public page");
-				if(url.equals(res.getRealURL())){
+				if(url.equals(res.getUrl())){
 					chain.doFilter(req,resp);
 				}else{
 					RequestDispatcher dispatcher = 
-	    				req.getRequestDispatcher(res.getRealURL());
+	    				req.getRequestDispatcher(res.getUrl());
 	    			try{
 	    				dispatcher.forward(req, resp);
 	    				return;
@@ -61,7 +61,7 @@ public class TrustFilter implements Filter{
 				System.out.println("filtering protected  page");
 				HttpSession session=
 					((HttpServletRequest)req).getSession(false);
-				System.out.println("filtering protected  page session id:"+session.getId());
+				System.out.println("filtering protected  page session id:"+session);
 				//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
 				Peer peer= negoObjects.getSessionPeer(session.getId());
 				String peerName= null;
@@ -74,7 +74,7 @@ public class TrustFilter implements Filter{
 				if(((ProtectedResource)res).getCanAccess()){
 					
 					RequestDispatcher dispatcher = 
-	    				req.getRequestDispatcher(res.getRealURL());
+	    				req.getRequestDispatcher(res.getUrl());
 	    			try{
 	    				dispatcher.forward(req, resp);
 	    				//dispatcher.include(req,resp);
@@ -87,7 +87,7 @@ public class TrustFilter implements Filter{
 				}else{
 	           		resp.setContentType("text/html");
 					resp.getWriter().println(
-							"Cannot access "+res.getVirtualURL()+
+							"Cannot access "+res.getUrl()+
 							" cause:"+((ProtectedResource)res).getReason());
 					resp.flushBuffer();
 					return;

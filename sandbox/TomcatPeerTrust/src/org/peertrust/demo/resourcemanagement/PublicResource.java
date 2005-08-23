@@ -14,9 +14,11 @@ public class PublicResource extends Resource {
 	 * @param realURL
 	 * @param virtualURL
 	 */
-	public PublicResource(String matchingStrategy, String realURL,
-			String virtualURL) {
-		super(matchingStrategy, realURL, virtualURL);
+	public PublicResource(String matchingStrategy,String url) {
+		super(matchingStrategy, url);
 	}
 
+	public PublicResource getCopy(String url){
+		return new PublicResource(getMatchingStrategy(),url);
+	}
 }

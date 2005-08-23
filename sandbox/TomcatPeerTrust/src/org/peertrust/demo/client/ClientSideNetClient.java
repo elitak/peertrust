@@ -63,6 +63,7 @@ public class ClientSideNetClient 	extends NewsServer
 //						origin.getAddress(),
 //						origin.getPort());
 		if(mes instanceof Query){
+			System.out.println("Query:"+mes);
 			Peer originWithID= 
 				new Peer(	origin.getAlias(),//randomPeerAlias,
 							origin.getAddress(),
@@ -75,6 +76,7 @@ public class ClientSideNetClient 	extends NewsServer
 							query.getTrace());
 			return mes;
 		}else if(mes instanceof Answer){
+			System.out.println("Answer:"+mes);
 			Answer answer= (Answer)mes;
 			//TODO answer trick fix
 //			mes= new Answer(answer.getGoal(),

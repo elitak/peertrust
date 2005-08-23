@@ -1,0 +1,43 @@
+<ResourceClassifier type="..">
+	<!--  use attribute overwrite to cope with multiple match -->
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/pdf/trustVLDB04.pdf"
+		matchingStrategy="_exact_"
+		policyName="acmMember"
+		/>		
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/pdf/PeerTrust-ATN.pdf"
+		matchingStrategy="_exact_"
+		policyName="ieeeMember"
+		/>	
+		
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/jsp/appletPage.jsp"
+		matchingStrategy="_exact_"
+		policyName="acmMember"
+	/>	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/jsp/service.jsp"
+		matchingStrategy="_exact_"
+		policyName=""
+	/>	
+	
+	<resourceClass
+		isProtected="false" 
+		url=".*[.]jsp"
+		matchingStrategy="_reg_exp_"
+		policyName=""
+	/>	
+	
+	<resourceClass
+		isProtected="false" 
+		url=".*"
+		matchingStrategy="_reg_exp_"
+		policyName=""
+	/>	
+		
+</ResourceClassifier>

@@ -151,7 +151,7 @@ public class ServletPeerTrustEventListener implements PTEventListener, Configura
 						(NegotiationState)negotiations.get(reqID);
 					negoState.setFinalAnswer(answer);
 					logger.info("++++++++++++++reqID:"+reqID+
-								" last answer");
+								" last answer"+ Answer.getStatusString(answer.getStatus()));
 					negotiations.notifyAll();				
 				}
 				

@@ -135,7 +135,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	}
 	
 	ArrayBlockingQueue workerFIFO = new ArrayBlockingQueue(4);
-	private PTConfigurator configurator;
+	//private PTConfigurator configurator;
 	class PasswordBasedResourceRequest{
 		private String resource;
 		private String password=null;
@@ -211,7 +211,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	public void init() {
 		super.init();
 		win=JSObject.getWindow(this);
-		configurator = new PTConfigurator (this) ;
+		//configurator = new PTConfigurator (this) ;
 		//win.eval("alert(parent.document.getElementById('display_frame'))");
 		return;
 	}
@@ -243,7 +243,8 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		try{
 			home=System.getProperty("user.home");
 		}catch(Exception e){
-			home="/home/pat_dev";
+			e.printStackTrace();
+			home="C:\\Dokumente und Einstellungen\\pat_dev";
 		}
 		File instDir= new File(home,"pt");
 		//boolean gotException=false;
