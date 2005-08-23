@@ -43,12 +43,12 @@ import org.peertrust.net.Peer;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.11 2005/08/23 11:44:18 token77 Exp $
+ * $Id: MinervaProlog.java,v 1.12 2005/08/23 11:50:07 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/23 11:44:18 $
- * by $Author: token77 $
+ * Last changed: $Date: 2005/08/23 11:50:07 $
+ * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
@@ -80,7 +80,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.11 2005/08/23 11:44:18 token77 Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.12 2005/08/23 11:50:07 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -402,7 +402,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		
 		if (resultVar.getValue() == null)
 		{
-			log.debug("No answers") ;
+			log.error("No answers") ;
 			return null ;
 		}
 		else
