@@ -58,41 +58,42 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private String _ResourcePoliciesSetupFile;
 	
 	public NegotiationObjects(ServletConfig config){
-		try{
-			messagePool= new Hashtable();
-			ServletContext context=config.getServletContext(); 
-	        logger=ConfigurationOption.getLogger(NegotiationObjects.class.getName());
-	        String list= context.getInitParameter("freePages");
-	        //peetrustConfigFileRelativePath
-	        configFilePath=context.getRealPath(context.getInitParameter("peetrustFolderRelativePath"));
-	        File file=
-	        	new File(
-	        			context.getRealPath(context.getInitParameter("serverPTInstallXML")));
-	        
-	        _ResourceClassifierSetupFile=
-	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
-	        _ResourcePoliciesSetupFile=
-	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
-	        
-	        System.out.println("_ResourceClassifierSetupFile:"+_ResourceClassifierSetupFile+
-	        					"_");
-	        RDFConfigFileUpdater updater= 
-	        	new RDFConfigFileUpdater(
-	        			file.getName(),//context.getRealPath(context.getInitParameter("serverPTInstallXML")),
-						file.getParent());//context.getRealPath(context.getInitParameter("peetrustFolderRelativePath")));
-	        updater.update();
-	        configFilePath=updater.getRDFConfigFile();//updater.onfigFile.toURI().toString();
-	        
-//	        System.out.println("\n=============================================================");
-//	        System.out.println("rdfConfig:"+configFilePath);
-//	        System.out.println("=============================================================");
-	        if(list!=null){
-	        	freePageList.append(list);
-	        }
-		}catch(Throwable th){
-			th.printStackTrace();
-			logger.error("-- error while constructing trust objects--",th);
-		}
+		this(config.getServletContext());
+//		try{
+//			messagePool= new Hashtable();
+//			ServletContext context=config.getServletContext(); 
+//	        logger=ConfigurationOption.getLogger(NegotiationObjects.class.getName());
+//	        String list= context.getInitParameter("freePages");
+//	        //peetrustConfigFileRelativePath
+//	        configFilePath=context.getRealPath(context.getInitParameter("peetrustFolderRelativePath"));
+//	        File file=
+//	        	new File(
+//	        			context.getRealPath(context.getInitParameter("serverPTInstallXML")));
+//	        
+//	        _ResourceClassifierSetupFile=
+//	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
+//	        _ResourcePoliciesSetupFile=
+//	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
+//	        
+//	        System.out.println("_ResourceClassifierSetupFile:"+_ResourceClassifierSetupFile+
+//	        					"_");
+//	        RDFConfigFileUpdater updater= 
+//	        	new RDFConfigFileUpdater(
+//	        			file.getName(),//context.getRealPath(context.getInitParameter("serverPTInstallXML")),
+//						file.getParent());//context.getRealPath(context.getInitParameter("peetrustFolderRelativePath")));
+//	        updater.update();
+//	        configFilePath=updater.getRDFConfigFile();//updater.onfigFile.toURI().toString();
+//	        
+////	        System.out.println("\n=============================================================");
+////	        System.out.println("rdfConfig:"+configFilePath);
+////	        System.out.println("=============================================================");
+//	        if(list!=null){
+//	        	freePageList.append(list);
+//	        }
+//		}catch(Throwable th){
+//			th.printStackTrace();
+//			logger.error("-- error while constructing trust objects--",th);
+//		}
 	}
 	
 	public NegotiationObjects(ServletContext  context){
@@ -228,11 +229,6 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 
 		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
 		
-//		int TIMEOUT = 15000 ;
-//		int SLEEP_INTERVAL = 500 ;
-		
-		//PTConfigurator config=null;// = new PTConfigurator() ;
-		
 		String[] components = { defaultComponent } ;
 		String[]configFiles={configFilePath};
 		try {		
@@ -244,10 +240,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		}
 		try {
 			//engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine);
-			engine = (PTEngine) trustClient.getComponent(Vocabulary.PeertrustEngine);
-//			InferenceEngine interpreter = 
-//				(InferenceEngine) config.getComponent(Vocabulary.InferenceEngine);
-//			
+			engine = (PTEngine) trustClient.getComponent(Vocabulary.PeertrustEngine);	
 			comFactory=
 				(ServletSideHTTPCommunicationFactory)
 						trustClient.getComponent(
@@ -268,6 +261,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	
 	public void destroy(){
 		try {
+			
 			engine.stop();
 		} catch (RuntimeException e) {
 			e.printStackTrace();
