@@ -40,12 +40,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.11 2005/08/23 11:05:20 token77 Exp $
+ * $Id: TrustClient.java,v 1.12 2005/08/26 13:46:30 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/23 11:05:20 $
- * by $Author: token77 $
+ * Last changed: $Date: 2005/08/26 13:46:30 $
+ * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
@@ -63,6 +63,7 @@ public class TrustClient implements PTEventListener
 	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;
 	
 	PTConfigurator _config ;
+	PTEngine _engine ;
 	EventDispatcher _ed ;
 	private String _query ;
 	private long _id ;
@@ -88,8 +89,8 @@ public class TrustClient implements PTEventListener
 
 		_config.startApp(configurationArgs, components) ;
 		
-		PTEngine engine = (PTEngine) _config.getComponent(Vocabulary.PeertrustEngine) ;
-		_ed = engine.getEventDispatcher() ;
+		_engine = (PTEngine) _config.getComponent(Vocabulary.PeertrustEngine) ;
+		_ed = _engine.getEventDispatcher() ;
 		
 		_ed.register(this, PTEvent.class) ;
 		
@@ -106,6 +107,11 @@ public class TrustClient implements PTEventListener
 		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
 	}
 
+	public void destroy()
+	{
+		_engine.stop() ;
+	}
+	
 	public Object getComponent (Resource resource)
 	{
 		if (_config == null)
