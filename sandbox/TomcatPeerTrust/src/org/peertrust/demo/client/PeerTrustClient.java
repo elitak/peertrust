@@ -8,7 +8,7 @@ package org.peertrust.demo.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
+//import java.net.URLConnection;
 
 
 import org.apache.log4j.Logger;
@@ -31,10 +31,10 @@ import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
-import org.peertrust.net.Answer;
+//import org.peertrust.net.Answer;
 import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Peer;
-import org.peertrust.net.Query;
+//import org.peertrust.net.Query;
 
 //import com.sun.net.ssl.internal.ssl.ByteBufferInputStream;
 
@@ -50,6 +50,9 @@ import java.io.*;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PeerTrustClient   implements PTEventListener{
+	final static public int TIMEOUT = 60000 ;
+	final static public int SLEEP_INTERVAL = 100 ;
+	
 	//private PTEventListener oldPTEventListener= null;
 	private String[] parameters;
 	private String sessionID;
@@ -150,7 +153,11 @@ public class PeerTrustClient   implements PTEventListener{
 					) throws Exception{
     	//AllPermission ap= new AllPermission();
     	makeCmdWorker();
-    	initWebStartHelperClasses();  
+    	
+    	//initWebStartHelperClasses();***************************************
+    	logger=ConfigurationOption.getLogger(this.getClass().getName());
+        
+        
     	setParameters(props);
     	String codeBaseUrl=props.getProperty(ClientConstants.CODEBASE_URL_STR_KEY);
     	if(codeBaseUrl==null){
@@ -167,7 +174,7 @@ public class PeerTrustClient   implements PTEventListener{
 		}
     	
     	configEventListening(nl);
-    	startTrustNegotiation();
+    	startPeerTrustClient();
     	
     }
     
@@ -175,12 +182,7 @@ public class PeerTrustClient   implements PTEventListener{
     	this.configFileName= configFileName;
     	return;
     }
-    
-    private void initWebStartHelperClasses(){
-    		logger=ConfigurationOption.getLogger(this.getClass().getName());
-            return ;
-        
-    }
+
     
     
     private void setParameters(Properties params){
@@ -223,44 +225,7 @@ public class PeerTrustClient   implements PTEventListener{
     }
     
         
-    
-    
-    private void startTrustNegotiation()throws Exception{
-    	try {
-			startPeerTrustClient();	
-		} catch (Throwable th) {
-			showMessage(th,"could not start PT Client");
-			throw(new Exception("Cannot start pt",th));
-		}
-    	return;
-    }
-    
-    public void sendQuery(StartPeerTrustNegoCmd cmd){
-    	throw new RuntimeException("Not supported anymore");
-    	//showMessage("user.home:"+System.getProperty("user.home"));
-//    	final String PREFIX = "Client app.:";
-//		Peer target=comFac.getServerPeer("ELearn");
-//		Peer origin=
-//			new	Peer(	comFac.getRandomAlias(),//randomPeerAlias,
-//						"fake_adress"+comFac.getRandomAlias(),
-//						-1);
-//		queryID=comFac.getRandom();//Long.parseLong(sessionID);//comFac.getRandom();
-//		resourceID=cmd.getResource();
-//		Query newQuery = 
-//			new Query(	cmd.getPtQueryGoal(),
-//						origin, 
-//						target, 
-//						queryID, 
-//						null);
-//		
-//		QueryEvent qe = new QueryEvent(this, newQuery) ;
-//		
-//		//dispatcher.event(qe) ;
-//		comFac.createNetClient().send(newQuery,target);
-//    	
-//		showMessage(ConfigurationOption.getMessageAsString(newQuery));
-//		return;
-    }
+      
     
     ClientSideHTTPCommunicationFactory comFac;
     
@@ -285,9 +250,6 @@ public class PeerTrustClient   implements PTEventListener{
 		
 		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
 		
-		int TIMEOUT = 15000 ;
-		int SLEEP_INTERVAL = 500 ;
-		
 		String newArgs[] = {defaultConfigFile} ;
 		if(configFileName!=null){
 			newArgs[0]=configFileName;
@@ -299,9 +261,6 @@ public class PeerTrustClient   implements PTEventListener{
 		showMessage(defaultConfigFile);
 		try {
 			trustClient= new TrustClient(newArgs,components);
-			//config.startApp(newArgs, components) ;
-			//config=trustClient.getPTConfigurator();
-			//engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
 			engine=(PTEngine)trustClient.getComponent(Vocabulary.PeertrustEngine);
 			EventDispatcher dispatcher = engine.getEventDispatcher() ;
 			ClientSidePTEventListener ptEventListener=
@@ -309,9 +268,6 @@ public class PeerTrustClient   implements PTEventListener{
 			ptEventListener.setParent(this);
 			dispatcher.register(ptEventListener);//is that needed?
 			
-			//engine.setEventListener(this);
-//			comFac=
-//				(ClientSideHTTPCommunicationFactory)config.getComponent(Vocabulary.CommunicationChannelFactory);
 			comFac=
 				(ClientSideHTTPCommunicationFactory)trustClient.getComponent(
 											Vocabulary.CommunicationChannelFactory);
@@ -330,15 +286,15 @@ public class PeerTrustClient   implements PTEventListener{
 			//EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
 			EntitiesTable entitiesTable = 
 				(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
-			Peer server= new Peer("eLearn",this.peerIP,this.peerPort);
-			entitiesTable.put("eLearn",server);
+			Peer server= new Peer("elearn",this.peerIP,this.peerPort);
+			entitiesTable.put("elearn",server);
 			//todo change how to set local peer data
 			
-			entitiesTable.put("alice",new Peer("alice","dudududu",0));
+			entitiesTable.put("alice",new Peer("alice","_no_need_for_addi_",0));
 			trustClient.setAlias("alice");
-			
-			logger.info("comfac:"+comFac);
-			
+			trustClient.setTimeout(TIMEOUT);
+			trustClient.setSleepInterval(SLEEP_INTERVAL);
+			logger.info("comfac:"+comFac);			
 			
 		} catch (ConfigurationException e) {
 			showMessage(e,"Problem staring pt client");
@@ -347,38 +303,9 @@ public class PeerTrustClient   implements PTEventListener{
 		return;
     }
     
-    public void negotiate(){
-//		String query="request(spanishCourse,Session) @ elearn";
-//		Peer target=comFac.getServerPeer("ELearn");
-//		Peer origin=
-//			new	Peer(	comFac.getRandomAlias(),//randomPeerAlias,
-//						"fake_adress"+comFac.getRandomAlias(),
-//						-1);
-//		
-//		queryID=Long.parseLong(sessionID);//comFac.getRandom();
-//		Query newQuery = 
-//			new Query(query,origin, target, queryID, null);
-//		
-//		QueryEvent qe = new QueryEvent(this, newQuery) ;
-//		
-//		//dispatcher.event(qe) ;
-//		comFac.createNetClient().send(newQuery,target);
-//		logger.info("initial query send:"+query);
-//		showMessage(ConfigurationOption.getMessageAsString(newQuery));
-    	throw new RuntimeException("funtionality not available anymore!");
-    }
     
     public void negotiate(String query){
-//		//String query="request(spanishCourse,Session) @ elearn";
-//		Peer target=comFac.getServerPeer("ELearn");
-//		Peer origin=
-//			new	Peer(	comFac.getRandomAlias(),//randomPeerAlias,
-//						"fake_adress"+comFac.getRandomAlias(),
-//						-1);
-//		
-//		queryID=comFac.getRandom();//Long.parseLong(sessionID);//comFac.getRandom();
 		queryID=trustClient.sendQuery(query);
-		trustClient.setTimeout(60*1000);//wait a minute
 		Boolean res=trustClient.waitForQuery(queryID);
 		
 		if(res.booleanValue()){	
@@ -407,20 +334,6 @@ public class PeerTrustClient   implements PTEventListener{
 				showMessage(th, "error making final url");
 			}
 		}
-		
-//		Query newQuery = 
-//			new Query(query,origin, target, queryID, null);
-//		
-//		QueryEvent qe = new QueryEvent(this, newQuery) ;
-//		
-//		//dispatcher.event(qe) ;
-//		comFac.createNetClient().send(newQuery,target);
-//		logger.info("initial query send:"+query);
-//		showMessage(ConfigurationOption.getMessageAsString(newQuery));
-		
-		//because of exception in MetaInterpreterListner this is necessary
-		//todo fix it renewClient
-		////reNewClient();
     }
     
     private String getEventAsText(PTEvent event){
@@ -440,57 +353,8 @@ public class PeerTrustClient   implements PTEventListener{
     
 	public void event(PTEvent event) {
 		showMessage("A PTEvent:"+getEventAsText(event)+"\n******my query id:"+queryID);
-	
-//		boolean isFinalResult=false;
-//		///check if Answerevent and if it for initial query
-//		//because than it is the final answer
-//		if(event instanceof AnswerEvent){
-//			Answer answer= ((AnswerEvent)event).getAnswer();
-//			if(answer.getReqQueryId()==queryID){
-//				isFinalResult=true;
-//				showMessage("\n************final answer***************\n");
-//			}
-//		}
-//		
-//		if(isFinalResult){
-//			//make URL from negoId and negoRes and show it
-//			String negoID=sessionID;
-//			String negoRes=resourceID;
-//			
-//			try {
-//				strBuffer.delete(0,strBuffer.length());
-//				strBuffer.append(".");
-//				strBuffer.append(appContextStr);
-//				strBuffer.append(serviceServletPath);				
-//				strBuffer.append("?negoSessionID=");				
-//				strBuffer.append(queryID);
-//				strBuffer.append("&negoResource=");				
-//				strBuffer.append(resourceID);
-//				
-//					resourceReqURL= new URL(codeBase,strBuffer.toString());
-//					FinalResponse finalResponse=
-//						new FinalResponse(	Long.toString(queryID),
-//											"balbla",
-//											resourceReqURL);
-//					//objStreamToApplet.writeObject(finalResponse);
-//					
-//					newsListener.onNews(finalResponse);
-//			} catch (MalformedURLException e1) {
-//				showMessage(e1, "bad final url");//e1.printStackTrace();
-//			}catch(Throwable th){
-//				showMessage(th, "error making final url");
-//			}
-//		}else{
-//			///may be show a message			
-//			String mes="negoOngoing";
-//			if(event instanceof QueryEvent){
-//				mes="Query:"+((QueryEvent)event).getQuery().getGoal();
-//			}else if(event instanceof AnswerEvent){
-//				mes="Answer:"+((AnswerEvent)event).getAnswer().getGoal();
-//			}
-//			showMessage(mes);
-//		}
 	}
+	
 	public URL getServiveURL( String resource, String userName, String password){
 		
 		try {
@@ -521,24 +385,7 @@ public class PeerTrustClient   implements PTEventListener{
     public void installPeerTrustConfigFiles(){
     	return;
     }
-    private void reNewClient(){
-    	try {
-    		comFac.destroy();
-    		engine.stop();			
-			engine=null;
-			comFac=null;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			startPeerTrustClient();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-    	return;
-    }
+    
     
     public void destroy(){ 
     	cmdFIFO.offer(new StopCmd());
@@ -547,13 +394,6 @@ public class PeerTrustClient   implements PTEventListener{
     }
     
     
-    
-	public PTConfigurator getAppletPTConfigurator() {
-		return appletPTConfigurator;
-	}
-	public void setAppletPTConfigurator(PTConfigurator appletPTConfigurator) {
-		this.appletPTConfigurator = appletPTConfigurator;
-	}
     //////////////////////////////////
     ArrayBlockingQueue cmdFIFO=
     	new ArrayBlockingQueue(8);
@@ -593,6 +433,8 @@ public class PeerTrustClient   implements PTEventListener{
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 							
+						}catch(Throwable th){
+							th.printStackTrace();
 						}
 						//System.out.println("Stop waiting for cmd!");
     				}

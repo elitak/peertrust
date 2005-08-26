@@ -43,20 +43,7 @@ public class TrustFilter implements Filter{
 			Resource res= trustManager.classifyResource(url);
 			if(res instanceof PublicResource){
 				System.out.println("filtering public page");
-				if(url.equals(res.getUrl())){
 					chain.doFilter(req,resp);
-				}else{
-					RequestDispatcher dispatcher = 
-	    				req.getRequestDispatcher(res.getUrl());
-	    			try{
-	    				dispatcher.forward(req, resp);
-	    				return;
-	    			}catch(ServletException e){
-	    				System.out.println("--exception while including .jnlp --\n");
-	    				e.printStackTrace();
-	    				return;///send error code
-	    			}
-				}
 			}else{
 				System.out.println("filtering protected  page");
 				HttpSession session=
@@ -72,18 +59,18 @@ public class TrustFilter implements Filter{
 				System.out.println("filtering peerName:"+peerName);
 				res=trustManager.guardResource(res,peerName);
 				if(((ProtectedResource)res).getCanAccess()){
-					
-					RequestDispatcher dispatcher = 
-	    				req.getRequestDispatcher(res.getUrl());
-	    			try{
-	    				dispatcher.forward(req, resp);
-	    				//dispatcher.include(req,resp);
-	    				return;
-	    			}catch(ServletException e){
-	    				System.out.println("--exception while including .jnlp --\n");
-	    				e.printStackTrace();
-	    				return;///send error code
-	    			}
+					chain.doFilter(req,resp);
+//					RequestDispatcher dispatcher = 
+//	    				req.getRequestDispatcher(res.getUrl());
+//	    			try{
+//	    				dispatcher.forward(req, resp);
+//	    				//dispatcher.include(req,resp);
+//	    				return;
+//	    			}catch(ServletException e){
+//	    				System.out.println("--exception while including .jnlp --\n");
+//	    				e.printStackTrace();
+//	    				return;///send error code
+//	    			}
 				}else{
 	           		resp.setContentType("text/html");
 					resp.getWriter().println(

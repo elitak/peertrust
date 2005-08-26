@@ -37,7 +37,7 @@ public class ServletSideNetServer implements NetServer {
 	public Message listen() {
 		setIsListening(true);
 		Object obj=null;
-		logger.info("Servlet PT server listening");
+		logger.info("----------------------------------Servlet PT server listening");
 //		while(messageFIFO.size()==0){
 //			try {wait();}catch(InterruptedException e) {e.printStackTrace();}			
 //		}
@@ -46,6 +46,7 @@ public class ServletSideNetServer implements NetServer {
 		
 		try{
 		       obj= messageFIFO.take();
+		       System.out.println("-----------------------------------------NetServer Object Received:"+obj);
 		}catch (InterruptedException ex) { 
 			logger.error("Problem listening",ex);			
 		}		

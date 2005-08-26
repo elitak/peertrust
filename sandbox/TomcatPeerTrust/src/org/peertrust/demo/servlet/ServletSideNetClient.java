@@ -34,7 +34,12 @@ public class ServletSideNetClient implements NetClient{
 	 * @see org.peertrust.net.NetClient#send(org.peertrust.net.Message, org.peertrust.net.Peer)
 	 */
 	public void send(Message mes, Peer finalDestination) {
-		
+		Peer source=mes.getSource();
+		if(source!=null){
+			if(source.getAddress()==null){
+				source.setAddress("_no_need_for_addi_");
+			}
+		}
 		Object obj= listenerPool.get(finalDestination.getAlias());
 		logger.info("Servlet PT engine sending message to:"+finalDestination.getAlias()+ " listener:"+obj);
 		if(obj!=null){

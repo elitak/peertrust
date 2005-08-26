@@ -22,13 +22,13 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.peertrust.demo.client.applet.SessionRegistrationMessage;
 import org.peertrust.demo.common.ConfigurationOption;
-import org.peertrust.demo.common.StopCmd;
+//import org.peertrust.demo.common.StopCmd;
 import org.peertrust.net.*;
 
 import java.io.*;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.concurrent.ArrayBlockingQueue;
+//import java.util.Hashtable;
+//import java.util.Iterator;
+//import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -118,58 +118,7 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 				//resp.sendError(HttpServletResponse.SC_NO_CONTENT,"trust server not listening");
 				sendObject(resp,"trust server not listening");
 			}
-//		}else if(action.equals("receive____")){
-//			try {
-//				ObjectInputStream objIn=
-//					new ObjectInputStream(req.getInputStream());
-//				Object obj= objIn.readObject();
-//				
-//				Object toSend=null;
-//				if(obj instanceof Peer){
-//					logger.info("Listening client peer:"+obj);
-//					//negoObjects.addPeerTrustCommunicationListener((Peer)obj, this);
-//					HttpSession ses= req.getSession(true);
-//					if(ses.isNew()){
-//						//peer for final removal
-//						ses.setAttribute(PEER_NAME_KEY,(Peer)obj);
-//////////				/create message fifo
-//				        ArrayBlockingQueue messageFIFO;//Vector messageFIFO;
-//				        
-//						String finalDestination=((Peer)obj).getAlias();
-//				        //messageFIFO= (Vector)messagePool.get(finalDestination);
-//						messageFIFO= (ArrayBlockingQueue)messagePool.get(finalDestination);
-//						if(messageFIFO==null){
-//							//messageFIFO= new Vector();
-//							messageFIFO= new ArrayBlockingQueue(8);
-//							messagePool.put(finalDestination,messageFIFO);
-//						}				        
-//						negoObjects.addPeerTrustCommunicationListener(((Peer)obj).getAlias(), this);
-//						
-////						send( 
-////								new Query(	"goal",
-////										 	(Peer)obj,
-////											(Peer)obj,
-////											1111111,
-////											null),(Peer)obj);
-//						
-//					}
-//					
-//					//look and see if there is a message
-//					ArrayBlockingQueue messageFIFO=
-//						(ArrayBlockingQueue)messagePool.get(((Peer)obj).getAlias());
-//					toSend=messageFIFO.take();
-//				}else{
-//					toSend="send a peer object to receive anything";
-//				}
-//				logger.info("To send:"+toSend);
-//				sendObject(resp,toSend);
-//			} catch (IOException e) {
-//				logger.error("Error while listening:",e);sendObject(resp,e);
-//			} catch (ClassNotFoundException e) {
-//				logger.error("Error while listening:",e);sendObject(resp,e);
-//			}catch(Throwable th){
-//				logger.error("Error while listening:",th);sendObject(resp,th);
-//			}
+
 		}else if(action.equals("receive")){
 			try {
 				ObjectInputStream objIn=
@@ -178,6 +127,7 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 				
 				Object toSend=null;
 				if(obj instanceof Peer){
+					System.out.println("------------------------------Listening client peer:"+obj);
 					logger.info("Listening client peer:"+obj);
 					//negoObjects.addPeerTrustCommunicationListener((Peer)obj, this);
 					HttpSession ses= req.getSession(true);
@@ -231,20 +181,7 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 	
 
 	
-//	/* (non-Javadoc)
-//	 * @see org.peertrust.demo.servlet.PeerTrustCommunicationListener#send(org.peertrust.net.Message)
-//	 */
-//	public void send(Message mes,String finalDestination) {
-//		try {
-//			//((Answer)mes).
-//			ArrayBlockingQueue queue=
-//				(ArrayBlockingQueue)messagePool.get(finalDestination);
-//			queue.offer(mes);
-//		} catch (Exception e) {
-//			logger.debug("NOT in messagePool:"+finalDestination,e);
-//		}
-//		return;
-//	}
+
 	
 	
 	public void destroy() {

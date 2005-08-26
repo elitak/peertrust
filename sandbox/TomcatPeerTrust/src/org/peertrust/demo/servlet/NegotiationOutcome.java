@@ -38,8 +38,8 @@ public class NegotiationOutcome {
 		
 		NegotiationObjects negoObjects= 
 			NegotiationObjects.createAndAddForAppContext(config);
-		ServletPeerTrustEventListener ptEListener= 
-				negoObjects.getPeerTrustEventListener();
+//		ServletPeerTrustEventListener ptEListener= 
+//				negoObjects.getPeerTrustEventListener();
 		requestNegoResource=(String)request.getParameter("negoResource");
 		if(requestNegoResource==null){
 			this.canAccess=false;

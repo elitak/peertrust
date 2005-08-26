@@ -98,7 +98,7 @@ public class ConfigurationOption {
 				buf.append("\n**************NOR ANSWER EITHER QUERY END**********\n");
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			buf.append("\nEXCEPTION:"+e.getMessage());
 		}
 		

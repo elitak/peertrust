@@ -355,7 +355,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	}
 
 	synchronized public BlockingQueue getMessageFIFO(Peer peer){
-		Object toSend=null;
+		//Object toSend=null;
 		//negoObjects.addPeerTrustCommunicationListener((Peer)obj, this);
 		String key=peer.getAlias();
 		ArrayBlockingQueue messageFIFO=
@@ -379,6 +379,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	public void send(Message mes,String finalDestination) {
 		try {
 			//((Answer)mes).
+			System.out.println("------------------Adding:"+mes+" to queue for"+finalDestination);
 			ArrayBlockingQueue queue=
 				(ArrayBlockingQueue)messagePool.get(finalDestination);
 			queue.offer(mes);

@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.peertrust.demo.client.applet.SessionRegistrationMessage;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsServer;
+import org.peertrust.meta.Proof;
+import org.peertrust.meta.Trace;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetClient;
@@ -54,44 +56,52 @@ public class ClientSideNetClient 	extends NewsServer
 	
 	private Message resetPeerSourceAlias(Message mes){
 		//Query(String goal, Peer origin, Peer target, long reqQueryId, Trace trace)
-		Peer origin= mes.getSource();
-//		IdentifiablePeer originWithID= 
-//			new IdentifiablePeer(	origin.getAlias(),
-//									origin.getAddress(),
-//									origin.getPort(),
-//									randomPeerAlias);
-//		Peer originWithID= 
-//			new Peer(	origin.getAlias(),//randomPeerAlias,
-//						origin.getAddress(),
-//						origin.getPort());
+		
+		Peer source=mes.getSource();//new Peer("alice","dsdddd",124);
+		Peer target=mes.getTarget();//new Peer("eLearn","defrd",23541);
+		boolean doRebuild=false;
+		if(source==null){
+			doRebuild=true;
+			source=new Peer("alice","_no_need_for_addi_",124);//TODO change to load automaticaly
+			
+		}else if(source.getAddress()==null){			
+			source.setAddress("_no_need_for_addi_");
+		}
+		
+		if(target==null){
+			doRebuild=true;
+			target=new Peer("elearn","_no_need_for_addi_",23541);;//TODO change to load automaticaly
+			
+		}else if(target.getAddress()==null){			
+			target.setAddress("_no_need_for_addi_");
+		}
+		
 		if(mes instanceof Query){
-			System.out.println("Query:"+mes);
-			Peer originWithID= 
-				new Peer(	origin.getAlias(),//randomPeerAlias,
-							origin.getAddress(),
-							origin.getPort());
-			Query query= (Query)mes;
-			mes= new Query(	query.getGoal(),
-							originWithID,
-							query.getTarget(),
-							query.getReqQueryId(), 
-							query.getTrace());
+			if(doRebuild){
+//				mes= new Query(	((Query)mes).getGoal(),
+//								source,
+//								target	,
+//								((Query)mes).getReqQueryId(),
+//								((Query)mes).getTrace());
+				System.out.println("--------------------------rebuild previous bad source or target");
+			}
 			return mes;
 		}else if(mes instanceof Answer){
-			System.out.println("Answer:"+mes);
-			Answer answer= (Answer)mes;
-			//TODO answer trick fix
-//			mes= new Answer(answer.getGoal(),
-//							answer.getProof(),
-//							answer.getStatus(),
-//							answer.getReqQueryId(),
-//							originWithID,
-//							answer.getTarget(),
-//							answer.getTrace());
+			if(doRebuild){
+				//public Answer(String goal, long negotiationId, Proof proof, 
+				//int status, long reqQueryId, Peer source, Peer target, Trace trace) {
+				mes= new Answer(
+						((Answer)mes).getGoal(),
+						((Answer)mes).getNegotiationId(),
+						((Answer)mes).getProof(),
+						((Answer)mes).getStatus(),
+						((Answer)mes).getReqQueryId(),
+						source,
+						target,
+						((Answer)mes).getTrace());
+			}
 			return mes;
 		}else if(mes instanceof SessionRegistrationMessage){
-			Peer source=new Peer("alice","dsdddd",124);
-			Peer target=mes.getTarget();//new Peer("eLearn","defrd",23541);
 			SessionRegistrationMessage mes1=
 				new SessionRegistrationMessage(
 						((SessionRegistrationMessage)mes).getSessionKey(),source,target);
@@ -107,31 +117,14 @@ public class ClientSideNetClient 	extends NewsServer
 	 * @see org.peertrust.net.NetClient#send(org.peertrust.net.Message, org.peertrust.net.Peer)
 	 */
 	public void send(Message mes, Peer server) {		
+		System.out.println("\n-------------------------Sending: "+mes +
+							"\n to "+server);
 		PostMethod postMethod=null;
 		//Message (Peer source, Peer target, Trace trace)
 		mes= resetPeerSourceAlias(mes);
 		
 		
 		try {
-//			URL url = 
-//				new URL(makeHTTPAdress(mes,server));
-//			URLConnection conn = url.openConnection();
-//				conn.setUseCaches(false);
-//			conn.setRequestProperty("CONTENT_TYPE", "application/octetstream");
-//			conn.setDoInput(true);
-//			conn.setDoOutput(true);
-//			conn.setUseCaches(false);
-//			ByteArrayOutputStream byteStream=
-//				new ByteArrayOutputStream();
-//			ObjectOutputStream objOut = 
-//				new ObjectOutputStream(byteStream);
-//			objOut.writeObject(mes);
-//			objOut.flush();
-//			
-//			conn.setRequestProperty("Content-Length", Integer.toString(byteStream.size()));
-//			byteStream.writeTo(conn.getOutputStream());		
-//			objOut.close();
-//			return;
 			postMethod=
 				new PostMethod(makeHTTPAdress(mes,server));			
 			//put message into body 
@@ -151,7 +144,7 @@ public class ClientSideNetClient 	extends NewsServer
 				new ObjectInputStream(postMethod.getResponseBodyAsStream());
 			Object obj= objIn.readObject();
 			fireNewsEvent(new NewsEvent(this,""+obj));	
-			System.out.println("Sending:"+obj);
+			
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

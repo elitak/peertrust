@@ -40,7 +40,7 @@ public class ClientSideNetServer 	extends NewsServer
 	private String webAppURLPath="/myapp-0.1-dev/PeerTrustCommunicationServlet";
 	private String webHTTPURL=null;
 	private Peer server=null;
-	private HttpURLConnection urlConnection;
+	//private HttpURLConnection urlConnection;
 	private HttpClient httpClient;
 	private boolean configNotEnded=true;
 	private Logger logger;//= Logger.getLogger(this.getClass());

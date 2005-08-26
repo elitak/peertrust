@@ -139,7 +139,7 @@ public class ServletPeerTrustEventListener implements PTEventListener, Configura
 	public void processEvent(AnswerEvent aEvent){
 		try {
 			Answer answer=aEvent.getAnswer();
-			int status=answer.getStatus();
+			//int status=answer.getStatus();
 			String reqID=Long.toString(answer.getReqQueryId());
 			logger.info("++++++++++++++reqID:"+reqID+ " "+answer.getGoal());
 			if(negotiations.containsKey(reqID)){

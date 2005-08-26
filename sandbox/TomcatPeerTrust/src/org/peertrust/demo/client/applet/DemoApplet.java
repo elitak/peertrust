@@ -3,14 +3,14 @@ package org.peertrust.demo.client.applet;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+//import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
-import java.net.Socket;
+//import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+//import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -19,7 +19,7 @@ import javax.swing.JFrame;
 
 import netscape.javascript.JSObject;
 
-import org.peertrust.config.PTConfigurator;
+//import org.peertrust.config.PTConfigurator;
 import org.peertrust.demo.client.PeerTrustClient;
 import org.peertrust.demo.common.ClientConstants;
 import org.peertrust.demo.common.EchoPane;
@@ -37,14 +37,14 @@ import org.peertrust.demo.common.StopCmd;
  */
 public class DemoApplet extends JApplet implements NewsEventListener{
 	
-	private Socket socket=null;
+	//private Socket socket=null;
 	private ObjectOutputStream objOut=null;
-	private ObjectInputStream  objIn=null;
+	//private ObjectInputStream  objIn=null;
 	private Thread cmdWorker=null;
 	private PeerTrustClient ptClient=null;
 	private JSObject win;
 	
-	transient private long key=0;
+	//transient private long key=0;
 	
 	private String trustScheme="User Password";
 	
@@ -189,7 +189,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 							((PasswordBasedResourceRequest)obj).request();
 						}else if(obj instanceof SessionRegistrationMessage){
 							System.out.println("cmd added "+obj);
-							ptClient.addCmdToFIFO(obj);
+							if(ptClient!=null){
+								ptClient.addCmdToFIFO(obj);
+							}
 						}else if(obj instanceof StopCmd){
 						
 							return;
@@ -203,9 +205,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			
 		};
 		
-		Thread rcvWorker=
+		cmdWorker=
 			new Thread(runnable);
-		rcvWorker.start();
+		cmdWorker.start();
 	}
 	
 	public void init() {

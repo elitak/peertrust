@@ -1,10 +1,10 @@
-import java.beans.XMLEncoder;
-import java.io.ByteArrayOutputStream;
+//import java.beans.XMLEncoder;
+//import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+//import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -13,10 +13,10 @@ import java.util.Vector;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.peertrust.meta.Trace;
-import org.peertrust.net.Peer;
-import org.peertrust.net.Query;
+//import org.apache.commons.httpclient.methods.RequestEntity;
+//import org.peertrust.meta.Trace;
+//import org.peertrust.net.Peer;
+//import org.peertrust.net.Query;
 
 /*
  * Created on 28.04.2005

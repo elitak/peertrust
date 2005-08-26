@@ -23,6 +23,8 @@ public class TrustManager {
 		
 		public SimplePolicyEvaluator(TrustClient trustClient){
 			this.trustClient=trustClient;
+			this.trustClient.setTimeout(60000);
+			this.trustClient.setSleepInterval(100);
 		}
 
 		/* (non-Javadoc)
@@ -33,12 +35,17 @@ public class TrustManager {
 			Policy pol=null;
 			long id;
 			Boolean result;
-			
+			String query;
 			for(int i=0; i<SIZE;i++){
 				pol=(Policy)policyVector.elementAt(i);
+				query=buildQuery(pol.getPolicyValue(),negotiatingPeerName);
+				id=trustClient.sendQuery(query);
+				trustClient.waitForQuery(id);
+				result=trustClient.isQuerySuccessful(id);
+				System.out.println("-------------------------Nego"+i+"\n"+
+							"id: "+id+" result:"+result+" query:"+query+ 
+							" finished:"+trustClient.isQueryFinished(id));
 				
-				id=trustClient.sendQuery(buildQuery(pol.getPolicyValue(),negotiatingPeerName));
-				result=trustClient.waitForQuery(id);
 				if(result==null){
 					return i;
 				}else if(!result.booleanValue()){
