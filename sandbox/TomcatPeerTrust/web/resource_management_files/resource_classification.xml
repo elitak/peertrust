@@ -31,6 +31,7 @@
 		url=".*[.]jsp"
 		matchingStrategy="_reg_exp_"
 		policyName=""
+		requestServingMechanism="forward_to_service_jsp"
 	/>	
 	
 	<resourceClass

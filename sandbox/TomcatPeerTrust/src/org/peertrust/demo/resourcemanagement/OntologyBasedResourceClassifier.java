@@ -31,6 +31,7 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 	public static final String ATTRIBUTE_URL="url";
 	public static final String ATTRIBUTE_MATCHING_STRATEGY="matchingStrategy";
 	public static final String ATTRIBUTE_POLICY_NAME="policyName";
+	public static final String ATTRIBUTE_REQUEST_SERVING_MECHANISM="requestServingMechanism";
 	
 	final private Comparator exactMatchingComparator=
 							makeExactMatchingComparator();
@@ -172,15 +173,25 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		String url=nodeMap.getNamedItem(ATTRIBUTE_URL).getNodeValue();
 		String matchingStrategy=
 			nodeMap.getNamedItem(ATTRIBUTE_MATCHING_STRATEGY).getNodeValue();
+		Node n=nodeMap.getNamedItem(ATTRIBUTE_REQUEST_SERVING_MECHANISM);
+		String requestServingMechanism=
+								(n!=null)?n.getNodeValue():null;
 		
 		if(isProtected){
 			String policyName= 
 				nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME).getNodeValue();
 			ProtectedResource res= new ProtectedResource(matchingStrategy,url);
 			res.setPolicyName(policyName);
+			if(requestServingMechanism!=null){
+				res.setRequestServingMechanimName(requestServingMechanism);
+			}
 			return res;
 		}else{
-			return new PublicResource(matchingStrategy,url);
+			PublicResource res= new PublicResource(matchingStrategy,url);
+			if(requestServingMechanism!=null){
+				res.setRequestServingMechanimName(requestServingMechanism);
+			}
+			return res;
 		}
 	}
 	
@@ -251,7 +262,8 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 	
 	static public void main(String[] agrs)throws Exception{
 		String setupFile=
-			"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";
+			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";
+			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_classification.xml";
 		OntologyBasedResourceClassifier classifier=
 							new OntologyBasedResourceClassifier();
 		classifier.setup(setupFile);

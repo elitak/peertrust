@@ -23,6 +23,7 @@ import org.peertrust.config.Vocabulary;
 import org.peertrust.TrustClient;
 import org.peertrust.demo.common.ConfigurationOption;
 import org.peertrust.demo.common.RDFConfigFileUpdater;
+import org.peertrust.demo.resourcemanagement.RequestServingMechanismPool;
 import org.peertrust.demo.resourcemanagement.TrustManager;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.exception.ConfigurationException;
@@ -54,8 +55,11 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private Hashtable sessionTable=new Hashtable();
 	private TrustClient trustClient; 
 	private TrustManager trustManager;
+	
+	
 	private String _ResourceClassifierSetupFile;
 	private String _ResourcePoliciesSetupFile;
+	private String _RequestServingMechanismPoolSetupFile;
 	
 	public NegotiationObjects(ServletConfig config){
 		this(config.getServletContext());
@@ -120,6 +124,8 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
 	        _ResourcePoliciesSetupFile=
 	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
+	        _RequestServingMechanismPoolSetupFile=
+	        	context.getRealPath(context.getInitParameter("RequestServingMechanismPoolSetupFile"));
 		}catch(Throwable th){
 			th.printStackTrace();
 			logger.error("-- error while constructing trust objects--",th);
@@ -275,7 +281,8 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 						trustClient,
 						_ResourceClassifierSetupFile,//"classifierXML",
 						_ResourcePoliciesSetupFile,//"policySystemXML",
-						"EvaluatorXML");
+						"EvaluatorXML",
+						_RequestServingMechanismPoolSetupFile);
 		
 	}
 	public TrustManager getTrustManager(){

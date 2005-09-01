@@ -66,6 +66,7 @@ public class TrustManager {
 	private PolicySystem policySystem;
 	private PolicyEvaluator policyEvaluator;
 	private TrustClient trustClient;
+	private RequestServingMechanismPool requestServingMechanismPool;
 	
 	/**
 	 * 
@@ -73,12 +74,21 @@ public class TrustManager {
 	public TrustManager(TrustClient trustClient,  
 						String classifierXMLSetupFilePath,
 						String policySystemXMLSetupFilePath,
-						String policyEvaluatorXMLSetupPath) {
+						String policyEvaluatorXMLSetupPath,
+						String requestServingMechanismPoolSetupFile) {
 		super();
 		this.resourceClassifier= makeResourceClassifier(classifierXMLSetupFilePath);
 		this.policySystem=makePolicySystem(policySystemXMLSetupFilePath);
 		this.trustClient=trustClient;
 		this.policyEvaluator=makePolicyEvaluator(policyEvaluatorXMLSetupPath,trustClient);
+		try {
+			this.requestServingMechanismPool=
+				makeRequestServingMechanismPool(requestServingMechanismPoolSetupFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SetupException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private ResourceClassifier makeResourceClassifier(String classifierXMLSetupFilePath){
@@ -132,6 +142,15 @@ public class TrustManager {
 		
 		return new SimplePolicyEvaluator(trustClient);
 	}
+	
+	private RequestServingMechanismPool makeRequestServingMechanismPool(String requestServingMechanismPoolSetupFile) throws IOException, SetupException{
+		RequestServingMechanismPool pool=
+						new RequestServingMechanismPool();
+		pool.setup(requestServingMechanismPoolSetupFile);
+		System.out.println("\n============================MECHANISM POOL READY===========================");
+		return pool;
+	}
+	
 	public Resource classifyResource(String url){
 		Resource res=resourceClassifier.getResource(url);
 		return res;
@@ -176,6 +195,13 @@ public class TrustManager {
 		}
 		
 		return res;
+	}
+	
+	public RequestServingMechanism getRequestServingMechanismPool(String mechanismName){
+		System.out.println("\n======================================================");
+		System.out.println("mechanism pool:"+requestServingMechanismPool);
+		System.out.println("\n======================================================");
+		return this.requestServingMechanismPool.getMechanism(mechanismName);	
 	}
 	
 	static public void main(String[] args){

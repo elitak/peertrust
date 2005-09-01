@@ -1,0 +1,68 @@
+  
+.mainDiv
+{
+  width:160px;
+}
+.topItem
+{
+  width:160px;
+  height:22px;
+  cursor:pointer;
+  background: #467BF2;
+  text-decoration: none;
+  color: white; 
+  font-weight:bold;
+  font-family:"GOTHIC";
+ 
+}
+
+
+.dropMenu
+{
+  background:#D9D9D9;
+  border-top:1px solid #467BF2;
+  border-left:1px solid #92B1F8;
+  border-right:1px solid #92B1F8;
+  border-bottom:1px solid #92B1F8;
+}
+
+.subMenu
+{
+   display:none;
+}
+.subItem
+{
+   padding-left:5px;
+   cursor:pointer;
+   font-weight:bold;
+   text-decoration:none;
+   color:black;
+}
+
+.subItem a
+{
+   text-decoration:none;
+   color:black;
+}
+
+.subItemOver
+{
+   cursor:pointer;
+   color:blue;
+   text-decoration:underline;
+   font-weight:bold;
+   padding-left:5px;
+}
+
+.subItemOver  a
+{
+   color:blue;
+}
+
+
+.drop
+{
+   border-left:1px solid black;
+   border-right:1px solid black;	
+}
+

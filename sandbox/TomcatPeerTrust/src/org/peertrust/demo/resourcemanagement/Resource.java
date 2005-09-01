@@ -13,6 +13,7 @@ abstract public class Resource {
 	//protected String realURL=null;
 	protected String url=null;
 	protected String matchingStrategy=null;
+	protected String requestServingMechanimName="default";
 	
 	public Resource(String matchingStrategy, String url){//String realURL, String virtualURL) {
 		super();
@@ -50,12 +51,29 @@ abstract public class Resource {
 		this.url = url;
 	}
 
+	
+	
+	/**
+	 * @return Returns the requestServingMechanimName.
+	 */
+	public String getRequestServingMechanimName() {
+		return requestServingMechanimName;
+	}
+
+	/**
+	 * @param requestServingMechanimName The requestServingMechanimName to set.
+	 */
+	public void setRequestServingMechanimName(String requestServingMechanimName) {
+		this.requestServingMechanimName = requestServingMechanimName;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		return 	"url:"+url+
-				" matchingStrategy:"+ matchingStrategy;
+				" matchingStrategy:"+ matchingStrategy+
+				" requestServingMechanimName:"+requestServingMechanimName;
 		
 	}
 
