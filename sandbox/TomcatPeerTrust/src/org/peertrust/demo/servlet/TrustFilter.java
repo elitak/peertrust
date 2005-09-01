@@ -39,7 +39,9 @@ public class TrustFilter implements Filter{
 			FilterChain chain) throws IOException, ServletException {
 		try{
 			String url=((HttpServletRequest)req).getRequestURI();
-			System.out.println("filtering url:"+url);
+			System.out.println("\n************************FILTERING***********************************************");
+			System.out.println("\nurl:"+url);
+			System.out.println("\n************************FILTERING END***********************************************\n");
 			
 			Resource res= trustManager.classifyResource(url);
 			if(res instanceof ProtectedResource){
@@ -57,7 +59,7 @@ public class TrustFilter implements Filter{
 				System.out.println("filtering peerName:"+peerName);
 				res=trustManager.guardResource(res,peerName);
 				if(((ProtectedResource)res).getCanAccess()){
-					System.out.println("\n==================================================================");
+					System.out.println("\n==================ACCCESSING PROTECTED RESOURCE===================");
 					System.out.println("trustManager:"+trustManager+ "\t res:"+res);
 					System.out.println("\n==================================================================");
 					
@@ -76,7 +78,7 @@ public class TrustFilter implements Filter{
 					return;
 				}
 			}else{
-				System.out.println("\n==================================================================");
+				System.out.println("\n=======================ACCESSING PUBLIC RESOURCE==================");
 				System.out.println("trustManager:"+trustManager+ "\t res:"+res);
 				System.out.println("\n==================================================================");
 				RequestServingMechanism servingMechanism=

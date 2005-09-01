@@ -198,9 +198,9 @@ public class TrustManager {
 	}
 	
 	public RequestServingMechanism getRequestServingMechanismPool(String mechanismName){
-		System.out.println("\n======================================================");
-		System.out.println("mechanism pool:"+requestServingMechanismPool);
-		System.out.println("\n======================================================");
+		System.out.println("\n=============LOOKUP MECHANISM=========================");
+		System.out.println("\nmechanismName:"+mechanismName+"\nmechanism pool:"+requestServingMechanismPool);
+		System.out.println("\n======================================================\n");
 		return this.requestServingMechanismPool.getMechanism(mechanismName);	
 	}
 	

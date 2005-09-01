@@ -20,31 +20,32 @@
 		 
 		String base=buf.toString();
 		
-		String sessionRandom=Long.toString((new SecureRandom()).nextLong());
-		session.setAttribute("sessionRandom",sessionRandom);
-		//buf.delete(0,buf.length());
-		//buf.append("window.open('");
-		buf.insert(0,"window.open('");
-		//buf.insert(0,"createProgressBar('_ProgressBarContainer',6);");
-		buf.append("/DemoPeerTrustServlet/service?negoSessionID="); ///DemoPeerTrustServlet/service
-		buf.append(sessionRandom);//session.getId());
-		buf.append("&negoResource=");
-		buf.append(request.getParameter("negoResource"));
-		buf.append("','_self');");
-		
-		String reloadJsCmd=buf.toString();
+		//String sessionRandom=Long.toString((new SecureRandom()).nextLong());
+		//session.setAttribute("sessionRandom",sessionRandom);
+		////buf.delete(0,buf.length());
+		////buf.append("window.open('");
+		//buf.insert(0,"window.open('");
+		////buf.insert(0,"createProgressBar('_ProgressBarContainer',6);");
+		//buf.append("/DemoPeerTrustServlet/service?negoSessionID="); ///DemoPeerTrustServlet/service
+		//buf.append(sessionRandom);//session.getId());
+		//buf.append("&negoResource=");
+		//buf.append(request.getParameter("negoResource"));
+		//buf.append("','_self');");
+		//
+		//String reloadJsCmd=buf.toString();*/
 		
 		buf.setLength(0);//delete(0,buf.length());
-		//http://127.0.0.1:7703/myapp-0.1-dev/DemoPeerTrustServlet/launch_1.jnlp
-		buf.append(base);
-		buf.append("/DemoPeerTrustServlet/launch_1.jnlp?negoSessionID="); 
-		buf.append(sessionRandom);//session.getId());
-		buf.append("&negoResource=");
-		buf.append(request.getParameter("negoResource"));
-		//buf.append("','_self')");
+		////http://127.0.0.1:7703/myapp-0.1-dev/DemoPeerTrustServlet/launch_1.jnlp
+		//buf.append(base);
+		//buf.append("/DemoPeerTrustServlet/launch_1.jnlp?negoSessionID="); 
+		//buf.append(sessionRandom);//session.getId());
+		//buf.append("&negoResource=");
+		//buf.append(request.getParameter("negoResource"));
+		////buf.append("','_self')");
+		//
+		//String launchURL=buf.toString();
 		
-		String launchURL=buf.toString();
-		session.setAttribute("WAIT","waiting");
+		//session.setAttribute("WAIT","waiting");
 		
 		//URL urlBase= new URL(base);
 %>

@@ -15,6 +15,18 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 	
 	public void serveRequest(HttpServletRequest req, HttpServletResponse resp,
 			FilterChain chain, Resource resource) throws IOException, ServletException {
+		if(req==null){
+			throw new NullPointerException("paramenter req must not be null");
+		}
+		
+		if(resp==null){
+			throw new NullPointerException("paramenter resp must not be null");
+		}
+		
+		if(chain==null){
+			throw new NullPointerException("paramenter chain must not be null");
+		}
+		
 		chain.doFilter(req,resp);
 	}
 

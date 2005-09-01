@@ -9,8 +9,9 @@
 <!-- %@ taglib uri="/jslt/core_rt" prefix="c" % -->  
 
 <%@ taglib uri="/WEB-INF/tld/c.tld" prefix="c" %>
-
-
+<%
+	Resource resourceToInclude= (Resource)request.getAttribute("resource");	
+%>
 
 <html>
 <head>
@@ -71,9 +72,9 @@
 		
 		<!--------End Menu---------->
 	</div>
-	 <%System.out.println("service.jsp: mark1");%>
+	 <%System.err.println("service.jsp: mark1\n"+"including resource:"+resourceToInclude);%>
 	<div class="main_display">	
-	  	<jsp:include page="<%=((Resource)request.getAttribute("resource")).getUrl()%>"></jsp:include>	 
+	  	<jsp:include page="<%=resourceToInclude.getUrl()%>"></jsp:include>	 
 	</div>
 
 </body>
