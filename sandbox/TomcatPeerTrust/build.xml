@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.4 2005/09/01 10:47:57 token77 Exp $
+     $Id: build.xml,v 1.5 2005/09/01 16:33:34 token77 Exp $
 -->
 
 
@@ -201,17 +201,17 @@
 	<property name="jnlp.jar"
 	           value="${jws_home}/jnlp.jar"/>
 	<property name="peertrust.jar"
-		           value="${webrootdir}/jws/peertrust.jar"/>
+		           value="${basedir}/web/jws/peertrust.jar"/>
 	<property name="jena.jar"
-			           value="${webrootdir}/jws/jena.jar"/>
+			           value="${basedir}/web/jws/jena.jar"/>
 		
 	<property name="httpwebclient.jar"
-			           value="${webrootdir}/jws/commons-httpclient-3.0-rc2.jar"/>
+			           value="${basedir}/web/jws/commons-httpclient-3.0-rc2.jar"/>
 
 	<property name="log4j.jar"
-				           value="${webrootdir}/jws/log4j.jar"/>
+				           value="${basedir}/web/jws/log4j.jar"/>
 	<property name="plugin_js.jar"
-					           value="${webrootdir}/jws/plugin.jar"/>
+					           value="${basedir}/web/jws/plugin.jar"/>
 	<property name="catalina_ant.jar"
 						       value="${basedir}/ext_lib/catalina-ant.jar"/>
 
