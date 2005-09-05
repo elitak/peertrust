@@ -121,18 +121,18 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		return;
 	}
 	
-	private void sendCommandd(Object objToSend){
-		
-		try {
-			if(objOut!=null){
-				objOut.writeObject(objToSend);	
-				echoPane.echo("sendCmd:"+objToSend);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
+//	private void sendCommandd(Object objToSend){
+//		
+//		try {
+//			if(objOut!=null){
+//				objOut.writeObject(objToSend);	
+//				echoPane.echo("sendCmd:"+objToSend);
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 	ArrayBlockingQueue workerFIFO = new ArrayBlockingQueue(4);
 	//private PTConfigurator configurator;

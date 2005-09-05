@@ -41,7 +41,7 @@ import org.peertrust.net.Peer;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.io.*;
+
 
 /**
  * @author kbs
@@ -54,8 +54,8 @@ public class PeerTrustClient   implements PTEventListener{
 	final static public int SLEEP_INTERVAL = 100 ;
 	
 	//private PTEventListener oldPTEventListener= null;
-	private String[] parameters;
-	private String sessionID;
+//	private String[] parameters;
+//	private String sessionID;
 	private String resourceID;
 	private String appContextStr;
 	private String serviceServletPath;
@@ -67,9 +67,9 @@ public class PeerTrustClient   implements PTEventListener{
 	static public String CONFIG_MUFFIN_URL="PeerTrustConfig/ConfigMuffin.properties";
 	static public int CONFIG_FILE_MAX_SIZE=1024*1024;
 	
-	private String allParams;
-	
-	private boolean finalResultNotshown=false;
+	//private String allParams;
+//	
+//	private boolean finalResultNotshown=false;
 	
 	private NewsEventListener newsListener=null;
 	
@@ -85,17 +85,11 @@ public class PeerTrustClient   implements PTEventListener{
 	
 	private String configFileName;
 	
-	private PTConfigurator appletPTConfigurator=null;
+//	private PTConfigurator appletPTConfigurator=null;
 	
 	private TrustClient trustClient;
 	
-	public String _getAppContextStr(){
-		return appContextStr;
-	}
 	
-	public URL _getCodeBaseURL(){
-		return codeBase;
-	}
 	public URL getResourceURL(){
 		try {
 			String rel=this.appContextStr+serviceServletPath+
@@ -112,36 +106,13 @@ public class PeerTrustClient   implements PTEventListener{
 		}
 	}
 	
-	public PeerTrustClient(	String[]args, 
-							NewsEventListener nl,
-							String configFile) throws Exception{
-		this.configFileName=configFile;
-		int len=args.length;
-    	
-		for(int i=0;i<len;i++){
-			strBuffer.append(args[i]);
-			strBuffer.append("\n");
-		}
-		allParams=strBuffer.toString();
-		//showMessage(allParams);
-		try{
-			
-			Properties props=
-				new Properties();
-			props.load(
-					new ByteArrayInputStream(strBuffer.toString().getBytes()));
-			construct(props, nl);
-		}catch(IOException e){
-			throw(e);
-		}
-	}
 	
     public PeerTrustClient(
     			Properties props, 
 				NewsEventListener nl,
 				String configFile,
 				PTConfigurator appletPTConfigurator) throws Exception{
-    	this.appletPTConfigurator=appletPTConfigurator;
+    	//this.appletPTConfigurator=appletPTConfigurator;
     	this.configFileName=configFile;
     	construct(props,nl);
         return;
@@ -186,7 +157,7 @@ public class PeerTrustClient   implements PTEventListener{
     
     
     private void setParameters(Properties params){
-    	sessionID=params.getProperty("negoSessionID").toString().trim();
+    	//sessionID=params.getProperty("negoSessionID").toString().trim();
 		resourceID=params.getProperty("negoResource");
 		peerIP=params.getProperty("remotePeerIP");
 		appContextStr=params.getProperty("appContext");
@@ -233,7 +204,7 @@ public class PeerTrustClient   implements PTEventListener{
     	System.out.println("startPeerTrustClient.............................");
     	//showMessage("user.home:"+System.getProperty("user.home"));
     	
-    	final String PREFIX = "Client app.:";
+    	//final String PREFIX = "Client app.:";
 		
 		String defaultConfigFile = null;
 
@@ -244,10 +215,7 @@ public class PeerTrustClient   implements PTEventListener{
 			defaultConfigFile=configFileName;
 		}
 			logger.info("defaulConfigFile:"+defaultConfigFile);
-//		} catch (MalformedURLException e1) {
-//			showMessage(e1,"bad default config file:");
-//		}
-		
+
 		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
 		
 		String newArgs[] = {defaultConfigFile} ;
@@ -390,7 +358,8 @@ public class PeerTrustClient   implements PTEventListener{
     public void destroy(){ 
     	cmdFIFO.offer(new StopCmd());
     	comFac.destroy();
-    	engine.stop();    	
+    	trustClient.destroy();
+    	//engine.stop();    	
     }
     
     

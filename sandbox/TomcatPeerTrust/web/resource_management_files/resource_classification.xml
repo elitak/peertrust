@@ -1,5 +1,80 @@
 <ResourceClassifier type="..">
 	<!--  use attribute overwrite to cope with multiple match -->
+	<!-- ********************start new demo jsp and htmk -->
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/demo/pdf/acm/*"
+		matchingStrategy="_reg_exp_"
+		policyName="acmMember"
+		/>
+	
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/demo/pdf/ieee/*"
+		matchingStrategy="_reg_exp_"
+		policyName="ieeeMember"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/data/pdf/pub/*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/jsp/includable/*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+		requestServingMechanism="forward_to_service_jsp"
+	/>
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/jsp/*[.]jsp"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	<resourceClass
+		isProtected="false" 
+		url=".*[.]jsp"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/js/*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/css/*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/data/pub/*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/start.html"
+		matchingStrategy="_exact_"
+		policyName="_no_pol_"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/PeerTrustConfig/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	<!-- *****************end  new demo jsp and html -->
+	<!-- 
 	<resourceClass
 		isProtected="true" 
 		url="/myapp-0.1-dev/pdf/trustVLDB04.pdf"
@@ -40,5 +115,5 @@
 		matchingStrategy="_reg_exp_"
 		policyName=""
 	/>	
-		
+	-->	
 </ResourceClassifier>

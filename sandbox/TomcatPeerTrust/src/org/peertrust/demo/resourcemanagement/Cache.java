@@ -3,10 +3,9 @@
  */
 package org.peertrust.demo.resourcemanagement;
 
-import java.util.HashMap;
+
 import java.util.Vector;
 
-import com.hp.hpl.jena.util.cache.CacheManager;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 
 /**

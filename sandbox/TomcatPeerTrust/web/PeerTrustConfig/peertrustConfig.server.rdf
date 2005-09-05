@@ -71,7 +71,7 @@
 	Event Listener
 	====================================================================== -->
 	<pt:EventListener rdf:about="#PTEventListener">
-		<pt:javaClass>org.peertrust.demo.servlet.ServletPeerTrustEventListener</pt:javaClass>
+		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
 	</pt:EventListener>
 	
@@ -113,6 +113,6 @@
 	<pt:CredentialStore rdf:about="#CredentialStore">
 		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
 		<pt:file>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\server_keystore</pt:file>
-		<pt:storePassword>serverstorepw</pt:storePassword>
+		<pt:storePassword>serverstorepw</pt:storePassword>	
 	</pt:CredentialStore>
 </rdf:RDF>

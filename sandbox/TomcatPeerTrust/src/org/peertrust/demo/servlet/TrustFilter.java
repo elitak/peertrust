@@ -8,7 +8,6 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpSession;
 
 import org.peertrust.demo.resourcemanagement.IllegalAccessPolicyAssociation;
 import org.peertrust.demo.resourcemanagement.ProtectedResource;
-import org.peertrust.demo.resourcemanagement.PublicResource;
 import org.peertrust.demo.resourcemanagement.RequestServingMechanism;
 import org.peertrust.demo.resourcemanagement.Resource;
 import org.peertrust.demo.resourcemanagement.TrustManager;

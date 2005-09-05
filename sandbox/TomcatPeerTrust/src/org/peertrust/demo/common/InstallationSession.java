@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -137,17 +136,9 @@ public class InstallationSession {
 	 * @throws IOException
 	 */
     public void install() throws SAXException, IOException{
-    	boolean doInstallUserCustomFiles=false;
-    	boolean doInstall=false;
     	if(!isInstallationUptodate()){
     		doInstallation(true,true);
-//    		try {
-    			//for eventual future use of methode that rely
-    			//on it such isInstallationUptodate()
     			localInstallDom=getLocalInstallDocument();
-//    		} catch (IOException e) {//pt not install
-//    			localInstallDom=null;
-//    		}
     	}
     	return;
     }

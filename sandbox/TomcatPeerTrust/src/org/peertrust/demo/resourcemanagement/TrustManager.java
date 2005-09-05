@@ -65,7 +65,7 @@ public class TrustManager {
 	private ResourceClassifier resourceClassifier;
 	private PolicySystem policySystem;
 	private PolicyEvaluator policyEvaluator;
-	private TrustClient trustClient;
+	//private TrustClient trustClient;
 	private RequestServingMechanismPool requestServingMechanismPool;
 	
 	/**
@@ -79,7 +79,7 @@ public class TrustManager {
 		super();
 		this.resourceClassifier= makeResourceClassifier(classifierXMLSetupFilePath);
 		this.policySystem=makePolicySystem(policySystemXMLSetupFilePath);
-		this.trustClient=trustClient;
+		//this.trustClient=trustClient;
 		this.policyEvaluator=makePolicyEvaluator(policyEvaluatorXMLSetupPath,trustClient);
 		try {
 			this.requestServingMechanismPool=
@@ -99,16 +99,12 @@ public class TrustManager {
 			classifier.setup(classifierXMLSetupFilePath);
 			return classifier;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnsupportedFormatException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -121,16 +117,12 @@ public class TrustManager {
 			polSystem.setup(policySystemXMLSetupFilePath);
 			return polSystem;
 		} catch (UnsupportedFormatException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -138,7 +130,7 @@ public class TrustManager {
 	
 	private PolicyEvaluator makePolicyEvaluator(String policyEvaluatorXMLSetupPath, 
 												TrustClient trustClient){
-		this.trustClient=trustClient;
+		//this.trustClient=trustClient;
 		
 		return new SimplePolicyEvaluator(trustClient);
 	}

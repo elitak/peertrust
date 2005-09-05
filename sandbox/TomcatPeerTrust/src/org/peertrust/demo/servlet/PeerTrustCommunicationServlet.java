@@ -12,7 +12,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +24,6 @@ import org.peertrust.demo.common.ConfigurationOption;
 //import org.peertrust.demo.common.StopCmd;
 import org.peertrust.net.*;
 
-import java.io.*;
 //import java.util.Hashtable;
 //import java.util.Iterator;
 //import java.util.concurrent.ArrayBlockingQueue;
@@ -40,9 +38,8 @@ import java.util.concurrent.BlockingQueue;
 public class PeerTrustCommunicationServlet 	extends HttpServlet 
 											/*implements PeerTrustCommunicationListener*/{
 	final static public  String PEER_NAME_KEY="finalDestination"; 
-	private ServletSideNetServer trustServer=null;
-	private ServletSideNetClient trustClient=null;
-	private ServletPeerTrustEventListener trustEngin=null;
+	//private ServletSideNetServer trustServer=null;
+	//private ServletSideNetClient trustClient=null;
 	private NegotiationObjects negoObjects=null;
 	//private Hashtable messagePool= new Hashtable(20);
 	private Logger logger;//=Logger.getLogger(this.getClass());
@@ -51,14 +48,14 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		//super.init();
-		ServletContext context=config.getServletContext();
+		//ServletContext context=config.getServletContext();
 		negoObjects=
 			NegotiationObjects.createAndAddForAppContext(config);
 		
-		trustServer= negoObjects.getNetServer();
+		//trustServer= negoObjects.getNetServer();
 		
-		trustClient= negoObjects.getNetClient();
-		trustEngin=negoObjects.getPeerTrustEventListener();
+		//trustClient= negoObjects.getNetClient();
+		//trustEngin=negoObjects.getPeerTrustEventListener();
 		logger=ConfigurationOption.getLogger(this.getClass().getName());
 		return;		
 	}
@@ -89,8 +86,8 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 		}else if(action.equals("send")){
 			if(negoObjects.getIsListening()){
 				ObjectInputStream objIn = null;
-			    PrintWriter out = null;
-			    BufferedReader inTest = null;
+			    //PrintWriter out = null;
+			    //BufferedReader inTest = null;
 			    Object rcvObj=null;    
 			    try
 			    {  

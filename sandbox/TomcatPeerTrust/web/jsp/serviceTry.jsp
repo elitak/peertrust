@@ -1,9 +1,8 @@
 <%@ page import="java.security.SecureRandom" %>
 <%@ page import="java.net.URL" %>
 <%@ page import="org.peertrust.demo.servlet.NegotiationObjects" %>
-<%@ page import="org.peertrust.demo.servlet.ServletPeerTrustEventListener" %>
 <%@ page import="org.apache.log4j.Logger"%>
-<%@ page import="org.peertrust.demo.servlet.NegotiationOutcome"%>
+
 
 <!-- jsp:directive.taglib prefix="c" uri="http://java.sun.com/jsp/jstl/functions"/ -->
 <!-- %@ taglib uri="/jslt/core_rt" prefix="c" % -->  
@@ -26,8 +25,7 @@
 		
 		NegotiationObjects negoObjects= 
 				NegotiationObjects.createAndAddForAppContext(config);
-		ServletPeerTrustEventListener ptEListener= 
-					negoObjects.getPeerTrustEventListener();
+	
 		String negoID= (String)request.getParameter("negoSessionID");
 		String negoResource=(String)request.getParameter("negoResource");
 		
@@ -49,12 +47,7 @@
 							" negoID:"+negoID+
 							" userName:"+userName+
 							" resPath:"+resPath);
-		NegotiationOutcome negoOutcome=
-			new NegotiationOutcome(request,config,application);
-				
-		System.out.println(
-				"\n---------------"+
-				negoOutcome);
+		
 		
 %>
 

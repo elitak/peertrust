@@ -5,7 +5,7 @@ package org.peertrust.demo.servlet.jsptags;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.tagext.TagSupport;
+//import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * @author pat_dev

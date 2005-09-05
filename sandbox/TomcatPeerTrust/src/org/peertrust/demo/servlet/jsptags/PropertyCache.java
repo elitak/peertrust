@@ -3,11 +3,9 @@
  */
 package org.peertrust.demo.servlet.jsptags;
 
-import java.sql.BatchUpdateException;
-import java.util.Hashtable;
-import java.util.Vector;
 
-import sun.security.provider.ParameterCache;
+import java.util.Hashtable;
+
 
 /**
  * Resposible for creating and caching properties held by a peer. 

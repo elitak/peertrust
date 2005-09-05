@@ -3,7 +3,7 @@
  */
 package org.peertrust.demo.resourcemanagement;
 
-import java.util.Vector;
+
 
 /**
  * @author pat_dev

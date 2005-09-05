@@ -7,33 +7,25 @@
 package org.peertrust.demo.servlet;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.peertrust.PTEngine;
-import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.TrustClient;
 import org.peertrust.demo.common.ConfigurationOption;
 import org.peertrust.demo.common.RDFConfigFileUpdater;
-import org.peertrust.demo.resourcemanagement.RequestServingMechanismPool;
 import org.peertrust.demo.resourcemanagement.TrustManager;
-import org.peertrust.event.EventDispatcher;
 import org.peertrust.exception.ConfigurationException;
-import org.peertrust.exception.InferenceEngineException;
-import org.peertrust.inference.InferenceEngine;
-import org.peertrust.meta.MetaInterpreter;
+//import org.peertrust.inference.InferenceEngine;
 import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
-import org.peertrust.net.Query;
 /**
  * @author pat_dev
  *
@@ -41,7 +33,6 @@ import org.peertrust.net.Query;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class NegotiationObjects implements PeerTrustCommunicationListener{
-	private ServletPeerTrustEventListener peerTrustEventListener=null;
 	private ServletSideNetClient netClient=null;
 	private ServletSideNetServer netServer=null;
 	private ServletSideHTTPCommunicationFactory comFactory=null;
@@ -50,7 +41,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private PTEngine engine;
 	private Logger logger;
 	private StringBuffer freePageList= new StringBuffer();
-	private InferenceEngine inferenceEngine;
+	//private InferenceEngine inferenceEngine;
 	private Hashtable messagePool;
 	private Hashtable sessionTable=new Hashtable();
 	private TrustClient trustClient; 
@@ -63,41 +54,6 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	
 	public NegotiationObjects(ServletConfig config){
 		this(config.getServletContext());
-//		try{
-//			messagePool= new Hashtable();
-//			ServletContext context=config.getServletContext(); 
-//	        logger=ConfigurationOption.getLogger(NegotiationObjects.class.getName());
-//	        String list= context.getInitParameter("freePages");
-//	        //peetrustConfigFileRelativePath
-//	        configFilePath=context.getRealPath(context.getInitParameter("peetrustFolderRelativePath"));
-//	        File file=
-//	        	new File(
-//	        			context.getRealPath(context.getInitParameter("serverPTInstallXML")));
-//	        
-//	        _ResourceClassifierSetupFile=
-//	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
-//	        _ResourcePoliciesSetupFile=
-//	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
-//	        
-//	        System.out.println("_ResourceClassifierSetupFile:"+_ResourceClassifierSetupFile+
-//	        					"_");
-//	        RDFConfigFileUpdater updater= 
-//	        	new RDFConfigFileUpdater(
-//	        			file.getName(),//context.getRealPath(context.getInitParameter("serverPTInstallXML")),
-//						file.getParent());//context.getRealPath(context.getInitParameter("peetrustFolderRelativePath")));
-//	        updater.update();
-//	        configFilePath=updater.getRDFConfigFile();//updater.onfigFile.toURI().toString();
-//	        
-////	        System.out.println("\n=============================================================");
-////	        System.out.println("rdfConfig:"+configFilePath);
-////	        System.out.println("=============================================================");
-//	        if(list!=null){
-//	        	freePageList.append(list);
-//	        }
-//		}catch(Throwable th){
-//			th.printStackTrace();
-//			logger.error("-- error while constructing trust objects--",th);
-//		}
 	}
 	
 	public NegotiationObjects(ServletContext  context){
@@ -136,18 +92,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		return (freePageList.indexOf(page)!=-1);
 	}
 	
-	/**
-	 * @return Returns the peerTrustEngin.
-	 */
-	public ServletPeerTrustEventListener getPeerTrustEventListener() {
-		return peerTrustEventListener;
-	}
-	/**
-	 * @param peerTrustEngin The peerTrustEngin to set.
-	 */
-	public void ssetPeerTrustEventListener(ServletPeerTrustEventListener peerTrustEngin) {
-		this.peerTrustEventListener = peerTrustEngin;
-	}
+	
 	/**
 	 * @return Returns the trustClient.
 	 */
@@ -255,20 +200,18 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 			netServer=(ServletSideNetServer)comFactory.createNetServer();
 			
 //			EventDispatcher dispatcher = engine.getEventDispatcher() ;
-			this.peerTrustEventListener= 
-				(ServletPeerTrustEventListener)engine.getEventListener();
+
 			logger.info(PREFIX + 
 						"Started with this ptevent listener"+
-						peerTrustEventListener.getClass()) ;
+						engine.getEventDispatcher()) ;
 		} catch (Throwable th) {
 			logger.error("--cannot start server --",th);
 		}
 	}
 	
 	public void destroy(){
-		try {
-			
-			engine.stop();
+		try {			
+			trustClient.destroy();
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}

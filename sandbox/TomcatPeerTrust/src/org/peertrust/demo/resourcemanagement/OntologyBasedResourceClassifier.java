@@ -6,7 +6,6 @@ package org.peertrust.demo.resourcemanagement;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -47,6 +46,21 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		super();
 	}
 
+	public static int linearSearch(
+									Vector resources,
+									String url,
+									Comparator exactMatchingComparator){
+		
+		
+		final int LEN=resources.size();
+		for(int i=0;i<LEN;i++){
+			if(exactMatchingComparator.compare(resources.elementAt(i),url)==0){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	private Comparator makeExactMatchingComparator(){
 		return new Comparator(){
 
@@ -71,7 +85,9 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 					}else{
 						return -1;//not equals
 					}
-					return res.getUrl().compareTo(url);
+					String resURL=res.getUrl();
+					System.out.println("\n*********Comparing: "+resURL+"\t"+url+"\n");
+					return resURL.compareTo(url);
 				}
 				
 			}
@@ -104,7 +120,9 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 					}else{
 						return -1;//not equals
 					}
-					if(Pattern.matches(res.getUrl(),url)){
+					String resURL=res.getUrl();
+					System.out.println("\n*********Matching: "+resURL+"\t"+url+"\n");
+					if(Pattern.matches(resURL,url)){
 						return 0;
 					}else{
 						return 1;
@@ -199,9 +217,9 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		if(url==null){
 			return null;
 		}else{
-			int i=Collections.binarySearch(resources,url,exactMatchingComparator);
+			int i=-1;linearSearch(resources,url,exactMatchingComparator);
 			if(i<0){
-				i=Collections.binarySearch(resources,url,regExprMatchingComparator);
+				i=linearSearch(resources,url,regExprMatchingComparator);
 			}
 			if(i<0){
 				//nothning found

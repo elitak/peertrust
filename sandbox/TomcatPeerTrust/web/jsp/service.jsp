@@ -1,9 +1,7 @@
 <%@ page import="java.security.SecureRandom" %>
 <%@ page import="java.net.URL" %>
 <%@ page import="org.peertrust.demo.servlet.NegotiationObjects" %>
-<%@ page import="org.peertrust.demo.servlet.ServletPeerTrustEventListener" %>
 <%@ page import="org.apache.log4j.Logger"%>
-<%@ page import="org.peertrust.demo.servlet.NegotiationOutcome"%>
 
 <!-- jsp:directive.taglib prefix="c" uri="http://java.sun.com/jsp/jstl/functions"/ -->
 <!-- %@ taglib uri="/jslt/core_rt" prefix="c" % -->  
@@ -84,7 +82,7 @@
 <li class="section">Demo Info</li>
 <li onmouseover="on_menu_item_mouseover(this)"
 				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="loadPage('<%=base%>/jsp/service.jsp?negoResource=setup')">Setup</li>
+				   onclick="loadPage('<%=base%>/demo/jsp/configuration.jsp')">Setup</li>
 	<li onmouseover="on_menu_item_mouseover(this)"
 				 onmouseout="on_menu_item_mouseout(this)"
 				   onclick="getResource('configuration')">Configuration</li>

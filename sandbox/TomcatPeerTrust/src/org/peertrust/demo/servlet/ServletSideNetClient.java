@@ -17,17 +17,16 @@ import java.util.Hashtable;
  */
 public class ServletSideNetClient implements NetClient{
 	
-	Hashtable listenerPool;
+	private Hashtable listenerPool;
 	
-	Hashtable messageTable;
+	private Hashtable messageTable;
 	
-	Logger logger;
+	private Logger logger;
 	
 	public ServletSideNetClient(Logger logger){
 		listenerPool= new Hashtable();
 		messageTable= new Hashtable();
-		this.logger=logger;
-		
+		this.logger=logger;		
 	}
 	
 	/* (non-Javadoc)
@@ -70,7 +69,7 @@ public class ServletSideNetClient implements NetClient{
 		return;
 	}
 	
-	private PeerTrustCommunicationListener getCommunicationHelper(String finalDestination){
-		return (PeerTrustCommunicationListener)listenerPool.get(finalDestination);
-	}
+//	private PeerTrustCommunicationListener getCommunicationHelper(String finalDestination){
+//		return (PeerTrustCommunicationListener)listenerPool.get(finalDestination);
+//	}
 }

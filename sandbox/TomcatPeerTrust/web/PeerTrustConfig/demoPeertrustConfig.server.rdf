@@ -71,7 +71,7 @@
 	Event Listener
 	====================================================================== -->
 	<pt:EventListener rdf:about="#PTEventListener">
-		<pt:javaClass>org.peertrust.demo.servlet.ServletPeerTrustEventListener</pt:javaClass>
+		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
 	</pt:EventListener>
 	

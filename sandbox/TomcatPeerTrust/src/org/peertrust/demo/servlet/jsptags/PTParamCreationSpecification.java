@@ -6,7 +6,7 @@ package org.peertrust.demo.servlet.jsptags;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.hp.hpl.jena.shared.BadCharLiteralException;
+
 
 
 public class PTParamCreationSpecification{

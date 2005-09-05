@@ -8,8 +8,7 @@ package org.peertrust.demo.common;
 
 import java.awt.GridLayout;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -54,16 +53,16 @@ public class EchoPane extends JPanel {
 		JMenuItem menuItem= new JMenuItem("clear");
 		popupMenu.add(menuItem);
 		
-		ActionListener aL= new ActionListener(){
-
-			public void actionPerformed(ActionEvent ae) {
-				Object source= ae.getSource();
-				if(source.equals(EchoPane.this)){
-					popupMenu.show(EchoPane.this,0,0);
-				}
-			}
-			
-		};
+//		ActionListener aL= new ActionListener(){
+//
+//			public void actionPerformed(ActionEvent ae) {
+//				Object source= ae.getSource();
+//				if(source.equals(EchoPane.this)){
+//					popupMenu.show(EchoPane.this,0,0);
+//				}
+//			}
+//			
+//		};
 		MouseListener mouseL= new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				System.out.println("txt1:"+e);

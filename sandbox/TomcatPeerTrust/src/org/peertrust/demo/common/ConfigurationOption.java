@@ -6,11 +6,10 @@
  */
 package org.peertrust.demo.common;
 
-import java.io.File;
+
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.net.SocketAppender;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 

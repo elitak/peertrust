@@ -138,7 +138,7 @@ public class RDFConfigFileUpdater {
 				DocumentBuilder builder = factory.newDocumentBuilder();
 				Document document=builder.parse(rdfFile);
 				//check if already installed
-				Node n= document.getFirstChild();//
+				//Node n= document.getFirstChild();//
 				//System.out.println("NODEROOT:"+n.getNodeName());//+" "+n.getAttributes().getNamedItem("isIntalled"));
 				//change the document.
 				String ptBaseFolder=(installDir).toString();

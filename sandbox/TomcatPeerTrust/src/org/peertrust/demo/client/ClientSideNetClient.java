@@ -21,8 +21,6 @@ import org.apache.log4j.Logger;
 import org.peertrust.demo.client.applet.SessionRegistrationMessage;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsServer;
-import org.peertrust.meta.Proof;
-import org.peertrust.meta.Trace;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetClient;

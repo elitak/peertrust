@@ -3,7 +3,7 @@
  */
 package org.peertrust.demo.servlet.jsptags;
 
-import javax.servlet.http.HttpServletRequest;
+
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.PageContext;
 
