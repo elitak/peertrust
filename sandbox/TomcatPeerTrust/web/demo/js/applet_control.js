@@ -24,7 +24,7 @@ function getResource(resource){
 		var ptApplet=getPTApplet();//top.applet_frame.document.pt_applet;//top.applet_frame.pt_applet;//theDocument.getElementById('pt_applet');
 		ptApplet.getResource(resource)
 	}catch(ex){
-		alert(ex.message+" name:"+ptApplet);
+		//alert(ex.message+" name:"+ptApplet);
 	}
 }
 
@@ -33,7 +33,35 @@ function registerSession(sessionID){
 		var ptApplet=getPTApplet();//top.applet_frame.document.pt_applet;//top.applet_frame.pt_applet;//theDocument.getElementById('pt_applet');
 		ptApplet.registerSession(sessionID);
 	}catch(ex){
-		alert(ex.message+" name:"+ptApplet);
+		//alert(ex.message+" name:"+ptApplet);
+	}
+}
+
+function toggleVisualization(){
+	try{
+		var ptApplet=getPTApplet();
+		ptApplet.toggleVisualization();
+	}catch(ex){
+		//alert(ex.message+" name:"+ptApplet);
+	}
+}
+
+function uninstallPeerTrust(){
+	try{
+		var ptApplet=getPTApplet();
+		ptApplet.uninstallPeerTrust();
+	}catch(ex){
+		//alert(ex.message+" name:"+ptApplet);
+	}
+}
+//managePolicies()
+
+function managePolicies(){
+	try{
+		var ptApplet=getPTApplet();
+		ptApplet.managePolicies();
+	}catch(ex){
+		//alert(ex.message+" name:"+ptApplet);
 	}
 }
 

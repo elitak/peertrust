@@ -23,6 +23,8 @@ import netscape.javascript.JSObject;
 import org.peertrust.demo.client.PeerTrustClient;
 import org.peertrust.demo.common.ClientConstants;
 import org.peertrust.demo.common.EchoPane;
+import org.peertrust.demo.common.Executable;
+import org.peertrust.demo.common.Helpers;
 import org.peertrust.demo.common.InstallationSession;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsEventListener;
@@ -36,7 +38,7 @@ import org.peertrust.demo.common.StopCmd;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class DemoApplet extends JApplet implements NewsEventListener{
-	
+	public static String PEERTRUST_FOLDER_NAME=".peertrust";
 	//private Socket socket=null;
 	private ObjectOutputStream objOut=null;
 	//private ObjectInputStream  objIn=null;
@@ -195,6 +197,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 						}else if(obj instanceof StopCmd){
 						
 							return;
+						}else if(obj instanceof Executable){
+							((Executable)obj).execute();
+							return;
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -213,8 +218,6 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	public void init() {
 		super.init();
 		win=JSObject.getWindow(this);
-		//configurator = new PTConfigurator (this) ;
-		//win.eval("alert(parent.document.getElementById('display_frame'))");
 		return;
 	}
 		
@@ -246,42 +249,51 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			home=System.getProperty("user.home");
 		}catch(Exception e){
 			e.printStackTrace();
-			home="C:\\Dokumente und Einstellungen\\pat_dev";
 		}
-		File instDir= new File(home,"pt");
-		//boolean gotException=false;
-//		File instDir= new File("c:/temp/pt");
-//		System.out.println("before file in "+ instDir+
-//							":"+instDir.list()+"\n");
-		try {
-			URL sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/");
-			echoPane.echo("sourceBase:"+sourceBase);
-			installationSession= 
-				new InstallationSession(
-								sourceBase.toString(),
-								"install.xml",
-								instDir.toString());
-			if(!installationSession.isPeerTrustInstall()){
-				installationSession.install();
+		File instDir= new File(home,PEERTRUST_FOLDER_NAME);
+		String question="This demo need to install peetrust file in: \n"+
+						instDir+
+						"\nYou can savely remove the folder either manualy or using"+
+						"<session>/<uninstall peertrust files>\n"+
+						"Allow installation?";
+		boolean installtionAllowed=Helpers.askYesNoQuestion("Instalation Dialog",question,this,null);
+		if(installtionAllowed){
+			try {
+				URL sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/");
+				echoPane.echo("sourceBase:"+sourceBase);
+				installationSession= 
+					new InstallationSession(
+									sourceBase.toString(),
+									"install.xml",
+									instDir.toString());
+				if(!installationSession.isPeerTrustInstall()){
+					installationSession.install();
+				}
+				
+				echoPane.echo("file in "+ instDir+
+						":"+Arrays.toString(instDir.list())+"\n");
+				ptClient= 
+					new PeerTrustClient(
+							props,
+							(NewsEventListener)this,
+							installationSession.getConfigFileURL(),
+							null);//this.configurator);
+				trustScheme="PeerTrust";
+				registerSession(getParameter("negoSessionID"));
+			}catch (MalformedURLException e){
+				echoPane.echo("bad ur",e);clearPTClient();
+			} catch (IOException e) {
+				echoPane.echo("IO problem!",e);clearPTClient();
+			}catch(Throwable th){
+				echoPane.echo("could not install or initiate pt using http source directely",th);
+				clearPTClient();
 			}
-			
-			echoPane.echo("file in "+ instDir+
-					":"+Arrays.toString(instDir.list())+"\n");
-			ptClient= 
-				new PeerTrustClient(
-						props,
-						(NewsEventListener)this,
-						installationSession.getConfigFileURL(),
-						null);//this.configurator);
-			trustScheme="PeerTrust";
-			registerSession(getParameter("negoSessionID"));
-		}catch (MalformedURLException e){
-			echoPane.echo("bad ur",e);clearPTClient();
-		} catch (IOException e) {
-			echoPane.echo("IO problem!",e);clearPTClient();
-		}catch(Throwable th){
-			echoPane.echo("could not install or initiate pt using http source directely",th);
-			clearPTClient();
+		}else{
+			String info=
+				"You choose not to install peertrust files.\n"+
+				"Therefore you will not be able to experience any negotiation \n"+
+				"and your access will be limited to unprotected content!";
+			Helpers.inform("Installation Info",info,this);
 		}
 		
 		return;
@@ -296,6 +308,71 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			echoPane.echo("ptClient cleared!");
 		}				
 		trustScheme="User Password";
+	}
+	
+	public void uninstallPeerTrust(){
+		Executable executable= new Executable(){
+			public void execute(){
+				String home=null;
+				try{
+					home=System.getProperty("user.home");
+				}catch(Exception e){
+					jsAlert("Could not start unintall-Process.\n"+
+							"Reason unable to get your home directory\n"+
+							"Exception message:"+e.getLocalizedMessage());
+					return;
+				}
+				
+				File instDir= new File(home,PEERTRUST_FOLDER_NAME);
+				
+				String question="Uninsstall will stopt the currently running peertrust engine.\n"+
+								"and delete the installation directory:\n\t"+
+								instDir+
+								"Go ahead and uninstall?";
+				boolean res=Helpers.askYesNoQuestion(	"Uninstall Dialog",
+																question,
+																DemoApplet.this,
+																new Object[]{"unstall","cancel"});
+				if(res){
+					workerFIFO.offer(new StopCmd());
+					if(ptClient!=null){
+						ptClient.destroy();
+					}
+					try{
+						res=instDir.delete();
+						if(res){
+							Helpers.inform("Uninstall Info","Uninstall successfull!",DemoApplet.this.getParent());
+						}else{
+							Helpers.inform("Uninstall Info","could nor delete:"+instDir,DemoApplet.this);
+						}
+						return;
+					}catch(SecurityException e){
+						Helpers.inform("Uninstall Info",e.getLocalizedMessage(),DemoApplet.this);
+						return;
+					}			
+				}
+			}
+		};
+		workerFIFO.offer(executable);
+	}
+	
+	public void toggleVisualization(){
+		Executable executable= new Executable(){
+			public void execute(){
+				Helpers.inform("Info","Visualization not implemented yet!",
+						DemoApplet.this.getParent());
+			}
+		};
+		workerFIFO.offer(executable);
+	}
+	
+	public void managePolicies(){
+		Executable executable= new Executable(){
+			public void execute(){
+				Helpers.inform("Info","Policy Management not available yet!",DemoApplet.this);
+			}
+		};
+		workerFIFO.offer(executable);
 	}
 	
 	public void destroy() {

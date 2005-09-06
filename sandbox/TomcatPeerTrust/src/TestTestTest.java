@@ -10,6 +10,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Vector;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -78,9 +81,33 @@ public class TestTestTest {
 		v.add(new String("didi"));
 		oOut.writeObject(v);
 	}
+	
+	public static boolean askYesNoQuestion(String dlgTitle,String question, JFrame parent,Object[] buttonTittle){
+		Object[] options = {"Yes","No"};
+		if(buttonTittle!=null){
+			if(buttonTittle.length==2){
+				options[0]=buttonTittle[0];
+				options[1]=buttonTittle[1];
+			}
+		}
+		int n = JOptionPane.showOptionDialog(parent,
+									question,
+									dlgTitle,
+									JOptionPane.YES_NO_OPTION,
+									JOptionPane.QUESTION_MESSAGE,
+									null,     //don't use a custom Icon
+									options,  //the titles of buttons
+									options[0]); //default button title
+		return (n==JOptionPane.YES_OPTION);
+	}
+	
+	
 	public static void main(String[] args) throws Exception {
 		//testObjectStream();
 		String[] ar= new String[0];
 		System.out.println(ar.length);
+		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","question?",null,null));
+		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","<big>question?</big>",null,new String[]{"1","2","3"}));
+		
 	}
 }
