@@ -26,7 +26,7 @@ div.menu_left {
 	padding: 0px;
 	margin: 0px;
 	
-	height: 800px;
+	height: 100%;
 	width: 200px;
 	text-align: center;
 	vertical-align: top;
@@ -42,92 +42,14 @@ div.main_display{
 	left: 210px;
 	
 	padding: 0px;
-	border: thin;
-	border-color: Black;
 	
-	height: 800px;
+	height: 100%;
+	max-height:9000px;
 	width: 600px;
 	text-align: center;
 	vertical-align: top;
 	
-	border-style: outset;
-	border-color: Green;
 	background: transparent;
-}
-
-body.dada {
-	background-color: #FAF0E6;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: large;
-}
-table.menu_container{
-	width: 190px;
-	table-layout: fixed;
-}
-
-tbody.menu_tbody{
-	width: 200px;
-	padding: 10px;
-	background-color: White;
-}
-ul{
-width: 100%;
- padding: 0px;
- left: 0px;
- margin-left: 0px;
- margin-bottom: 0px;
-}
-li{
-	width: 100%;
-	background-color: ButtonFace;
-	list-style: none;
-	padding:5px; 
-
-	
-	border-style: none;
-	border-color: ButtonFace;
-	border-spacing: 0px;
-}
-li.section{
-	width: 100%;
-	background-color: ButtonFace;
-	list-style: none;
-	padding:5px; 
-
-	text-align: center;
-	border-bottom-style: solid;
-	border-bottom-width: thick;
-	border-bottom-color: Black;
-	
-}
-
-td{
-	border-color: ButtonShadow;
-}
-
-tr.tr_menu_section{
-	width:100%;	
-}
-
-td.td_menu_section{
-	width:100%;
-	padding-left: 0px;
-	background-color: Silver;
-	border-style: ridge;
-	border-color: AppWorkspace;	
-}
-
-
-tr.tr_menu_subsection{
-	width:100px;
-}
-
-td.td_menu_subsection{
-	width:100%;
-	padding-left: 0px;
-	background-color: ButtonFace;
-	border: outset;
-	border-color: ButtonFace;	
 }
 
 

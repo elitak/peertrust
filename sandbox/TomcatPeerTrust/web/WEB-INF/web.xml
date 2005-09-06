@@ -91,10 +91,15 @@
 		<url-pattern>/PeerTrustCommunicationServlet/*</url-pattern>
 	</servlet-mapping>
 	<!-- filter for no cache no store -->
-	<!-- filter>
+	<filter>
 		<filter-name>NoCacheNoStore</filter-name>
 		<filter-class>org.peertrust.demo.servlet.MainFilter</filter-class>
-	</filter -->
+	</filter>
+	<filter-mapping>
+		<filter-name>NoCacheNoStore</filter-name>
+		<url-pattern>/demo/*</url-pattern>
+	</filter-mapping>
+	
 	
 	<filter>
 		<filter-name>TrustFilter</filter-name>
@@ -103,7 +108,7 @@
 	
 	<filter-mapping>
 		<filter-name>TrustFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/demo/*</url-pattern>
 	</filter-mapping>
 	
 	<taglib>

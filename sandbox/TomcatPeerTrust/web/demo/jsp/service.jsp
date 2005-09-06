@@ -10,22 +10,45 @@
 
 <%@ taglib uri="/WEB-INF/tld/c.tld" prefix="c" %>
 <%
+	String contextPath=request.getContextPath();
+
+	StringBuffer buf=new StringBuffer(128);
+	//buf.append("window.open('");
+	buf.append("http://");
+	buf.append(request.getLocalAddr());
+	buf.append(":");
+	buf.append(request.getLocalPort());
+	//buf.append("/");
+	buf.append(contextPath);//.getContextPath());
+	 
+	String base=buf.toString();
 	Resource resourceToInclude= (Resource)request.getAttribute("resource");	
-	String urlToInclude=(resourceToInclude!=null)?resourceToInclude.getUrl():"../html/no_content.html";
+	
+	String urlToInclude="../html/no_content.html";
+	if(resourceToInclude!=null){
+		String completeURL=resourceToInclude.getUrl();
+		if(completeURL!=null){
+			if(completeURL.startsWith(contextPath)){
+				urlToInclude=completeURL.substring(contextPath.length());
+			}
+		}
+	}
 %>
 
 <html>
+<!-- <%=session.getId()%>  -->
 <head>
-	<link rel="stylesheet" type="text/css" href="../css/sddm.css" />
-	<link rel="stylesheet" type="text/css" href="../css/pt_style.css" />
-	<link rel="_script_applet_control" type="text/js" href="../js/applet_control.js"/>
-	<link rel="_script_menu" type="text/js" href="../js/menu.js"/>
+	<base href="<%=base%>/">
+	<link rel="stylesheet" type="text/css" href="<%=base%>/demo/css/sddm.css" />
+	<link rel="stylesheet" type="text/css" href="<%=base%>/demo/css/pt_style.css" />
+	<link rel="_script_applet_control" type="text/js" href="<%=base%>/demo/js/applet_control.js"/>
+	<link rel="_script_menu" type="text/js" href="<%=base%>/demo/js/menu.js"/>
 	
-	<script language="JavaScript" src="../js/applet_control.js">
+	<script language="JavaScript" src="<%=base%>/demo/js/applet_control.js">
 	</script>
 </head>
 
-<body onload="alertTest();">
+<body>
 
 	<div class="header_top">
 	
@@ -33,18 +56,18 @@
 	
 	<div class="menu_left">
 	
-		<script language="JavaScript" type="text/javascript" src="../js/menu.js"></script>
+		<script language="JavaScript" type="text/javascript" src="<%=base%>/demo/js/menu.js"></script>
 		
 		<!--------Start Menu---------->
 		<div class="mainDiv" state="0">
 		<div class="topItem" classOut="topItem" classOver="topItemOver" onMouseOver="Init(this);" >&nbsp;Demo Info</div>
 		<div class="dropMenu" >
 		<div class="subMenu" state="0">
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/peertrust_explained.html">Peer trust explained</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/tomcat_demo.html">Demo</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/faq.html">FAQ</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/setup.html">Setup</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/configuration.html">Configuration</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/peertrust_explained.html">Peer trust explained</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/tomcat_demo.html">Demo</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/faq.html">FAQ</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/setup.html">Setup</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/configuration.html">Configuration</a></span><BR />
 		</div>
 		</div>
 		</div>
@@ -71,9 +94,10 @@
 		<div class="topItem" classOut="topItem" classOver="topItemOver" onMouseOver="Init(this)" >&nbsp;Service</div>
 		<div class="dropMenu" >
 		<div class="subMenu" state="0">
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/links.html">Links</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/html/presentations.html">Presentations</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="includable/jsp/dev_corner.html">Developper Corner</a></span>
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/links.html">Links</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/presentations.html">Presentations</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/publications.html">Publications</a></span>
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/jsp/dev_corner.jsp">Developper Corner</a></span>
 		</div>
 		</div>
 		</div>
@@ -82,7 +106,9 @@
 	</div>
 	 <%System.err.println("service.jsp: mark1\n"+"including resource:"+resourceToInclude);%>
 	<div class="main_display">	
-	  	<jsp:include page="<%=urlToInclude%>"></jsp:include>	 
+		<table style="border-style:outset;">
+	  		<jsp:include page="<%=urlToInclude%>"></jsp:include>	 
+	  	</table>
 	</div>
 
 </body>

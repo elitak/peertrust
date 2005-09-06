@@ -19,6 +19,8 @@ public class PublicResource extends Resource {
 	}
 
 	public PublicResource getCopy(String url){
-		return new PublicResource(getMatchingStrategy(),url);
+		PublicResource res= new PublicResource(getMatchingStrategy(),url);
+		res.setRequestServingMechanimName(this.getRequestServingMechanimName());
+		return res;
 	}
 }

@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.5 2005/09/01 16:33:34 token77 Exp $
+     $Id: build.xml,v 1.6 2005/09/06 00:14:02 token77 Exp $
 -->
 
 
@@ -118,7 +118,7 @@
   <property name="catalina.home" value="${tomcat_home}"/> <!-- UPDATE THIS! -->
   <property name="dist.home"     value="${basedir}/dist"/>
   <property name="docs.home"     value="${basedir}/dist/docs"/>
-  <property name="manager.url"   value="http://130.75.152.224:7703:7703/manager"/>
+  <property name="manager.url"   value="http://127.0.0.1:7703:7703/manager"/>
   <property name="src.home"      value="${basedir}/src"/>
   <property name="web.home"      value="${basedir}/web"/>
 

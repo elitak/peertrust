@@ -24,8 +24,7 @@
 		
 		NegotiationObjects negoObjects= 
 				NegotiationObjects.createAndAddForAppContext(config);
-		ServletPeerTrustEventListener ptEListener= 
-					negoObjects.getPeerTrustEventListener();
+		
 		String negoID= (String)request.getParameter("negoSessionID");
 		String negoResource=(String)request.getParameter("negoResource");
 		
@@ -47,13 +46,9 @@
 							" negoID:"+negoID+
 							" userName:"+userName+
 							" resPath:"+resPath);
-		NegotiationOutcome negoOutcome=
-			new NegotiationOutcome(request,config,application);
-				
-		System.out.println(
-				"\n---------------"+
-				negoOutcome);
 		
+				
+				
 %>
 
 <html>

@@ -3,27 +3,27 @@
 	<!-- ********************start new demo jsp and htmk -->
 	<resourceClass
 		isProtected="true" 
-		url="/myapp-0.1-dev/demo/pdf/acm/*"
+		url="/myapp-0.1-dev/demo/data/pdf/acm/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="acmMember"
 		/>
 	
 	<resourceClass
 		isProtected="true" 
-		url="/myapp-0.1-dev/demo/pdf/ieee/*"
+		url="/myapp-0.1-dev/demo/data/pdf/ieee/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="ieeeMember"
 	/>
 	
 	<resourceClass
 		isProtected="false" 
-		url="/myapp-0.1-dev/demo/data/pdf/pub/*"
+		url="/myapp-0.1-dev/demo/data/pdf/pub/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="_no_pol_"
 	/>
 	<resourceClass
 		isProtected="false" 
-		url="/myapp-0.1-dev/demo/jsp/includable/*"
+		url="/myapp-0.1-dev/demo/jsp/includable/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="_no_pol_"
 		requestServingMechanism="forward_to_service_jsp"
@@ -42,20 +42,22 @@
 	/>
 	<resourceClass
 		isProtected="false" 
-		url="/myapp-0.1-dev/demo/js/*"
-		matchingStrategy="_reg_exp_"
-		policyName="_no_pol_"
-	/>
-	<resourceClass
-		isProtected="false" 
-		url="/myapp-0.1-dev/demo/css/*"
+		url="/myapp-0.1-dev/demo/js/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="_no_pol_"
 	/>
 	
 	<resourceClass
 		isProtected="false" 
-		url="/myapp-0.1-dev/demo/data/pub/*"
+		url="/myapp-0.1-dev/demo/css/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/demo/data/pub/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="_no_pol_"
 	/>
@@ -71,6 +73,20 @@
 		isProtected="false" 
 		url="/myapp-0.1-dev/PeerTrustConfig/.*"
 		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/jws/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="_no_pol_"
+	/>
+	
+	<resourceClass
+		isProtected="false" 
+		url="/myapp-0.1-dev/PeerTrustCommunicationServlet"
+		matchingStrategy="_exact_"
 		policyName="_no_pol_"
 	/>
 	<!-- *****************end  new demo jsp and html -->

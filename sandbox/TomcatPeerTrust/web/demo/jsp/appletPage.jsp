@@ -21,20 +21,57 @@
 		String base=buf.toString();
 				
 		buf.setLength(0);//delete(0,buf.length());
+		buf.append(base);
+		buf.append("/jws/DemoApplet.jar,");
+		buf.append(base);
+		buf.append("/jws/DemoClient.jar,");
+		buf.append(base);
+		buf.append("/jws/jena.jar,");
+		buf.append(base);
+		buf.append("/jws/commons-httpclient-3.0-rc2.jar,");
+		buf.append(base);
+		buf.append("/jws/xercesImpl.jar,");
+		buf.append(base);
+		buf.append("/jws/minrt.jar,");
+		buf.append(base);
+		buf.append("/jws/peertrust.jar,");
+		buf.append(base);
+		buf.append("/jws/bouncyCastle.jar,");
+		buf.append(base);
+		buf.append("/jws/commons-codec-1.3.jar,");
+		buf.append(base);
+		buf.append("/jws/commons-logging.jar,");
+		buf.append(base);
+		buf.append("/jws/commons-logging-api.jar,");
+		buf.append(base);
+		buf.append("/jws/commons-logging-optional.jar,");
+		buf.append(base);
+		buf.append("/jws/log4j.jar,");
+		buf.append(base);
+		buf.append("/jws/icu4j.jar,");
+		buf.append(base);
+		buf.append("/jws/jsse.jar,");
+		buf.append(base);
+		buf.append("/jws/xercesImpl.jar"); 
+		archives=buf.toString();
 %>
 <html>
 <head>
+	
 	<title>Peertrust Demo Start Page</title>
-	<link rel="stylesheet" 
+	<BASE href="<%=base%>">
+	<!-- link rel="stylesheet" 
 			href="<%=base%>/css/pt_style.css" 
-			type="text/css" media="all" >
+			type="text/css" media="all" -->
+	<link rel="js_applet_control_1" type="text/js" href="js/applet_control.js">
+	<link rel="js_applet_control_2" type="text/js" href="<%=base%>/demo/js/applet_control.js">
 	
 	<script language="JavaScript" 
-			src="../js/applet_control.js"></script>
-	<BASE href="<%=base%>">
+			src="<%=base%>/demo/js/applet_control.js"></script>
+	
 </head>
 
-<body onload="registerSession('<%=session.getId()%>');"> 
+<body><!--  onload="registerSession('<%=session.getId()%>');" --> 
 
 <div style="width:100%;hight:100%">
 

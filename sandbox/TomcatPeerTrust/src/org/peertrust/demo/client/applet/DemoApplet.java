@@ -188,7 +188,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 						}else if(obj instanceof PasswordBasedResourceRequest){
 							((PasswordBasedResourceRequest)obj).request();
 						}else if(obj instanceof SessionRegistrationMessage){
-							System.out.println("cmd added "+obj);
+							System.out.println("SessionRegistrationMessage added "+obj);
 							if(ptClient!=null){
 								ptClient.addCmdToFIFO(obj);
 							}
@@ -274,6 +274,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 						installationSession.getConfigFileURL(),
 						null);//this.configurator);
 			trustScheme="PeerTrust";
+			registerSession(getParameter("negoSessionID"));
 		}catch (MalformedURLException e){
 			echoPane.echo("bad ur",e);clearPTClient();
 		} catch (IOException e) {
@@ -283,23 +284,6 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			clearPTClient();
 		}
 		
-//		if(ptClient==null){
-//			//config peertrust with the URL sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/");
-//			trustScheme="PeerTrust";
-//			try {
-//				URL sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/demoPeertrustConfig.client.rdf");
-//				echoPane.echo("http sourceBase:"+sourceBase);
-//				ptClient= new PeerTrustClient(props,this,sourceBase.toString());				
-//			}catch (MalformedURLException e){
-//				echoPane.echo("bad ur",e);clearPTClient();
-//			} catch (IOException e) {
-//				echoPane.echo("IO problem!",e);clearPTClient();
-//			}catch(Throwable th){
-//				echoPane.echo("could not install or initiate pt using http source directely",th);
-//				clearPTClient();
-//			}
-//			
-//		}
 		return;
 	}
 	
