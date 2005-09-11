@@ -17,11 +17,11 @@ import org.peertrust.TrustClient;
 import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.client.applet.FinalResponse;
-import org.peertrust.demo.client.applet.SessionRegistrationMessage;
 import org.peertrust.demo.client.applet.StartPasswordNegoCmd;
 import org.peertrust.demo.client.applet.StartPeerTrustNegoCmd;
 import org.peertrust.demo.common.ClientConstants;
 import org.peertrust.demo.common.ConfigurationOption;
+import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 
 import org.peertrust.demo.common.NewsEventListener;
 import org.peertrust.demo.common.StopCmd;
@@ -53,9 +53,6 @@ public class PeerTrustClient   implements PTEventListener{
 	final static public int TIMEOUT = 60000 ;
 	final static public int SLEEP_INTERVAL = 100 ;
 	
-	//private PTEventListener oldPTEventListener= null;
-//	private String[] parameters;
-//	private String sessionID;
 	private String resourceID;
 	private String appContextStr;
 	private String serviceServletPath;
@@ -393,9 +390,9 @@ public class PeerTrustClient   implements PTEventListener{
 																((StartPasswordNegoCmd)cmd).getPassword()));
 								//objStreamToApplet.writeObject(finalResponse);								
 								newsListener.onNews(finalResponse);								
-							}else if(cmd instanceof SessionRegistrationMessage){
+							}else if(cmd instanceof HttpSessionRegistrationRequest){
 								//System.out.println("Sending "+cmd);
-								comFac.createNetClient().send(	(SessionRegistrationMessage)cmd,
+								comFac.createNetClient().send(	(HttpSessionRegistrationRequest)cmd,
 																comFac.getServerPeer("eLearn"));
 								System.out.println("Sending "+cmd);
 							}
@@ -417,6 +414,15 @@ public class PeerTrustClient   implements PTEventListener{
     public void addCmdToFIFO(Object obj){
     	cmdFIFO.offer(obj);
     }
+
+
+	/**
+	 * @return Returns the trustClient.
+	 */
+	public TrustClient getTrustClient() {
+		return trustClient;
+	}
+    
     
     ///////////////////////////////////////////////////////////////////////////
     

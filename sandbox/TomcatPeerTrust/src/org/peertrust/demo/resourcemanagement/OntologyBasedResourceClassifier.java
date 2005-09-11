@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
 public class OntologyBasedResourceClassifier implements ResourceClassifier{
 	
 	public static final String RESOURCE_TAG_NAME="resourceClass";
-	public static final String ATTRIBUTE_IS_PROTECTED="isProtected"; 
+	//public static final String ATTRIBUTE_IS_PROTECTED="isProtected"; 
 	public static final String ATTRIBUTE_URL="url";
 	public static final String ATTRIBUTE_MATCHING_STRATEGY="matchingStrategy";
 	public static final String ATTRIBUTE_POLICY_NAME="policyName";
@@ -186,8 +186,8 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		System.out.println("resourceClassNode:"+resourceClassNode);
 		NamedNodeMap nodeMap=resourceClassNode.getAttributes();
 		System.out.println("nodeMap:"+nodeMap.getLength());
-		boolean isProtected= 
-			Boolean.parseBoolean(nodeMap.getNamedItem(ATTRIBUTE_IS_PROTECTED).getNodeValue());
+		//boolean isProtected= 
+		//	Boolean.parseBoolean(nodeMap.getNamedItem(ATTRIBUTE_IS_PROTECTED).getNodeValue());
 		String url=nodeMap.getNamedItem(ATTRIBUTE_URL).getNodeValue();
 		String matchingStrategy=
 			nodeMap.getNamedItem(ATTRIBUTE_MATCHING_STRATEGY).getNodeValue();
@@ -195,9 +195,11 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		String requestServingMechanism=
 								(n!=null)?n.getNodeValue():null;
 		
-		if(isProtected){
-			String policyName= 
-				nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME).getNodeValue();
+		n=nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME);
+		String policyName= 
+				(n!=null)?n.getNodeValue():null;
+								
+		if(policyName!=null){
 			ProtectedResource res= new ProtectedResource(matchingStrategy,url);
 			res.setPolicyName(policyName);
 			if(requestServingMechanism!=null){
@@ -223,7 +225,7 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 			}
 			if(i<0){
 				//nothning found
-				return null;
+				return new PublicResource("_X_",url);
 			}else{
 				Object obj= resources.elementAt(i);
 				if(obj instanceof PublicResource){
@@ -236,47 +238,7 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		}
 		
 	}
-	
-	public Resource gggetTestResource(String url){
-		if(url==null){
-			return null;
-		}
-		//pdf/PeerTrust-ATN.pdf
-		if(url.equals("/myapp-0.1-dev/pdf/trustVLDB04.pdf")){
-			ProtectedResource res=
-				new ProtectedResource("_contains_",url);
-			res.setPolicyName("acmMember");
-			return res;
-		}else if(url.equals("/myapp-0.1-dev/pdf/PeerTrust-ATN.pdf")){
-			ProtectedResource res=
-				new ProtectedResource("_exact_",url);
-			res.setPolicyName("ieeeMember");
-			return res;
-		}else if(url.equals("/myapp-0.1-dev/jsp/appletPage.jsp")){
-			return new PublicResource("",url);
-		}else if(url.equals("/myapp-0.1-dev/jsp/service.jsp")){
-			return new PublicResource("",url);
-		}else if(url.endsWith(".jsp")){
-			ProtectedResource res=
-				new ProtectedResource(	"_endwith_",url);
-			return res;
-		}else if(url.indexOf("ieee")>=0){
-			ProtectedResource res=
-				new ProtectedResource("_contains_",url);
-			res.setPolicyName("ieeeMember");
-			return res;
-		}else if(url.indexOf("acm")>=0){
-			ProtectedResource res=
-				new ProtectedResource("_contains_",url);
-			res.setPolicyName("acmMember");
-			return res;
-		}else{
-			return new PublicResource("",url);
-		}
-		
-		
-		
-	}
+
 	
 	static public void main(String[] agrs)throws Exception{
 		String setupFile=

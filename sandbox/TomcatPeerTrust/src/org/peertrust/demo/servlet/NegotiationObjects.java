@@ -19,10 +19,15 @@ import org.peertrust.PTEngine;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.TrustClient;
 import org.peertrust.demo.common.ConfigurationOption;
+import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 import org.peertrust.demo.common.RDFConfigFileUpdater;
+import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
 import org.peertrust.demo.resourcemanagement.TrustManager;
+import org.peertrust.event.PTEventListener;
 import org.peertrust.exception.ConfigurationException;
 //import org.peertrust.inference.InferenceEngine;
+
 import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
@@ -51,6 +56,8 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private String _ResourceClassifierSetupFile;
 	private String _ResourcePoliciesSetupFile;
 	private String _RequestServingMechanismPoolSetupFile;
+	
+	private PTComASPMessageListener httpSessionRegisterer; 
 	
 	public NegotiationObjects(ServletConfig config){
 		this(config.getServletContext());
@@ -88,10 +95,6 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		}
 	}
 	
-	public boolean isFreePage(String page){
-		return (freePageList.indexOf(page)!=-1);
-	}
-	
 	
 	/**
 	 * @return Returns the trustClient.
@@ -122,29 +125,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	 * @param config
 	 */
 	static public NegotiationObjects createAndAddForAppContext(ServletConfig config){
-		NegotiationObjects negoObjects=null;
-		
-		try {
-			ServletContext context=config.getServletContext();
-			negoObjects= 
-				(NegotiationObjects)context.getAttribute(
-										NegotiationObjects.class.getName());
-			if(negoObjects==null){
-				negoObjects= 
-						new NegotiationObjects(config);
-				negoObjects.startTrustServer();
-				negoObjects.makeTrustManager();
-				context.setAttribute(	NegotiationObjects.class.getName(), 
-										negoObjects);
-				negoObjects.logger.info("NegotiationObjects created");
-			}
-		} catch (Throwable th) {
-			th.printStackTrace();
-			Logger log=ConfigurationOption.getLogger(NegotiationObjects.class.getName());
-			log.error("error creating nego objects", th);
-	        
-		}
-		return negoObjects;
+		return createAndAddForAppContext(config.getServletContext());
 	}
 	
 	static public NegotiationObjects createAndAddForAppContext(ServletContext context){
@@ -160,6 +141,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 						new NegotiationObjects(context);
 				negoObjects.startTrustServer();
 				negoObjects.makeTrustManager();
+				negoObjects.makeHttpSessionRegisterer();
 				context.setAttribute(	NegotiationObjects.class.getName(), 
 										negoObjects);
 				negoObjects.logger.info("NegotiationObjects created");
@@ -320,6 +302,14 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		return (BlockingQueue)messagePool.remove(key);
 	}
 	
+	synchronized public BlockingQueue removeMessageFIFO(Peer key){
+		if(key!=null){
+			return removeMessageFIFO(key.getAlias());
+		}else{
+			return null;
+		}
+	}
+	
 	public void send(Message mes,String finalDestination) {
 		try {
 			//((Answer)mes).
@@ -358,5 +348,31 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		return trustClient;
 	}
 	
-	
+	public void makeHttpSessionRegisterer(){
+		PTComASPMessageListener l= new PTComASPMessageListener(){
+
+			public void PTMessageReceived(Object message) {
+				String sessionId=
+					((HttpSessionRegistrationRequest)message).getSessionKey();
+				Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
+				sessionTable.put(sessionId, negotiatingPeer);
+			}
+			
+		};
+		if(trustClient==null){
+			throw 
+				new RuntimeException("TrustClient not started therefore Registerer cannot be registered\n"+
+								"to listen to HttpSessionRegistrationRequest");
+		}else{
+			PTEventListener eventL=
+				(PTEventListener)trustClient.getComponent(Vocabulary.EventListener);
+			if(eventL instanceof PTCommunicationASP){
+				((PTCommunicationASP)eventL).registerPTComASPMessageListener(l,HttpSessionRegistrationRequest.class);
+				this.httpSessionRegisterer = l;
+			}else{
+				throw new Error("Cannot  register HttpRegisterer since pt event listener is\n"+
+								"not a PTCommunicationASP but a "+eventL.getClass());
+			}
+		}
+	}
 }

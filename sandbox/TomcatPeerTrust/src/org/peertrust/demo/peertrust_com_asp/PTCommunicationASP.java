@@ -24,6 +24,9 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 	public void event(PTEvent ptEvent) {
 		if(ptEvent instanceof NewMessageEvent){
 			Message mes=((NewMessageEvent)ptEvent).getMessage();
+			System.out.println("\n**********************Payload message received********************");
+			System.out.println(" "+mes);
+			System.out.println("\n**************************************************");
 			if(mes!=null){
 				Vector listeners= 
 					(Vector)listenerPool.get(mes.getClass());

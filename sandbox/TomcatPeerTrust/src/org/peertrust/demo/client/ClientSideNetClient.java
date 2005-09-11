@@ -18,7 +18,7 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.log4j.Logger;
-import org.peertrust.demo.client.applet.SessionRegistrationMessage;
+import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsServer;
 import org.peertrust.net.Answer;
@@ -99,10 +99,10 @@ public class ClientSideNetClient 	extends NewsServer
 						((Answer)mes).getTrace());
 			}
 			return mes;
-		}else if(mes instanceof SessionRegistrationMessage){
-			SessionRegistrationMessage mes1=
-				new SessionRegistrationMessage(
-						((SessionRegistrationMessage)mes).getSessionKey(),source,target);
+		}else if(mes instanceof HttpSessionRegistrationRequest){
+			HttpSessionRegistrationRequest mes1=
+				new HttpSessionRegistrationRequest(
+						((HttpSessionRegistrationRequest)mes).getSessionKey(),source,target);
 			System.out.println("mes1"+mes1);
 			return mes1;
 		}else{

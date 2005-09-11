@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.peertrust.demo.client.applet.SessionRegistrationMessage;
 import org.peertrust.demo.common.ConfigurationOption;
+import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 //import org.peertrust.demo.common.StopCmd;
 import org.peertrust.net.*;
 
@@ -94,10 +94,10 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 			        objIn = new ObjectInputStream(req.getInputStream());				    
 			        // read and send message ti trust server        
 			        rcvObj = objIn.readObject();
-			        if(rcvObj instanceof SessionRegistrationMessage){
+			        if(rcvObj instanceof HttpSessionRegistrationRequest){
 			        	
-			        	Peer peer=((SessionRegistrationMessage)rcvObj).getSource();
-			        	String sesId=((SessionRegistrationMessage)rcvObj).getSessionKey();
+			        	Peer peer=((HttpSessionRegistrationRequest)rcvObj).getSource();
+			        	String sesId=((HttpSessionRegistrationRequest)rcvObj).getSessionKey();
 			        	System.out.println("Resgistering "+sesId+" peer:"+peer);
 			        	negoObjects.registerSession(sesId,peer);
 			        }else{

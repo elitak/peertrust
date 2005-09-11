@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.peertrust.demo.client.applet;
+package org.peertrust.demo.common;
 
 import java.io.Serializable;
 
@@ -12,14 +12,15 @@ import org.peertrust.net.Peer;
  * @author pat_dev
  *
  */
-public class SessionRegistrationMessage extends Message implements Serializable{
+public class HttpSessionRegistrationRequest extends Message implements Serializable{
 	
 	private String sessionKey;
+	
 	
 	/**
 	 * 
 	 */
-	public SessionRegistrationMessage(String sessionKey,Peer source, Peer target) {
+	public HttpSessionRegistrationRequest(String sessionKey,Peer source, Peer target) {
 		super(source,target);
 		this.sessionKey=sessionKey;
 	}

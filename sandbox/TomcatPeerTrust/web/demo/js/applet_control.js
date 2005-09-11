@@ -37,6 +37,15 @@ function registerSession(sessionID){
 	}
 }
 
+function registerSession(sessionID,postponedURL){
+	try{
+		var ptApplet=getPTApplet();
+		ptApplet.registerSession(sessionID,postponedURL);
+	}catch(ex){
+		alert(ex.message+" name:"+ptApplet);
+	}
+}
+
 function toggleVisualization(){
 	try{
 		var ptApplet=getPTApplet();

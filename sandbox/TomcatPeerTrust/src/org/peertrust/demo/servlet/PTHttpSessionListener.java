@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import org.peertrust.demo.common.StopCmd;
+import org.peertrust.net.Peer;
 
 /**
  * @author pat_dev
@@ -43,8 +44,8 @@ public class PTHttpSessionListener implements HttpSessionListener {
 	 */
 	public void sessionDestroyed(HttpSessionEvent se) {
 		
-		String finalDestination =
-			(String)se.getSession().getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
+		Peer finalDestination =
+			(Peer)se.getSession().getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
 		System.out.println("removing:"+finalDestination);
 		if(finalDestination!=null){
 			try {

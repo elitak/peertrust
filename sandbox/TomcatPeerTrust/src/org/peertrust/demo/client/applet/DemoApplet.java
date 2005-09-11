@@ -20,15 +20,23 @@ import javax.swing.JFrame;
 import netscape.javascript.JSObject;
 
 //import org.peertrust.config.PTConfigurator;
+import org.peertrust.TrustClient;
+import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.client.PeerTrustClient;
 import org.peertrust.demo.common.ClientConstants;
 import org.peertrust.demo.common.EchoPane;
 import org.peertrust.demo.common.Executable;
 import org.peertrust.demo.common.Helpers;
+import org.peertrust.demo.common.HttpSessionRegistrationRequest;
+import org.peertrust.demo.common.HttpSessionRegistrationResponse;
 import org.peertrust.demo.common.InstallationSession;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsEventListener;
 import org.peertrust.demo.common.StopCmd;
+import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
+import org.peertrust.event.PTEventListener;
+import org.peertrust.net.Peer;
 
 
 /**
@@ -38,6 +46,43 @@ import org.peertrust.demo.common.StopCmd;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class DemoApplet extends JApplet implements NewsEventListener{
+	////////////////////////////////////////////////////////////////////////////////////////////
+	class HttpSessionRegistrant implements PTComASPMessageListener{
+			private String protectedUrl=null;
+			public void PTMessageReceived(Object message) {
+				
+				if(((HttpSessionRegistrationResponse)message).isAcknowledgment()){
+					if(protectedUrl!=null){//registration was caused by a protected page
+						try {
+							URL url= new URL(protectedUrl);
+							DemoApplet.this.getAppletContext().showDocument(url,"display_frame");
+							protectedUrl=null;
+						} catch (MalformedURLException e) {
+							protectedUrl=null;
+							e.printStackTrace();
+						}
+						//stop progress bar or alert user
+					}else{
+						//stop progress bar or alert user
+					}
+				}
+				
+			}
+			/**
+			 * 
+			 * @param sessionKey
+			 * @param protectedURL
+			 */
+			public void registerSession(String sessionKey,String protectedURL){
+				echoPane.echo("Registering session:"+sessionKey);
+				
+				workerFIFO.offer( new HttpSessionRegistrationRequest(sessionKey,null,null));
+				this.protectedUrl=protectedURL;
+				return;
+			}
+			
+		};
+	////////////////////////////////////////////////////////////////////////////////////////////
 	public static String PEERTRUST_FOLDER_NAME=".peertrust";
 	//private Socket socket=null;
 	private ObjectOutputStream objOut=null;
@@ -55,7 +100,8 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	private InstallationSession installationSession;
 	
 	StringBuffer strBuffer= new StringBuffer(512);
-		
+	
+	private HttpSessionRegistrant httpSessionRegistrant;
 	
 	private void showURLInDisplayFrame(URL url){
 		echoPane.echo("showing:"+url);
@@ -119,7 +165,14 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	public void registerSession(String sessionKey){
 		echoPane.echo("Registering session:"+sessionKey);
 		
-			workerFIFO.offer( new SessionRegistrationMessage(sessionKey,null,null));
+			workerFIFO.offer( new HttpSessionRegistrationRequest(sessionKey,null,null));
+		return;
+	}
+	
+	public void registerSession(String sessionKey, String postponedURL){
+		System.out.println("Registering session:"+sessionKey+ "\ncausedBy:"+postponedURL);
+		echoPane.echo("Registering session:"+sessionKey+ "\ncausedBy:"+postponedURL);
+		httpSessionRegistrant.registerSession(sessionKey,postponedURL);
 		return;
 	}
 	
@@ -189,7 +242,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 							showURLInDisplayFrame(url);
 						}else if(obj instanceof PasswordBasedResourceRequest){
 							((PasswordBasedResourceRequest)obj).request();
-						}else if(obj instanceof SessionRegistrationMessage){
+						}else if(obj instanceof HttpSessionRegistrationRequest){
 							System.out.println("SessionRegistrationMessage added "+obj);
 							if(ptClient!=null){
 								ptClient.addCmdToFIFO(obj);
@@ -279,7 +332,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 							installationSession.getConfigFileURL(),
 							null);//this.configurator);
 				trustScheme="PeerTrust";
-				registerSession(getParameter("negoSessionID"));
+				//registerSession(getParameter("negoSessionID"));
 			}catch (MalformedURLException e){
 				echoPane.echo("bad ur",e);clearPTClient();
 			} catch (IOException e) {
@@ -425,5 +478,29 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	
 	public String getTrustScheme() {
 		return trustScheme;
+	}
+	
+	public void makeHttpSessionRegistrant(){
+		httpSessionRegistrant= 
+						new HttpSessionRegistrant();		
+		
+		TrustClient trustClient=ptClient.getTrustClient();
+		if(trustClient==null){
+			throw 
+				new RuntimeException("TrustClient not started therefore Registerer cannot be registered\n"+
+								"to listen to HttpSessionRegistrationRequest");
+		}else{
+			PTEventListener eventL=
+				(PTEventListener)trustClient.getComponent(Vocabulary.EventListener);
+			if(eventL instanceof PTCommunicationASP){
+				((PTCommunicationASP)eventL).registerPTComASPMessageListener(
+														httpSessionRegistrant,
+														HttpSessionRegistrationRequest.class);
+				
+			}else{
+				throw new Error("Cannot  register HttpRegisterer since pt event listener is\n"+
+								"not a PTCommunicationASP but a "+eventL.getClass());
+			}
+		}
 	}
 }

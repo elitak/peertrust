@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import org.peertrust.demo.resourcemanagement.IllegalAccessPolicyAssociation;
 import org.peertrust.demo.resourcemanagement.ProtectedResource;
+import org.peertrust.demo.resourcemanagement.PublicResource;
 import org.peertrust.demo.resourcemanagement.RequestServingMechanism;
 import org.peertrust.demo.resourcemanagement.Resource;
 import org.peertrust.demo.resourcemanagement.TrustManager;
@@ -45,35 +46,53 @@ public class TrustFilter implements Filter{
 			if(res instanceof ProtectedResource){
 				System.out.println("filtering protected  page");
 				HttpSession session=
-					((HttpServletRequest)req).getSession(false);
-				System.out.println("filtering protected  page session id:"+session);
+					((HttpServletRequest)req).getSession(true);
+				System.out.println("filtering protected  page session:"+session);
 				//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
-				Peer peer= negoObjects.getSessionPeer(session.getId());
+				Peer peer=null;
+				if(session!=null){
+					peer=negoObjects.getSessionPeer(session.getId());
+				}
 				String peerName= null;
 				if(peer!=null){
 					peerName=peer.getAlias();
 				}
-				
-				System.out.println("filtering peerName:"+peerName);
-				res=trustManager.guardResource(res,peerName);
-				if(((ProtectedResource)res).getCanAccess()){
-					System.out.println("\n==================ACCCESSING PROTECTED RESOURCE===================");
-					System.out.println("trustManager:"+trustManager+ "\t res:"+res);
-					System.out.println("\n==================================================================");
-					
+				if(peerName==null){
+					//start peertrust and register session
+					System.out.println("***************NO PEER NAME REGISTRATION PAGE***********************************");
+					System.out.println("***************************************************************");
+					PublicResource regJsp=
+						new PublicResource(
+								"_exact_",
+								"/demo/jsp/includable/jsp/sessionRegistration.jsp");
+					regJsp.setRequestServingMechanimName("forward_to_service_jsp");	
 					RequestServingMechanism servingMechanism=
-						trustManager.getRequestServingMechanismPool(res.getRequestServingMechanimName());
+						trustManager.getRequestServingMechanismPool(regJsp.getRequestServingMechanimName());
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
 													(HttpServletResponse)resp,
-													chain,res);
-					return;
+													chain,regJsp);
 				}else{
-	           		resp.setContentType("text/html");
-					resp.getWriter().println(
-							"Cannot access "+res.getUrl()+
-							" cause:"+((ProtectedResource)res).getReason());
-					resp.flushBuffer();
-					return;
+					System.out.println("filtering peerName:"+peerName);
+					res=trustManager.guardResource(res,peerName);
+					if(((ProtectedResource)res).getCanAccess()){			
+						System.out.println("\n==================ACCCESSING PROTECTED RESOURCE===================");
+						System.out.println("trustManager:"+trustManager+ "\t res:"+res);
+						System.out.println("\n==================================================================");
+						
+						RequestServingMechanism servingMechanism=
+							trustManager.getRequestServingMechanismPool(res.getRequestServingMechanimName());
+						servingMechanism.serveRequest(	(HttpServletRequest)req,
+														(HttpServletResponse)resp,
+														chain,res);
+						return;
+					}else{
+		           		resp.setContentType("text/html");
+						resp.getWriter().println(
+								"Cannot access "+res.getUrl()+
+								" cause:"+((ProtectedResource)res).getReason());
+						resp.flushBuffer();
+						return;
+					}
 				}
 			}else{
 				System.out.println("\n=======================ACCESSING PUBLIC RESOURCE==================");
@@ -87,46 +106,6 @@ public class TrustFilter implements Filter{
 				return;
 			}
 			
-//			if(res instanceof PublicResource){
-//				System.out.println("filtering public page");
-//				
-//					chain.doFilter(req,resp);
-//			}else{
-//				System.out.println("filtering protected  page");
-//				HttpSession session=
-//					((HttpServletRequest)req).getSession(false);
-//				System.out.println("filtering protected  page session id:"+session);
-//				//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
-//				Peer peer= negoObjects.getSessionPeer(session.getId());
-//				String peerName= null;
-//				if(peer!=null){
-//					peerName=peer.getAlias();
-//				}
-//				
-//				System.out.println("filtering peerName:"+peerName);
-//				res=trustManager.guardResource(res,peerName);
-//				if(((ProtectedResource)res).getCanAccess()){
-////					chain.doFilter(req,resp);
-//					req.setAttribute("resource",res);
-//					RequestDispatcher dispatcher = 
-//	    				req.getRequestDispatcher("/demo/jsp/service.jsp");
-//	    			try{
-//	    				dispatcher.forward(req, resp);
-//	    				return;
-//	    			}catch(ServletException e){
-//	    				System.out.println("--exception while including .jnlp --\n");
-//	    				e.printStackTrace();
-//	    				return;///send error code
-//	    			}
-//				}else{
-//	           		resp.setContentType("text/html");
-//					resp.getWriter().println(
-//							"Cannot access "+res.getUrl()+
-//							" cause:"+((ProtectedResource)res).getReason());
-//					resp.flushBuffer();
-//					return;
-//				}
-//			}
 		}catch(ClassCastException castEx){
 			castEx.printStackTrace();
 		} catch (IllegalAccessPolicyAssociation e) {

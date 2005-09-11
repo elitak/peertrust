@@ -26,10 +26,16 @@
   border-bottom:1px solid #92B1F8;
 }
 
-.subMenu
+.subdMenu
 {
    display:none;
 }
+
+.subMenu
+{
+   display:inherit;
+}
+
 .subItem
 {
    padding-left:5px;
