@@ -67,7 +67,7 @@ public class TrustFilter implements Filter{
 								"/demo/jsp/includable/jsp/sessionRegistration.jsp");
 					regJsp.setRequestServingMechanimName("forward_to_service_jsp");	
 					RequestServingMechanism servingMechanism=
-						trustManager.getRequestServingMechanismPool(regJsp.getRequestServingMechanimName());
+						trustManager.getRequestServingMechanismPool(regJsp.getUrl());
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
 													(HttpServletResponse)resp,
 													chain,regJsp);
@@ -80,7 +80,7 @@ public class TrustFilter implements Filter{
 						System.out.println("\n==================================================================");
 						
 						RequestServingMechanism servingMechanism=
-							trustManager.getRequestServingMechanismPool(res.getRequestServingMechanimName());
+							trustManager.getRequestServingMechanismPool(res.getUrl());//getRequestServingMechanimName());
 						servingMechanism.serveRequest(	(HttpServletRequest)req,
 														(HttpServletResponse)resp,
 														chain,res);
@@ -99,7 +99,7 @@ public class TrustFilter implements Filter{
 				System.out.println("trustManager:"+trustManager+ "\t res:"+res);
 				System.out.println("\n==================================================================");
 				RequestServingMechanism servingMechanism=
-					trustManager.getRequestServingMechanismPool(res.getRequestServingMechanimName());
+					trustManager.getRequestServingMechanismPool(res.getUrl());//res.getRequestServingMechanimName());
 				servingMechanism.serveRequest(	(HttpServletRequest)req,
 												(HttpServletResponse)resp,
 												chain,res);

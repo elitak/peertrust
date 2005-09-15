@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,7 +25,7 @@ import org.xml.sax.SAXException;
  * @author pat_dev
  *
  */
-public class OntologyBasedPolicySystem implements PolicySystem {
+public class PolicySystemImpl implements PolicySystem {
 	final static public String ROOT_TAG_POLICY_SYSTEM="policySystem";
 	final static public String ATTRIBUT_TYPE="type";
 	final static public String POLICY_TAG="policy";
@@ -38,7 +39,7 @@ public class OntologyBasedPolicySystem implements PolicySystem {
 	/**
 	 * 
 	 */
-	public OntologyBasedPolicySystem() {
+	public PolicySystemImpl() {
 		super();
 		//policyCache= new Cache(new TestElementCreator());
 	}
@@ -78,11 +79,24 @@ public class OntologyBasedPolicySystem implements PolicySystem {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
 			Document dom = builder.parse(xmlSetupFileName);
-			
-			String type= dom.getFirstChild().getAttributes().getNamedItem("type").getNodeValue();
-			System.out.println("type:"+type);
 			NodeList policyNodeList=
-					dom.getElementsByTagName(POLICY_TAG);
+				dom.getElementsByTagName(ROOT_TAG_POLICY_SYSTEM);
+			Element polRootNode=null;
+			if(policyNodeList.getLength()!=1){
+				throw 
+					new Error(	"Illegal xml config file. It must contain exactelly one "+
+								"<"+ROOT_TAG_POLICY_SYSTEM+"> but contains "+policyNodeList.getLength());
+			}else{
+				polRootNode=(Element)policyNodeList.item(0);
+				System.out.println("owner dom:"+polRootNode);
+			}
+			
+			//String type= dom.getFirstChild().getAttributes().getNamedItem("type").getNodeValue();
+			String type= polRootNode.getAttributes().getNamedItem("type").getNodeValue();
+			System.out.println("type:"+type);
+			policyNodeList=	polRootNode.getElementsByTagName(POLICY_TAG);
+					//dom.getElementsByTagName(POLICY_TAG);
+					
 			Policy pol;
 			Hashtable polTable= new Hashtable();
 			for(int i=policyNodeList.getLength()-1;i>=0;i--){
@@ -156,10 +170,11 @@ public class OntologyBasedPolicySystem implements PolicySystem {
 	
 	static public void main(String[] args)throws Throwable{
 		final String setupFile=
-			"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_policies.xml";
-		OntologyBasedPolicySystem polSystem=
-				new OntologyBasedPolicySystem();
+			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_mng_config.xml";
+			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml";
+		PolicySystemImpl polSystem=
+				new PolicySystemImpl();
 		polSystem.setup(setupFile);
-		System.out.println("ieee:"+polSystem.getPolicies("ieeeMember").elementAt(0));
+		System.out.println("ieee:"+polSystem.getPolicies("ieeeMemberPolicy").elementAt(0));
 	}
 }

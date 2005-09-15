@@ -1,7 +1,10 @@
 package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,17 +12,15 @@ import javax.xml.parsers.ParserConfigurationException;
 
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class RequestServingMechanismPool {
-	final static public String MECHANISM_TAG="mechanism";
-	final static public String ATTRIBUTE_CLASS="class";
-	final static public String ATTRIBUTE_NAME="name";
-	final static public String ATTRIBUTE_FORWARD_TO="forwardTo";
-	final static public String DEFAULT_NAME="default";
+	
+
 	private Hashtable mechanismsPool; 
 	private RequestServingMechanism defaultMechanism;
 	
@@ -39,18 +40,39 @@ public class RequestServingMechanismPool {
 			
 			Document dom = builder.parse(xmlSetupFilePath);
 			
+			NodeList rootNodeList=
+				dom.getElementsByTagName(RequestServingMechanism.ROOT_TAG_SERVING_MECHANISM);
+			Element mRootNode=null;
+			if(rootNodeList.getLength()!=1){//
+				throw new Error(	
+						"Illegal xml config file. It must contain exactelly one "+
+						"<"+RequestServingMechanism.ROOT_TAG_SERVING_MECHANISM+"> but contains "+
+						rootNodeList.getLength());
+			}else{
+				mRootNode=(Element)rootNodeList.item(0);
+			}
+			
 			//String type= dom.getFirstChild().getAttributes().getNamedItem("type").getNodeValue();
 			
 			NodeList mechanismNodeList=
-					dom.getElementsByTagName(MECHANISM_TAG);
-			System.out.println("Size node list:"+mechanismNodeList.getLength());
+					mRootNode.getElementsByTagName(RequestServingMechanism.MECHANISM_TAG);
 			RequestServingMechanism m;
 			for(int i=mechanismNodeList.getLength()-1;i>=0;i--){
 				m=getRequestServingMechnaismFromXMLNode((Node)mechanismNodeList.item(i));
 				System.out.println("i:"+i+" m:"+m);
-				mechanismsPool.put(m.getMechanismName(),m);
+				if(m.getMatchingPattern().equals("*")){
+					defaultMechanism=m;
+				}else{
+					mechanismsPool.put(m.getMechanismName(),m);
+				}
 			}
-			defaultMechanism=(RequestServingMechanism)mechanismsPool.get(DEFAULT_NAME);
+			
+			//defaultMechanism=(RequestServingMechanism)mechanismsPool.get(RequestServingMechanism.DEFAULT_NAME);
+			if(defaultMechanism==null){
+				throw new Error("No default mechnanism defined. "+
+								"please define a mechanism with * as matching pattern");
+			}
+			
 			System.out.println("\n=================================================================");
 			System.out.println(""+defaultMechanism);
 			System.out.println("\n=================================================================");
@@ -71,14 +93,14 @@ public class RequestServingMechanismPool {
 		
 		try{
 			NamedNodeMap attrs=mechanismNode.getAttributes();			
-			String mechanismClassName=attrs.getNamedItem(ATTRIBUTE_CLASS).getTextContent();
+			String mechanismClassName=attrs.getNamedItem(RequestServingMechanism.ATTRIBUTE_CLASS).getTextContent();
 			Class mechanismClass=Class.forName(mechanismClassName);
 			RequestServingMechanism mechanism= 
 				(RequestServingMechanism)mechanismClass.newInstance();
 			mechanism.setup(mechanismNode);
 			return mechanism;
 		}catch(NullPointerException e){
-			throw new SetupException("could not build mechnaism",e);
+			throw new SetupException("could not build mechrereanaism",e);
 		} catch (ClassNotFoundException e) {
 			//e.printStackTrace();
 			throw new SetupException("could not build mechanism",e);
@@ -92,18 +114,19 @@ public class RequestServingMechanismPool {
 			
 	}
 	
-	public RequestServingMechanism getMechanism(String mechanismName){
-		if(mechanismName==null){
+	public RequestServingMechanism getMechanism(String url){
+		if(url==null){
 			return defaultMechanism;
 		}
+		RequestServingMechanism m=null;
+		for(Enumeration e=mechanismsPool.elements();e.hasMoreElements();){
+			m=(RequestServingMechanism)e.nextElement();
+			if(Pattern.matches(m.getMatchingPattern(),url)){
+				return m;
+			}
+		}
+		return defaultMechanism;//nothing found
 		
-		RequestServingMechanism mechanism= 
-			(RequestServingMechanism)mechanismsPool.get(mechanismName);
-		if(mechanism!=null){
-			return mechanism;
-		}else{
-			return defaultMechanism;
-		}
 	}
 	
 	
@@ -116,20 +139,21 @@ public class RequestServingMechanismPool {
 				"default:"+defaultMechanism+
 				"\nPool:"+this.mechanismsPool.toString()+"\n";
 	}
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		String xmlSetupFilePath=
-			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/request_serving_mechanism.xml";
+			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml";
 		RequestServingMechanismPool pool=
 					new RequestServingMechanismPool();
 		pool.setup(xmlSetupFilePath);
 		System.out.println("\n------------------------------default:\n"+
-													pool.getMechanism("default"));
+													pool.getMechanism("_default_"));
 		System.out.println("\n------------------------------default:\n"+
-													pool.getMechanism("forward_to_service_jsp"));
+													pool.getMechanism("/gdfdhdfg/demo/forward_to_service_jsp"));
 	}
 
 }

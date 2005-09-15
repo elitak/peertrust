@@ -18,6 +18,15 @@ import org.w3c.dom.Node;
  *
  */
 public interface RequestServingMechanism {
+	static final public String ATTRIBUTE_NAME="name";
+	static final public String ATTRIBUTE_BASE_DIR="baseDir";
+	static final public String ATTRIBUTE_MATCHING_PATTERN="matchingPattern";
+	final static public String ROOT_TAG_SERVING_MECHANISM="RequestServingMechanism";
+	final static public String MECHANISM_TAG="mechanism";
+	final static public String ATTRIBUTE_CLASS="class";
+	final static public String ATTRIBUTE_FORWARD_TO="forwardTo";
+	final static public String DEFAULT_NAME="default";
+	
 	/**
 	 * To respond to a request. the overall resource management framework is 
 	 * base a gate TrustFilter. Therefore the corresponding chain must be pass as an argument. 
@@ -46,4 +55,10 @@ public interface RequestServingMechanism {
 	 * @return the mechanism name
 	 */
 	public String getMechanismName();
+	
+	/**
+	 * Returns a matching pattern used to match the url.
+	 * @return return the matching pattern used to match the url.
+	 */
+	public String getMatchingPattern();
 }

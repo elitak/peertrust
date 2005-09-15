@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.7 2005/09/11 23:27:15 token77 Exp $
+     $Id: build.xml,v 1.8 2005/09/15 22:49:19 token77 Exp $
 -->
 
 
@@ -404,7 +404,8 @@
   	
   	<!-- Create application WAR file -->
   	    <jar jarfile="${dist.home}/${app.name}-${app.version}.war">
-  	         <fileset dir="${web.home}" >
+  	         <fileset dir="${web.home}"><!--/META-INF"-->
+  	         	
   	         </fileset>
   		</jar>
     <!-- Copy additional files to ${dist.home} as necessary -->

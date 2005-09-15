@@ -1,0 +1,17 @@
+<!-- context path="/myapp-0.1-dev/demo/*" 
+         docBase="/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/demo" -->
+<Context 	allowLinking="true"
+			crossContext="true"><!--  	path="/myapp-0.1-dev" 
+			docBase="/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/demo" 
+			allowLinking="true" -->             
+	<parameter>             
+    	<name>launchPage</name> <value>/jsp/launchh.jsp</value>         
+    </parameter>  
+    <parameter>
+    	<name>ServiceServletPath</name>
+    	<!--  value>/PeerTrustCommunicationServlet</value -->
+    	<value>/jsp/service</value>
+    </parameter>
+    <Parameter name="companyName" value="My Company, Incorporated"
+         override="false"/>
+</Context>             

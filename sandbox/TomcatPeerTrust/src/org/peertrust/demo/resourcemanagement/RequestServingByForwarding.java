@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
 public class RequestServingByForwarding implements RequestServingMechanism{
 	private String name;
 	private String forwardTo;
+	private String matchingPattern;
 	
 	public void serveRequest(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Resource resource) throws IOException, ServletException {
 		req.setAttribute("resource",resource);
@@ -29,9 +30,16 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 	public void setup(Node mechanismNode) throws SetupException{
 		NamedNodeMap attrs=mechanismNode.getAttributes();			
 		this.name=
-			attrs.getNamedItem(RequestServingMechanismPool.ATTRIBUTE_NAME).getTextContent();
+			attrs.getNamedItem(ATTRIBUTE_NAME).getTextContent();
 		this.forwardTo=
-			attrs.getNamedItem(RequestServingMechanismPool.ATTRIBUTE_FORWARD_TO).getTextContent();
+			attrs.getNamedItem(ATTRIBUTE_FORWARD_TO).getTextContent();
+		try {
+			matchingPattern=
+				attrs.getNamedItem(ATTRIBUTE_MATCHING_PATTERN).getTextContent();
+			
+		} catch (Exception e) {
+			throw new SetupException("Could not  get attribute:"+ATTRIBUTE_MATCHING_PATTERN,e);
+		}
 	}
 
 	public String getMechanismName() {
@@ -41,6 +49,14 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 	
 	
 	/* (non-Javadoc)
+	 * @see org.peertrust.demo.resourcemanagement.RequestServingMechanism#getMatchingPattern()
+	 */
+	public String getMatchingPattern() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -49,12 +65,5 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 				"\tforwardTo:"+forwardTo+"\n";
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }

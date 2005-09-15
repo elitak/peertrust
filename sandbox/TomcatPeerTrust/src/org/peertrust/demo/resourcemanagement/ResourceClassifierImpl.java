@@ -4,7 +4,7 @@
 package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
-import java.util.Collections;
+
 import java.util.Comparator;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,7 +24,7 @@ import org.xml.sax.SAXException;
  * @author pat_dev
  *
  */
-public class OntologyBasedResourceClassifier implements ResourceClassifier{
+public class ResourceClassifierImpl implements ResourceClassifier{
 	
 	public static final String RESOURCE_TAG_NAME="resourceClass";
 	//public static final String ATTRIBUTE_IS_PROTECTED="isProtected"; 
@@ -31,7 +32,7 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 	public static final String ATTRIBUTE_MATCHING_STRATEGY="matchingStrategy";
 	public static final String ATTRIBUTE_POLICY_NAME="policyName";
 	public static final String ATTRIBUTE_REQUEST_SERVING_MECHANISM="requestServingMechanism";
-	
+	public static final String ROOT_TAG_NAME="ResourceClassifier";
 	final private Comparator exactMatchingComparator=
 							makeExactMatchingComparator();
 	final private Comparator regExprMatchingComparator=
@@ -42,7 +43,7 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 	/**
 	 * 
 	 */
-	public OntologyBasedResourceClassifier() {
+	public ResourceClassifierImpl() {
 		super();
 	}
 
@@ -151,11 +152,19 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
 			Document dom = builder.parse(urlOfXmlConfigFile);
-			
-			String type= dom.getFirstChild().getAttributes().getNamedItem("type").getNodeValue();
+			NodeList rootNodeList=
+				dom.getElementsByTagName(ROOT_TAG_NAME);
+			Element resRootNode=null;
+			if(rootNodeList.getLength()!=1){//
+				throw new Error(	"Illegal xml config file. It must contain exactelly one "+
+						"<"+ROOT_TAG_NAME+"> but contains "+rootNodeList.getLength());
+			}else{
+				resRootNode=(Element)rootNodeList.item(0);
+			}
+			String type= resRootNode.getAttributes().getNamedItem("type").getNodeValue();
 			System.out.println("type:"+type);
 			NodeList resClassNodeList=
-					dom.getElementsByTagName(RESOURCE_TAG_NAME);
+					resRootNode.getElementsByTagName(RESOURCE_TAG_NAME);
 			Resource res;
 			for(int i=resClassNodeList.getLength()-1;i>=0;i--){
 				res=getResourceFromXMLNode((Node)resClassNodeList.item(i));
@@ -244,8 +253,8 @@ public class OntologyBasedResourceClassifier implements ResourceClassifier{
 		String setupFile=
 			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";
 			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_classification.xml";
-		OntologyBasedResourceClassifier classifier=
-							new OntologyBasedResourceClassifier();
+		ResourceClassifierImpl classifier=
+							new ResourceClassifierImpl();
 		classifier.setup(setupFile);
 		System.out.println("url:/myapp-0.1-dev/pdf/trustVLDB04.pdf:\n "+ 
 							classifier.getResource("/myapp-0.1-dev/pdf/trustVLDB04.pdf"));

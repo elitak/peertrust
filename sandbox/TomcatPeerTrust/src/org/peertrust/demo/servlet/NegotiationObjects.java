@@ -53,10 +53,10 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private TrustManager trustManager;
 	
 	
-	private String _ResourceClassifierSetupFile;
-	private String _ResourcePoliciesSetupFile;
-	private String _RequestServingMechanismPoolSetupFile;
-	
+	//private String _ResourceClassifierSetupFile;
+	//private String _ResourcePoliciesSetupFile;
+	//private String _RequestServingMechanismPoolSetupFile;
+	private String _TrustManagerConfigFile;
 	private PTComASPMessageListener httpSessionRegisterer; 
 	
 	public NegotiationObjects(ServletConfig config){
@@ -72,6 +72,10 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	        //peetrustConfigFileRelativePath
 	        configFilePath=context.getRealPath(context.getInitParameter("peetrustFolderRelativePath"));
 	        File file=new File(context.getRealPath(context.getInitParameter("serverPTInstallXML")));
+	        System.out.println("\n**********************************************************");
+	        System.out.println("launchPage:"+context.getInitParameter("launchPage"));
+	        System.out.println("companyName:"+context.getInitParameter("companyName"));
+	        System.out.println("**********************************************************");
 	        
 	        RDFConfigFileUpdater updater= 
 	        	new RDFConfigFileUpdater(
@@ -83,12 +87,14 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	        	freePageList.append(list);
 	        }
 	        
-	        _ResourceClassifierSetupFile=
-	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
-	        _ResourcePoliciesSetupFile=
-	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
-	        _RequestServingMechanismPoolSetupFile=
-	        	context.getRealPath(context.getInitParameter("RequestServingMechanismPoolSetupFile"));
+//	        _ResourceClassifierSetupFile=
+//	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
+//	        _ResourcePoliciesSetupFile=
+//	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
+//	        _RequestServingMechanismPoolSetupFile=
+//	        	context.getRealPath(context.getInitParameter("RequestServingMechanismPoolSetupFile"));
+	        _TrustManagerConfigFile=
+	        	context.getRealPath(context.getInitParameter("TrustManagerConfigFile"));
 		}catch(Throwable th){
 			th.printStackTrace();
 			logger.error("-- error while constructing trust objects--",th);
@@ -204,10 +210,11 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		trustManager= 
 			new TrustManager(
 						trustClient,
-						_ResourceClassifierSetupFile,//"classifierXML",
-						_ResourcePoliciesSetupFile,//"policySystemXML",
-						"EvaluatorXML",
-						_RequestServingMechanismPoolSetupFile);
+						_TrustManagerConfigFile);
+//						_ResourceClassifierSetupFile,//"classifierXML",
+//						_ResourcePoliciesSetupFile,//"policySystemXML",
+//						"EvaluatorXML",
+//						_RequestServingMechanismPoolSetupFile);
 		
 	}
 	public TrustManager getTrustManager(){

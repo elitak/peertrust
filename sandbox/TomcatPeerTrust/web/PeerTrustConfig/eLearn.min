@@ -1,5 +1,6 @@
 
 rule(acmMemberPolicy(Member), [acmMember(Member)@acm@Member], []).
 rule(ieeeMemberPolicy(Requester), [ieeeMember(Requester) @ ieee @ Requester], []).
+rule(springerReaderPolicy(Requester),[springerReader(Requester) @ springer @ Requester],[]).
 
 signed(rule(bbbMember(elearn) @ bbb, [], []), bbb, signature(bbb)).

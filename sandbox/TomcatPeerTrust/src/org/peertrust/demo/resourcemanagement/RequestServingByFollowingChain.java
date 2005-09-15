@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 
 public class RequestServingByFollowingChain implements RequestServingMechanism {
 	private String name;
+	private String matchingPattern;
 	
 	public void serveRequest(HttpServletRequest req, HttpServletResponse resp,
 			FilterChain chain, Resource resource) throws IOException, ServletException {
@@ -33,7 +34,15 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 	public void setup(Node mechanismNode)throws SetupException {
 		NamedNodeMap attrs=mechanismNode.getAttributes();			
 		this.name=
-			attrs.getNamedItem(RequestServingMechanismPool.ATTRIBUTE_NAME).getTextContent();
+			attrs.getNamedItem(ATTRIBUTE_NAME).getTextContent();
+		
+		try {
+			matchingPattern=
+				attrs.getNamedItem(ATTRIBUTE_MATCHING_PATTERN).getTextContent();
+			
+		} catch (Exception e) {
+			throw new SetupException("Could not  get attribute:"+ATTRIBUTE_MATCHING_PATTERN,e);
+		}
 	}
 
 	public String getMechanismName() {
@@ -41,11 +50,22 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.peertrust.demo.resourcemanagement.RequestServingMechanism#getMatchingPattern()
+	 */
+	public String getMatchingPattern() {
+		return matchingPattern;
+	}
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return 	"\nRequestServingByFollowingChain:"+
-				" name:"+name+"\n";
+		StringBuffer buf= new StringBuffer(128);
+		buf.append("RequestServingByFollowingChain: name=");
+		buf.append(name);
+		buf.append(" matchingPattern=");
+		buf.append(matchingPattern);;
+		return buf.toString();
 	}
 
 }

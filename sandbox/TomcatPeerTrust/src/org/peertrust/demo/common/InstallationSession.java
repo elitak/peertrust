@@ -57,6 +57,8 @@ public class InstallationSession {
 	
 	private Hashtable appFileTable= new Hashtable();
 	
+	private String remoteVersion;
+	private String localVersion;
 	/**
 	 * Create an InstallationSession with a specified source base, 
 	 * the installation file name and theloacal installation dir
@@ -119,8 +121,8 @@ public class InstallationSession {
 	 * @return
 	 */
 	public boolean isInstallationUptodate(){
-		String remoteVersion=getVersion(remoteInstallDom);
-		String localVersion=getVersion(localInstallDom);
+		remoteVersion=getVersion(remoteInstallDom);
+		localVersion=getVersion(localInstallDom);
 		if(localVersion==null || remoteVersion==null){
 			return false;
 		}else if(remoteVersion.compareTo(localVersion)>0){
@@ -473,6 +475,22 @@ public class InstallationSession {
 		return message;
 	}
 	
+	
+	
+	/**
+	 * @return Returns the localVersion.
+	 */
+	public String getLocalVersion() {
+		return localVersion;
+	}
+
+	/**
+	 * @return Returns the remoteVersion.
+	 */
+	public String getRemoteVersion() {
+		return remoteVersion;
+	}
+
 	public static void main(String[] args) throws Exception{
 //		InstallationSession is= 
 //			new InstallationSession(

@@ -100,18 +100,26 @@ public class TrustManager {
 	 * 
 	 */
 	public TrustManager(TrustClient trustClient,  
-						String classifierXMLSetupFilePath,
-						String policySystemXMLSetupFilePath,
-						String policyEvaluatorXMLSetupPath,
-						String requestServingMechanismPoolSetupFile) {
-		super();
-		this.resourceClassifier= makeResourceClassifier(classifierXMLSetupFilePath);
-		this.policySystem=makePolicySystem(policySystemXMLSetupFilePath);
+						String resourceMngXmlConfigPath
+//						String classifierXMLSetupFilePath,
+//						String policySystemXMLSetupFilePath,
+//						String policyEvaluatorXMLSetupPath,
+//						String requestServingMechanismPoolSetupFile
+						) {
+		System.out.println("*************>resourceMngXmlConfigPath:"+resourceMngXmlConfigPath);
+		System.out.println();
+		this.resourceClassifier= 
+			makeResourceClassifier(resourceMngXmlConfigPath);//classifierXMLSetupFilePath);
+		this.policySystem=
+			makePolicySystem(resourceMngXmlConfigPath);//policySystemXMLSetupFilePath);
 		//this.trustClient=trustClient;
-		this.policyEvaluator=makePolicyEvaluator(policyEvaluatorXMLSetupPath,trustClient);
+		this.policyEvaluator=
+			makePolicyEvaluator(
+							resourceMngXmlConfigPath,//policyEvaluatorXMLSetupPath,
+							trustClient);
 		try {
 			this.requestServingMechanismPool=
-				makeRequestServingMechanismPool(requestServingMechanismPoolSetupFile);
+				makeRequestServingMechanismPool(resourceMngXmlConfigPath);//requestServingMechanismPoolSetupFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SetupException e) {
@@ -122,8 +130,8 @@ public class TrustManager {
 	private ResourceClassifier makeResourceClassifier(String classifierXMLSetupFilePath){
 		
 		try {
-			OntologyBasedResourceClassifier classifier=
-				new OntologyBasedResourceClassifier();
+			ResourceClassifierImpl classifier=
+				new ResourceClassifierImpl();
 			classifier.setup(classifierXMLSetupFilePath);
 			return classifier;
 		} catch (IOException e) {
@@ -140,8 +148,8 @@ public class TrustManager {
 	
 	private PolicySystem makePolicySystem(String policySystemXMLSetupFilePath){
 		try {
-			OntologyBasedPolicySystem polSystem=
-				new OntologyBasedPolicySystem();
+			PolicySystemImpl polSystem=
+				new PolicySystemImpl();
 			polSystem.setup(policySystemXMLSetupFilePath);
 			return polSystem;
 		} catch (UnsupportedFormatException e) {
@@ -221,11 +229,14 @@ public class TrustManager {
 		return res;
 	}
 	
-	public RequestServingMechanism getRequestServingMechanismPool(String mechanismName){
+	public RequestServingMechanism getRequestServingMechanismPool(String url){
+		RequestServingMechanism m=requestServingMechanismPool.getMechanism(url);
+		
 		System.out.println("\n=============LOOKUP MECHANISM=========================");
-		System.out.println("\nmechanismName:"+mechanismName+"\nmechanism pool:"+requestServingMechanismPool);
+		System.out.println("\nurl:"+url+"\nmechanism:"+m);
 		System.out.println("\n======================================================\n");
-		return this.requestServingMechanismPool.getMechanism(mechanismName);	
+		
+		return m;
 	}
 	
 	static public void main(String[] args){

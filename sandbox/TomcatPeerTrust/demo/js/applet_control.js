@@ -51,7 +51,7 @@ function toggleVisualization(){
 		var ptApplet=getPTApplet();
 		ptApplet.toggleVisualization();
 	}catch(ex){
-		//alert(ex.message+" name:"+ptApplet);
+		alert(ex.message+" name:"+ptApplet);
 	}
 }
 
@@ -60,7 +60,7 @@ function uninstallPeerTrust(){
 		var ptApplet=getPTApplet();
 		ptApplet.uninstallPeerTrust();
 	}catch(ex){
-		//alert(ex.message+" name:"+ptApplet);
+		alert(ex.message+" name:"+ptApplet);
 	}
 }
 //managePolicies()
@@ -70,7 +70,7 @@ function managePolicies(){
 		var ptApplet=getPTApplet();
 		ptApplet.managePolicies();
 	}catch(ex){
-		//alert(ex.message+" name:"+ptApplet);
+		alert(ex.message+" name:"+ptApplet);
 	}
 }
 
@@ -158,10 +158,10 @@ function getTrustSchemeToUse(){
 			var mainFrame=top;//.applet_frame.parent;//top.main_frameset;
 			var cols= new String(mainFrame.document.body.cols);//appletFrame.width);//mainFrame.cols);
 			//alert("cols1:"+cols.indexOf("0%")+" "+cols);
-			if(cols.indexOf("0%")!=0){
-				mainFrame.document.body.cols="0%,100%";
+			if(cols.indexOf("1%")!=0){
+				mainFrame.document.body.cols="1%,99%";
 			}else{
-				mainFrame.document.body.cols="40%,60%";				
+				mainFrame.document.body.cols="30%,70%";				
 			}
 		}catch(exception){		
 			alert("cannot hide or show applet frame:"+exception.message);

@@ -1,0 +1,80 @@
+<resourceManagementConfiguration>
+
+<ResourceClassifier type="..">
+	<!--  use attribute overwrite to cope with multiple match -->
+	<!-- ********************start new demo jsp and htmk -->
+	<resourceClass
+		url="/myapp-0.1-dev/demo/data/pdf/acm/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="acmMemberPolicy"
+		/>
+	
+	<resourceClass
+		url="/myapp-0.1-dev/demo/publications/ieee/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="ieeeMemberPolicy"
+	/>
+	
+	<resourceClass
+		url="/myapp-0.1-dev/demo/publications/springer/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="springerReaderPolicy"
+	/>
+	
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/demo/presentations/conf/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="conferenceAttendeePolicy"
+	/>	
+</ResourceClassifier>
+
+<policySystem type="..">
+	<policy
+		policyName="acmMemberPolicy"
+		policyValue="acmMemberPolicy(Requester)"
+		includedPolicy="" 
+		/>
+		
+	<policy
+		policyName="ieeeMemberPolicy"
+		policyValue="ieeeMemberPolicy(Requester)"
+		includedPolicy="" 
+		/>
+	
+	<policy
+		policyName="springerReaderPolicy"
+		policyValue="springerReaderPolicy(Requester)"
+		includedPolicy="" 
+		/>
+	
+	<policy
+		policyName ="conferenceAttendeePolicy"
+		policyValue="conferenceAttendeePolicy(Requester)"
+		includedPolicy="" 
+		/>
+</policySystem>
+
+<RequestServingMechanism type="...">
+	<mechanism 	name="default"
+				class="org.peertrust.demo.resourcemanagement.RequestServingByFollowingChain"
+				forwardTo="" 
+				matchingPattern="*">
+	</mechanism>
+	
+	<!-- mechanism 	name="forward_to_service_jsp"
+				class="org.peertrust.demo.resourcemanagement.RequestServingByForwarding"
+				forwardTo="/demo/jsp/service.jsp"
+				matchingPattern="">
+	</mechanism -->
+	
+	<mechanism 	name="virtual_dir_demo_loader"
+				class="org.peertrust.demo.resourcemanagement.RequestServingByLoadingFromExtDir"
+				baseDir="file:///home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/"
+				matchingPattern="/.*/demo/.*">
+	</mechanism>
+	
+</RequestServingMechanism>
+
+
+</resourceManagementConfiguration>

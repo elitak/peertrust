@@ -1,4 +1,5 @@
-<web-app version="2.4">
+<web-app version="2.4" >
+
 	<!-- 
      <servlet>
         <servlet-name>JnlpDownloadServlet</servlet-name>
@@ -53,18 +54,23 @@
 		<param-value>/PeerTrustConfig/serverInstall.xml/</param-value>		
 	</context-param>
 	
-	<context-param>
+	<!-- context-param>
 		<param-name>ResourceClassifierSetupFile</param-name>
 		<param-value>/resource_management_files/resource_classification.xml</param-value>		
-	</context-param>
-	<context-param>
+	</context-param -->
+	<!-- context-param>
 		<param-name>ResourcePoliciesSetupFile</param-name>
 		<param-value>/resource_management_files/resource_policies.xml</param-value>		
-	</context-param>
+	</context-param -->
 	
-	<context-param>
+	<!-- context-param>
 		<param-name>RequestServingMechanismPoolSetupFile</param-name>
 		<param-value>/resource_management_files/request_serving_mechanism.xml</param-value>		
+	</context-param -->
+	
+	<context-param>
+		<param-name>TrustManagerConfigFile</param-name>
+		<param-value>/resource_management_files/resource_mng_config.xml</param-value>		
 	</context-param>
 	
 	<!-- jsp-config>
@@ -119,4 +125,9 @@
 	 <listener>
 		<listener-class>org.peertrust.demo.servlet.PTHttpSessionListener</listener-class>
 	</listener>
+	<!-- ********************************************************************** -->
+	<!-- path-mapping>
+	    <url-pattern>/demo/*</url-pattern>
+	    <real-path>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/demo</real-path>
+  	</path-mapping -->
 </web-app>

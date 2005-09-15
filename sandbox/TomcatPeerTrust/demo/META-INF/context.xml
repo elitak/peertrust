@@ -1,0 +1,10 @@
+<!-- context path="/myapp-0.1-dev/demo/*" 
+         docBase="/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/demo" -->
+<Context 	allowLinking="true"
+			crossContext="true"
+			path="/data"
+			docBase="/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/demo" 
+			>             
+    <Parameter name="companyName" value="My Company, Incorporated"
+         override="false"/>
+</Context>             

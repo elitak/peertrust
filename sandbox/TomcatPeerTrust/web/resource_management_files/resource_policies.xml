@@ -1,13 +1,25 @@
 <policySystem type="..">
 	<policy
-		policyName="acmMember"
+		policyName="acmMemberPolicy"
 		policyValue="acmMemberPolicy(Requester)"
 		includedPolicy="" 
 		/>
 		
 	<policy
-		policyName="ieeeMember"
+		policyName="ieeeMemberPolicy"
 		policyValue="ieeeMemberPolicy(Requester)"
+		includedPolicy="" 
+		/>
+	
+	<policy
+		policyName="springerReaderPolicy"
+		policyValue="springerReaderPolicy(Requester)"
+		includedPolicy="" 
+		/>
+	
+	<policy
+		policyName ="conferenceAttendeePolicy"
+		policyValue="conferenceAttendeePolicy(Requester)"
 		includedPolicy="" 
 		/>
 </policySystem>

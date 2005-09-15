@@ -353,13 +353,16 @@ public class PeerTrustClient   implements PTEventListener{
     
     
     public void destroy(){ 
+    	stopTrustClient(); 	
+    }
+    
+    public void stopTrustClient(){ 
     	cmdFIFO.offer(new StopCmd());
     	comFac.destroy();
     	trustClient.destroy();
-    	//engine.stop();    	
+    	comFac=null;
+    	trustClient=null;
     }
-    
-    
     //////////////////////////////////
     ArrayBlockingQueue cmdFIFO=
     	new ArrayBlockingQueue(8);

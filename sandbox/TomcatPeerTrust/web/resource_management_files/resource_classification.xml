@@ -2,20 +2,31 @@
 	<!--  use attribute overwrite to cope with multiple match -->
 	<!-- ********************start new demo jsp and htmk -->
 	<resourceClass
-		isProtected="true" 
 		url="/myapp-0.1-dev/demo/data/pdf/acm/.*"
 		matchingStrategy="_reg_exp_"
-		policyName="acmMember"
+		policyName="acmMemberPolicy"
 		/>
 	
 	<resourceClass
-		isProtected="true" 
-		url="/myapp-0.1-dev/demo/data/pdf/ieee/.*"
+		url="/myapp-0.1-dev/demo/publications/ieee/.*"
 		matchingStrategy="_reg_exp_"
-		policyName="ieeeMember"
+		policyName="ieeeMemberPolicy"
 	/>
 	
 	<resourceClass
+		url="/myapp-0.1-dev/demo/publications/springer/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="springerReaderPolicy"
+	/>
+	
+	<resourceClass
+		isProtected="true" 
+		url="/myapp-0.1-dev/demo/presentations/conf/.*"
+		matchingStrategy="_reg_exp_"
+		policyName="conferenceAttendeePolicy"
+	/>
+	
+	<!-- resourceClass
 		isProtected="false" 
 		url="/myapp-0.1-dev/demo/data/pdf/pub/.*"
 		matchingStrategy="_reg_exp_"
@@ -81,6 +92,6 @@
 		isProtected="false" 
 		url="/myapp-0.1-dev/PeerTrustCommunicationServlet"
 		matchingStrategy="_exact_"
-	/>
+	/ -->
 	
 </ResourceClassifier>

@@ -1,0 +1,16 @@
+<web-app version="2.4" >
+
+	
+	
+	
+	<context-param>
+		<param-name>TrustManagerConfigFile</param-name>
+		<param-value>/resource_management_files/resource_mng_config.xml</param-value>		
+	</context-param>
+	
+	
+	<taglib>
+		<taglib-uri>/peertrustTags</taglib-uri>
+		<taglib-location>/WEB-INF/tld/peertrust_demo_taglib.tld</taglib-location>
+	</taglib>
+</web-app>
