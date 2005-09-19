@@ -363,6 +363,10 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 					((HttpSessionRegistrationRequest)message).getSessionKey();
 				Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
 				sessionTable.put(sessionId, negotiatingPeer);
+				System.out.println("*********************************Registerering**********************");
+				System.out.println("sessionId:"+sessionId);
+				System.out.println("Peer:"+negotiatingPeer);
+				System.out.println("*********************************Registerering END**********************");
 			}
 			
 		};

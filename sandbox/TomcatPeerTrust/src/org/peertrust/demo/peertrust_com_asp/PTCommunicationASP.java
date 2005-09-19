@@ -81,6 +81,10 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 			listenerPool.put(objTypeToListenFor,listenerVect);
 		}
 		listenerVect.add(listener);
+		System.out.println("****************RegisterListerner for PTCommunicationASP**********************");
+		System.out.println("Listener:"+listener.getClass());
+		System.out.println("ListenTo:"+objTypeToListenFor);
+		System.out.println("****************RegisterListerner for PTCommunicationASP END**********************");
 	}
 	
 	private void unregisterListener(Object listener, Class objTypeToListenFor){
@@ -110,15 +114,8 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 	}
 	
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-	}
-
 	public void init() throws ConfigurationException {
-		
+		System.out.println("****************init for PTCommunicationASP**********************");
 	}
 
 }

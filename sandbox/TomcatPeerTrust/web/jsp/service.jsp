@@ -1,126 +1,116 @@
-<%@ page import="java.security.SecureRandom" %>
-<%@ page import="java.net.URL" %>
-<%@ page import="org.peertrust.demo.servlet.NegotiationObjects" %>
-<%@ page import="org.apache.log4j.Logger"%>
+<!--  %@ page import="java.security.SecureRandom" % -->
+<!--  %@ page import="java.net.URL" % -->
+<!--  %@ page import="org.peertrust.demo.servlet.NegotiationObjects" % -->
 
+<!-- %@ page import="org.apache.log4j.Logger"% -->
+<!-- %@ page import="org.peertrust.demo.servlet.NegotiationOutcome"% -->
+<%@page import="org.peertrust.demo.resourcemanagement.Resource"%>
 <!-- jsp:directive.taglib prefix="c" uri="http://java.sun.com/jsp/jstl/functions"/ -->
 <!-- %@ taglib uri="/jslt/core_rt" prefix="c" % -->  
 
 <%@ taglib uri="/WEB-INF/tld/c.tld" prefix="c" %>
+<%
+	String contextPath=request.getContextPath();
 
-
-<%  
-		
-		StringBuffer buf=new StringBuffer(128);
-		buf.append("http://");
-		buf.append(request.getLocalAddr());
-		buf.append(":");
-		buf.append(request.getLocalPort());
-		buf.append(request.getContextPath());
-		 
-		String base=buf.toString();
-		
-		session.setAttribute("WAIT","waiting");
-		
-		NegotiationObjects negoObjects= 
-				NegotiationObjects.createAndAddForAppContext(config);
-		
-		String negoID= (String)request.getParameter("negoSessionID");
-		String negoResource=(String)request.getParameter("negoResource");
-		
-		String resPath=null;
-		if(negoResource!=null){
-			resPath=(String)application.getInitParameter(negoResource);
+	StringBuffer buf=new StringBuffer(128);
+	//buf.append("window.open('");
+	buf.append("http://");
+	buf.append(request.getLocalAddr());
+	buf.append(":");
+	buf.append(request.getLocalPort());
+	//buf.append("/");
+	buf.append(contextPath);//.getContextPath());
+	 
+	String base=buf.toString();
+	Resource resourceToInclude= (Resource)request.getAttribute("resource");	
+	
+	String urlToInclude="../html/no_content.html";
+	if(resourceToInclude!=null){
+		String completeURL=resourceToInclude.getUrl();
+		if(completeURL!=null){
+			if(completeURL.startsWith(contextPath)){
+				urlToInclude=completeURL.substring(contextPath.length());
+			}
 		}
-
-		if(resPath==null){
-			resPath=(String)application.getInitParameter("DefaultResource");	
-		}	
-		
-		String userName= request.getParameter("userName");
-		if(userName!=null){
-			userName="username="+userName;
-		}
-		
-		System.out.println("\nnegoResource:"+negoResource+
-							" negoID:"+negoID+
-							" userName:"+userName+
-							" resPath:"+resPath);
-		
-				
-				
+	}
 %>
 
 <html>
+
 <head>
-	<title>Peertrust Demo Start Page</title>
-	<link rel="stylesheet" 
-			href="<%=base%>/css/pt_style.css" 
-			type="text/css" media="all" >
+	<base href="<%=base%>/">
+	<link rel="stylesheet" type="text/css" href="<%=base%>/demo/css/sddm.css" />
+	<link rel="stylesheet" type="text/css" href="<%=base%>/demo/css/pt_style.css" />
+	<link rel="stylesheet" type="text/css" href="<%=base%>/demo/css/l3s_staff.css" />
+	<link rel="_script_applet_control" type="text/js" href="<%=base%>/demo/js/applet_control.js"/>
+	<link rel="_script_menu" type="text/js" href="<%=base%>/demo/js/menu.js"/>
 	
-	<script language="JavaScript" 
-			src="<%=base%>/js/menu_view.js"></script>
-	<BASE href="<%=base%>">
+	<script language="JavaScript" src="<%=base%>/demo/js/applet_control.js">
+	</script>
 </head>
 
-<body onload="registerSession('<%=session.getId()%>')">
+<body>
 
-<div class="header_top">
-
-</div>
-<div class="menu_left">
-
-<table class="menu_container">
-<tr>
-<td>
-<ul>
-<li class="section">Demo Info</li>
-<li onmouseover="on_menu_item_mouseover(this)"
-				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="loadPage('<%=base%>/demo/jsp/configuration.jsp')">Setup</li>
-	<li onmouseover="on_menu_item_mouseover(this)"
-				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="getResource('configuration')">Configuration</li>
-	<li onmouseover="on_menu_item_mouseover(this)"
-				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="toggleApplet()">Toggle Applet</li>	
-</ul>
-</td>
-</tr>
-
-<tr>
-<td>
-<ul>
-	<li class="section">Service</li>
-	<li onmouseover="on_menu_item_mouseover(this)"
-					 onmouseout="on_menu_item_mouseout(this)"
-					   onclick="getResource('publication')">Publication</li>
-	<li onmouseover="on_menu_item_mouseover(this)"
-				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="loadPage('<%=base%>/jsp/service.jsp?negoResource=presentation')">Presentation</li>
-	<li onmouseover="on_menu_item_mouseover(this)"
-				 onmouseout="on_menu_item_mouseout(this)"
-				   onclick="loadPage('<%=base%>/jsp/service.jsp?negoResource=links')">Links</li>
-
-</ul>
-</td>
-</tr>
-</table>
-</div>
- 
-<div class="main_display">	
-  <c:choose>
-    <c:when test="<%=(negoResource==null)%>">
-    	<jsp:text>no res requested!</jsp:text>
-    </c:when>
-    <c:otherwise>
-    	<jsp:include page="<%=negoOutcome.getRealNegoResource()%>">								
-					<jsp:param name="Dada" value="dada"/>
-		</jsp:include>
-	 </c:otherwise>
-  </c:choose>	 
- 
-</div>
+	<div class="header_top">
+	
+	</div>
+	
+	<div class="menu_left">
+	
+		<script language="JavaScript" type="text/javascript" src="<%=base%>/demo/js/menu.js"></script>
+		
+		<!--------Start Menu---------->
+		<div class="mainDiv" state="0">
+		<div class="topItem" classOut="topItem" classOver="topItemOver" onMouseOver="Init(this);" >&nbsp;Demo Info</div>
+		<div class="dropMenu" >
+		<div class="subMenu" state="0">
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/trust.html">Peer trust explained</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/tomcat_demo.html">Demo</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/faq.html">FAQ</a></span><BR />
+		<!-- span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/setup.html">Setup</a></span><BR /> -->
+		<!-- span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/configuration.html">Configuration</a></span><BR /> -->
+		</div>
+		</div>
+		</div>
+		
+		<!--------End Menu---------->
+		<BR />
+		<!--------Start Menu---------->
+		<div class="mainDiv" state="0">
+		<div class="topItem" classOut="topItem" classOver="topItemOver" onMouseOver="Init(this)" >&nbsp;Session control</div>
+		<div class="dropMenu" >
+		<div class="subMenu" state="0">
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:toggleApplet()">Toggle Applet</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:toggleVisualization()">Toggle Visualization</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:uninstallPeerTrust()">Uninstall PeerTrust</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:managePolicies()">Policy management</a></span>
+		</div>
+		</div>
+		</div>
+		
+		<!--------End Menu---------->
+		<BR />
+		<!--------Start Menu---------->
+		<div class="mainDiv" state="0">
+		<div class="topItem" classOut="topItem" classOver="topItemOver" onMouseOver="Init(this)" >&nbsp;Service</div>
+		<div class="dropMenu" >
+		<div class="subMenu" state="0">
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/links.html">Links</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/presentations.html">Presentations</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/html/publications.html">Publications</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="<%=base%>/demo/jsp/includable/jsp/dev_corner.jsp">Developper Corner</a></span>
+		</div>
+		</div>
+		</div>
+		
+		<!--------End Menu---------->
+	</div>
+	 <%System.err.println("service.jsp: mark1\n"+"including resource:"+resourceToInclude);%>
+	<div class="main_display">	
+		<table style="border-style:outset;">
+	  		<jsp:include page="<%=urlToInclude%>"></jsp:include>	 
+	  	</table>
+	</div>
 
 </body>
-</html>
+</html> 

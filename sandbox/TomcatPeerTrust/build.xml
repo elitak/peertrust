@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.8 2005/09/15 22:49:19 token77 Exp $
+     $Id: build.xml,v 1.9 2005/09/19 14:46:16 token77 Exp $
 -->
 
 
@@ -404,13 +404,54 @@
   	
   	<!-- Create application WAR file -->
   	    <jar jarfile="${dist.home}/${app.name}-${app.version}.war">
-  	         <fileset dir="${web.home}"><!--/META-INF"-->
-  	         	
+  	         <fileset dir="${web.home}">
+  	         	<excludesfile name="*/data/*"/>
   	         </fileset>
   		</jar>
     <!-- Copy additional files to ${dist.home} as necessary -->
 
   </target>
+	
+	
+<target name="distJars" depends="compile"
+	   description="Create distribution Jar">
+
+	    <!-- Copy documentation subdirectories -->
+	    <mkdir   dir="${dist.home}/docs"/>
+	    <copy    todir="${dist.home}/docs">
+	      <fileset dir="${docs.home}"/>
+	    </copy>
+	  	<!-- Create Client application JAR file -->
+	  	<jar jarfile="${web.home}/jws/DemoClient.jar" >
+	  		<fileset dir="${build.home}/WEB-INF/classes">
+	  			<include name="org/**/client/*.class"/>
+	  			<include name="org/**/common/*.class"/>
+	  			<include name="org/**/client/applet/*.class"/>
+	  			<include name="org/peertrust/demo/peertrust_com_asp/*.class"/>
+	  		</fileset>
+	  		
+	  		<manifest>
+	  			<attribute name="Version" value="0.0"/>
+	  			<attribute name="Release-Date" value="13 Mar 2005"/>
+	  			<attribute name="Main-Class" value="DemoPeerTrustClient"/>
+	  		</manifest>
+	  	</jar>
+	  	
+	  	<jar jarfile="${web.home}/jws/DemoApplet.jar">
+	  	  		<fileset dir="${build.home}/WEB-INF/classes">
+	  	  			<include name="org/**/client/applet/*.class"/>
+	  	  		</fileset>
+	  	  		
+	  	  		<manifest>
+	  	  			<attribute name="Version" value="0.0"/>
+	  	  			<attribute name="Release-Date" value="13 Mar 2005"/>
+	  	  			<attribute name="Main-Class" value="DemoPeerTrustClient"/>
+	  	  		</manifest>
+	  	  	</jar>
+	  	<antcall target="sign_jars"></antcall>
+	  	
+</target>
+	
 <target name="DemoClient">
 
 </target>
@@ -621,6 +662,7 @@
   	  				<!-- include name="*.jar"/ -->
   					<include name="DemoClient.jar"/>
   					<include name="peertrust.jar"/>
+  					<include name="DemoApplet.jar"/>
   	  			</fileset>
   			</signjar>
 

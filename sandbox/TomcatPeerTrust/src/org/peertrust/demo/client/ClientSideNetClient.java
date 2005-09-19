@@ -36,7 +36,8 @@ import org.peertrust.net.Query;
  */
 public class ClientSideNetClient 	extends NewsServer
 									implements NetClient {
-	private String webAppURLPath="/myapp-0.1-dev/PeerTrustCommunicationServlet";
+	//private String webAppURLPath="/myapp-0.1-dev/PeerTrustCommunicationServlet";
+	private String webAppURLPath="/demo/PeerTrustCommunicationServlet";
 	
 	StringBuffer strBuffer= new StringBuffer(128);
 	HttpClient httpClient;

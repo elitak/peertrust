@@ -1,4 +1,5 @@
-<ptInstall isIntalled="false">
+<?xml version="1.0" encoding="UTF-8"?>
+<ptInstall isIntalled="true">
 	<filesToInstall>
 		<file ID="installFile">serverInstall.xml</file>
 		<file ID="prologFiles">eLearn.min</file>

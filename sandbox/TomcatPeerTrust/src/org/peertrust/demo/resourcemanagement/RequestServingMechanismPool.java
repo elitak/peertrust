@@ -129,6 +129,15 @@ public class RequestServingMechanismPool {
 		
 	}
 	
+	public RequestServingMechanism getMechanismByName(String name){
+		if(name==null){
+			return null;
+		}else{
+			RequestServingMechanism m=(RequestServingMechanism)mechanismsPool.get(name);		
+			return m;
+		}
+		
+	}
 	
 	
 	/* (non-Javadoc)

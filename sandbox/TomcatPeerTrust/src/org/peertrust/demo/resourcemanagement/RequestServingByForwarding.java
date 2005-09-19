@@ -52,8 +52,7 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 	 * @see org.peertrust.demo.resourcemanagement.RequestServingMechanism#getMatchingPattern()
 	 */
 	public String getMatchingPattern() {
-		// TODO Auto-generated method stub
-		return null;
+		return matchingPattern;
 	}
 
 	/* (non-Javadoc)

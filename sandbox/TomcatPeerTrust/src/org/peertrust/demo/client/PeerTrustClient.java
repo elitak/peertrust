@@ -64,9 +64,7 @@ public class PeerTrustClient   implements PTEventListener{
 	static public String CONFIG_MUFFIN_URL="PeerTrustConfig/ConfigMuffin.properties";
 	static public int CONFIG_FILE_MAX_SIZE=1024*1024;
 	
-	//private String allParams;
-//	
-//	private boolean finalResultNotshown=false;
+
 	
 	private NewsEventListener newsListener=null;
 	
@@ -227,11 +225,11 @@ public class PeerTrustClient   implements PTEventListener{
 		try {
 			trustClient= new TrustClient(newArgs,components);
 			engine=(PTEngine)trustClient.getComponent(Vocabulary.PeertrustEngine);
-			EventDispatcher dispatcher = engine.getEventDispatcher() ;
-			ClientSidePTEventListener ptEventListener=
-				(ClientSidePTEventListener)engine.getEventListener();
-			ptEventListener.setParent(this);
-			dispatcher.register(ptEventListener);//is that needed?
+//			EventDispatcher dispatcher = engine.getEventDispatcher() ;
+//			ClientSidePTEventListener ptEventListener=
+//				(ClientSidePTEventListener)engine.getEventListener();
+//			ptEventListener.setParent(this);
+//			dispatcher.register(ptEventListener);//is that needed?
 			
 			comFac=
 				(ClientSideHTTPCommunicationFactory)trustClient.getComponent(
@@ -239,6 +237,10 @@ public class PeerTrustClient   implements PTEventListener{
 			comFac.setServerIP(this.peerIP);
 			comFac.setServerPort(this.peerPort);
 			comFac.setWebAppURLPath(this.appContextStr+"/PeerTrustCommunicationServlet");
+			System.out.println("******************info pt com *****************");
+			System.out.println("ServerIP:"+this.peerIP);
+			System.out.println("ServerPort:"+this.peerPort);
+			System.out.println("WebAppURLPath:"+this.appContextStr+"/PeerTrustCommunicationServlet");
 			
 			ClientSideNetServer ptServer=
 				((ClientSideNetServer)comFac.createNetServer());
@@ -262,8 +264,11 @@ public class PeerTrustClient   implements PTEventListener{
 			logger.info("comfac:"+comFac);			
 			
 		} catch (ConfigurationException e) {
+			e.printStackTrace();
 			showMessage(e,"Problem staring pt client");
 			throw(e);
+		} catch(Throwable th){
+			th.printStackTrace();
 		}
 		return;
     }
@@ -397,7 +402,7 @@ public class PeerTrustClient   implements PTEventListener{
 								//System.out.println("Sending "+cmd);
 								comFac.createNetClient().send(	(HttpSessionRegistrationRequest)cmd,
 																comFac.getServerPeer("eLearn"));
-								System.out.println("Sending "+cmd);
+								System.out.println("HttpSessionRegistrationRequest Send "+cmd);
 							}
 						} catch (InterruptedException e) {
 							e.printStackTrace();

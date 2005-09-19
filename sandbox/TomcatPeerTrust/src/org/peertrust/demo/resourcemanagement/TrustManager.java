@@ -229,7 +229,7 @@ public class TrustManager {
 		return res;
 	}
 	
-	public RequestServingMechanism getRequestServingMechanismPool(String url){
+	public RequestServingMechanism getRequestServingMechanismByURL(String url){
 		RequestServingMechanism m=requestServingMechanismPool.getMechanism(url);
 		
 		System.out.println("\n=============LOOKUP MECHANISM=========================");
@@ -239,6 +239,15 @@ public class TrustManager {
 		return m;
 	}
 	
+	public RequestServingMechanism getRequestServingMechanismByName(String name){
+		RequestServingMechanism m=requestServingMechanismPool.getMechanismByName(name);
+		
+		System.out.println("\n=============LOOKUP MECHANISM=========================");
+		System.out.println("\nname:"+name+"\nmechanism:"+m);
+		System.out.println("\n======================================================\n");
+		
+		return m;
+	}
 	static public void main(String[] args){
 		System.out.println("dadad Requester ggg Requester".replaceAll("Requester","alice"));
 	}

@@ -4,26 +4,26 @@
 	<!--  use attribute overwrite to cope with multiple match -->
 	<!-- ********************start new demo jsp and htmk -->
 	<resourceClass
-		url="/myapp-0.1-dev/demo/data/pdf/acm/.*"
-		matchingStrategy="_reg_exp_"
+		url="/demo/data/publications/acm/.*"
+		matchingStrategy="_reg_exp_"	
 		policyName="acmMemberPolicy"
 		/>
 	
 	<resourceClass
-		url="/myapp-0.1-dev/demo/publications/ieee/.*"
+		url="/demo/data/publications/ieee/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="ieeeMemberPolicy"
 	/>
 	
 	<resourceClass
-		url="/myapp-0.1-dev/demo/publications/springer/.*"
+		url="/demo/data/publications/springer/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="springerReaderPolicy"
 	/>
 	
 	<resourceClass
 		isProtected="true" 
-		url="/myapp-0.1-dev/demo/presentations/conf/.*"
+		url="/demo/data/publications/conf/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="conferenceAttendeePolicy"
 	/>	
@@ -62,16 +62,16 @@
 				matchingPattern="*">
 	</mechanism>
 	
-	<!-- mechanism 	name="forward_to_service_jsp"
+	<mechanism 	name="sessionRegistration"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByForwarding"
-				forwardTo="/demo/jsp/service.jsp"
-				matchingPattern="">
-	</mechanism -->
+				forwardTo="/jsp/sessionRegistration.jsp"
+				matchingPattern="/jsp/sessionRegistration.jsp">
+	</mechanism>
 	
 	<mechanism 	name="virtual_dir_demo_loader"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByLoadingFromExtDir"
 				baseDir="file:///home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/"
-				matchingPattern="/.*/demo/.*">
+				matchingPattern="/fififififififi/demo/.*">
 	</mechanism>
 	
 </RequestServingMechanism>

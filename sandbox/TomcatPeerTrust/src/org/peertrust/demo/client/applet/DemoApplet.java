@@ -53,7 +53,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	class HttpSessionRegistrant implements PTComASPMessageListener{
 			private String protectedUrl=null;
 			public void PTMessageReceived(Object message) {
-				
+				System.out.println("RegistrationResponse:"+message);
 				if(((HttpSessionRegistrationResponse)message).isAcknowledgment()){
 					if(protectedUrl!=null){//registration was caused by a protected page
 						try {
@@ -154,6 +154,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 					new StartPeerTrustNegoCmd(res,queryGoal);
 				ptClient.addCmdToFIFO(negoCmd);
 			} catch (Exception e) {
+				e.printStackTrace();
 				echoPane.echo("problem while negotiating!",e);
 				
 			}
@@ -166,9 +167,10 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	}
 	
 	public void registerSession(String sessionKey){
-		echoPane.echo("Registering session:"+sessionKey);
-		
-			workerFIFO.offer( new HttpSessionRegistrationRequest(sessionKey,null,null));
+//		echoPane.echo("Registering session:"+sessionKey);
+//		
+//			workerFIFO.offer( new HttpSessionRegistrationRequest(sessionKey,null,null));
+		registerSession(sessionKey,null);
 		return;
 	}
 	
@@ -246,9 +248,11 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 						}else if(obj instanceof PasswordBasedResourceRequest){
 							((PasswordBasedResourceRequest)obj).request();
 						}else if(obj instanceof HttpSessionRegistrationRequest){
-							System.out.println("SessionRegistrationMessage added "+obj);
+							System.out.println("SessionRegistrationMessage added::::: "+obj);
 							if(ptClient!=null){
 								ptClient.addCmdToFIFO(obj);
+							}else{
+								System.out.println("=====>ptClient==null!");
 							}
 						}else if(obj instanceof StopCmd){
 						
@@ -328,7 +332,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 						getParameter(ClientConstants.CODEBASE_URL_STR_KEY));
 		
 		String home= null;
-		//TODO get home in a more flexible way
+	
 		try{
 			home=System.getProperty("user.home");
 		}catch(Exception e){
@@ -343,6 +347,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		try{
 			sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/");
 		}catch(MalformedURLException e){
+			e.printStackTrace();
 			jsAlert("Bad remote installation source folder:"+e.getLocalizedMessage());
 			return;
 		}
@@ -371,6 +376,22 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			echoPane.echo(	"\nInstallation is uptodate. "+
 							"RemoteVersion:"+installationSession.getRemoteVersion()+
 							" LocalVersion:"+installationSession.getRemoteVersion());
+			try {
+				ptClient= 
+					new PeerTrustClient(
+							props,
+							(NewsEventListener)this,
+							installationSession.getConfigFileURL(),
+							null);//this.configurator);
+				trustScheme="PeerTrust";
+				System.out.println("=========>PTclient created:"+ptClient);
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return;
 		}else{
 			echoPane.echo(	"\nInstallation is not uptodate. "+
@@ -382,7 +403,8 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 							"\nYou can savely remove the folder either manualy or using"+
 							"<session>/<uninstall peertrust files>\n"+
 							"Allow installation?";
-			boolean installtionAllowed=Helpers.askYesNoQuestion("Instalation Dialog",question,this,null);
+			boolean installtionAllowed=
+				Helpers.askYesNoQuestion("Instalation Dialog",question,this,null);
 			if(installtionAllowed){
 				try {
 					
@@ -398,6 +420,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 								installationSession.getConfigFileURL(),
 								null);//this.configurator);
 					trustScheme="PeerTrust";
+					System.out.println("=========>PTclient created:"+ptClient);
 				}catch (MalformedURLException e){
 					e.printStackTrace();echoPane.echo("bad ur",e);clearPTClient();
 				} catch (IOException e) {
@@ -420,6 +443,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	}
 	
 	private void clearPTClient(){
+		System.out.println("=======>clearing PTClient!");
 		if(ptClient!=null){
 			try{
 				ptClient.destroy();

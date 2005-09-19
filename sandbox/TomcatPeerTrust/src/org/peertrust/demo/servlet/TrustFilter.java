@@ -61,16 +61,16 @@ public class TrustFilter implements Filter{
 					//start peertrust and register session
 					System.out.println("***************NO PEER NAME REGISTRATION PAGE***********************************");
 					System.out.println("***************************************************************");
-					PublicResource regJsp=
-						new PublicResource(
-								"_exact_",
-								"/demo/jsp/includable/jsp/sessionRegistration.jsp");
-					regJsp.setRequestServingMechanimName("forward_to_service_jsp");	
+//					PublicResource res=
+//						new PublicResource(
+//								"_exact_",
+//								((HttpServletRequest)req).getRequestURI());//"/demo/jsp/sessionRegistration.jsp");
+//					regJsp.setRequestServingMechanimName("sessionRegistration");	
 					RequestServingMechanism servingMechanism=
-						trustManager.getRequestServingMechanismPool(regJsp.getUrl());
+						trustManager.getRequestServingMechanismByName("sessionRegistration");
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
 													(HttpServletResponse)resp,
-													chain,regJsp);
+													chain,res);//regJsp);
 				}else{
 					System.out.println("filtering peerName:"+peerName);
 					res=trustManager.guardResource(res,peerName);
@@ -80,7 +80,7 @@ public class TrustFilter implements Filter{
 						System.out.println("\n==================================================================");
 						
 						RequestServingMechanism servingMechanism=
-							trustManager.getRequestServingMechanismPool(res.getUrl());//getRequestServingMechanimName());
+							trustManager.getRequestServingMechanismByURL(res.getUrl());//getRequestServingMechanimName());
 						servingMechanism.serveRequest(	(HttpServletRequest)req,
 														(HttpServletResponse)resp,
 														chain,res);
@@ -99,7 +99,7 @@ public class TrustFilter implements Filter{
 				System.out.println("trustManager:"+trustManager+ "\t res:"+res);
 				System.out.println("\n==================================================================");
 				RequestServingMechanism servingMechanism=
-					trustManager.getRequestServingMechanismPool(res.getUrl());//res.getRequestServingMechanimName());
+					trustManager.getRequestServingMechanismByURL(res.getUrl());//res.getRequestServingMechanimName());
 				servingMechanism.serveRequest(	(HttpServletRequest)req,
 												(HttpServletResponse)resp,
 												chain,res);
