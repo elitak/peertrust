@@ -4,8 +4,9 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 //import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+//import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 //import java.net.Socket;
 import java.net.URL;
@@ -28,7 +29,7 @@ import org.peertrust.demo.client.PeerTrustClient;
 import org.peertrust.demo.common.ClientConstants;
 import org.peertrust.demo.common.EchoPane;
 import org.peertrust.demo.common.Executable;
-import org.peertrust.demo.common.Helpers;
+import org.peertrust.demo.common.Utils;
 import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 import org.peertrust.demo.common.HttpSessionRegistrationResponse;
 import org.peertrust.demo.common.InstallationSession;
@@ -38,6 +39,8 @@ import org.peertrust.demo.common.StopCmd;
 import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
 import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
 import org.peertrust.event.PTEventListener;
+
+import org.peertrust.net.Peer;
 
 import org.xml.sax.SAXException;
 
@@ -52,9 +55,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	////////////////////////////////////////////////////////////////////////////////////////////
 	class HttpSessionRegistrant implements PTComASPMessageListener{
 			private String protectedUrl=null;
-			public void PTMessageReceived(Object message) {
-				System.out.println("RegistrationResponse:"+message);
-				if(((HttpSessionRegistrationResponse)message).isAcknowledgment()){
+			public void PTMessageReceived(Serializable payload,Peer source, Peer target) {
+				System.out.println("RegistrationResponse:"+payload);
+				if(((HttpSessionRegistrationResponse)payload).isAcknowledgment()){
 					if(protectedUrl!=null){//registration was caused by a protected page
 						try {
 							URL url= new URL(protectedUrl);
@@ -79,7 +82,11 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			public void registerSession(String sessionKey,String protectedURL){
 				echoPane.echo("Registering session:"+sessionKey);
 				
-				workerFIFO.offer( new HttpSessionRegistrationRequest(sessionKey,null,null));
+				workerFIFO.offer( 
+						new HttpSessionRegistrationRequest(
+									sessionKey,
+									ptClient.getLocalPeer(),
+									ptClient.getServerPeer()));
 				this.protectedUrl=protectedURL;
 				return;
 			}
@@ -181,18 +188,6 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		return;
 	}
 	
-//	private void sendCommandd(Object objToSend){
-//		
-//		try {
-//			if(objOut!=null){
-//				objOut.writeObject(objToSend);	
-//				echoPane.echo("sendCmd:"+objToSend);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		
-//	}
 	
 	ArrayBlockingQueue workerFIFO = new ArrayBlockingQueue(4);
 	//private PTConfigurator configurator;
@@ -328,6 +323,8 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		props.setProperty("appContext",getParameter("appContext"));
 		props.setProperty("serviceServletPath",getParameter("serviceServletPath"));
 		props.setProperty("webAppURLPath",getParameter("webAppURLPath"));
+		props.setProperty("serverPeerName",getParameter("serverPeerName"));
+		
 		props.setProperty(ClientConstants.CODEBASE_URL_STR_KEY,
 						getParameter(ClientConstants.CODEBASE_URL_STR_KEY));
 		
@@ -404,7 +401,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 							"<session>/<uninstall peertrust files>\n"+
 							"Allow installation?";
 			boolean installtionAllowed=
-				Helpers.askYesNoQuestion("Instalation Dialog",question,this,null);
+				Utils.askYesNoQuestion("Instalation Dialog",question,this,null);
 			if(installtionAllowed){
 				try {
 					
@@ -435,7 +432,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 					"You choose not to install peertrust files.\n"+
 					"Therefore you will not be able to experience any negotiation \n"+
 					"and your access will be limited to unprotected content!";
-				Helpers.inform("Installation Info",info,this);
+				Utils.inform("Installation Info",info,this);
 			}
 			
 			return;
@@ -474,7 +471,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 								"and delete the installation directory:\n\t"+
 								instDir+
 								"Go ahead and uninstall?";
-				boolean res=Helpers.askYesNoQuestion(	"Uninstall Dialog",
+				boolean res=Utils.askYesNoQuestion(	"Uninstall Dialog",
 																question,
 																DemoApplet.this,
 																new Object[]{"unstall","cancel"});
@@ -486,13 +483,13 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 					try{
 						res=instDir.delete();
 						if(res){
-							Helpers.inform("Uninstall Info","Uninstall successfull!",DemoApplet.this.getParent());
+							Utils.inform("Uninstall Info","Uninstall successfull!",DemoApplet.this.getParent());
 						}else{
-							Helpers.inform("Uninstall Info","could nor delete:"+instDir,DemoApplet.this);
+							Utils.inform("Uninstall Info","could nor delete:"+instDir,DemoApplet.this);
 						}
 						return;
 					}catch(SecurityException e){
-						Helpers.inform("Uninstall Info",e.getLocalizedMessage(),DemoApplet.this);
+						Utils.inform("Uninstall Info",e.getLocalizedMessage(),DemoApplet.this);
 						return;
 					}			
 				}
@@ -504,7 +501,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	public void toggleVisualization(){
 		Executable executable= new Executable(){
 			public void execute(){
-				Helpers.inform("Info","Visualization not implemented yet!",
+				Utils.inform("Info","Visualization not implemented yet!",
 						DemoApplet.this.getParent());
 			}
 		};
@@ -514,7 +511,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	public void managePolicies(){
 		Executable executable= new Executable(){
 			public void execute(){
-				Helpers.inform("Info","Policy Management not available yet!",DemoApplet.this);
+				Utils.inform("Info","Policy Management not available yet!",DemoApplet.this);
 			}
 		};
 		workerFIFO.offer(executable);

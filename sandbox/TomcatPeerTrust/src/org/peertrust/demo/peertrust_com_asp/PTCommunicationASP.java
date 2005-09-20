@@ -10,7 +10,7 @@ import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
-import org.peertrust.net.Message;
+
 import org.peertrust.net.NetClient;
 import org.peertrust.net.Peer;
 
@@ -22,21 +22,29 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 	private Hashtable listenerPool= new Hashtable();
 	
 	public void event(PTEvent ptEvent) {
+		System.out.println("====>ptEvent:"+ptEvent);
 		if(ptEvent instanceof NewMessageEvent){
-			Message mes=((NewMessageEvent)ptEvent).getMessage();
-			System.out.println("\n**********************Payload message received********************");
-			System.out.println(" "+mes);
-			System.out.println("\n**************************************************");
-			if(mes!=null){
-				Vector listeners= 
-					(Vector)listenerPool.get(mes.getClass());
-				if(listeners==null){
-					return;
-				}else{
-					for(int i=listeners.size()-1;i>=0;i--){
-						((PTComASPMessageListener)listeners.elementAt(i)).PTMessageReceived(mes);
+			Object mes=((NewMessageEvent)ptEvent).getMessage();
+			if(mes instanceof PTCommunicationASPObject){
+				Serializable payload=((PTCommunicationASPObject)mes).getPeggyBackedMessage();
+				Peer source=((PTCommunicationASPObject)mes).getSource();
+				Peer target=((PTCommunicationASPObject)mes).getTarget();
+				System.out.println("\n**********************Payload message received********************");
+				System.out.println("message: "+mes);
+				System.out.println("\n**************************************************");
+				if(mes!=null){
+					Vector listeners= 
+						(Vector)listenerPool.get(payload.getClass());
+					if(listeners==null){
+						return;
+					}else{
+						for(int i=listeners.size()-1;i>=0;i--){
+							((PTComASPMessageListener)listeners.elementAt(i)).PTMessageReceived(payload,source,target);
+						}
 					}
 				}
+			}else{
+				return;
 			}
 		}else if(ptEvent instanceof QueryEvent){
 			Vector listeners= 

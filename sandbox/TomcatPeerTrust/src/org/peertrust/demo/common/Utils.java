@@ -1,13 +1,23 @@
 package org.peertrust.demo.common;
 
 import java.awt.Component;
+import java.io.IOException;
 
 
 
 import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 
-public class Helpers {
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+
+public class Utils {
 	public static boolean askYesNoQuestion(String dlgTitle,String question, Component parent,Object[] buttonTittle){
 		Object[] options = {"Yes","No"};
 		if(buttonTittle!=null){
@@ -62,6 +72,35 @@ public class Helpers {
 			    JOptionPane.INFORMATION_MESSAGE,
 			    null);//icon
 	}
+	
+	static public Element getRootElement(String path, String rootElement) throws NullPointerException, SAXException, IOException, ParserConfigurationException{
+		if(path==null){
+			new NullPointerException("Parameter path mustnot be null");
+		}
+		if(rootElement==null){
+			new NullPointerException("Parameter rootElement must not be null");
+		}
+	
+		DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		
+		Document dom = builder.parse(path);
+		
+		NodeList rootNodeList=
+			dom.getElementsByTagName(rootElement);
+		Element mRootNode=null;
+		if(rootNodeList.getLength()!=1){//
+			throw new Error(	
+					"Illegal xml config file. It must contain exactelly one "+
+					"<"+rootElement+"> but contains "+
+					rootNodeList.getLength());
+		}else{
+			mRootNode=(Element)rootNodeList.item(0);
+		}
+		
+		return mRootNode;		
+	}
+	
 	/**
 	 * @param args
 	 */

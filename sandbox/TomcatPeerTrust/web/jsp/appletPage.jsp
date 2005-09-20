@@ -89,7 +89,7 @@
 <PARAM name="type" value="application/x-java-applet;version=1.5">
 <PARAM name="CODE_BASE_STR" value="<%=base%>">
 <PARAM name="negoSessionID" value="<%=session.getId()%>">
-
+<PARAM name="serverPeerName" value="eLearn">
 <PARAM name="negoResource" value="blablaRes">
 <PARAM name="remotePeerIP" value="<%=request.getLocalAddr()%>">
 <PARAM name="appContext" value="<%=request.getContextPath()%>">
@@ -106,6 +106,7 @@
 		archive="<%=archives%>" 
 		CODE_BASE_STR="<%=base%>" 
 		negoSessionID="<%=session.getId()%>" 
+		serverPeerName="eLearn"
 		negoResource="blablaRes" 
 		remotePeerIP="<%=request.getLocalAddr()%>" 
 		appContext="<%=request.getContextPath()%>" 

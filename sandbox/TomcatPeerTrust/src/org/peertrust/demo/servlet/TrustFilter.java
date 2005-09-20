@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import org.peertrust.demo.resourcemanagement.IllegalAccessPolicyAssociation;
 import org.peertrust.demo.resourcemanagement.ProtectedResource;
-import org.peertrust.demo.resourcemanagement.PublicResource;
+
 import org.peertrust.demo.resourcemanagement.RequestServingMechanism;
 import org.peertrust.demo.resourcemanagement.Resource;
 import org.peertrust.demo.resourcemanagement.TrustManager;

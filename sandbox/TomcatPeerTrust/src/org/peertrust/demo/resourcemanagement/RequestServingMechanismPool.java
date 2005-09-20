@@ -1,7 +1,7 @@
 package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
-import java.util.Comparator;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.regex.Pattern;

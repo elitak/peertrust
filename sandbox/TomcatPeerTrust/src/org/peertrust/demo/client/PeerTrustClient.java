@@ -25,13 +25,15 @@ import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 
 import org.peertrust.demo.common.NewsEventListener;
 import org.peertrust.demo.common.StopCmd;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASPObject;
 import org.peertrust.event.AnswerEvent;
-import org.peertrust.event.EventDispatcher;
+//import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
 import org.peertrust.event.QueryEvent;
 import org.peertrust.exception.ConfigurationException;
 //import org.peertrust.net.Answer;
+import org.peertrust.meta.MetaInterpreter;
 import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Peer;
 //import org.peertrust.net.Query;
@@ -57,9 +59,13 @@ public class PeerTrustClient   implements PTEventListener{
 	private String appContextStr;
 	private String serviceServletPath;
 	
-	private String peerIP;
-	private int peerPort;
+	private String serverPeerIP;
+	private int serverPeerPort;
+	private String serverPeerName;
 	private URL resourceReqURL=null;
+	
+	private Peer localPeer;
+	private Peer serverPeer;
 	
 	static public String CONFIG_MUFFIN_URL="PeerTrustConfig/ConfigMuffin.properties";
 	static public int CONFIG_FILE_MAX_SIZE=1024*1024;
@@ -84,6 +90,7 @@ public class PeerTrustClient   implements PTEventListener{
 	
 	private TrustClient trustClient;
 	
+	private String localPeerName;
 	
 	public URL getResourceURL(){
 		try {
@@ -154,14 +161,15 @@ public class PeerTrustClient   implements PTEventListener{
     private void setParameters(Properties params){
     	//sessionID=params.getProperty("negoSessionID").toString().trim();
 		resourceID=params.getProperty("negoResource");
-		peerIP=params.getProperty("remotePeerIP");
+		serverPeerIP=params.getProperty("remotePeerIP");
+		serverPeerName=params.getProperty("serverPeerName").toLowerCase();
 		appContextStr=params.getProperty("appContext");
 		serviceServletPath=params.getProperty("serviceServletPath");
 		
 		try{
-			peerPort= Integer.parseInt(params.getProperty("remotePeerPort","7703"));
+			serverPeerPort= Integer.parseInt(params.getProperty("remotePeerPort","7703"));
 		}catch(NumberFormatException numEx){
-			peerPort=-1;
+			serverPeerPort=-1;
 			showMessage(numEx.getMessage());			
 		}
 		
@@ -234,12 +242,14 @@ public class PeerTrustClient   implements PTEventListener{
 			comFac=
 				(ClientSideHTTPCommunicationFactory)trustClient.getComponent(
 											Vocabulary.CommunicationChannelFactory);
-			comFac.setServerIP(this.peerIP);
-			comFac.setServerPort(this.peerPort);
+			comFac.setServerIP(this.serverPeerIP);
+			comFac.setServerPort(this.serverPeerPort);
+			comFac.setServerAlias(this.serverPeerName);
 			comFac.setWebAppURLPath(this.appContextStr+"/PeerTrustCommunicationServlet");
+			
 			System.out.println("******************info pt com *****************");
-			System.out.println("ServerIP:"+this.peerIP);
-			System.out.println("ServerPort:"+this.peerPort);
+			System.out.println("ServerIP:"+this.serverPeerIP);
+			System.out.println("ServerPort:"+this.serverPeerPort);
 			System.out.println("WebAppURLPath:"+this.appContextStr+"/PeerTrustCommunicationServlet");
 			
 			ClientSideNetServer ptServer=
@@ -253,12 +263,20 @@ public class PeerTrustClient   implements PTEventListener{
 			//EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
 			EntitiesTable entitiesTable = 
 				(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
-			Peer server= new Peer("elearn",this.peerIP,this.peerPort);
-			entitiesTable.put("elearn",server);
+			serverPeer= //new Peer("elearn",this.serverPeerIP,this.serverPeerPort);
+				new Peer(this.serverPeerName,this.serverPeerIP,this.serverPeerPort);
+			entitiesTable.put(this.serverPeerName,serverPeer);
 			//todo change how to set local peer data
+			MetaInterpreter metaInter=
+				(MetaInterpreter)trustClient.getComponent(Vocabulary.MetaInterpreter);
+			this.localPeerName=
+				metaInter.getPeerName().toLowerCase();
+			comFac.setLocalPeerAlias(localPeerName);
 			
-			entitiesTable.put("alice",new Peer("alice","_no_need_for_addi_",0));
-			trustClient.setAlias("alice");
+			this.localPeer=new Peer(localPeerName,"_no_need_for_addi_",0);
+			entitiesTable.put(	localPeerName,
+								this.localPeer);
+			trustClient.setAlias(localPeerName);
 			trustClient.setTimeout(TIMEOUT);
 			trustClient.setSleepInterval(SLEEP_INTERVAL);
 			logger.info("comfac:"+comFac);			
@@ -352,11 +370,15 @@ public class PeerTrustClient   implements PTEventListener{
 	
     
     
-    public void installPeerTrustConfigFiles(){
-    	return;
-    }
+//    public void installPeerTrustConfigFiles(){
+//    	return;
+//    }
     
     
+//	public TrustClient getTrustClient(){
+//		return this.trustClient;
+//	}
+	
     public void destroy(){ 
     	stopTrustClient(); 	
     }
@@ -400,8 +422,13 @@ public class PeerTrustClient   implements PTEventListener{
 								newsListener.onNews(finalResponse);								
 							}else if(cmd instanceof HttpSessionRegistrationRequest){
 								//System.out.println("Sending "+cmd);
-								comFac.createNetClient().send(	(HttpSessionRegistrationRequest)cmd,
-																comFac.getServerPeer("eLearn"));
+								PTCommunicationASPObject.send(
+											comFac.createNetClient(),
+											(HttpSessionRegistrationRequest)cmd,
+											localPeer,//TODO check for source
+											serverPeer);//comFac.getServerPeer("eLearn"));
+//								comFac.createNetClient().send(	(HttpSessionRegistrationRequest)cmd,
+//																comFac.getServerPeer("eLearn"));
 								System.out.println("HttpSessionRegistrationRequest Send "+cmd);
 							}
 						} catch (InterruptedException e) {
@@ -430,7 +457,24 @@ public class PeerTrustClient   implements PTEventListener{
 	public TrustClient getTrustClient() {
 		return trustClient;
 	}
+
+
+	/**
+	 * @return Returns the localPeer.
+	 */
+	public Peer getLocalPeer() {
+		return localPeer;
+	}
+
+
+	/**
+	 * @return Returns the serverPeer.
+	 */
+	public Peer getServerPeer() {
+		return serverPeer;
+	}
     
+	
     
     ///////////////////////////////////////////////////////////////////////////
     

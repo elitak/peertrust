@@ -53,6 +53,13 @@
 		policyValue="conferenceAttendeePolicy(Requester)"
 		includedPolicy="" 
 		/>
+		
+		
+	<policy
+		policyName ="peerTrustCommunityMemberPolicy"
+		policyValue="peerTrustCommunityMemberPolicy(Requester)"
+		includedPolicy="" 
+		/>
 </policySystem>
 
 <RequestServingMechanism type="...">
@@ -76,5 +83,24 @@
 	
 </RequestServingMechanism>
 
-
+<CredentialStore>
+	<Credential 
+		name="ieeeMember" 
+		value="signed(rule(ieeeMember(Requester) @ ieee, [], []),ieee, signature(ieee)).">
+	</Credential>
+	<Credential 
+		name="springerReader" 
+		value="signed(rule(springer(Requester) @ springer, [], []),springer, signature(springer)).">
+	</Credential>
+	<Credential 
+		name="peertrustCommunityMember" 
+		value="signed(rule(peertrustCommunityMember(Requester) @ peertrustCommunity, [], []),peertrustCommunity, signature(peertrustCommunity)).">
+	</Credential>
+	
+	<Credential 
+		name="acmMember" 
+		value="signed(rule(ieeeMember(Requester) @ acm, [], []),acm, signature(acm)).">
+	</Credential>
+	
+</CredentialStore>
 </resourceManagementConfiguration>

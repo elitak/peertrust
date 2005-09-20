@@ -7,6 +7,7 @@
 package org.peertrust.demo.servlet;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -358,14 +359,14 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	public void makeHttpSessionRegisterer(){
 		PTComASPMessageListener l= new PTComASPMessageListener(){
 
-			public void PTMessageReceived(Object message) {
+			public void PTMessageReceived(Serializable message,Peer source, Peer target) {
 				String sessionId=
 					((HttpSessionRegistrationRequest)message).getSessionKey();
-				Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
-				sessionTable.put(sessionId, negotiatingPeer);
+				//Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
+				sessionTable.put(sessionId, source);
 				System.out.println("*********************************Registerering**********************");
 				System.out.println("sessionId:"+sessionId);
-				System.out.println("Peer:"+negotiatingPeer);
+				System.out.println("Peer:"+source);
 				System.out.println("*********************************Registerering END**********************");
 			}
 			

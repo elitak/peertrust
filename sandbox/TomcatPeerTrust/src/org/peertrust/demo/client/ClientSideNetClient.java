@@ -18,9 +18,10 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.log4j.Logger;
-import org.peertrust.demo.common.HttpSessionRegistrationRequest;
+//import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 import org.peertrust.demo.common.NewsEvent;
 import org.peertrust.demo.common.NewsServer;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASPObject;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetClient;
@@ -39,16 +40,16 @@ public class ClientSideNetClient 	extends NewsServer
 	//private String webAppURLPath="/myapp-0.1-dev/PeerTrustCommunicationServlet";
 	private String webAppURLPath="/demo/PeerTrustCommunicationServlet";
 	
-	StringBuffer strBuffer= new StringBuffer(128);
-	HttpClient httpClient;
-	String randomPeerAlias=null;
-	Logger logger;
-	Peer httpServer;
+	private StringBuffer strBuffer= new StringBuffer(128);
+	private HttpClient httpClient;
+	//private String randomPeerAlias=null;
+	private Logger logger;
+	//private Peer httpServer;
 	
 	public ClientSideNetClient(String webAppURLPath, String peerAlias, Logger logger){
 		this.webAppURLPath=webAppURLPath;
 		this.httpClient= new HttpClient();
-		this.randomPeerAlias=peerAlias;
+		//this.randomPeerAlias=peerAlias;
 		this.logger=logger;
 		return;
 	}
@@ -62,15 +63,15 @@ public class ClientSideNetClient 	extends NewsServer
 		if(source==null){
 			doRebuild=true;
 			source=new Peer("alice","_no_need_for_addi_",124);//TODO change to load automaticaly
-			
+			System.out.println("!!!! hardcoded peer");
 		}else if(source.getAddress()==null){			
 			source.setAddress("_no_need_for_addi_");
 		}
 		
 		if(target==null){
 			doRebuild=true;
-			target=new Peer("elearn","_no_need_for_addi_",23541);;//TODO change to load automaticaly
-			
+			target=new Peer("elearn","_no_need_for_addi_X",23541);;//TODO change to load automaticaly
+			System.out.println("!!!! hardcoded peer target");
 		}else if(target.getAddress()==null){			
 			target.setAddress("_no_need_for_addi_");
 		}
@@ -100,10 +101,13 @@ public class ClientSideNetClient 	extends NewsServer
 						((Answer)mes).getTrace());
 			}
 			return mes;
-		}else if(mes instanceof HttpSessionRegistrationRequest){
-			HttpSessionRegistrationRequest mes1=
-				new HttpSessionRegistrationRequest(
-						((HttpSessionRegistrationRequest)mes).getSessionKey(),source,target);
+		}else if(mes instanceof PTCommunicationASPObject){//HttpSessionRegistrationRequest){
+//			HttpSessionRegistrationRequest mes1=
+//				new HttpSessionRegistrationRequest(
+//						((HttpSessionRegistrationRequest)mes).getSessionKey(),source,target);
+//			System.out.println("mes1"+mes1);
+			PTCommunicationASPObject mes1=
+				new PTCommunicationASPObject(source,target,((PTCommunicationASPObject)mes).getPeggyBackedMessage());
 			System.out.println("mes1"+mes1);
 			return mes1;
 		}else{
@@ -157,13 +161,13 @@ public class ClientSideNetClient 	extends NewsServer
 	
 	private String makeHTTPAdress(Message mes, Peer server){
 		
-		httpServer.setAlias(server.getAlias());
+		server.setAlias(server.getAlias());
 		strBuffer.delete(0,strBuffer.length());
 		
 		strBuffer.append("http://");
-		strBuffer.append(httpServer.getAddress());
+		strBuffer.append(server.getAddress());
 		strBuffer.append(":");
-		strBuffer.append(httpServer.getPort());
+		strBuffer.append(server.getPort());
 		strBuffer.append(webAppURLPath);
 		strBuffer.append("?action=send");
 				
@@ -179,16 +183,18 @@ public class ClientSideNetClient 	extends NewsServer
 		this.webAppURLPath = webAppURLPath;
 	}
 	
+	
+	
 	public void destroy(){
 		
 	}
 	
 	
 	
-	public Peer getHttpServer() {
-		return httpServer;
-	}
-	public void setHttpServer(Peer httpServer) {
-		this.httpServer = httpServer;
-	}
+//	public Peer getHttpServer() {
+//		return httpServer;
+//	}
+//	public void setHttpServer(Peer httpServer) {
+//		this.httpServer = httpServer;
+//	}
 }

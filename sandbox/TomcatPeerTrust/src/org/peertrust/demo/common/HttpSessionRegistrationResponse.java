@@ -3,6 +3,8 @@ package org.peertrust.demo.common;
 import java.io.Serializable;
 
 
+
+
 public class HttpSessionRegistrationResponse implements Serializable{
 	private boolean acknowledgment;
 	private HttpSessionRegistrationRequest request;
