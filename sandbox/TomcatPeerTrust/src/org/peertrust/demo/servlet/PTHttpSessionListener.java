@@ -50,8 +50,8 @@ public class PTHttpSessionListener implements HttpSessionListener {
 		if(finalDestination!=null){
 			try {
 				ServletContext context=se.getSession().getServletContext();
-				NegotiationObjects negoObjects= 
-					(NegotiationObjects)context.getAttribute(NegotiationObjects.class.getName());
+				NegotiationObjectRepository negoObjects= 
+					(NegotiationObjectRepository)context.getAttribute(NegotiationObjects.class.getName());
 				BlockingQueue queue=negoObjects.removeMessageFIFO(finalDestination);
 				queue.offer(new StopCmd());
 			} catch (Exception e) {

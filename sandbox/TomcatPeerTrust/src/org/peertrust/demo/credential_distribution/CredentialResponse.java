@@ -70,6 +70,13 @@ public class CredentialResponse implements Serializable {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {		
+		return "CredentialResponse[name:"+name+",value:"+value+"]";
+	}
 	
 	
 

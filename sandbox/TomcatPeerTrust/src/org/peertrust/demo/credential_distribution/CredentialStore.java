@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.peertrust.demo.common.Utils;
+import org.peertrust.net.Peer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -66,9 +67,15 @@ public class CredentialStore {
 	 * 
 	 * @return the value of the credential.
 	 */
-	public String getCredential(String name){
+	public String getCredential(String name, Peer requestingPeer){
 		if(name!=null){
-			return (String)credentials.get(name);
+			String cred=(String)credentials.get(name);
+			if(cred!=null){
+				System.out.println("cred.replaceAll(\"Requester\","+requestingPeer.getAlias()+");");
+				cred=cred.replaceAll("Requester",requestingPeer.getAlias());
+				System.out.println("cred:"+cred);
+			}
+			return cred;
 		}else{
 			return null;
 		}

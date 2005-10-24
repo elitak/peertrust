@@ -101,7 +101,7 @@
 	<pt:CommunicationChannelFactory rdf:about="#CommunicationChannelFactory">
 		<pt:javaClass>org.peertrust.demo.servlet.ServletSideHTTPCommunicationFactory</pt:javaClass>
 		<pt:host>localhost</pt:host>
-		<pt:port>37000</pt:port>
+		<pt:port>7703</pt:port>
 	</pt:CommunicationChannelFactory>
 
 	<!-- ======================================================================

@@ -4,32 +4,45 @@
 	<!--  use attribute overwrite to cope with multiple match -->
 	<!-- ********************start new demo jsp and htmk -->
 	<resourceClass
-		url="/demo/data/publications/acm/.*"
+		url="/data/publications/acm/.*"
 		matchingStrategy="_reg_exp_"	
 		policyName="acmMemberPolicy"
 		/>
 	
 	<resourceClass
-		url="/demo/data/publications/ieee/.*"
+		url="/data/publications/ieee/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="ieeeMemberPolicy"
 	/>
 	
 	<resourceClass
-		url="/demo/data/publications/springer/.*"
+		url="/data/publications/springer/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="springerReaderPolicy"
 	/>
 	
 	<resourceClass
 		isProtected="true" 
-		url="/demo/data/publications/conf/.*"
+		url="/data/publications/conf/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="conferenceAttendeePolicy"
 	/>	
+	
+	<resourceClass
+		isProtected="true" 
+		url="/demo/jsp/.*.jsp"
+		matchingStrategy="_reg_exp_"
+		policyName="jspForceSessionRegistration"
+	/>
 </ResourceClassifier>
 
 <policySystem type="..">
+	<policy
+		policyName="jspForceSessionRegistration"
+		policyValue="jspForceSessionRegistration(jsp)"
+		includedPolicy="" 
+		/>
+	
 	<policy
 		policyName="acmMemberPolicy"
 		policyValue="acmMemberPolicy(Requester)"
@@ -56,8 +69,8 @@
 		
 		
 	<policy
-		policyName ="peerTrustCommunityMemberPolicy"
-		policyValue="peerTrustCommunityMemberPolicy(Requester)"
+		policyName ="peertrustCommunityMemberPolicy"
+		policyValue="peertrustCommunityMemberPolicy(Requester)"
 		includedPolicy="" 
 		/>
 </policySystem>
@@ -71,6 +84,7 @@
 	
 	<mechanism 	name="sessionRegistration"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByForwarding"
+				context="/demo"
 				forwardTo="/jsp/sessionRegistration.jsp"
 				matchingPattern="/jsp/sessionRegistration.jsp">
 	</mechanism>

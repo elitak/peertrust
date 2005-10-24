@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.peertrust.config.Configurable;
+import org.peertrust.event.AnswerEvent;
+import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.NewMessageEvent;
 import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
@@ -17,12 +19,13 @@ import org.peertrust.net.Peer;
 public class PTCommunicationASP implements PTEventListener,Configurable {
 	
 	//private BlockingQueue sendQueue;
+	private EventDispatcher _dispatcher ;
 	private NetClient netClient;
 	private Peer source;
 	private Hashtable listenerPool= new Hashtable();
 	
 	public void event(PTEvent ptEvent) {
-		System.out.println("====>ptEvent:"+ptEvent);
+		System.out.println("*====>ptEvent:"+ptEvent);
 		if(ptEvent instanceof NewMessageEvent){
 			Object mes=((NewMessageEvent)ptEvent).getMessage();
 			if(mes instanceof PTCommunicationASPObject){
@@ -44,9 +47,21 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 					}
 				}
 			}else{
+				System.out.println("\n===================>UnknownNewEvent:"+ptEvent);
+				//System.out.println("\n=========>QueryEvent:\n"+ptEvent);
+				Vector listeners= 
+					(Vector)listenerPool.get(ptEvent.getClass());//QueryEvent.class);
+				System.out.println("Listeners:"+listeners);
+				if(listeners!=null){
+					for(int i=listeners.size()-1;i>=0;i--){
+						((PTEventListener)listeners.elementAt(i)).event(ptEvent);
+					}
+				}
 				return;
+				
 			}
 		}else if(ptEvent instanceof QueryEvent){
+			System.out.println("\n=========>QueryEvent:\n"+ptEvent);
 			Vector listeners= 
 				(Vector)listenerPool.get(QueryEvent.class);
 			if(listeners!=null){
@@ -55,6 +70,18 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 				}
 			}
 			return;
+		}else if(ptEvent instanceof AnswerEvent){
+			System.out.println("\n=======>AnwerEvent:\n"+ptEvent);
+			Vector listeners= 
+				(Vector)listenerPool.get(AnswerEvent.class);
+			if(listeners!=null){
+				for(int i=listeners.size()-1;i>=0;i--){
+					((PTEventListener)listeners.elementAt(i)).event(ptEvent);
+				}
+			}
+			return;
+		}else{
+			System.out.println("\n========>Unknown Event:"+ptEvent);
 		}
 	}
 
@@ -68,10 +95,12 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 	
 	public void unregisterPTEventListener(PTEventListener eventListener){
 		unregisterListener(eventListener,QueryEvent.class);
+		unregisterListener(eventListener,AnswerEvent.class);
 	}
 	
 	public void registerPTEventListener(PTEventListener eventListener){
 		registerListener(eventListener,QueryEvent.class);
+		registerListener(eventListener,AnswerEvent.class);
 	}
 	
 	private void registerListener(Object listener, Class objTypeToListenFor){
@@ -122,8 +151,24 @@ public class PTCommunicationASP implements PTEventListener,Configurable {
 	}
 	
 	
+	/**
+	 * @param _dispatcher The _dispatcher to set.
+	 */
+	public void setEventDispatcher(EventDispatcher _dispatcher) {
+		this._dispatcher = _dispatcher;
+	}
+	
 	public void init() throws ConfigurationException {
 		System.out.println("****************init for PTCommunicationASP**********************");
+		String msg = null ;
+		if (_dispatcher == null)
+		{
+			msg = "There not exist an event dispatcher" ;
+			throw new Error(msg) ;
+		}
+		
+		_dispatcher.register(this,NewMessageEvent.class) ;
+		
 	}
 
 }

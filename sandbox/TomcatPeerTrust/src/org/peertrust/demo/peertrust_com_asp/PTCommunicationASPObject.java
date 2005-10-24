@@ -37,6 +37,18 @@ public class PTCommunicationASPObject extends Message {
 		netClient.send(mes,target);
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.net.Message#toString()
+	 */
+	public String toString() {
+		// TODO Auto-generated method stub
+		return 	super.toString()+
+				"\n\tMessage:"+peggyBackedMessage;
+	}
+
+
 	/**
 	 * @param args
 	 */

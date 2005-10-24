@@ -26,18 +26,24 @@ public class CredentialDistributionServer implements PTComASPMessageListener{
 		credentialStore= new CredentialStore();
 	}
 	
-	public void PTMessageReceived(Serializable message,Peer source, Peer target) {
+	public void PTMessageReceived(
+							Serializable message,
+							Peer source, 
+							Peer target) {
 		if(message instanceof CredentialRequest){
 			String credName=((CredentialRequest)message).getName();
-			String value=credentialStore.getCredential(credName);
+			String value=credentialStore.getCredential(credName,source);
 			CredentialResponse credResp=
 				new CredentialResponse(credName,value);
+			System.out.println("Sending credential:\n"+credResp);
 			//swap target and source since we have now the server view
 			PTCommunicationASPObject.send(netClient,credResp,target,source);
 		}
 	}
 	
-	public void setup(String credentialStoreXmlFile, TrustClient trustClient) throws NullPointerException, SAXException, IOException, ParserConfigurationException{
+	public void setup(
+				String credentialStoreXmlFile, 
+				TrustClient trustClient) throws NullPointerException, SAXException, IOException, ParserConfigurationException{
 		if(credentialStoreXmlFile==null){
 			throw new NullPointerException("Parameter credentialStoreXmlFile must not be null");
 		}
@@ -47,6 +53,7 @@ public class CredentialDistributionServer implements PTComASPMessageListener{
 		}
 		
 		credentialStore.setup(credentialStoreXmlFile);
+		System.out.println("CredentialStore:"+credentialStore);
 		Object eventL=
 			trustClient.getComponent(Vocabulary.EventListener);
 		if(eventL instanceof PTCommunicationASP){

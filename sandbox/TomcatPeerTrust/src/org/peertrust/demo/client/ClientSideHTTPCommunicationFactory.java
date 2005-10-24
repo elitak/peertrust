@@ -22,13 +22,8 @@ import org.peertrust.net.Peer;
  */
 public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Configurable {
 	
-	private String serverIP=null;
-	//private String randomAlias=null;
-	private int serverPort=-1;
-	private String serverAlias;
-	private Peer serverPeer= new Peer("alias","addi",0);
-	
-	private String localPeerAlias;
+	final private Peer httpServerPeer= new Peer("alias","addi",0);
+	final private Peer localPeer= new Peer("_local_","_addi_",0);
 	
 	private String webAppURLPath=null;
 	
@@ -42,8 +37,9 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	 * @see org.peertrust.net.AbstractFactory#getServerPeer(java.lang.String)
 	 */
 	public Peer getServerPeer(String serverName) {
-		//return new Peer(serverName,serverIP,serverPort);
-		return serverPeer;
+		localPeer.setAlias(serverName);
+		return localPeer;
+		
 	}
 
 	/* (non-Javadoc)
@@ -64,16 +60,17 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {	
-		localPeerAlias="alice";
+		//localPeerAlias="alice";
 		//make unique client
 		ptClient= 
-			new ClientSideNetClient(webAppURLPath, localPeerAlias,logger);
+			new ClientSideNetClient(webAppURLPath, /*localPeerAlias,*/logger);
 		//ptClient.setHttpServer(serverPeer);//getServerPeer(randomAlias));
 		//create unique net server
 		ptServer=
-			new ClientSideNetServer(	
-									serverPeer,//getServerPeer(randomAlias),
-									webAppURLPath,logger);
+			new ClientSideNetServer(localPeer,	
+									httpServerPeer,//getServerPeer(randomAlias),
+									webAppURLPath,
+									logger);
 	}
 	
 
@@ -92,34 +89,30 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	/**
 	 * @return Returns the serverIP.
 	 */
-	public String getServerIP() {
-		return serverIP;
+	public String getHttpServerIP() {
+		return httpServerPeer.getAddress();
 	}
 	/**
 	 * @param serverIP The serverIP to set.
 	 */
-	public void setServerIP(String serverIP) {
-		this.serverIP = serverIP;
-		this.serverPeer.setAddress(serverIP);
-		ptServer.getServer().setAddress(serverIP);
-		//ptClient.getHttpServer().setAddress(serverIP);
+	public void setHttpServerIP(String serverIP) {
+		this.httpServerPeer.setAddress(serverIP);
 	}
+	
 	/**
 	 * @return Returns the serverPort.
 	 */
-	public int getServerPort() {
-		return serverPort;
+	public int getHttpServerPort() {
+		return httpServerPeer.getPort();//Port;
 	}
+	
 	/**
 	 * @param serverPort The serverPort to set.
 	 */
 	public void setServerPort(int serverPort) {
-		this.serverPort = serverPort;
-		this.serverPeer.setPort(serverPort);
-		ptServer.getServer().setPort(serverPort);
-		
-		//ptClient.getHttpServer().setPort(serverPort);
+		this.httpServerPeer.setPort(serverPort);
 	}
+	
 	/**
 	 * @return Returns the webAppURLPath.
 	 */
@@ -136,42 +129,56 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 		return;
 	}
 	
-	
-	
-	
-//	public long getRandom(){
-//		return secRandom.nextLong();
-//	}
-	
-	/**
-	 * @return Returns the localPeerAlias.
-	 */
-	public String getLocalPeerAlias() {
-		return localPeerAlias;
-	}
-
-	/**
-	 * @param localPeerAlias The localPeerAlias to set.
-	 */
-	public void setLocalPeerAlias(String localPeerAlias) {
-		this.localPeerAlias = localPeerAlias;
-	}
-
 	/**
 	 * @return Returns the serverAlias.
 	 */
-	public String getServerAlias() {
-		return serverAlias;
+	public String getHttpServerAlias() {
+		return this.httpServerPeer.getAlias();//httpServerAlias;
 	}
 
 	/**
 	 * @param serverAlias The serverAlias to set.
 	 */
-	public void setServerAlias(String serverAlias) {
-		this.serverAlias = serverAlias;
-		serverPeer.setAlias(serverAlias);
+	public void setHttpServerAlias(String serverAlias) {
+		//this.httpServerAlias = serverAlias;
+		this.httpServerPeer.setAlias(serverAlias);
 	}
 
+	
+	/**
+	 * @return Returns the _host
+	 */
+	public String getHost() {
+		return localPeer.getAddress();
+	}
+	
+	/**
+	 * @param _host The _host to set.
+	 */
+	public void setHost(String _host) {
+		//this._host = _host;
+		if(_host!=null){
+			localPeer.setAddress(_host);
+		}
+		
+	}
+	
+	/**
+	 * @return Returns the _port.
+	 */
+	public int getPort() {
+		return localPeer.getPort();
+	}
+	
+	/**
+	 * @param _port The _port to set.
+	 */
+	public void setPort(int _port) {
+		if(_port>0){
+			localPeer.setPort(_port);
+		}
+	}
+		
 	public void destroy(){
 		ptClient.destroy();
 		ptServer.destroy();

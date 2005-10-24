@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.PageContext;
 
 import org.peertrust.TrustClient;
+import org.peertrust.demo.servlet.NegotiationObjectRepository;
 import org.peertrust.demo.servlet.NegotiationObjects;
 import org.peertrust.net.Peer;
 
@@ -17,7 +18,7 @@ import org.peertrust.net.Peer;
  */
 public class TagsPeerTrustEvaluator implements PTPropertyEvaluator {
 	static final public String PEER_NAME_PLACE_HOLDER="Requester"; 
-	NegotiationObjects negoObjects;
+	NegotiationObjectRepository negoObjects;
 	TrustClient trustClient;
 	HttpSession session;
 	/**

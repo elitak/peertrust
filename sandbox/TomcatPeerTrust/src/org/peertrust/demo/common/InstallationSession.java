@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
  *Use to install the most recent pt files to the local system.
  */
 public class InstallationSession {
+	static final String PROLOG_FILE_ID="prologFiles";
 	static final String[] FILES_IDS= {	"prologFile",
 										"entitiesFile",
 										"configFile",
@@ -491,6 +492,16 @@ public class InstallationSession {
 		return remoteVersion;
 	}
 
+	public File getPrologFile(){
+		Object prologFileName=
+			this.appFileTable.get(PROLOG_FILE_ID);
+		if(prologFileName!=null){
+			return new File(installDir, (String)prologFileName);			
+		}else{
+			return null;
+		}
+	}
+	
 	public static void main(String[] args) throws Exception{
 //		InstallationSession is= 
 //			new InstallationSession(
@@ -499,14 +510,15 @@ public class InstallationSession {
 		System.out.println("1.0.1>1.0.0:"+("1.0.0.1".compareTo("1.0.0")));
 		InstallationSession is= 
 			new InstallationSession(
-					"http://127.0.0.1:7703/myapp-0.1-dev/PeerTrustConfig/","install.xml",
-					"C:\\dev_root\\pt\\");//http://127.0.0.1:7703/myapp-0.1-dev/
+					"http://127.0.0.1:7703/demo/PeerTrustConfig/","install.xml",
+					"/home/pat_dev/pt");//http://127.0.0.1:7703/myapp-0.1-dev/
 		//System.out.println(is.getFilesToInstall());
-		is.install();
+		//is.install();
 		//is.configRDFFile();
 //		System.out.println("isInst:"+is.isPeerTrustInstall()+
 //							"\n"+is.getMessage());
 		
+		System.out.println("prologFile:"+is.getPrologFile());
 	}
 	
 	

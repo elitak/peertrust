@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,7 +24,8 @@ public class RequestServingByLoadingFromExtDir implements RequestServingMechanis
 					HttpServletRequest req, 
 					HttpServletResponse resp,
 					FilterChain chain, 
-					Resource resource) throws IOException,ServletException {
+					Resource resource,
+					ServletContext servletContext) throws IOException,ServletException {
 		req.setAttribute("resource",resource);
 		//make path
 		String path=baseDir;

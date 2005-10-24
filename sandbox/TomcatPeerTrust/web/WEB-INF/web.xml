@@ -1,5 +1,5 @@
-<web-app version="2.4" >
-
+<web-app version="2.4"><!-- shared="true" -->
+	<display-name>/demo</display-name>
 	<!-- 
      <servlet>
         <servlet-name>JnlpDownloadServlet</servlet-name>
@@ -11,6 +11,11 @@
      </servlet-mapping>
 -->
 	<!-- mapping for the demo servlet:DemoPeerTrustServlet -->
+	<context-param>
+		      <param-name>NegotiationObjectsContext</param-name>
+		      <param-value>/demo</param-value>
+   	</context-param>
+   		
 	<context-param>
 		<param-name>ServiceServletPath</param-name>
 		<!--  param-value>/DemoPeerTrustServlet/service</param-value -->
@@ -104,6 +109,11 @@
 	<filter-mapping>
 		<filter-name>NoCacheNoStore</filter-name>
 		<url-pattern>/demo/*</url-pattern>
+		
+		<init-param>
+		      <param-name>NegotiationObjectsContext</param-name>
+		      <param-value>/demo</param-value>
+   		</init-param>
 	</filter-mapping>
 	
 	

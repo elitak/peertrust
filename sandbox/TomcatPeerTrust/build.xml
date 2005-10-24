@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.9 2005/09/19 14:46:16 token77 Exp $
+     $Id: build.xml,v 1.10 2005/10/24 11:15:00 token77 Exp $
 -->
 
 
@@ -305,12 +305,12 @@
    description="Compile Java sources">
 
     <!-- Compile Java classes as necessary -->
-    <mkdir    dir="${build.home}/WEB-INF/classes"/>
+    <mkdir    dir="${basedir}/classes"/>
     <javac 
     	fork="yes"
     	executable="${JAVA_HOME}/bin/javac"
     	srcdir="${src.home}"
-          destdir="${build.home}/WEB-INF/classes"
+          destdir="${basedir}/classes"
             debug="${compile.debug}"
       deprecation="${compile.deprecation}"
     	optimize="${compile.optimize}"
@@ -372,11 +372,12 @@
   		<!-- attributes of jar element: 
   			basedir="${build.home}" 
   			manifest="somemanifest.mf" -->
-  		<fileset dir="${build.home}/WEB-INF/classes">
+  		<fileset dir="${basedir}/classes">
   			<include name="org/**/client/*.class"/>
   			<include name="org/**/common/*.class"/>
   			<include name="org/**/client/applet/*.class"/>
   			<include name="org/peertrust/demo/peertrust_com_asp/*.class"/>
+  			<include name="org/peertrust/demo/session_registration/*.class"/>
   		</fileset>
   		
   		<manifest>
@@ -390,7 +391,7 @@
   	  		<!-- attributes of jar element: 
   	  			basedir="${build.home}" 
   	  			manifest="somemanifest.mf" -->
-  	  		<fileset dir="${build.home}/WEB-INF/classes">
+  	  		<fileset dir="${basedir}/classes">
   	  			<include name="org/**/client/applet/*.class"/>
   	  		</fileset>
   	  		
@@ -423,11 +424,17 @@
 	    </copy>
 	  	<!-- Create Client application JAR file -->
 	  	<jar jarfile="${web.home}/jws/DemoClient.jar" >
-	  		<fileset dir="${build.home}/WEB-INF/classes">
+	  		<fileset dir="${basedir}/classes">
 	  			<include name="org/**/client/*.class"/>
+	  			<include name="org/**/servlet/*.class"/>
+	  			<include name="org/**/servlet/jsptags/*.class"/>
 	  			<include name="org/**/common/*.class"/>
 	  			<include name="org/**/client/applet/*.class"/>
 	  			<include name="org/peertrust/demo/peertrust_com_asp/*.class"/>
+	  			<include name="org/peertrust/demo/session_registration/*.class"/>
+	  			<include name="org/peertrust/demo/resourcemanagement/*.class"/>
+	  			<include name="org/peertrust/demo/credential_distribution/*.class"/>
+	  			<!--org.peertrust.demo.servlet.jsptags -->
 	  		</fileset>
 	  		
 	  		<manifest>
@@ -438,7 +445,7 @@
 	  	</jar>
 	  	
 	  	<jar jarfile="${web.home}/jws/DemoApplet.jar">
-	  	  		<fileset dir="${build.home}/WEB-INF/classes">
+	  	  		<fileset dir="${basedir}/classes">
 	  	  			<include name="org/**/client/applet/*.class"/>
 	  	  		</fileset>
 	  	  		
@@ -449,11 +456,34 @@
 	  	  		</manifest>
 	  	  	</jar>
 	  	<antcall target="sign_jars"></antcall>
-	  	
+	  	<antcall target="CopyJars"/>
 </target>
 	
-<target name="DemoClient">
-
+<target name="CopyJars">
+	<!-- copy    todir="${basedir}/data/WEB-INF/lib">
+		   <fileset dir="${web.home}/jws/">
+		   		<include name="peertrust.jar"/>
+		   		<include name="DemoClient.jar"/>
+		   		<include name="DemoApplet.jar"/>
+		   </fileset>
+	</copy>
+	<copy    todir="${basedir}/web/WEB-INF/lib">
+			   <fileset dir="${web.home}/jws/">
+			   		<include name="peertrust.jar"/>
+			   		<include name="DemoClient.jar"/>
+			   		<include name="DemoApplet.jar"/>
+			   </fileset>
+	</copy -->
+	
+	<copy    todir="${catalina.home}/shared/lib">
+	   <fileset dir="${web.home}/jws/">
+	   	<include name="*.jar"/>
+	   		<!-- include name="peertrust.jar"/ -->
+	   		<!-- include name="DemoClient.jar"/ -->
+	   		<!-- include name="DemoApplet.jar"/ -->
+	   </fileset>
+	</copy>
+	
 </target>
 
 
@@ -560,7 +590,7 @@
     <!-- Create build directories as needed -->
     <mkdir  dir="${build.home}"/>
     <mkdir  dir="${build.home}/WEB-INF"/>
-    <mkdir  dir="${build.home}/WEB-INF/classes"/>
+    <mkdir  dir="${basedir}/classes"/>
 
 
     <!-- Copy static content of this web application -->
@@ -657,7 +687,7 @@
   	  	  			storepass="${store_password}"
   	  	  			keystore="${basedir}/JAR_SIGNER/${keystore}" 
   	  				alias="${alias}"
-  	  				keypass="${keypass}">
+  	  				keypass="${keypass}" verbose="true">
   				<fileset dir="${web.home}/jws">
   	  				<!-- include name="*.jar"/ -->
   					<include name="DemoClient.jar"/>
@@ -666,18 +696,6 @@
   	  			</fileset>
   			</signjar>
 
-  	<!-- signjar 
-  	  	  	  			jar="${web.home}/jws/peertrust.jar"
-  	  	  		    	storepass="${store_password}"
-  	  	  	  			keystore="${basedir}/JAR_SIGNER/${keystore}" 
-  	  	  				alias="${alias}"
-  	  	  				keypass="${keypass}"
-  	  	  	  		/ -->
-  	<copy    todir="${web.home}/WEB-INF/lib">
-  	      <fileset dir="${web.home}/jws"/>
-  	    </copy>
-  	
-  	
   	<signjar 
   	  	  	  			jar="${web.home}/jws/peertrust.jar"
   	  	  		    	storepass="${store_password}"
@@ -685,6 +703,18 @@
   	  	  				alias="${alias}"
   	  	  				keypass="${keypass}"
   	  	  	  		/>
+  	<!-- copy    todir="${web.home}/WEB-INF/lib">
+  	      <fileset dir="${web.home}/jws"/>
+  	    </copy -->
+  	
+  	
+  	<!-- signjar 
+  	  	  	  			jar="${web.home}/jws/peertrust.jar"
+  	  	  		    	storepass="${store_password}"
+  	  	  	  			keystore="${basedir}/JAR_SIGNER/${keystore}" 
+  	  	  				alias="${alias}"
+  	  	  				keypass="${keypass}"
+  	  	  	  		/ -->
   	
   		<!-- 
   			<signjar 

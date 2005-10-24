@@ -19,8 +19,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.log4j.Logger;
 import org.peertrust.demo.common.ConfigurationOption;
-import org.peertrust.demo.common.NewsEvent;
-import org.peertrust.demo.common.NewsServer;
+//import org.peertrust.demo.common.NewsEvent;
+//import org.peertrust.demo.common.NewsServer;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Message;
 import org.peertrust.net.NetServer;
@@ -33,25 +33,34 @@ import org.peertrust.net.Query;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class ClientSideNetServer 	extends NewsServer
+public class ClientSideNetServer 	/*extends NewsServer*/
 									implements NetServer {
 	private StringBuffer strBuffer;
 	//private String webAppURLPath="/myapp-0.1-dev/PeerTrustCommunicationServlet";
 	private String webAppURLPath="/demo/PeerTrustCommunicationServlet";
 	private String webHTTPURL=null;
-	private Peer server=null;
+	private Peer remotePeer=null;
+	private Peer localPeer=null;
 	//private HttpURLConnection urlConnection;
 	private HttpClient httpClient;
 	private boolean configNotEnded=true;
 	private Logger logger;//= Logger.getLogger(this.getClass());
 	
-	public ClientSideNetServer(Peer server,String webAppURL, Logger logger){
+	
+	
+	public ClientSideNetServer(	
+								Peer localPeer,
+								Peer remotePeer,
+								String webAppURL, 
+								Logger logger
+								){
 		this.httpClient=new HttpClient();
-		this.server=server;
+		this.remotePeer=remotePeer;
 		this.webAppURLPath=webAppURL;
 		this.strBuffer= new StringBuffer(128);
-		this.webHTTPURL=makeHTTPAdress(server);
-		this.logger=logger;		
+		this.webHTTPURL=makeHTTPAdress(remotePeer);
+		this.logger=logger;
+		this.localPeer=localPeer;
 		return;
 	}
 	
@@ -59,19 +68,19 @@ public class ClientSideNetServer 	extends NewsServer
 	 * @see org.peertrust.net.NetServer#listen()
 	 */
 	public Message listen() {
-		logger.info("****************client ist listening*****************");
+		logger.info("\n****************client ist listening*****************");
 		ensureRightConfig();
-		Object rcvObj=getUsingHttp(server);
-		logger.info("rcvObject:"+rcvObj);
+		Object rcvObj=getUsingHttp(remotePeer);
+		logger.info("\nrcvObject:"+rcvObj);
 		if(rcvObj instanceof Answer){
-			logger.info("returning answer:"+ConfigurationOption.getMessageAsString(rcvObj));
+			logger.info("\nreturning answer:"+ConfigurationOption.getMessageAsString(rcvObj));
 			return (Answer)rcvObj;
 		}else if(rcvObj instanceof Query){
 			return (Query)rcvObj;
 		}else if(rcvObj instanceof Message){		
 			return (Message)rcvObj;
 		}else{
-			return null;
+			return (Message)rcvObj;
 		}
 		
 	}
@@ -87,7 +96,7 @@ public class ClientSideNetServer 	extends NewsServer
 						logger.error("waiting for config interupted",e);
 					}
 				}
-				webHTTPURL=makeHTTPAdress(server);	
+				webHTTPURL=makeHTTPAdress(remotePeer);	
 			}
 	}
 	
@@ -110,7 +119,7 @@ public class ClientSideNetServer 	extends NewsServer
 				new ByteArrayOutputStream();
 			ObjectOutputStream objOut = 
 				new ObjectOutputStream(byteStream);
-			objOut.writeObject(server);
+			objOut.writeObject(localPeer);
 			objOut.flush();
 			RequestEntity reqEntity=
 				new ByteArrayRequestEntity(byteStream.toByteArray());
@@ -133,22 +142,22 @@ public class ClientSideNetServer 	extends NewsServer
 //				new ObjectInputStream(new ByteArrayInputStream(objSTR.getBytes()));
 //			Object obj= objIn.readObject();
 			
-			fireNewsEvent(new NewsEvent(this,""+postMethod.getStatusText()));
-			if(obj instanceof Throwable){
+			/*fireNewsEvent(new NewsEvent(this,""+postMethod.getStatusText()));*/
+			/*if(obj instanceof Throwable){
 				fireNewsEvent("RemoteServer:"+postMethod.getURI(),(Throwable)obj);
 			}else{
 				fireNewsEvent(
 						new NewsEvent("RemoteServer:"+postMethod.getURI(),
 									"news:"+ConfigurationOption.getMessageAsString(obj) ) );
-			}
+			}*/
 			return obj;
 							
 		} catch (MalformedURLException e) {
-			e.printStackTrace();fireNewsEvent(this,e);return null;
+			e.printStackTrace();/*fireNewsEvent(this,e)*/;return null;
 		} catch (IOException e) {
-			e.printStackTrace();fireNewsEvent(this,e);return null;
+			e.printStackTrace();/*fireNewsEvent(this,e)*/;return null;
 		}catch(Throwable th){
-			th.printStackTrace();fireNewsEvent(this,th);return null;
+			th.printStackTrace();/*fireNewsEvent(this,th);*/return null;
 		}
 //		finally{
 //			postMethod.releaseConnection();
@@ -174,16 +183,16 @@ public class ClientSideNetServer 	extends NewsServer
 	/**
 	 * @return Returns the server.
 	 */
-	public Peer getServer() {
-		return server;
+	public Peer getRemotePeer() {
+		return remotePeer;
 	}
 	
 	/**
 	 * @param server The server to set.
 	 */
-	public void setServer(Peer server) {
-		this.server = server;
-		webHTTPURL=makeHTTPAdress(server);
+	public void setRemotePeer(Peer remotePeer) {
+		this.remotePeer = remotePeer;
+		webHTTPURL=makeHTTPAdress(remotePeer);
 	}
 	
 
@@ -200,7 +209,7 @@ public class ClientSideNetServer 	extends NewsServer
 	 */
 	public void setWebAppURLPath(String comServletURL) {
 		this.webAppURLPath = comServletURL;
-		this.webHTTPURL=makeHTTPAdress(server);
+		this.webHTTPURL=makeHTTPAdress(remotePeer);
 	}
 	synchronized public void setConfigNotEnded(boolean configNotEnded) {
 		this.configNotEnded = configNotEnded;
@@ -209,5 +218,9 @@ public class ClientSideNetServer 	extends NewsServer
 	
 	public void destroy(){
 		httpClient.getHttpConnectionManager().closeIdleConnections(1);
+	}
+	
+	public void setLocalPeerName(String localPeerName){
+		this.localPeer.setAlias(localPeerName);
 	}
 }

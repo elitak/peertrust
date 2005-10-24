@@ -5,6 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
 public class PrologFileManipulator {
 
 	private File prologFile=null;
@@ -22,6 +29,39 @@ public class PrologFileManipulator {
 			throw new RuntimeException("File not found:"+prologFilePath);
 		}
 	}
+		
+	public void loadPrologFile(File prologFile){
+		if(prologFile==null){
+			throw new RuntimeException("Parameter prologFilePath must not be null");
+		}
+		this.prologFile= prologFile;
+		if(!prologFile.exists()){
+			throw new RuntimeException("File not found:"+prologFile);
+		}
+	}
+	
+	 private Document getLocalRDFFileAsDocument(File rdfFile) throws NullPointerException{
+	    	
+	    	if(rdfFile==null){
+				throw new NullPointerException("sourceBase is null");
+			}else{
+				
+				
+				
+				if(!rdfFile.exists()){
+		    		return null;
+		    	}
+		    	try{
+		    		DocumentBuilderFactory factory=
+						DocumentBuilderFactory.newInstance();
+		    		DocumentBuilder builder = factory.newDocumentBuilder();
+		    		Document doc=builder.parse(rdfFile);
+		    		return doc;
+		    	}catch(Exception e){
+		    		return null;
+		    	}
+			}
+	    }
 	
 	public void savePrologFile(){
 		
@@ -39,6 +79,7 @@ public class PrologFileManipulator {
 		try {
 			FileOutputStream fileOut=
 				new FileOutputStream(prologFile,true);
+			fileOut.write("\n".getBytes());
 			fileOut.write(credential.getBytes());
 		
 		}  catch (FileNotFoundException e) {

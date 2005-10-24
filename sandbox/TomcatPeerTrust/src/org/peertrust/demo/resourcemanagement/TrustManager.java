@@ -9,6 +9,10 @@ import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.peertrust.TrustClient;
+import org.peertrust.config.Vocabulary;
+import org.peertrust.demo.credential_distribution.CredentialDistributionServer;
+import org.peertrust.demo.credential_distribution.CredentialRequest;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
 import org.xml.sax.SAXException;
 
 /**
@@ -95,6 +99,7 @@ public class TrustManager {
 	private PolicyEvaluator policyEvaluator;
 	//private TrustClient trustClient;
 	private RequestServingMechanismPool requestServingMechanismPool;
+	private CredentialDistributionServer credentialDistributionServer;
 	
 	/**
 	 * 
@@ -125,6 +130,21 @@ public class TrustManager {
 		} catch (SetupException e) {
 			e.printStackTrace();
 		}
+		
+	
+		try {
+			this.credentialDistributionServer=
+				makeCredentialDistributionServer(resourceMngXmlConfigPath,trustClient);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	private ResourceClassifier makeResourceClassifier(String classifierXMLSetupFilePath){
@@ -248,6 +268,22 @@ public class TrustManager {
 		
 		return m;
 	}
+	
+	private CredentialDistributionServer makeCredentialDistributionServer(
+												String classifierXMLSetupFilePath,
+												TrustClient trustClient) throws NullPointerException, SAXException, IOException, ParserConfigurationException{
+		CredentialDistributionServer cds=
+			new CredentialDistributionServer();
+		cds.setup(
+								classifierXMLSetupFilePath,
+								trustClient);
+		PTCommunicationASP comASP=
+			(PTCommunicationASP)trustClient.getComponent(
+											Vocabulary.EventListener);
+		comASP.registerPTComASPMessageListener(cds,CredentialRequest.class);
+		return cds;
+	}
+	
 	static public void main(String[] args){
 		System.out.println("dadad Requester ggg Requester".replaceAll("Requester","alice"));
 	}

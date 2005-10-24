@@ -56,12 +56,12 @@
 					width="1280" 
 					height="1024">
 				<param 	name="movie" 
-						value="/demo/swf/demoTreeHigh.swf">
+						value="/data/swf/demoTreeHigh.swf">
 				<param 	name="quality" 
 						value="high"> 
 				<param 	name="LOOP" 
 						value="false">
-				<embed 	src="/demo/swf/demoTreeHigh.swf" 
+				<embed 	src="/data/swf/demoTreeHigh.swf" 
 						width="1280" 
 						height="1024" 
 						loop="false" 

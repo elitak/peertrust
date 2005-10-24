@@ -32,7 +32,7 @@
 <pt:PT_Header 	ptEvaluatorClassName="org.peertrust.demo.servlet.jsptags.TagsPeerTrustEvaluator"
 				cacheKey="cacheKey">
 	<pt:PT_ParamCreate name="membership">
-		<pt:IfPropertyHold 	property="peerTrustCommunityMemberPolicy(Requester)"
+		<pt:IfPropertyHold 	property="peertrustCommunityMemberPolicy(Requester)"
 							valueToSet="ptComMember"/>
 		
 		<!-- pt:ElseIfPropertyHold 	property="ieeeMemberPolicy(Requester)"	valueToSet="ieee"/ -->
@@ -76,9 +76,14 @@
 						<td>Project owner, main developer</td>
 					</tr>
 					<tr>
-						<td>Parice</td>
+						<td>Patrice</td>
 						<td>patrice@l3s.de</td>
-						<td>Project owner, main developer</td>
+						<td>developer</td>
+					</tr>
+					<tr>
+						<td>congo</td>
+						<td>congo@l3s.de</td>
+						<td>developer</td>
 					</tr>
 				</table>
 			</pt:IfExhibitAttribute>
@@ -94,12 +99,12 @@
 						<td>Project owner, main developer</td>
 					</tr>
 					<tr>
-						<td>Parice</td>
-						<td>Project owner, main developer</td>
+						<td>Patrice</td>
+						<td>developer</td>
 					</tr>
 				</table>
 				<br/>
-				 <a href="/demo/credentialdistribution?crential=peerTrustCommunityMember">Get peertrust comminity membership to get developper email</a>
+				 <a href="javascript:requestCredential('peertrustCommunityMember')">Get peertrust comminity membership to get developper email</a>
 			</pt:ElseExhibitNoAttribute>
 		</pt:PT_NegotiableContent> 
 	</div>

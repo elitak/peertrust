@@ -39,6 +39,7 @@ public class NewsServer  {
 	}
 	
 	public void fireNewsEvent(NewsEvent newsEvents){
+		//TODO remove all event propagation
 		synchronized(newsListeners){
 			int LISTENER_COUNT=newsListeners.size();
 			for(int i=0; i<LISTENER_COUNT;i++){

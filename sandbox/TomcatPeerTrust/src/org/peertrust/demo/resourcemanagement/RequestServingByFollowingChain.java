@@ -3,6 +3,7 @@ package org.peertrust.demo.resourcemanagement;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,8 +15,12 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 	private String name;
 	private String matchingPattern;
 	
-	public void serveRequest(HttpServletRequest req, HttpServletResponse resp,
-			FilterChain chain, Resource resource) throws IOException, ServletException {
+	public void serveRequest(
+							HttpServletRequest req, 
+							HttpServletResponse resp,
+							FilterChain chain, 
+							Resource resource,
+							ServletContext servletContext) throws IOException, ServletException {
 		if(req==null){
 			throw new NullPointerException("paramenter req must not be null");
 		}

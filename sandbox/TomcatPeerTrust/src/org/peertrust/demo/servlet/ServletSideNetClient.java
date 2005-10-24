@@ -23,6 +23,8 @@ public class ServletSideNetClient implements NetClient{
 	
 	private Logger logger;
 	
+	PeerTrustCommunicationListener peerTrustCommunicationListener;
+	
 	public ServletSideNetClient(Logger logger){
 		listenerPool= new Hashtable();
 		messageTable= new Hashtable();
@@ -36,38 +38,66 @@ public class ServletSideNetClient implements NetClient{
 		Peer source=mes.getSource();
 		if(source!=null){
 			if(source.getAddress()==null){
-				source.setAddress("_no_need_for_addi_");
+				source.setAddress("_no_need_for_addi_1_");
 			}
 		}
-		Object obj= listenerPool.get(finalDestination.getAlias());
-		logger.info("Servlet PT engine sending message to:"+finalDestination.getAlias()+ " listener:"+obj);
-		if(obj!=null){
-			((PeerTrustCommunicationListener)obj).send(mes,finalDestination.getAlias());
+//		Object obj= listenerPool.get(finalDestination.getAlias());
+//		logger.info("Servlet PT engine sending message to:"+finalDestination.getAlias()+ " listener:"+obj);
+//		if(obj!=null){
+//			((PeerTrustCommunicationListener)obj).send(mes,finalDestination.getAlias());
+//		}else{
+//			logger.info(
+//					"Servlet PT engine; no listener assoziated with the code:"+
+//						finalDestination.getAlias()+ " listener:"+obj);
+//		}
+		logger.info("\nServlet PT engine sending message to:"+
+					finalDestination.getAlias()+ 
+					" listener:"+
+					peerTrustCommunicationListener);
+		if(peerTrustCommunicationListener!=null){
+			peerTrustCommunicationListener.send(mes,finalDestination.getAlias());
 		}else{
 			logger.info(
 					"Servlet PT engine; no listener assoziated with the code:"+
-						finalDestination.getAlias()+ " listener:"+obj);
+						finalDestination.getAlias()+ " listener:"+peerTrustCommunicationListener);
 		}
 		return;
 	}
 	
-	public void addPeerTrustCommunicationListener(
-										String finalDestination,
-										PeerTrustCommunicationListener comHelper		){
-		listenerPool.put(finalDestination,comHelper);
-		
-		return;
-	}
+//	public void addPeerTrustCommunicationListener(
+//										String finalDestination,
+//										PeerTrustCommunicationListener comHelper		){
+//		listenerPool.put(finalDestination,comHelper);
+//		
+//		return;
+//	}
 	
-	public void removePeerTrustCommunicationListener(String finalDestination){
-		listenerPool.remove(finalDestination);
-		return;
-	}
+//	public void removePeerTrustCommunicationListener(String finalDestination){
+//		listenerPool.remove(finalDestination);
+//		return;
+//	}
 	
 	public void removeAllPeerTrustCommunicationListener(){
 		listenerPool.clear();
 		return;
 	}
+
+	/**
+	 * @return Returns the peerTrustCommunicationListener.
+	 */
+	public PeerTrustCommunicationListener getPeerTrustCommunicationListener() {
+		return peerTrustCommunicationListener;
+	}
+
+	/**
+	 * @param peerTrustCommunicationListener The peerTrustCommunicationListener to set.
+	 */
+	public void setPeerTrustCommunicationListener(
+			PeerTrustCommunicationListener peerTrustCommunicationListener) {
+		this.peerTrustCommunicationListener = peerTrustCommunicationListener;
+	}
+	
+	
 	
 //	private PeerTrustCommunicationListener getCommunicationHelper(String finalDestination){
 //		return (PeerTrustCommunicationListener)listenerPool.get(finalDestination);

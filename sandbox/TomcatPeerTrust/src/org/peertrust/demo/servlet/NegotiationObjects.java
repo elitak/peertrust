@@ -8,9 +8,11 @@ package org.peertrust.demo.servlet;
 
 import java.io.File;
 import java.io.Serializable;
+
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -20,11 +22,12 @@ import org.peertrust.PTEngine;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.TrustClient;
 import org.peertrust.demo.common.ConfigurationOption;
-import org.peertrust.demo.common.HttpSessionRegistrationRequest;
 import org.peertrust.demo.common.RDFConfigFileUpdater;
 import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
 import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
 import org.peertrust.demo.resourcemanagement.TrustManager;
+import org.peertrust.demo.session_registration.HttpSessionRegistrationRequest;
+
 import org.peertrust.event.PTEventListener;
 import org.peertrust.exception.ConfigurationException;
 //import org.peertrust.inference.InferenceEngine;
@@ -38,7 +41,9 @@ import org.peertrust.net.Peer;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class NegotiationObjects implements PeerTrustCommunicationListener{
+public class NegotiationObjects implements PeerTrustCommunicationListener, NegotiationObjectRepository{
+	//private static final long serialVersionUID = 23487495895819393L;
+	
 	private ServletSideNetClient netClient=null;
 	private ServletSideNetServer netServer=null;
 	private ServletSideHTTPCommunicationFactory comFactory=null;
@@ -52,7 +57,7 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private Hashtable sessionTable=new Hashtable();
 	private TrustClient trustClient; 
 	private TrustManager trustManager;
-	
+	//private CredentialDistributionServer credentialDistributionServer;
 	
 	//private String _ResourceClassifierSetupFile;
 	//private String _ResourcePoliciesSetupFile;
@@ -60,8 +65,12 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	private String _TrustManagerConfigFile;
 	private PTComASPMessageListener httpSessionRegisterer; 
 	
+	//private static Context demoCtx;
+	//private static Context envCtx;
+	private ServletConfig servletConfig;
 	public NegotiationObjects(ServletConfig config){
 		this(config.getServletContext());
+		this.servletConfig=config;
 	}
 	
 	public NegotiationObjects(ServletContext  context){
@@ -88,14 +97,9 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	        	freePageList.append(list);
 	        }
 	        
-//	        _ResourceClassifierSetupFile=
-//	        	context.getRealPath(context.getInitParameter("ResourceClassifierSetupFile"));
-//	        _ResourcePoliciesSetupFile=
-//	        	context.getRealPath(context.getInitParameter("ResourcePoliciesSetupFile"));
-//	        _RequestServingMechanismPoolSetupFile=
-//	        	context.getRealPath(context.getInitParameter("RequestServingMechanismPoolSetupFile"));
 	        _TrustManagerConfigFile=
 	        	context.getRealPath(context.getInitParameter("TrustManagerConfigFile"));
+	        
 		}catch(Throwable th){
 			th.printStackTrace();
 			logger.error("-- error while constructing trust objects--",th);
@@ -136,14 +140,22 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 	}
 	
 	static public NegotiationObjects createAndAddForAppContext(ServletContext context){
+		if(context==null){
+			System.out.println("Context ist null: nothing done!");
+			return null;
+		}
 		NegotiationObjects negoObjects=null;
 		
 		try {
+			Object obj=
+				context.getAttribute(
+						NegotiationObjects.class.getName());
+			context.log("NegoObjectsClass:"+obj);
 			
-			negoObjects= 
-				(NegotiationObjects)context.getAttribute(
-										NegotiationObjects.class.getName());
-			if(negoObjects==null){
+//			negoObjects= 
+//				(NegotiationObjects)obj;/*context.getAttribute(
+//										NegotiationObjects.class.getName());*/
+			if(obj==null){
 				negoObjects= 
 						new NegotiationObjects(context);
 				negoObjects.startTrustServer();
@@ -151,16 +163,16 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 				negoObjects.makeHttpSessionRegisterer();
 				context.setAttribute(	NegotiationObjects.class.getName(), 
 										negoObjects);
-				negoObjects.logger.info("NegotiationObjects created");
-				
+				context.log("NegotiationObjects created\n");
+				return negoObjects;
+			}else{
+				return (NegotiationObjects)obj;
 			}
 		} catch (Throwable th) {
-			th.printStackTrace();
-			Logger log=ConfigurationOption.getLogger(NegotiationObjects.class.getName());
-			log.error("error creating nego objects", th);
-	        
+			context.log("error creating nego objects", th);
+	        return null;
 		}
-		return negoObjects;
+		//return negoObjects;
 	}
 	
 	private void startTrustServer(){
@@ -185,11 +197,20 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 				(ServletSideHTTPCommunicationFactory)
 						trustClient.getComponent(
 								Vocabulary.CommunicationChannelFactory);
+			//comFactory.setHttpServerIP(servletConfig.getServletContext().getRequestDispatcher("/demo").);
 			netClient=(ServletSideNetClient)comFactory.createNetClient();
 			netServer=(ServletSideNetServer)comFactory.createNetServer();
+			netClient.setPeerTrustCommunicationListener(this);
 			
+			//netClient.addPeerTrustCommunicationListener(this);
 //			EventDispatcher dispatcher = engine.getEventDispatcher() ;
-
+//			PTEventListener eventL= engine.getEventListener();
+//			if(eventL instanceof PTCommunicationASP){
+//				dispatcher.register(eventL, NewMessageEvent.class);
+//			}else{
+//				throw new Error("PTCommunicationASP but found "+eventL.getClass()+
+//								" as PTEventListener	");
+//			}
 			logger.info(PREFIX + 
 						"Started with this ptevent listener"+
 						engine.getEventDispatcher()) ;
@@ -198,7 +219,13 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		}
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#destroy()
+	 */
 	public void destroy(){
+				
 		try {			
 			trustClient.destroy();
 		} catch (RuntimeException e) {
@@ -211,31 +238,33 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		trustManager= 
 			new TrustManager(
 						trustClient,
-						_TrustManagerConfigFile);
-//						_ResourceClassifierSetupFile,//"classifierXML",
-//						_ResourcePoliciesSetupFile,//"policySystemXML",
-//						"EvaluatorXML",
-//						_RequestServingMechanismPoolSetupFile);
-		
+						_TrustManagerConfigFile);		
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getTrustManager()
+	 */
 	public TrustManager getTrustManager(){
 		return this.trustManager;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#addMessage(java.lang.Object)
+	 */
 	public void addMessage(Object mes) {
 		comFactory.addMessage(mes);
 	}
-	public void addPeerTrustCommunicationListener(String finalDestination,
-			PeerTrustCommunicationListener comHelper) {
-		comFactory.addPeerTrustCommunicationListener(finalDestination,
-				comHelper);
-	}
+//	public void addPeerTrustCommunicationListener(String finalDestination,
+//			PeerTrustCommunicationListener comHelper) {
+//		comFactory.addPeerTrustCommunicationListener(finalDestination,
+//				comHelper);
+//	}
 	public void removeAllPeerTrustCommunicationListener() {
 		comFactory.removeAllPeerTrustCommunicationListener();
 	}
-	public void removePeerTrustCommunicationListener(String finalDestination) {
-		comFactory.removePeerTrustCommunicationListener(finalDestination);
-	}
+//	public void removePeerTrustCommunicationListener(String finalDestination) {
+//		comFactory.removePeerTrustCommunicationListener(finalDestination);
+//	}
 	
 	
 	public boolean getIsListening() {
@@ -288,6 +317,9 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		return trustClient.waitForQuery(id);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getMessageFIFO(org.peertrust.net.Peer)
+	 */
 	synchronized public BlockingQueue getMessageFIFO(Peer peer){
 		//Object toSend=null;
 		//negoObjects.addPeerTrustCommunicationListener((Peer)obj, this);
@@ -297,19 +329,26 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		
 		if(messageFIFO==null){
 				//create message fifo
+			System.out.println("\n======>getMessageFIFO for"+peer+"\n");
 		        messageFIFO= new ArrayBlockingQueue(8);
 				messagePool.put(key,messageFIFO);
-				this.addPeerTrustCommunicationListener(key, this);
+				//this.addPeerTrustCommunicationListener(key, this);
 				this.registerNewPeerEntity(peer);
 		}
 		
 		return messageFIFO;
 	}	
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#removeMessageFIFO(java.lang.String)
+	 */
 	synchronized public BlockingQueue removeMessageFIFO(String key){
 		return (BlockingQueue)messagePool.remove(key);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#removeMessageFIFO(org.peertrust.net.Peer)
+	 */
 	synchronized public BlockingQueue removeMessageFIFO(Peer key){
 		if(key!=null){
 			return removeMessageFIFO(key.getAlias());
@@ -318,6 +357,9 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#send(org.peertrust.net.Message, java.lang.String)
+	 */
 	public void send(Message mes,String finalDestination) {
 		try {
 			//((Answer)mes).
@@ -339,18 +381,26 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		EntitiesTable entitiesTable = 
 			(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 		entitiesTable.put(newPeer.getAlias(),newPeer);
+		//netClient.addPeerTrustCommunicationListener(newPeer.getAlias(),this);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#registerSession(java.lang.String, org.peertrust.net.Peer)
+	 */
 	public void registerSession(String key, Peer peer){
 		sessionTable.put(key, peer);
+		//netClient.addPeerTrustCommunicationListener(peer.getAlias(),this);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getSessionPeer(java.lang.String)
+	 */
 	public Peer getSessionPeer(String key){
 		return (Peer)sessionTable.get(key);
 	}
 
-	/**
-	 * @return Returns the trustClient.
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getTrustClient()
 	 */
 	public TrustClient getTrustClient() {
 		return trustClient;
@@ -360,14 +410,36 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 		PTComASPMessageListener l= new PTComASPMessageListener(){
 
 			public void PTMessageReceived(Serializable message,Peer source, Peer target) {
-				String sessionId=
-					((HttpSessionRegistrationRequest)message).getSessionKey();
-				//Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
-				sessionTable.put(sessionId, source);
-				System.out.println("*********************************Registerering**********************");
-				System.out.println("sessionId:"+sessionId);
-				System.out.println("Peer:"+source);
-				System.out.println("*********************************Registerering END**********************");
+				//register session
+				if(message instanceof HttpSessionRegistrationRequest){
+					HttpSessionRegistrationRequest req=
+						(HttpSessionRegistrationRequest)message;
+					if(req.doMakeRegistration()){
+						String sessionId=
+							((HttpSessionRegistrationRequest)message).getSessionKey();
+						sessionTable.put(sessionId, source);
+						
+						//register peer to entity table
+						EntitiesTable entitiesTable = 
+							(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
+						entitiesTable.put(source.getAlias(),source);
+						
+						//Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
+						
+						
+						System.out.println("*********************************Registerering**********************");
+						System.out.println("sessionId:"+sessionId);
+						System.out.println("Peer:"+source);
+						System.out.println("*********************************Registerering END**********************");
+					}else if(req.doRemoveRegistration()){
+						sessionTable.remove(req.getSessionKey());
+						EntitiesTable entitiesTable = 
+							(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
+						//TODO remove from entity table table 
+					}
+				}else{	
+					System.out.println("Cannot handle "+message.getClass());
+				}
 			}
 			
 		};
@@ -386,5 +458,20 @@ public class NegotiationObjects implements PeerTrustCommunicationListener{
 								"not a PTCommunicationASP but a "+eventL.getClass());
 			}
 		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getThis(org.peertrust.demo.servlet.NegotiationObjects[])
+	 */
+	public NegotiationObjects getThis() throws NullPointerException{
+//		if(negoObjectsArray==null){
+//			throw new NullPointerException("Parameter must not be null");
+//		}
+//		
+//		if(negoObjectsArray.length!=1){
+//			throw new IllegalArgumentException("negoObjectsArray length must be 1");
+//		}
+//		negoObjectsArray[0]=this;
+		return this;
 	}
 }

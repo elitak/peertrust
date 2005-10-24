@@ -80,21 +80,21 @@ public class ServletSideHTTPCommunicationFactory
 	}
 	
 	
-	public void addPeerTrustCommunicationListener(
-								String finalDestination,
-								PeerTrustCommunicationListener comHelper) {
-		netClient.addPeerTrustCommunicationListener(
-											finalDestination, 
-											comHelper);
-	}
+//	public void addPeerTrustCommunicationListener(
+//								String finalDestination,
+//								PeerTrustCommunicationListener comHelper) {
+//		netClient.addPeerTrustCommunicationListener(
+//											finalDestination, 
+//											comHelper);
+//	}
 	
 	public void removeAllPeerTrustCommunicationListener() {
 		netClient.removeAllPeerTrustCommunicationListener();
 	}
 	
-	public void removePeerTrustCommunicationListener(String finalDestination) {
-		netClient.removePeerTrustCommunicationListener(finalDestination);
-	}
+//	public void removePeerTrustCommunicationListener(String finalDestination) {
+//		netClient.removePeerTrustCommunicationListener(finalDestination);
+//	}
 	
 	public void addMessage(Object mes) {
 		netServer.addMessage(mes);
@@ -104,4 +104,58 @@ public class ServletSideHTTPCommunicationFactory
 	public boolean getIsListening() {
 		return netServer.getIsListening();
 	}
+	/**
+	 * @return Returns the httpServerIP.
+	 */
+	public String getHttpServerIP() {
+		return httpServerIP;
+	}
+	/**
+	 * @param httpServerIP The httpServerIP to set.
+	 */
+	public void setHttpServerIP(String httpServerIP) {
+		this.httpServerIP = httpServerIP;
+	}
+	/**
+	 * @return Returns the httpServerPort.
+	 */
+	public int getHttpServerPort() {
+		return httpServerPort;
+	}
+	/**
+	 * @param httpServerPort The httpServerPort to set.
+	 */
+	public void setHttpServerPort(int httpServerPort) {
+		this.httpServerPort = httpServerPort;
+	}
+	
+	/**
+	 * @return Returns the _host
+	 */
+	public String getHost() {
+		return httpServerIP;//_host;
+	}
+	/**
+	 * @param _host The _host to set.
+	 */
+	public void setHost(String _host) {
+		//this._host = _host;
+		this.httpServerIP=_host;
+	}
+	
+	/**
+	 * @return Returns the _port.
+	 */
+	public int getPort() {
+		return httpServerPort;//_port;
+	}
+	
+	/**
+	 * @param _port The _port to set.
+	 */
+	public void setPort(int _port) {
+		//this._port = _port;
+		this.httpServerPort=_port;
+	}
+		
 }

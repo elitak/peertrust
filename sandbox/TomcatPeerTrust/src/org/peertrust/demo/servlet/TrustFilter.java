@@ -8,9 +8,11 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,14 +30,19 @@ import org.peertrust.net.Peer;
  *
  */
 public class TrustFilter implements Filter{
-	NegotiationObjects negoObjects;
-	TrustManager trustManager;
+	
+	private NegotiationObjectRepository negoObjects;
+	private TrustManager trustManager;
+	private FilterConfig filterConfig;
+	
 	public void destroy() {
 		return;
 	}
 	
 	public void doFilter(ServletRequest req, ServletResponse resp,
 			FilterChain chain) throws IOException, ServletException {
+			
+		doInit();
 		try{
 			String url=((HttpServletRequest)req).getRequestURI();
 			System.out.println("\n************************FILTERING***********************************************");
@@ -70,7 +77,9 @@ public class TrustFilter implements Filter{
 						trustManager.getRequestServingMechanismByName("sessionRegistration");
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
 													(HttpServletResponse)resp,
-													chain,res);//regJsp);
+													chain,
+													res,
+													filterConfig.getServletContext());//regJsp);
 				}else{
 					System.out.println("filtering peerName:"+peerName);
 					res=trustManager.guardResource(res,peerName);
@@ -83,7 +92,9 @@ public class TrustFilter implements Filter{
 							trustManager.getRequestServingMechanismByURL(res.getUrl());//getRequestServingMechanimName());
 						servingMechanism.serveRequest(	(HttpServletRequest)req,
 														(HttpServletResponse)resp,
-														chain,res);
+														chain,
+														res,
+														this.filterConfig.getServletContext());
 						return;
 					}else{
 		           		resp.setContentType("text/html");
@@ -95,15 +106,18 @@ public class TrustFilter implements Filter{
 					}
 				}
 			}else{
-				System.out.println("\n=======================ACCESSING PUBLIC RESOURCE==================");
-				System.out.println("trustManager:"+trustManager+ "\t res:"+res);
-				System.out.println("\n==================================================================");
-				RequestServingMechanism servingMechanism=
-					trustManager.getRequestServingMechanismByURL(res.getUrl());//res.getRequestServingMechanimName());
-				servingMechanism.serveRequest(	(HttpServletRequest)req,
-												(HttpServletResponse)resp,
-												chain,res);
-				return;
+					System.out.println("\n=======================ACCESSING PUBLIC RESOURCE==================");
+					System.out.println("trustManager:"+trustManager+ "\t res:"+res);
+					System.out.println("\n==================================================================");
+					RequestServingMechanism servingMechanism=
+						trustManager.getRequestServingMechanismByURL(res.getUrl());//res.getRequestServingMechanimName());
+					servingMechanism.serveRequest(	(HttpServletRequest)req,
+													(HttpServletResponse)resp,
+													chain,
+													res,
+													filterConfig.getServletContext());
+					return;
+				
 			}
 			
 		}catch(ClassCastException castEx){
@@ -116,12 +130,59 @@ public class TrustFilter implements Filter{
 	}
 	
 	public void init(FilterConfig filterConfig) throws ServletException {
-		negoObjects= 
-			NegotiationObjects.createAndAddForAppContext(
-									filterConfig.getServletContext());
-		trustManager=negoObjects.getTrustManager();
-		System.out.println("TrustManager just created:"+trustManager);
+		this.filterConfig=filterConfig;
+		doInit();
+//		
+//		String negotiationObjectsContext= 
+//			(String)filterConfig.getInitParameter("NegotiationObjectsContext");
+//		System.out.println(">>>>>>>>>>>>>>>>>>NegotiationObjectsContext:"+negotiationObjectsContext);
+//		System.out.println(">>>>>>>>>>>>>>>>>>Original Context:"+filterConfig.getServletContext().getServletContextName());
+//		ServletContext demoContext=
+//			filterConfig.getServletContext().getContext("/demo"); 
+//		negoObjects= 
+//			NegotiationObjects.createAndAddForAppContext(demoContext);
+//		trustManager=(negoObjects!=null)?negoObjects.getTrustManager():null;
+//			
+////		negoObjects= 
+////			NegotiationObjects.createAndAddForAppContext(
+////									filterConfig.getServletContext());
+////		trustManager=negoObjects.getTrustManager();
+//		System.out.println("TrustManager just creation:"+trustManager);
 		return;
 	}
 
+	private void doInit(){
+		if(filterConfig==null){
+			System.out.println("filterConfig is null!");
+			return;
+		}
+		
+		if(negoObjects!=null){
+			System.out.println("Initialization already done!");
+			return;
+		}
+		
+		
+		ServletContext filterContext=filterConfig.getServletContext();
+		String negotiationObjectsContext= 
+			(String)filterContext.getInitParameter("NegotiationObjectsContext");
+		
+		System.out.println(">>>>>>>>>>>>>>>>>>FilterName:"+filterConfig.getFilterName());
+		System.out.println(">>>>>>>>>>>>>>>>>>NegotiationObjectsContext:"+negotiationObjectsContext);
+		System.out.println(">>>>>>>>>>>>>>>>>>Original Context:"+filterContext.getServletContextName());
+		filterContext.log(">>>>>>>>>>>>>>>>>>1FilterName:"+filterConfig.getFilterName());
+		//get demo context	
+//		ServletContext demoContext=filterContext;
+//		if(!negotiationObjectsContext.equals(filterContext.getServletContextName())){
+//			demoContext= filterContext.getContext("demo"); 
+//		}
+		
+		ServletContext demoContext=filterContext.getContext(negotiationObjectsContext);//	"/demo");
+		
+		negoObjects= 
+			NegotiationObjects.createAndAddForAppContext(demoContext);
+		trustManager=(negoObjects!=null)?negoObjects.getTrustManager():null;
+	}
+	
+	
 }

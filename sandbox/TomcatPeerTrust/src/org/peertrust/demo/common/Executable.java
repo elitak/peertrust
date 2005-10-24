@@ -1,5 +1,5 @@
 package org.peertrust.demo.common;
 
 public interface Executable {
-	public void execute();
+	public void execute(Object param);
 }

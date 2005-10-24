@@ -13,24 +13,46 @@ import org.peertrust.net.NetClient;
 import org.peertrust.net.Peer;
 
 public class CredentialDistributionClient implements PTComASPMessageListener {
-
+	/**
+	 * The peertrust netclient used to send request message
+	 */
 	private NetClient netClient;
 	
+	/**
+	 * Represent the action to execute when the answer to the request is received
+	 */
 	private Executable executeOnCredentialResponse;
 	
-	
-	public void PTMessageReceived(Serializable message, Peer source, Peer target) {
+	/**
+	 * 
+	 */
+	public void PTMessageReceived(	Serializable message, 
+									Peer source, 
+									Peer target) {
 		if(message instanceof CredentialResponse){
-			executeOnCredentialResponse.execute();
+			executeOnCredentialResponse.execute((CredentialResponse)message);
 		}
 	}
 
+	/**
+	 * To request a credential. 
+	 * @param name -- the name of the credential
+	 * @param source -- the requesting peer
+	 * @param target -- the distributor peer
+	 */
 	public void requestCredential(String name, Peer source, Peer target){
 		CredentialRequest req= 
 			new CredentialRequest(name);
+		
 		PTCommunicationASPObject.send(netClient,req,source,target);
 	}
 	
+	/**
+	 * To set up credential distribution client using a trustClient an Executable
+	 * that holds action to carry on when respose is received
+	 * @param trustClient -- the trust client which netclient will be used for sending  the message
+	 * @param executeOnCredentialResponse -- the executable to execute if the answer to the request is received
+	 */
 	public void setup(	TrustClient trustClient, 
 						Executable executeOnCredentialResponse){
 		
@@ -57,14 +79,7 @@ public class CredentialDistributionClient implements PTComASPMessageListener {
 			((AbstractFactory)
 					trustClient.getComponent(Vocabulary.CommunicationChannelFactory)).createNetClient();
 		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 }

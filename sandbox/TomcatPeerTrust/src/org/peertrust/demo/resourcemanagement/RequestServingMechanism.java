@@ -3,6 +3,7 @@ package org.peertrust.demo.resourcemanagement;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,7 @@ public interface RequestServingMechanism {
 	final static public String ATTRIBUTE_CLASS="class";
 	final static public String ATTRIBUTE_FORWARD_TO="forwardTo";
 	final static public String DEFAULT_NAME="default";
-	
+	final static public String ATTRIBUTE_CONTEXT="context";
 	/**
 	 * To respond to a request. the overall resource management framework is 
 	 * base a gate TrustFilter. Therefore the corresponding chain must be pass as an argument. 
@@ -41,7 +42,8 @@ public interface RequestServingMechanism {
 						HttpServletRequest req, 
 						HttpServletResponse resp,
 						FilterChain chain, 
-						Resource resource) throws IOException, ServletException;
+						Resource resource,
+						ServletContext servletContext) throws IOException, ServletException;
 	
 	/**
 	 * To setup the object internals according to an XML representation.

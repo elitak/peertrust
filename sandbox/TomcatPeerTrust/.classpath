@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="web/jws/commons-codec-1.3.jar"/>
 	<classpathentry kind="lib" path="ext_lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="web/jws/peertrust.jar"/>
-	<classpathentry kind="output" path="web/WEB-INF/classes"/>
+	<classpathentry kind="lib" path="web/jws/jgraph.jar"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>

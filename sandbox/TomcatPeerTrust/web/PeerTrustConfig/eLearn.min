@@ -3,6 +3,12 @@ rule(acmMemberPolicy(Member), [acmMember(Member)@acm@Member], []).
 rule(ieeeMemberPolicy(Requester), [ieeeMember(Requester) @ ieee @ Requester], []).
 rule(springerReaderPolicy(Requester),[springerReader(Requester) @ springer @ Requester],[]).
 
-rule(peerTrustCommunityMemberPolicy(Requester),[peerTrustCommunityMember(Requester) @ ptcom @ Requester],[]).
+rule(peertrustCommunityMemberPolicy(Requester),[peertrustCommunityMember(Requester) @ peertrustCommunity @ Requester],[]).
 
 signed(rule(bbbMember(elearn) @ bbb, [], []), bbb, signature(bbb)).
+
+%to forcesession registration sich document private protection
+%is possible e.g. for jsp
+%jspForceSessionRegistration
+internal(jspForceSessionRegistration(jsp),[],[]).
+%rule(jspForceSessionRegistration(),[],[]).

@@ -46,10 +46,29 @@ function registerSession(sessionID,postponedURL){
 	}
 }
 
-function toggleVisualization(){
+function requestCredential(credentialName){
+	try{
+		var ptApplet=getPTApplet();//top.applet_frame.document.pt_applet;//top.applet_frame.pt_applet;//theDocument.getElementById('pt_applet');
+		window.status ="getting credential:"+credentialName;
+		ptApplet.requestCredential(credentialName);
+	}catch(ex){
+		alert(ex.message+" name:"+ptApplet);
+	}
+}
+
+function toggleLeftFrameVisualization(){
 	try{
 		var ptApplet=getPTApplet();
-		ptApplet.toggleVisualization();
+		ptApplet.toggleLeftFrameVisualization();
+	}catch(ex){
+		alert(ex.message+" name:"+ptApplet);
+	}
+}
+
+function toggleExternalVisualization(){
+	try{
+		var ptApplet=getPTApplet();
+		ptApplet.toggleExternalVisualization(); 
 	}catch(ex){
 		alert(ex.message+" name:"+ptApplet);
 	}
