@@ -27,7 +27,7 @@ public class TrustManager {
 		private String message=null;
 		public SimplePolicyEvaluator(TrustClient trustClient){
 			this.trustClient=trustClient;
-			this.trustClient.setTimeout(60000);
+			this.trustClient.setTimeout(10*1000);
 			this.trustClient.setSleepInterval(100);
 		}
 		
@@ -282,6 +282,10 @@ public class TrustManager {
 											Vocabulary.EventListener);
 		comASP.registerPTComASPMessageListener(cds,CredentialRequest.class);
 		return cds;
+	}
+	
+	public String getCredentialDescription(String credName){
+		return credentialDistributionServer.getCredentialStore().getCredentialDescription(credName);
 	}
 	
 	static public void main(String[] args){

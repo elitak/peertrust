@@ -63,7 +63,7 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 		//localPeerAlias="alice";
 		//make unique client
 		ptClient= 
-			new ClientSideNetClient(webAppURLPath, /*localPeerAlias,*/logger);
+			new ClientSideNetClient(webAppURLPath, httpServerPeer,/*localPeerAlias,*/logger);
 		//ptClient.setHttpServer(serverPeer);//getServerPeer(randomAlias));
 		//create unique net server
 		ptServer=

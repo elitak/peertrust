@@ -2,6 +2,8 @@ package org.peertrust.demo.session_registration;
 
 import java.io.Serializable;
 
+import org.peertrust.net.Peer;
+
 
 
 
@@ -9,10 +11,15 @@ import java.io.Serializable;
 public class HttpSessionRegistrationResponse implements Serializable{
 	private boolean acknowledgment;
 	private HttpSessionRegistrationRequest request;
+	private Peer httpServerPeer;
 	
-	public HttpSessionRegistrationResponse(HttpSessionRegistrationRequest request, boolean ack){
+	public HttpSessionRegistrationResponse(
+								HttpSessionRegistrationRequest request, 
+								boolean ack,
+								Peer httpServerPeer){
 		this.request=request;
 		this.acknowledgment=ack;
+		this.httpServerPeer=httpServerPeer;
 	}
 
 	/**

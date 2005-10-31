@@ -5,6 +5,7 @@ package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -33,6 +34,8 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 	public static final String ATTRIBUTE_POLICY_NAME="policyName";
 	public static final String ATTRIBUTE_REQUEST_SERVING_MECHANISM="requestServingMechanism";
 	public static final String ROOT_TAG_NAME="ResourceClassifier";
+	public static final String ATTRIBUTE_CREDENTIALS="credentials";
+	
 	final private Comparator exactMatchingComparator=
 							makeExactMatchingComparator();
 	final private Comparator regExprMatchingComparator=
@@ -207,6 +210,10 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 		n=nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME);
 		String policyName= 
 				(n!=null)?n.getNodeValue():null;
+				
+		n=nodeMap.getNamedItem(ATTRIBUTE_CREDENTIALS);
+		String credentials= 
+				(n!=null)?n.getNodeValue():null;
 								
 		if(policyName!=null){
 			ProtectedResource res= new ProtectedResource(matchingStrategy,url);
@@ -214,6 +221,15 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 			if(requestServingMechanism!=null){
 				res.setRequestServingMechanimName(requestServingMechanism);
 			}
+			
+			if(credentials!=null){ 
+				String[] credsArray=credentials.split(",");
+				for(int i=0;i<credsArray.length;i++){
+					res.addCredential(credsArray[i]);
+					System.out.println("res.addCredential(credsArray[i]):"+credsArray[i]);
+				}
+			}
+			
 			return res;
 		}else{
 			PublicResource res= new PublicResource(matchingStrategy,url);
@@ -250,20 +266,21 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 
 	
 	static public void main(String[] agrs)throws Exception{
-		String setupFile=
-			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";
-			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_classification.xml";
-		ResourceClassifierImpl classifier=
-							new ResourceClassifierImpl();
-		classifier.setup(setupFile);
-		System.out.println("url:/myapp-0.1-dev/pdf/trustVLDB04.pdf:\n "+ 
-							classifier.getResource("/myapp-0.1-dev/pdf/trustVLDB04.pdf"));
-		
-		System.out.println("dada.jsp:\n "+ 
-				classifier.getResource("dada.jsp"));
-		System.out.println("dadajsp:\n "+ 
-				classifier.getResource("dadajsp"));
-		System.out.println(Boolean.parseBoolean("falsedd"));
+//		String setupFile=
+//			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";
+//			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_classification.xml";
+//		ResourceClassifierImpl classifier=
+//							new ResourceClassifierImpl();
+//		classifier.setup(setupFile);
+//		System.out.println("url:/myapp-0.1-dev/pdf/trustVLDB04.pdf:\n "+ 
+//							classifier.getResource("/myapp-0.1-dev/pdf/trustVLDB04.pdf"));
+//		
+//		System.out.println("dada.jsp:\n "+ 
+//				classifier.getResource("dada.jsp"));
+//		System.out.println("dadajsp:\n "+ 
+//				classifier.getResource("dadajsp"));
+//		System.out.println(Boolean.parseBoolean("falsedd"));
+		System.out.println("Spited:"+Arrays.asList("dada".split(",")));
 
 	}
 }

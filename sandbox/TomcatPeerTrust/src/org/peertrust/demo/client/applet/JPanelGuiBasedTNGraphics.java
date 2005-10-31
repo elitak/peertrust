@@ -11,11 +11,8 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
-import org.peertrust.tnviz.app.TNGraphics;
 import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNReplay;
 import org.peertrust.tnviz.app.TNSeqDiagramm;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
 import org.peertrust.tnviz.gui.TNGui;
 
 public class JPanelGuiBasedTNGraphics implements Graphics {

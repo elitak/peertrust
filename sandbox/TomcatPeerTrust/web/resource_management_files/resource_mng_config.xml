@@ -7,18 +7,21 @@
 		url="/data/publications/acm/.*"
 		matchingStrategy="_reg_exp_"	
 		policyName="acmMemberPolicy"
+		credentials="cred_acmMember"
 		/>
 	
 	<resourceClass
 		url="/data/publications/ieee/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="ieeeMemberPolicy"
+		credentials="cred_ieeeMember"
 	/>
 	
 	<resourceClass
 		url="/data/publications/springer/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="springerReaderPolicy"
+		credentials="cred_ieeeMember"
 	/>
 	
 	<resourceClass
@@ -26,6 +29,7 @@
 		url="/data/publications/conf/.*"
 		matchingStrategy="_reg_exp_"
 		policyName="conferenceAttendeePolicy"
+		credentials="cred_conferenceAttendee"
 	/>	
 	
 	<resourceClass
@@ -89,6 +93,13 @@
 				matchingPattern="/jsp/sessionRegistration.jsp">
 	</mechanism>
 	
+	<mechanism 	name="credentialDownload"
+				class="org.peertrust.demo.resourcemanagement.RequestServingByForwarding"
+				context="/demo"
+				forwardTo="/jsp/credentialDownload.jsp"
+				matchingPattern="/jsp/credentialDownload.jsp">
+	</mechanism>
+	
 	<mechanism 	name="virtual_dir_demo_loader"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByLoadingFromExtDir"
 				baseDir="file:///home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/"
@@ -99,22 +110,26 @@
 
 <CredentialStore>
 	<Credential 
-		name="ieeeMember" 
-		value="signed(rule(ieeeMember(Requester) @ ieee, [], []),ieee, signature(ieee)).">
+		name="cred_ieeeMember" 
+		value="signed(rule(ieeeMember(Requester) @ ieee, [], []),ieee, signature(ieee))."
+		description="Membership in IEEE">
+		
 	</Credential>
 	<Credential 
-		name="springerReader" 
-		value="signed(rule(springer(Requester) @ springer, [], []),springer, signature(springer)).">
+		name="cred_springerReader" 
+		value="signed(rule(springer(Requester) @ springer, [], []),springer, signature(springer))."
+		description="Springer Reader">
 	</Credential>
 	<Credential 
-		name="peertrustCommunityMember" 
-		value="signed(rule(peertrustCommunityMember(Requester) @ peertrustCommunity, [], []),peertrustCommunity, signature(peertrustCommunity)).">
+		name="cred_peertrustCommunityMember" 
+		value="signed(rule(peertrustCommunityMember(Requester) @ peertrustCommunity, [], []),peertrustCommunity, signature(peertrustCommunity))."
+		description="PeerTrust Community membership">
 	</Credential>
 	
 	<Credential 
-		name="acmMember" 
-		value="signed(rule(ieeeMember(Requester) @ acm, [], []),acm, signature(acm)).">
-	</Credential>
-	
+		name="cred_acmMember" 
+		value="signed(rule(ieeeMember(Requester) @ acm, [], []),acm, signature(acm))."
+		description="ACM Membership">
+	</Credential>	
 </CredentialStore>
 </resourceManagementConfiguration>

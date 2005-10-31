@@ -3,15 +3,11 @@
  */
 package org.peertrust.demo.client.applet;
 
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
+
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.jgraph.JGraph;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
@@ -20,12 +16,7 @@ import org.peertrust.event.QueryEvent;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
-import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNGraphics;
-import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNSeqDiagramm;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
-import org.peertrust.tnviz.app.TNVizListener;
 import org.peertrust.tnviz.gui.TNGui;
 
 /**
@@ -38,7 +29,7 @@ public class NegotiationVisualization  implements PTEventListener {
 	private static Logger log = Logger.getLogger(NegotiationVisualizationPane.class);
 	private Graphics graphics;//= new TNGraphics();
 	private EventDispatcher _dispatcher;
-	private boolean isVisible;
+	//private boolean isVisible;
 	/**
 	 * 
 	 */
@@ -50,8 +41,8 @@ public class NegotiationVisualization  implements PTEventListener {
 	private void configGUI(){
 		graphics= new TNGraphics();
 		TNGui gui=graphics.getGui();
-		isVisible=true;
-		gui.setVisible(isVisible);
+		//isVisible=true;
+		gui.setVisible(true);
 		//gui.doLayout();
 		gui.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
@@ -114,26 +105,29 @@ public class NegotiationVisualization  implements PTEventListener {
      */
     public void setEventDispatcher(EventDispatcher dispatcher) {
         this._dispatcher = dispatcher;
-        dispatcher.register(this);
+        if(graphics.getGui().isVisible()){
+        	dispatcher.register(this);
+        }
     }
     
     private void startListenToPTEvent(){
     	_dispatcher.register(this,PTEvent.class);
     	TNGui gui=graphics.getGui();
-    	isVisible=true;
-    	gui.setVisible(isVisible);
+    	gui.setVisible(true);
     }
     
     private void stopListenToPTEvent(){
     	_dispatcher.unregister(this);
     	TNGui gui=graphics.getGui();
-    	isVisible=false;
-    	gui.setVisible(isVisible);
+    	//isVisible=false;
+    	gui.setVisible(false);
+    	
     	gui.validate();
     }
     
 	public void toggleVisualization(){
-		if(isVisible){
+		//System.out.println("isVisible:"+isVisible+ " panelIsv:"+graphics.getGui().isVisible());
+		if(graphics.getGui().isVisible()){
 			stopListenToPTEvent();
 		}else{
 			startListenToPTEvent();

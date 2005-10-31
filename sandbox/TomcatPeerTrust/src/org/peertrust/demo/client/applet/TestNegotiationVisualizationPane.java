@@ -8,37 +8,21 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
-import java.awt.ScrollPane;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
 
-import javax.swing.Action;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.text.Segment;
+
 
 import org.apache.log4j.Logger;
 import org.jgraph.JGraph;
-import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
-import org.peertrust.event.QueryEvent;
-import org.peertrust.net.Answer;
-import org.peertrust.net.Query;
-import org.peertrust.tnviz.app.Graphics;
-import org.peertrust.tnviz.app.TNEdge;
-import org.peertrust.tnviz.app.TNGraphics;
-import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNSeqDiagramm;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
-import org.peertrust.tnviz.app.TNVizListener;
-import org.peertrust.tnviz.gui.TNGui;
 
 /**
  * @author pat_dev
@@ -229,6 +213,9 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
      */
     public void setEventDispatcher(EventDispatcher dispatcher) {
         this._dispatcher = dispatcher;
+        if(isVisible){
+        	dispatcher.register(this,PTEvent.class);
+        }
     }
     
     private void startListenToPTEvent(){
@@ -238,9 +225,16 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
     	isVisible=true;
     	parentContainer.removeAll();
 		parentContainer.add(this);
-		
-		this.invalidate();
-		parentContainer.getParent().validate();//doLayout();//repaint(500);
+		this.setVisible(true);
+		this.validate();
+		//parentContainer.invalidate();
+		parentContainer.validate();
+		//parentContainer.getParent().validate();//doLayout();//repaint(500);
+		parentContainer.repaint(
+						parentContainer.getX(),
+						parentContainer.getY(),
+						parentContainer.getWidth(),
+						parentContainer.getHeight());
     }
     
     private void stopListenToPTEvent(){
@@ -250,7 +244,17 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
     	isVisible=false;
     	parentContainer.removeAll();
     	//parentContainer.invalidate();
-    	parentContainer.getParent().validate();
+    	//this.setVisible(isVisible);
+    	this.invalidate();
+    	parentContainer.invalidate();
+//    	parentContainer.validate();
+//    	parentContainer.getParent().validate();
+    	parentContainer.repaint(
+				parentContainer.getX(),
+				parentContainer.getY(),
+				parentContainer.getWidth(),
+				parentContainer.getHeight());
+    	
     }
     
 	public void toggleVisualization(){
@@ -276,7 +280,9 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		this.parentContainer = parentContainer;
 	}
 	
-	
+	public  boolean getIsDisplayed(){
+		return isVisible;
+	}
 	
 	static public void main(String[] args){
 		JFrame frame= new JFrame();

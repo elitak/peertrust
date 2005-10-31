@@ -32,7 +32,7 @@ public class CredentialDistributionServer implements PTComASPMessageListener{
 							Peer target) {
 		if(message instanceof CredentialRequest){
 			String credName=((CredentialRequest)message).getName();
-			String value=credentialStore.getCredential(credName,source);
+			String value=credentialStore.getCredentialValue(credName,source);
 			CredentialResponse credResp=
 				new CredentialResponse(credName,value);
 			System.out.println("Sending credential:\n"+credResp);
@@ -69,6 +69,14 @@ public class CredentialDistributionServer implements PTComASPMessageListener{
 	}
 	
 	
+	
+	/**
+	 * @return Returns the credentialStore.
+	 */
+	public CredentialStore getCredentialStore() {
+		return credentialStore;
+	}
+
 	/**
 	 * @param args
 	 */

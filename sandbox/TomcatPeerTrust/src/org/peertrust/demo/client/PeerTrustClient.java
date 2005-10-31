@@ -12,7 +12,6 @@ package org.peertrust.demo.client;
 
 import org.apache.log4j.Logger;
 import org.peertrust.TrustClient;
-import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.client.applet.StartPasswordNegoCmd;
 import org.peertrust.demo.client.applet.StartPeerTrustNegoCmd;
@@ -37,7 +36,6 @@ import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
 
-import sun.security.x509.DistributionPoint;
 //import org.peertrust.net.Query;
 
 //import com.sun.net.ssl.internal.ssl.ByteBufferInputStream;
@@ -55,7 +53,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PeerTrustClient   /*implements PTEventListener*/{
-	final static public int TIMEOUT = 60000 ;
+	final static public int TIMEOUT = 30000 ;
 	final static public int SLEEP_INTERVAL = 100 ;
 	
 	//private String resourceID;
@@ -87,6 +85,7 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 	private File prologFile;
 	
 	private Executable userAlert;
+	private Executable todoAfterPeerTrustRestart;
 	
 	private ClientSideHTTPCommunicationFactory comFac;
 	
@@ -198,15 +197,18 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 				((ClientSideNetServer)comFac.createNetServer());
 			/*ptServer.addNewsListener(newsListener);*/
 			
-			ClientSideNetClient ptClient=
-				(ClientSideNetClient)comFac.createNetClient();
+//			ClientSideNetClient ptClient=
+//				(ClientSideNetClient)comFac.createNetClient();
 			/*ptClient.addNewsListener(newsListener);*/
 			ptServer.setConfigNotEnded(false);
 			//EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
 			EntitiesTable entitiesTable = 
 				(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
+			//TODO recheck localhost setting
 			serverPeer= //new Peer("elearn",this.serverPeerIP,this.serverPeerPort);
-				new Peer(this.serverPeerName,this.serverPeerIP,this.serverPeerPort);
+				//new Peer(this.serverPeerName,this.serverPeerIP,this.serverPeerPort);
+				new Peer(this.serverPeerName,"127.0.0.1",this.serverPeerPort);
+			
 			entitiesTable.put(this.serverPeerName,serverPeer);
 			//todo change how to set local peer data
 			MetaInterpreter metaInter=
@@ -245,13 +247,27 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 						PrologFileManipulator pfm=
 							new PrologFileManipulator();
 						pfm.loadPrologFile(prologFile);
-						pfm.addCredential(resp.getValue());
+						String value=resp.getValue();
+						if(value==null){
+							if(userAlert!=null){
+								userAlert.execute("Invalid credential:"+resp.getName());
+								return;
+							}
+						}
+						pfm.addCredential(value);
+						
 						
 						try{
 							restartTrustClient();
-							userAlert.execute("Credential install:\n"+
+							if(todoAfterPeerTrustRestart!=null){
+								todoAfterPeerTrustRestart.execute(null);
+							}
+							
+							if(userAlert!=null){
+								userAlert.execute("Credential install:\n"+
 												"name:"+resp.getName()+
 												"Please retry the last url to see the effect");
+							}
 							
 						}catch(Throwable th){
 							th.printStackTrace();
@@ -419,6 +435,16 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 	public void setPrologFile(File prologFile) {
 		this.prologFile = prologFile;
 	}
+
+	public Executable getTodoAfterPeerTrustRestart() {
+		return todoAfterPeerTrustRestart;
+	}
+
+	public void setTodoAfterPeerTrustRestart(Executable todoAfterPeerTrustRestart) {
+		this.todoAfterPeerTrustRestart = todoAfterPeerTrustRestart;
+	}
+	
+	
 	
 	
 }

@@ -3,6 +3,7 @@ package org.peertrust.demo.client.applet;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -19,13 +20,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
-import javax.swing.SwingConstants;
 import javax.xml.parsers.ParserConfigurationException;
 
 import netscape.javascript.JSObject;
-
-//import org.peertrust.config.PTConfigurator;
-import org.jgraph.JGraph;
 import org.peertrust.TrustClient;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.client.PeerTrustClient;
@@ -47,10 +44,7 @@ import org.peertrust.event.PTEventListener;
 
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
-import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNGraphics;
-import org.peertrust.tnviz.app.TNVizListener;
-import org.peertrust.tnviz.gui.TNGui;
 
 import org.xml.sax.SAXException;
 
@@ -68,6 +62,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 			public void PTMessageReceived(Serializable payload,Peer source, Peer target) {
 				System.out.println("RegistrationResponse:"+payload);
 				if(((HttpSessionRegistrationResponse)payload).isAcknowledgment()){
+					
 					if(protectedUrl!=null){//registration was caused by a protected page
 						try {
 							URL url= new URL(protectedUrl);
@@ -93,9 +88,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 				echoPane.echo("Registering session:"+sessionKey);
 				HttpSessionRegistrationRequest req=
 					new HttpSessionRegistrationRequest(
-						sessionKey,
+						sessionKey/*,
 						ptClient.getLocalPeer(),
-						ptClient.getServerPeer());
+						ptClient.getServerPeer()*/);
 //				
 //				workerFIFO.offer( 
 //						new HttpSessionRegistrationRequest(
@@ -105,6 +100,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 				Message mes=
 					new PTCommunicationASPObject(ptClient.getLocalPeer(),ptClient.getServerPeer(),req);
 				ptClient.sendToHttpServer(mes);
+				echoPane.echo("serverPeer:"+ptClient.getServerPeer());
 				this.protectedUrl=protectedURL;
 				return;
 			}
@@ -133,6 +129,8 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 	
 	private Executable userAlert;
 	
+	private Executable todoAfterPeerTrustRestart=makeTodoAfterPeerTrustRestart(); 
+	
 	private TestTreeDiagramm ttDiag= new TestTreeDiagramm();
 	//private TNVizListener tnVizListener;
 	//private TNGraphics tnGrapnhics;
@@ -159,12 +157,30 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		};
 	}
 	
-	private TNGraphics makeTNGraphics(){
-		TNGraphics g= new TNGraphics();
-		g.getGui().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		g.getGui().setVisible(false);
-		return g;
+	private Executable makeTodoAfterPeerTrustRestart(){
+		return new Executable(){
+
+			public void execute(Object param) {
+				System.out.println("makeTodoAfterPeerTrustRestart()");
+				EventDispatcher ed=
+					(EventDispatcher)ptClient.getTrustClient().getComponent(Vocabulary.EventDispatcher);
+				if(negotiationVisualization!=null){
+					negotiationVisualization.setEventDispatcher(ed);					
+				}
+				if(testVisPane!=null){
+					testVisPane.setEventDispatcher(ed);
+				}
+			}
+			
+		};
 	}
+	
+//	private TNGraphics makeTNGraphics(){
+//		TNGraphics g= new TNGraphics();
+//		g.getGui().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+//		g.getGui().setVisible(false);
+//		return g;
+//	}
 	
 
 	private NegotiationVisualization makeNegotiationVisualization(){
@@ -298,7 +314,9 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 				while(true){
 					Object obj;
 					try {
+						System.out.println("\nworkerWaiting");
 						obj = workerFIFO.take();	
+						System.out.println("\nworker got obj:"+obj);
 						if(obj==null){
 						
 						}if(obj instanceof FinalResponse){
@@ -315,13 +333,12 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 								System.out.println("=====>ptClient==null!");
 							}
 						}else if(obj instanceof StopCmd){
-						
+							System.out.println("\n****************************************stopping\b");
 							return;
 						}else if(obj instanceof Executable){
 							((Executable)obj).execute(null);
-							return;
 						}
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						e.printStackTrace();
 					}
 				}
@@ -348,21 +365,25 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		c.removeAll();
 		visibleComponent=echoPane;
 		c.add(visibleComponent);
+		echoPane.invalidate();
+		echoPane.setVisible(true);
 		c.validate();
-		c.repaint();
+		//c.getParent().validate();
+		Rectangle r=c.getBounds();
+		c.repaint((int)r.getX(),(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());		
 	}
 	
-	private void showNegotiationVisualizationPane(){
-		//////////////////////////gui
-		Container c=this.getContentPane(); 
-		c.removeAll();
-		negotiationVisualizationPane.getJPanelGuiBasedTNGraphics().wipeGraph();
-		//c.add(tnGrapnhics.getGui());
-		visibleComponent=negotiationVisualizationPane;
-		c.add(visibleComponent);
-		c.validate();
-		c.repaint();
-	}
+//	private void showNegotiationVisualizationPane(){
+//		//////////////////////////gui
+//		Container c=this.getContentPane(); 
+//		c.removeAll();
+//		negotiationVisualizationPane.getJPanelGuiBasedTNGraphics().wipeGraph();
+//		//c.add(tnGrapnhics.getGui());
+//		visibleComponent=negotiationVisualizationPane;
+//		c.add(visibleComponent);
+//		c.validate();
+//		
+//	}
 	
 	public void init() {
 		super.init();
@@ -399,6 +420,7 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		
 		registerSession(getParameter("negoSessionID"),null);
 		//negotiationVisualization= makeNegotiationVisualization();
+		ptClient.setTodoAfterPeerTrustRestart(todoAfterPeerTrustRestart);
 		EventDispatcher ed=
 			(EventDispatcher)ptClient.getTrustClient().getComponent(Vocabulary.EventDispatcher);
 		PTCommunicationASP comASP=
@@ -600,84 +622,28 @@ public class DemoApplet extends JApplet implements NewsEventListener{
 		public void execute(Object param){
 			if(negotiationVisualization==null){
 				negotiationVisualization= makeNegotiationVisualization();
-//				EventDispatcher ed=
-//					(EventDispatcher)ptClient.getTrustClient().getComponent(Vocabulary.EventDispatcher);
-//				PTCommunicationASP comASP=
-//					(PTCommunicationASP)this.ptClient.getTrustClient().getComponent(Vocabulary.EventListener);
-//				negotiationVisualization.setEventDispatcher(ed);
 			}else{
 				negotiationVisualization.toggleVisualization();
 			}
 				//testVisPane.toggleVisualization();
-			}
+		}
 	};
 	
 	public void toggleLeftFrameVisualization(){
-		testVisPane.toggleVisualization();		
+		testVisPane.toggleVisualization();
+		if(!testVisPane.getIsDisplayed()){
+			showEchoPane();
+		}
 	}
 	
-	public void toggleExternalVisualization(){
-		workerFIFO.offer(toggleVisExe);
-		
+	public void toggleExternalVisualization(){		
+		boolean bol=workerFIFO.offer(toggleVisExe);
+		System.out.println("\nworkerFIFO.offer(toggleVisExe):"+bol);
+		//toggleVisExe.execute(null);
 	}
 	
 	public void toggleVisualization(){
-//		Executable executable= new Executable(){
-//			public void execute(Object param){
-////				Utils.inform("Info","Visualization not implemented yet!",
-////						DemoApplet.this.getParent());
-//				if(negotiationVisualization==null){
-//					negotiationVisualization= makeNegotiationVisualization();
-//				}
-//					negotiationVisualization.toggleVisualization();
-//					testVisPane.toggleVisualization();
-//				}
-//		};
 		workerFIFO.offer(toggleVisExe);
-		
-//		EventDispatcher ed=
-//			(EventDispatcher)ptClient.getTrustClient().getComponent(Vocabulary.EventDispatcher);
-//		PTCommunicationASP comASP=
-//			(PTCommunicationASP)this.ptClient.getTrustClient().getComponent(Vocabulary.EventListener);
-		
-		/*if(visibleComponent==negotiationVisualizationPane){
-			//negotiationVisualizationPane.stopListenToPTEvent(ed);				
-			showEchoPane();
-			comASP.unregisterPTEventListener(negotiationVisualizationPane);
-		}else{
-			showNegotiationVisualizationPane();
-			//negotiationVisualizationPane.startListenToPTEvent(ed);
-			comASP.registerPTEventListener(negotiationVisualizationPane);
-			negotiationVisualizationPane.getJPanelGuiBasedTNGraphics().setLayout(Graphics.SEQ_LAYOUT);
-		}*/
-		
-//		if(negotiationVisualization==null){
-//			negotiationVisualization= makeNegotiationVisualization();
-//		}
-//		negotiationVisualization.toggleVisualization();
-		
-//		testVisPane.toggleVisualization();
-		/*
-		JGraph graph=ttDiag.getGraph();
-		if(visibleComponent==graph){
-			//negotiationVisualizationPane.stopListenToPTEvent(ed);				
-			System.out.println("ttDiag  visible");
-			showEchoPane();
-			comASP.unregisterPTEventListener(ttDiag.ptListener);
-			
-		}else{
-			//negotiationVisualizationPane.startListenToPTEvent(ed);
-			System.out.println("ttDiag not visible");
-			Container c=this.getContentPane(); 
-			c.removeAll();
-			visibleComponent=graph;
-			graph.setVisible(true);
-			c.add(visibleComponent);
-			ttDiag.calculateGraphLayout();
-			c.validate();
-			c.repaint();
-			comASP.registerPTEventListener(ttDiag.ptListener);
-		}/**/
 	}
 	
 	

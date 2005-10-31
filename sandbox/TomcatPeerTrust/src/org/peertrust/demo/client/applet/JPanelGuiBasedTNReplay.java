@@ -29,12 +29,10 @@ import java.awt.Color;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.swing.JPanel;
 
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.gui.TNGui;
 
 /**
  * <p>
@@ -43,11 +41,11 @@ import org.peertrust.tnviz.gui.TNGui;
  * diagramm and highlights each node and edge one after another in the correct
  * order in which they were created.
  * </p><p>
- * $Id: JPanelGuiBasedTNReplay.java,v 1.1 2005/10/24 11:15:01 token77 Exp $
+ * $Id: JPanelGuiBasedTNReplay.java,v 1.2 2005/10/31 00:07:37 token77 Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/10/24 11:15:01 $
+ * Last changed: $Date: 2005/10/31 00:07:37 $
  * by $Author: token77 $
  * </p>
  * @author Michael Schaefer and Sebastian Wittler

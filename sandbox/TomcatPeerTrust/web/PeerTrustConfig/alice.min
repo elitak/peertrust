@@ -1,4 +1,3 @@
-                       
 signed(rule(acmMember(alice) @ acm, [], []),
             acm, signature(acm)).
 signed(rule(ieeeMember(alice) @ ieee, [], []),

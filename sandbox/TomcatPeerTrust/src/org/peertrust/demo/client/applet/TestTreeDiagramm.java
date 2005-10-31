@@ -65,7 +65,7 @@ public class TestTreeDiagramm {
 
     private List listVisibleNodes; //Contains all the visible nodes
 
-    private List listNodes;
+    ///private List listNodes;
 
     private List listFalseQueries; //Stores all queries that couldn't be inserted into the diagram for trying again later
 
@@ -117,7 +117,7 @@ public class TestTreeDiagramm {
 
         listVisibleNodes = new Vector();
 
-        listNodes = new Vector();
+        //listNodes = new Vector();
 
         listFalseQueries = new Vector();
 
@@ -152,7 +152,7 @@ public class TestTreeDiagramm {
 
         listVisibleNodes = new Vector();
 
-        listNodes = new Vector();
+        //listNodes = new Vector();
 
         graph.setModel(model);
 
@@ -182,8 +182,8 @@ public class TestTreeDiagramm {
 
         int sourcePort = query.getSource().getPort();
 
-        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
-                + sourcePort;
+//        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
+//                + sourcePort;
 
         String targetAddress = query.getTarget().getAddress();
 
@@ -191,8 +191,8 @@ public class TestTreeDiagramm {
 
         int targetPort = query.getTarget().getPort();
 
-        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
-                + targetPort;
+//        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
+//                + targetPort;
 
         long reqQueryId = query.getReqQueryId();
 
@@ -379,8 +379,8 @@ public class TestTreeDiagramm {
 	
 	        int sourcePort = answer.getSource().getPort();
 	
-	        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
-	                + sourcePort;
+//	        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
+//	                + sourcePort;
 	
 	        String targetAddress = answer.getTarget().getAddress();
 	
@@ -388,8 +388,8 @@ public class TestTreeDiagramm {
 	
 	        int targetPort = answer.getTarget().getPort();
 	
-	        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
-	                + targetPort;
+//	        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
+//	                + targetPort;
 	
 	        String goal = "<" + answer.getGoal() + ">";
 	
@@ -411,7 +411,7 @@ public class TestTreeDiagramm {
 	
 	            return;
 	
-	        long id = reqQueryId;
+//	        long id = reqQueryId;
 	
 	        TNNode node = null;
 	
@@ -586,30 +586,30 @@ public class TestTreeDiagramm {
 
     }
 
-    /**
-     * Connects the two nodes with the given ids with a new edge with the given information.
-     * For this purpose, new invisible nodes and new visible edges are being
-     * created to construct the sequence diagramm structure.
-     * @param nodeSource The id of the source node.
-     * @param nodeTarget The id of the target node.
-     * @param object The label object.
-     * @param goal The goal.
-     * @param reqQueryId The reqQueryId.
-     * @param query True, if the connection represents a query, otherwise false.
-     * @param answer True, if the connection represents an answer, otherwise false.
-     * @param status The status.
-     * @param proof The proof.
-     * @return The id of the new edge.
-     */
-    private String connectNodes(String nodeSource, String nodeTarget,
-            Object object, String goal, long reqQueryId, boolean query,
-            boolean answer, int status, String proof) {
-
-        return connectNodes((TNNode) getElement(nodeSource),
-                (TNNode) getElement(nodeTarget), object, goal, reqQueryId,
-                query, answer, status, proof);
-
-    }
+//    /**
+//     * Connects the two nodes with the given ids with a new edge with the given information.
+//     * For this purpose, new invisible nodes and new visible edges are being
+//     * created to construct the sequence diagramm structure.
+//     * @param nodeSource The id of the source node.
+//     * @param nodeTarget The id of the target node.
+//     * @param object The label object.
+//     * @param goal The goal.
+//     * @param reqQueryId The reqQueryId.
+//     * @param query True, if the connection represents a query, otherwise false.
+//     * @param answer True, if the connection represents an answer, otherwise false.
+//     * @param status The status.
+//     * @param proof The proof.
+//     * @return The id of the new edge.
+//     */
+//    private String connectNodes(String nodeSource, String nodeTarget,
+//            Object object, String goal, long reqQueryId, boolean query,
+//            boolean answer, int status, String proof) {
+//
+//        return connectNodes((TNNode) getElement(nodeSource),
+//                (TNNode) getElement(nodeTarget), object, goal, reqQueryId,
+//                query, answer, status, proof);
+//
+//    }
 
     /**
      * Connects the two given nodes with a new edge with the given information.
@@ -1471,7 +1471,7 @@ public class TestTreeDiagramm {
 		ActionListener addQActionListener=
 			new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
-					PTEvent event= new QueryEvent(elearnPeer,query);
+					//PTEvent event= new QueryEvent(elearnPeer,query);
 					td.addQuery(query);
 					td.addAnswer(answer);
 					td.calculateGraphLayout();

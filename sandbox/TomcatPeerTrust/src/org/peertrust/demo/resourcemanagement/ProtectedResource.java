@@ -3,6 +3,8 @@
  */
 package org.peertrust.demo.resourcemanagement;
 
+import java.util.Vector;
+
 /**
  * @author pat_dev
  *
@@ -13,6 +15,7 @@ public class ProtectedResource extends Resource {
 	
 	boolean canAccess=false;
 	private String reason=null;
+	private Vector credentials=new Vector(8);
 	
 	/**
 	 * @param matchingStrategy
@@ -87,7 +90,9 @@ public class ProtectedResource extends Resource {
 		return 	super.toString()+
 				" policyName:"+policyName+
 				" canAccess:"+canAccess+
-				" reason:"+reason+"\n";
+				" reason:"+reason+
+				"credentials:"+credentials+
+				"\n";
 	}
 
 	public ProtectedResource getCopy(String url){
@@ -97,8 +102,31 @@ public class ProtectedResource extends Resource {
 		res.setMatchingStrategy(getMatchingStrategy());
 		res.setPolicyName(getPolicyName());
 		res.setReason(getReason());
+		res.setCredentials(getCredentials());
 		return res;
 	}
 	
+	public void addCredential(String cred){
+		if(cred!=null){
+			credentials.add(cred);
+		}
+		return;
+	}
+	
+	public Vector getCredentials(){
+		Vector v=new Vector(credentials.capacity());
+		boolean bol=v.addAll(credentials);
+		System.out.println("addAll:"+bol+"v:"+v+" credentials:"+credentials.size());
+		return v;
+	}
+
+
+
+	/**
+	 * @param credentials The credentials to set.
+	 */
+	public void setCredentials(Vector credentials) {
+		this.credentials = credentials;
+	}
 	
 }

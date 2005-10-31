@@ -7,18 +7,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.jgraph.JGraph;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
@@ -28,12 +23,6 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Peer;
 import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
-import org.peertrust.tnviz.app.TNEdge;
-import org.peertrust.tnviz.app.TNGraphics;
-import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNSeqDiagramm;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
-import org.peertrust.tnviz.app.TNVizListener;
 import org.peertrust.tnviz.gui.TNGui;
 
 /**
@@ -254,7 +243,7 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
     	if(_dispatcher!=null){
     		_dispatcher.register(this,PTEvent.class);
     	}
-    	TNGui gui=graphics.getGui();
+    	//TNGui gui=graphics.getGui();
     	//gui.setVisible(isVisible);
     	container.removeAll();
     	container.add(this);
@@ -271,7 +260,7 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
     	if(_dispatcher!=null){
     		_dispatcher.unregister(this);
     	}
-    	TNGui gui=graphics.getGui();
+    	//TNGui gui=graphics.getGui();
     	container.removeAll();
     	setVisible(false);
     	System.out.println("isVisible:"+isVisible());

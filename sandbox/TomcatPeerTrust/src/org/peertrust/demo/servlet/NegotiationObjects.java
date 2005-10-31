@@ -424,7 +424,16 @@ public class NegotiationObjects implements PeerTrustCommunicationListener, Negot
 							(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 						entitiesTable.put(source.getAlias(),source);
 						
-						//Peer negotiatingPeer=((HttpSessionRegistrationRequest)message).getSource();
+//						PTEventListener eventL=
+//							(PTEventListener)trustClient.getComponent(Vocabulary.EventListener);
+//						if(eventL instanceof PTCommunicationASP){
+//							HttpSessionRegistrationResponse toSend=
+//									new HttpSessionRegistrationResponse(
+//												req,
+//												true,
+//												comFactory.getServerPeer("elearn"));
+//							((PTCommunicationASP)eventL).send(toSend,source);
+//						}
 						
 						
 						System.out.println("*********************************Registerering**********************");

@@ -61,7 +61,8 @@ public class TagsPeerTrustEvaluator implements PTPropertyEvaluator {
 		negoObjects=
 			NegotiationObjects.createAndAddForAppContext(context.getServletConfig());
 		trustClient=negoObjects.getTrustClient();
-		trustClient.setTimeout(1000*60);
+		trustClient.setTimeout(1000*10);
+		trustClient.setSleepInterval(1000);
 		session=context.getSession();
 	}
 

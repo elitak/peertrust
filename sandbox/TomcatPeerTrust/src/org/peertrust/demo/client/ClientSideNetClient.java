@@ -38,13 +38,14 @@ public class ClientSideNetClient 	/*extends NewsServer*/
 	private StringBuffer strBuffer= new StringBuffer(128);
 	private HttpClient httpClient;
 	private Logger logger;
-	//private Peer httpServer;
+	private Peer httpServer;
 	
 	public ClientSideNetClient(	String webAppURLPath, 
-								//String peerAlias, 
+								Peer httpServer,//String peerAlias, 
 								Logger logger){
 		this.webAppURLPath=webAppURLPath;
 		this.httpClient= new HttpClient();
+		this.httpServer=httpServer;
 		//this.randomPeerAlias=peerAlias;
 		this.logger=logger;
 		return;
@@ -101,9 +102,11 @@ public class ClientSideNetClient 	/*extends NewsServer*/
 		strBuffer.delete(0,strBuffer.length());
 		
 		strBuffer.append("http://");
-		strBuffer.append(destination.getAddress());
+		//strBuffer.append(destination.getAddress());
+		strBuffer.append(httpServer.getAddress());
 		strBuffer.append(":");
-		strBuffer.append(destination.getPort());
+		//strBuffer.append(destination.getPort());
+		strBuffer.append(httpServer.getPort()); 
 		strBuffer.append(webAppURLPath);
 		strBuffer.append("?action=send");
 				

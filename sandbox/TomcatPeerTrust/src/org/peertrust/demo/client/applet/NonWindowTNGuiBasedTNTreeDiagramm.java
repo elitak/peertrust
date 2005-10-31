@@ -23,7 +23,6 @@ import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
 
 public class NonWindowTNGuiBasedTNTreeDiagramm {
 	private static Logger log = Logger.getLogger(NonWindowTNGuiBasedTNTreeDiagramm.class);

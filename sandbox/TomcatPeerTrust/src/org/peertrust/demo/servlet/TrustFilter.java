@@ -12,7 +12,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -64,7 +63,7 @@ public class TrustFilter implements Filter{
 				if(peer!=null){
 					peerName=peer.getAlias();
 				}
-				if(peerName==null){
+				if(peerName==null){ 
 					//start peertrust and register session
 					System.out.println("***************NO PEER NAME REGISTRATION PAGE***********************************");
 					System.out.println("***************************************************************");
@@ -97,11 +96,18 @@ public class TrustFilter implements Filter{
 														this.filterConfig.getServletContext());
 						return;
 					}else{
-		           		resp.setContentType("text/html");
-						resp.getWriter().println(
-								"Cannot access "+res.getUrl()+
-								" cause:"+((ProtectedResource)res).getReason());
-						resp.flushBuffer();
+//		           		resp.setContentType("text/html");
+//						resp.getWriter().println(
+//								"Cannot access "+res.getUrl()+
+//								" cause:"+((ProtectedResource)res).getReason());
+//						resp.flushBuffer();
+						RequestServingMechanism servingMechanism=
+							trustManager.getRequestServingMechanismByName("credentialDownload");
+						servingMechanism.serveRequest(	(HttpServletRequest)req,
+														(HttpServletResponse)resp,
+														chain,
+														res,
+														filterConfig.getServletContext());
 						return;
 					}
 				}
@@ -176,7 +182,7 @@ public class TrustFilter implements Filter{
 //		if(!negotiationObjectsContext.equals(filterContext.getServletContextName())){
 //			demoContext= filterContext.getContext("demo"); 
 //		}
-		
+		 
 		ServletContext demoContext=filterContext.getContext(negotiationObjectsContext);//	"/demo");
 		
 		negoObjects= 

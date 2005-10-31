@@ -1,6 +1,7 @@
 //import java.beans.XMLEncoder;
 //import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -8,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -16,6 +18,12 @@ import javax.swing.JOptionPane;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.peertrust.parser.prolog.InputToken;
+import org.peertrust.parser.prolog.PrologGrammarConstants;
+import org.peertrust.parser.prolog.PrologGrammarTokenManager;
+import org.peertrust.parser.prolog.PrologRule;
+import org.peertrust.parser.prolog.PrologSemanticAnalyzer;
+import org.peertrust.parser.prolog.Token;
 //import org.apache.commons.httpclient.methods.RequestEntity;
 //import org.peertrust.meta.Trace;
 //import org.peertrust.net.Peer;
@@ -101,13 +109,51 @@ public class TestTestTest {
 		return (n==JOptionPane.YES_OPTION);
 	}
 	
+	static public void testPrologParser() throws Exception{
+		String fileName="/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/alice.min";
+//		PrologGrammar gr= new PrologGrammar(new FileInputStream(fileName));
+//		System.out.println("img1:"+gr.getNextToken().image);
+		org.peertrust.parser.prolog.SimpleCharStream stream= 
+			new org.peertrust.parser.prolog.SimpleCharStream(new FileInputStream(fileName));
+		PrologGrammarTokenManager mgr= new PrologGrammarTokenManager(stream);
+		//String imgs[]=mgr.tokenImage;
+		Token to=mgr.getNextToken();
+		Vector tVector= new Vector();
+		InputToken token;
+		
+		for(int i=0;to!=null && i<=10000 && to.kind!=PrologGrammarConstants.EOF;i++){
+			System.out.println("h"+i+":"+to.image);
+			to=mgr.getNextToken();
+			if(to.kind==PrologGrammarConstants.EOF){
+				break;
+			}
+			token=new InputToken();
+			token.beginColumn=to.beginColumn;
+			token.beginLine=to.beginLine;
+			token.endColumn=to.endColumn;
+			token.endLine=to.endLine;
+			token.image=to.image;
+			token.kind=to.kind;			
+			tVector.add(token);
+		}
+		Vector rVector=PrologSemanticAnalyzer.analyze(tVector);
+		PrologRule rule;
+		for(Iterator it=rVector.iterator();it.hasNext();){
+			rule=(PrologRule)it.next();
+			System.out.println("body:"+rule.body+" ");
+		}
+		//System.out.println("h:"+mgr.getNextToken().next.next.image);
+		return;
+	}
 	
 	public static void main(String[] args) throws Exception {
 		//testObjectStream();
-		String[] ar= new String[0];
-		System.out.println(ar.length);
-		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","question?",null,null));
-		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","<big>question?</big>",null,new String[]{"1","2","3"}));
+//		String[] ar= new String[0];
+//		System.out.println(ar.length);
+//		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","question?",null,null));
+//		System.out.println("yesnoQ:"+askYesNoQuestion("intallation","<big>question?</big>",null,new String[]{"1","2","3"}));
 		
+		//testObjectStream();
+		testPrologParser();
 	}
 }
