@@ -33,11 +33,11 @@ import org.peertrust.exception.ConfigurationException;
  * <p>
  * 
  * </p><p>
- * $Id: EntitiesTable.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+ * $Id: EntitiesTable.java,v 1.4 2005/11/01 15:55:51 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:44 $
+ * Last changed: $Date: 2005/11/01 15:55:51 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -54,7 +54,7 @@ public class EntitiesTable implements Configurable {
 	 */
 	public EntitiesTable() {
 		super();
-		log.debug("$Id: EntitiesTable.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $");
+		log.debug("$Id: EntitiesTable.java,v 1.4 2005/11/01 15:55:51 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -74,7 +74,18 @@ public class EntitiesTable implements Configurable {
 	
 	public Object get (Object key)
 	{
-		return _entities.get(key) ;
+		if (key != null)
+			return _entities.get(key) ;
+		else
+			return null ;
+	}
+	
+	public Object remove (Object key)
+	{
+		if (key != null)
+			return _entities.remove(key) ;
+		else
+			return null ;
 	}
 	
 	private Hashtable readEntities (String fileName) throws ConfigurationException
