@@ -22,18 +22,17 @@ package org.peertrust.net;
 
 import java.io.Serializable;
 
-import org.peertrust.meta.Trace;
 
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Message.java,v 1.8 2005/08/16 14:13:29 dolmedilla Exp $
+ * $Id: Message.java,v 1.9 2005/11/01 15:56:38 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/16 14:13:29 $
+ * Last changed: $Date: 2005/11/01 15:56:38 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
