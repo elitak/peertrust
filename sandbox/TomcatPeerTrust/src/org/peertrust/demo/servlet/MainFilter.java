@@ -17,10 +17,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author congo
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Makes the filtered hhtp rquest response non cachable 
+ * @author Patrice Congo (token77)
  */
 public class MainFilter implements Filter {
 

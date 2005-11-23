@@ -13,88 +13,95 @@ package org.peertrust.demo.client;
 import org.apache.log4j.Logger;
 import org.peertrust.TrustClient;
 import org.peertrust.config.Vocabulary;
-import org.peertrust.demo.client.applet.StartPasswordNegoCmd;
-import org.peertrust.demo.client.applet.StartPeerTrustNegoCmd;
-import org.peertrust.demo.common.ConfigurationOption;
 import org.peertrust.demo.common.Executable;
 import org.peertrust.demo.common.PrologFileManipulator;
-
-//import org.peertrust.demo.common.NewsEventListener;
-import org.peertrust.demo.common.StopCmd;
+import org.peertrust.demo.common.Utils;
 import org.peertrust.demo.credential_distribution.CredentialDistributionClient;
 import org.peertrust.demo.credential_distribution.CredentialResponse;
-import org.peertrust.demo.peertrust_com_asp.PTCommunicationASPObject;
-import org.peertrust.demo.session_registration.HttpSessionRegistrationRequest;
-import org.peertrust.event.AnswerEvent;
-//import org.peertrust.event.EventDispatcher;
-import org.peertrust.event.PTEvent;
-import org.peertrust.event.QueryEvent;
+import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
+import org.peertrust.event.PTEventListener;
 import org.peertrust.exception.ConfigurationException;
-//import org.peertrust.net.Answer;
 import org.peertrust.meta.MetaInterpreter;
 import org.peertrust.net.EntitiesTable;
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
-
-//import org.peertrust.net.Query;
-
-//import com.sun.net.ssl.internal.ssl.ByteBufferInputStream;
-
-
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-
 
 /**
- * @author kbs
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * PeerTrustClient mainly wrapped TrustClient. thus allowing an
+ * easier setup of the wrapped TrustClient with runtime data about
+ * the peer on the http server side.
+ *  
+ * @author Patrice Congo (token77)
  */
 public class PeerTrustClient   /*implements PTEventListener*/{
-	final static public int TIMEOUT = 30000 ;
+	/** time out for peertrust client*/
+	final static public int TIMEOUT = 30*000 ;
+	
+	/** sleep interval duration for peertrust client*/
 	final static public int SLEEP_INTERVAL = 100 ;
 	
-	//private String resourceID;
+	/**context path of the web application responsible for peertrust communication */
 	private String appContextStr;
-	//private String serviceServletPath;
 	
+	/** the ip of the http server*/
 	private String serverPeerIP;
+	/** the port at which the htp server listen for connections*/
 	private int serverPeerPort;
-	private String serverPeerName;
-	//private URL resourceReqURL=null;
 	
+	/** the name of the remote peer in the http server*/
+	private String serverPeerName;
+	
+	/**represents the local peer*/
 	private Peer localPeer;
+	
+	/** Represents the remote peer e.g. in the http server*/
 	private Peer serverPeer;
 	
-	static public String CONFIG_MUFFIN_URL="PeerTrustConfig/ConfigMuffin.properties";
-	static public int CONFIG_FILE_MAX_SIZE=1024*1024;
-	
+	/** applet logger*/
 	private Logger logger;
 	
-	
+	/** the name of the configuration file (.rdf file)*/
 	private String configFileName;
 	
+	/** the trust client for peertrust negotiation*/
 	private TrustClient trustClient;
-	private CredentialDistributionClient credentialDistributionClient;
 	
 	
+	/** the alias of the local peer*/
 	private String localPeerName;
 	
+	/** the client prolog file, which contains rules policies and credential*/
 	private File prologFile;
 	
+	/**Executable used to provide the objects with the 
+	 * capability to show info to the user*/
 	private Executable userAlert;
+	/** Executable to execute after a restart of the peer trust client*/
 	private Executable todoAfterPeerTrustRestart;
 	
+	/** the communication factory, which need to be initialised with 
+	 * http server data
+	 */
 	private ClientSideHTTPCommunicationFactory comFac;
 	
+	/**
+	 * Create a PeertrustClient using hhtp server info passed as properties
+	 * object. The construction is delegated to #construct();
+	 * 
+	 * @param props
+	 * @param configFile
+	 * @param prologFile
+	 * @param userAlert
+	 * @throws Exception
+	 */
     public PeerTrustClient(
     			Properties props, 
 				String configFile,
 				File prologFile,
-				Executable userAlert) throws Exception{
-    	//this.appletPTConfigurator=appletPTConfigurator;
+				Executable userAlert) throws Exception
+	{
     	this.configFileName=configFile;
     	this.prologFile=prologFile;
     	this.userAlert=userAlert;
@@ -103,11 +110,18 @@ public class PeerTrustClient   /*implements PTEventListener*/{
         return;
     }
     
-    private void construct(Properties props) throws Exception{
+    /**
+     * Does construct a peertruct client.
+     * 
+     * @param props
+     * @throws Exception
+     */
+    private void construct(Properties props) throws Exception
+    {
 			//AllPermission ap= new AllPermission();
-			makeCmdWorker();
+			//makeCmdWorker();
 			
-			logger=ConfigurationOption.getLogger(this.getClass().getName());
+			logger=Utils.getLogger(this.getClass().getName());
 			
 			setParameters(props);
 						
@@ -115,11 +129,13 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 			
 		}
     
-    
-    private void setParameters(Properties params){
-    	//sessionID=params.getProperty("negoSessionID").toString().trim();
-		//resourceID=params.getProperty("negoResource");
-		serverPeerIP=params.getProperty("remotePeerIP");
+    /**
+     * Sets local parameters with runtime info from the http server  
+     * @param params -- a Properties object containig the server runtime info
+     */
+    private void setParameters(Properties params)
+    {
+    	serverPeerIP=params.getProperty("remotePeerIP");
 		serverPeerName=params.getProperty("serverPeerName").toLowerCase();
 		appContextStr=params.getProperty("appContext");
 		//serviceServletPath=params.getProperty("serviceServletPath");
@@ -133,16 +149,25 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 		
     }
     
-    private void showMessage(String mes){
+    /**
+     * Logs a message.
+     * @param mes
+     */
+    private void showMessage(String mes)
+    {
     	if(logger!=null){
     		logger.info(mes);
-    	}else{
-    		System.out.println(mes);
     	}
     	return;
     }
     
-    private void showMessage(Throwable th, String mes){
+    /**
+     * Log an Execption.
+     * @param th -- the exception to log
+     * @param mes -- the message to log with
+     */
+    private void showMessage(Throwable th, String mes)
+    {
     	if(logger!=null){
     		logger.error(mes,th);
     	}
@@ -151,20 +176,25 @@ public class PeerTrustClient   /*implements PTEventListener*/{
     
 
     
-    
-    private void startPeerTrustClient() throws ConfigurationException{
+    /**
+     * Start the Peertrust client
+     * @throws ConfigurationException
+     */
+    private void startPeerTrustClient() throws ConfigurationException
+    {
     	showMessage("startPeerTrustClient.............................");
     	
     	String defaultConfigFile = null;
 
 		if(configFileName==null){
-			defaultConfigFile=
-				ConfigurationOption.getPTClientConfigFilePath();
+//			defaultConfigFile=
+//				ConfigurationOption.getPTClientConfigFilePath();
+			throw new ConfigurationException("configFileName not set before");
 		}else{
 			defaultConfigFile=configFileName;
 		}
 		
-		logger.info("defaulConfigFile:"+defaultConfigFile);
+		showMessage("defaulConfigFile:"+defaultConfigFile);
 
 		String defaultComponent = Vocabulary.PeertrustEngine.toString() ;
 		
@@ -195,13 +225,7 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 			
 			ClientSideNetServer ptServer=
 				((ClientSideNetServer)comFac.createNetServer());
-			/*ptServer.addNewsListener(newsListener);*/
-			
-//			ClientSideNetClient ptClient=
-//				(ClientSideNetClient)comFac.createNetClient();
-			/*ptClient.addNewsListener(newsListener);*/
 			ptServer.setConfigNotEnded(false);
-			//EntitiesTable entitiesTable = (EntitiesTable) config.getComponent(Vocabulary.EntitiesTable) ;
 			EntitiesTable entitiesTable = 
 				(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 			//TODO recheck localhost setting
@@ -221,21 +245,37 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 			entitiesTable.put(	localPeerName,
 								this.localPeer);
 			//trustClient.setAlias(localPeerName);
+			PTEventListener el= (PTEventListener)trustClient.getComponent(Vocabulary.EventListener);
+			if(el instanceof PTCommunicationASP){
+				((PTCommunicationASP)el).setCommunicationChannelFactory(comFac);
+			}else{
+				throw new ConfigurationException(
+						"A PTCommunicationASP is expected as pt listener but"+
+						" found "+el);
+			}
+			
 			trustClient.setTimeout(TIMEOUT);
 			trustClient.setSleepInterval(SLEEP_INTERVAL);
-			logger.info("comfac:"+comFac);			
+			showMessage("comfac:"+comFac);			
 			
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 			showMessage(e,"Problem staring pt client");
 			throw(e);
 		} catch(Throwable th){
-			th.printStackTrace();
+			showMessage(th,"Unexpected Exception while starting pt client");
 		}
 		return;
     }
-    
-    private Executable makeRestartTrustClientTask(){
+    /**
+     * Specifies the tasks to execute to restart the TrustClient.
+     * E.g. use when restart is necessary after policy file has 
+     * been modified 
+     * @return an Executable which can be use to restart the TrustClient
+     * 			by calling it execute() method
+     */
+    private Executable makeRestartTrustClientTask()
+    {
     	Executable exe=
     		new Executable(){
 
@@ -270,20 +310,25 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 							}
 							
 						}catch(Throwable th){
-							th.printStackTrace();
+							showMessage(th,"Credential not installed due to exception");
 							userAlert.execute("Credential not installed due to exception:\n"+
 										"Message:"+th.getMessage());
-						}
-												
+						}												
 					}
-				}
-    		
+				}    		
     	};   
     	
     	return exe;
     }
     
-    private CredentialDistributionClient makeCredentialDistributionClient(){
+    /**
+     * Creates a credebtial distribution client. 
+     * Such a client is use to request credentials from the http server.
+     *  
+     * @return a CredentialDistributionClient
+     */
+    private CredentialDistributionClient makeCredentialDistributionClient()
+    {
     	CredentialDistributionClient cdc=
     		new CredentialDistributionClient();
     	cdc.setup(
@@ -292,113 +337,60 @@ public class PeerTrustClient   /*implements PTEventListener*/{
     	return cdc;
     }
     
-    
-    public void requestCredential(String name){
+    /**
+     * To request a named credential.
+     * The task is delegated to a CredentialDistributionClient.
+     * @param name -- the name of the credential.
+     */
+    public void requestCredential(String name)
+    {
     	CredentialDistributionClient cdc=
     			makeCredentialDistributionClient();
     	cdc.requestCredential(name,localPeer,serverPeer);
     	
     }
     
-    private String getEventAsText(PTEvent event){
-    	Object mes;
-		if(event instanceof AnswerEvent){
-			mes= ((AnswerEvent)event).getAnswer();
-		}else if(event instanceof QueryEvent){
-			mes=((QueryEvent)event).getQuery();
-		}else{
-			mes=event;
-		}
-		
-		return ConfigurationOption.getMessageAsString(mes);
-    }
-    
-	
-    public void destroy(){ 
+	/**
+	 * Destroys the PeerTrustClient.
+	 */
+    public void destroy()
+    { 
     	stopTrustClient(); 	
     }
     
-    public void stopTrustClient(){ 
-    	cmdFIFO.offer(new StopCmd());
+    /**
+     * Stops the trust client.
+     *
+     */
+    public void stopTrustClient()
+    { 
     	comFac.destroy();
     	trustClient.destroy();
     	comFac=null;
     	trustClient=null;
     }
     
-    public void restartTrustClient() throws ConfigurationException {
-    	//clean up
-    	cmdFIFO.clear();
-    	comFac.destroy();
-    	trustClient.destroy();
-    	comFac=null;
-    	trustClient=null;
-    	
+    /**
+     * To restart the trust client.
+     * @throws ConfigurationException
+     */
+    public void restartTrustClient() throws ConfigurationException 
+    {
+    	stopTrustClient();
+//    	comFac.destroy();
+//    	trustClient.destroy();
+//    	comFac=null;
+//    	trustClient=null;
+//    	
     	//restart
     	startPeerTrustClient();
     }
-    //////////////////////////////////
-    ArrayBlockingQueue cmdFIFO=
-    	new ArrayBlockingQueue(8);
-    
-    public void makeCmdWorker(){
-    	Runnable workerRunnable= 
-    		new Runnable(){
-    			public void run(){
-    				while(true){
-    					try {
-    						System.out.println("waiting for cmd!");
-							Object cmd= cmdFIFO.take();
-							if(cmd instanceof StopCmd){
-								break;
-							}else if(cmd instanceof StartPeerTrustNegoCmd){
-//								StartPeerTrustNegoCmd negoCmd=
-//											(StartPeerTrustNegoCmd)cmd;
-//								resourceID=negoCmd.getResource();
-//								negotiate(negoCmd.getPtQueryGoal());
-//								//Answer.LAST_ANSWER
-							}else if (cmd instanceof StartPasswordNegoCmd){
-//								FinalResponse finalResponse=
-//									new FinalResponse(	((StartPasswordNegoCmd)cmd).getPassword(),
-//														((StartPasswordNegoCmd)cmd).getResource(),
-//														getServiveURL(
-//																((StartPasswordNegoCmd)cmd).getResource(),
-//																((StartPasswordNegoCmd)cmd).getUserName(),
-//																((StartPasswordNegoCmd)cmd).getPassword()));
-								//objStreamToApplet.writeObject(finalResponse);								
-//								newsListener.onNews(finalResponse);								
-							}else if(cmd instanceof HttpSessionRegistrationRequest){
-								//System.out.println("Sending "+cmd);
-								PTCommunicationASPObject.send(
-											comFac.createNetClient(),
-											(HttpSessionRegistrationRequest)cmd,
-											localPeer,//TODO check for source
-											serverPeer);//comFac.getServerPeer("eLearn"));
-								System.out.println("HttpSessionRegistrationRequest Send "+cmd);
-							}
-						} catch (InterruptedException e) {
-							e.printStackTrace();							
-						}catch(Throwable th){
-							th.printStackTrace();
-						}
-						//System.out.println("Stop waiting for cmd!");
-    				}
-    				System.out.println("Stop waiting for cmd!");
-    			}
-    		};
-    	(new Thread(workerRunnable)).start();
-    	return;
-    }
-    
-    public void addCmdToFIFO(Object obj){
-    	cmdFIFO.offer(obj);
-    }
-
 
 	/**
 	 * @return Returns the trustClient.
 	 */
-	public TrustClient getTrustClient() {
+	public TrustClient getTrustClient() 
+	{
 		return trustClient;
 	}
 
@@ -406,7 +398,8 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 	/**
 	 * @return Returns the localPeer.
 	 */
-	public Peer getLocalPeer() {
+	public Peer getLocalPeer() 
+	{
 		return localPeer;
 	}
 
@@ -414,37 +407,46 @@ public class PeerTrustClient   /*implements PTEventListener*/{
 	/**
 	 * @return Returns the serverPeer.
 	 */
-	public Peer getServerPeer() {
+	public Peer getServerPeer() 
+	{
 		return serverPeer;
 	}     
 	
-	public void sendToHttpServer(Message mes){
+	public void sendToHttpServer(Message mes)
+	{
 		comFac.createNetClient().send(mes,serverPeer);
 	}
 
 	/**
 	 * @return Returns the prologFile.
 	 */
-	public File getPrologFile() {
+	public File getPrologFile() 
+	{
 		return prologFile;
 	}
 
 	/**
+	 * Sets the prolog file
 	 * @param prologFile The prologFile to set.
 	 */
-	public void setPrologFile(File prologFile) {
+	public void setPrologFile(File prologFile) 
+	{
 		this.prologFile = prologFile;
 	}
-
-	public Executable getTodoAfterPeerTrustRestart() {
+	/**
+	 * Returns the executable that is invoque 
+	 * after TrustClient have been restarted
+	 * @return todoAfterPeerTrustRestart
+	 */
+	public Executable getTodoAfterPeerTrustRestart() 
+	{
 		return todoAfterPeerTrustRestart;
 	}
 
-	public void setTodoAfterPeerTrustRestart(Executable todoAfterPeerTrustRestart) {
+	public void setTodoAfterPeerTrustRestart(
+				Executable todoAfterPeerTrustRestart) 
+	{
 		this.todoAfterPeerTrustRestart = todoAfterPeerTrustRestart;
 	}
-	
-	
-	
 	
 }

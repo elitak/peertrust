@@ -81,7 +81,7 @@
 		<div class="dropMenu" >
 		<div class="subMenu" state="0">
 		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:toggleApplet()">Toggle Applet</a></span><BR />
-		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:toggleVisualization()">Toggle Visualization</a></span><BR />
+		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:toggleExternalVisualization()">Toggle Visualization</a></span><BR />
 		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:uninstallPeerTrust()">Uninstall PeerTrust</a></span><BR />
 		<span class="subItem" classOut="subItem" classOver="subItemOver"><a href="javascript:managePolicies()">Policy management</a></span>
 		</div>

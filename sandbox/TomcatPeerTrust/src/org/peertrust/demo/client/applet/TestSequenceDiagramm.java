@@ -52,12 +52,13 @@ import org.peertrust.tnviz.app.TNNode;
  * sequence diagramm. It is being used by the TNGraphics class in order to
  * visualize the sequence of queries and answers.
  * </p><p>
- * $Id: TestSequenceDiagramm.java,v 1.1 2005/10/24 11:15:01 token77 Exp $
+ * $Id: TestSequenceDiagramm.java,v 1.2 2005/11/23 23:24:02 token77 Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/10/24 11:15:01 $
+ * Last changed: $Date: 2005/11/23 23:24:02 $
  * by $Author: token77 $
+ * Modified to get ride of the dependencies to Graphics and TNGui
  * </p>
  * @author Michael Schaefer and Sebastian Wittler
  */
@@ -341,27 +342,27 @@ public class TestSequenceDiagramm {
         return node;
     }
 
-    /**
-     * Connects the two nodes with the given ids with a new edge with the given information.
-     * For this purpose, new invisible nodes and new visible edges are being
-     * created to construct the sequence diagramm structure.
-     * @param nodeSource The id of the source node.
-     * @param nodeTarget The id of the target node.
-     * @param object The label object.
-     * @param goal The goal.
-     * @param reqQueryId The reqQueryId.
-     * @param query True, if the connection represents a query, otherwise false.
-     * @param answer True, if the connection represents an answer, otherwise false.
-     * @param status The status.
-     * @param proof The proof.
-     * @return The id of the new edge.
-     */
-    private String connectNodes(String nodeSource, String nodeTarget,
-            Object object, String goal, long reqQueryId, boolean query,
-            boolean answer, int status, String proof) {
-        return connectNodes(getNode(nodeSource), getNode(nodeTarget), object,
-                goal, reqQueryId, query, answer, status, proof);
-    }
+//    /**
+//     * Connects the two nodes with the given ids with a new edge with the given information.
+//     * For this purpose, new invisible nodes and new visible edges are being
+//     * created to construct the sequence diagramm structure.
+//     * @param nodeSource The id of the source node.
+//     * @param nodeTarget The id of the target node.
+//     * @param object The label object.
+//     * @param goal The goal.
+//     * @param reqQueryId The reqQueryId.
+//     * @param query True, if the connection represents a query, otherwise false.
+//     * @param answer True, if the connection represents an answer, otherwise false.
+//     * @param status The status.
+//     * @param proof The proof.
+//     * @return The id of the new edge.
+//     */
+//    private String connectNodes(String nodeSource, String nodeTarget,
+//            Object object, String goal, long reqQueryId, boolean query,
+//            boolean answer, int status, String proof) {
+//        return connectNodes(getNode(nodeSource), getNode(nodeTarget), object,
+//                goal, reqQueryId, query, answer, status, proof);
+//    }
 
     /**
      * Connects the two given nodes with a new edge with the given information.
@@ -406,8 +407,8 @@ public class TestSequenceDiagramm {
         
         int newY = lastY;
 
-        DefaultPort portSource = (DefaultPort) nodeSource.getPort();
-        DefaultPort portTarget = (DefaultPort) nodeTarget.getPort();
+//        DefaultPort portSource = (DefaultPort) nodeSource.getPort();
+//        DefaultPort portTarget = (DefaultPort) nodeTarget.getPort();
         TNNode lastInvisibleNodeSource;
         TNNode lastInvisibleNodeTarget;
         Vector sourceElements = (Vector) nodesInvisible.get(nodeSource);

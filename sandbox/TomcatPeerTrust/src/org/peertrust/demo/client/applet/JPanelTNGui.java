@@ -26,6 +26,11 @@ import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
 
+/**
+ * A modification of TNGui that does not use JFrame
+ * @author Patrice Congo (token 77)
+ *
+ */
 public class JPanelTNGui extends JPanel implements MouseListener, KeyListener, ActionListener {
 
 	private static final long serialVersionUID = 1L;

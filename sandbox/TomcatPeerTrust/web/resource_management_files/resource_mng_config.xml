@@ -40,6 +40,11 @@
 	/>
 </ResourceClassifier>
 
+<!-- 
+A PolicySystem sytem is a pool of policies. <policySystem> is an xml pesistance 
+form on a PolicySystem object. The policies in the pool are represented by the 
+<policy> element. 
+ -->
 <policySystem type="..">
 	<policy
 		policyName="jspForceSessionRegistration"
@@ -79,6 +84,19 @@
 		/>
 </policySystem>
 
+<!-- 
+	Response to a resource request depends:
+	 i) on the protection level of the of the resource ,
+	 ii)on the setup level of the http session (is the peer already known by the server)
+	A RequestServingMechnism specifies the steps to serve a request. Its XML represention 
+	is the <mechanism> element. The class attribute the class that implement the particular 
+	mechnism. E.g. RequestServingByFollowingChain which just follow the normal request hanndlinc 
+	chain. In some cases (e.g session registration) it is necessary to forward the request 
+	to another handler(jsp or servlet). the forwardto attribute is used to specify a url of the service.
+	The mechnism are gathered in a pool represented by the 
+	<RequestservingMechnism> element. not that This element must contains a mechanism named default,
+	which will handle the request that match not other mechnism.  
+ -->
 <RequestServingMechanism type="...">
 	<mechanism 	name="default"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByFollowingChain"
@@ -100,35 +118,43 @@
 				matchingPattern="/jsp/credentialDownload.jsp">
 	</mechanism>
 	
-	<mechanism 	name="virtual_dir_demo_loader"
+	<!-- mechanism 	name="virtual_dir_demo_loader"
 				class="org.peertrust.demo.resourcemanagement.RequestServingByLoadingFromExtDir"
 				baseDir="file:///home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/"
 				matchingPattern="/fififififififi/demo/.*">
-	</mechanism>
+	</mechanism -->
 	
 </RequestServingMechanism>
 
+<!-- 
+<CredentialStrore> holds the state of a CredentialStore object.
+Its contains:
+	i) a <peeAliasPlaceHolder> which text contex ist the regedit expresion for the
+		peer trust alias place holder use in the credentials values.
+	i) several <Credential> which represents a template credential.
+ -->
 <CredentialStore>
+	<peerAliasPlaceHolder>\$\{_Requester_\}</peerAliasPlaceHolder>
 	<Credential 
 		name="cred_ieeeMember" 
-		value="signed(rule(ieeeMember(Requester) @ ieee, [], []),ieee, signature(ieee))."
+		value="signed(rule(ieeeMember(${_Requester_}) @ ieee, [], []),ieee, signature(ieee))."
 		description="Membership in IEEE">
 		
-	</Credential>
+	</Credential> 
 	<Credential 
 		name="cred_springerReader" 
-		value="signed(rule(springer(Requester) @ springer, [], []),springer, signature(springer))."
+		value="signed(rule(springer(${_Requester_}) @ springer, [], []),springer, signature(springer))."
 		description="Springer Reader">
 	</Credential>
 	<Credential 
 		name="cred_peertrustCommunityMember" 
-		value="signed(rule(peertrustCommunityMember(Requester) @ peertrustCommunity, [], []),peertrustCommunity, signature(peertrustCommunity))."
+		value="signed(rule(peertrustCommunityMember(${_Requester_}) @ peertrustCommunity, [], []),peertrustCommunity, signature(peertrustCommunity))."
 		description="PeerTrust Community membership">
 	</Credential>
 	
 	<Credential 
 		name="cred_acmMember" 
-		value="signed(rule(ieeeMember(Requester) @ acm, [], []),acm, signature(acm))."
+		value="signed(rule(ieeeMember(${_Requester_}) @ acm, [], []),acm, signature(acm))."
 		description="ACM Membership">
 	</Credential>	
 </CredentialStore>

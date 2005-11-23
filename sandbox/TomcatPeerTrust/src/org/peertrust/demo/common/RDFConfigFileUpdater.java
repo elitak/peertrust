@@ -9,7 +9,7 @@ package org.peertrust.demo.common;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
+//import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 
@@ -41,33 +41,45 @@ public class RDFConfigFileUpdater {
 	private Document installXMLDocument;
 	
 	public RDFConfigFileUpdater(String installFileName,
-								String installDir) throws MalformedURLException{
+								String installDir) throws IOException, SAXException, ParserConfigurationException{
 		this.installConfigFileName=installFileName;
 		this.installDir= new File(installDir);
+		
+		////
+		URL urlInstallFile= new URL(this.installDir.toURI().toURL(), installConfigFileName);
+		DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		//System.out.println("urlInstallFile:"+urlInstallFile+" "+installConfigFileName);
+		installXMLDocument = builder.parse(urlInstallFile.toString());
+		
+		//Node n= installXMLDocument.getFirstChild().getAttributes().getNamedItem("isIntalled");//
+		
+		//System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+Boolean.getBoolean(n.getNodeValue())+" "+ new Boolean(true));
+		verifyInstallationState(installXMLDocument);
 		
 	}
 	
 	
     public void update() throws Exception{
     	/////////////
-    	URL urlInstallFile= new URL(installDir.toURI().toURL(), installConfigFileName);
+    	/*URL urlInstallFile= new URL(installDir.toURI().toURL(), installConfigFileName);
 		DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		System.out.println("urlInstallFile:"+urlInstallFile+" "+installConfigFileName);
 		installXMLDocument = builder.parse(urlInstallFile.toString());
 		
-		Node n= installXMLDocument.getFirstChild().getAttributes().getNamedItem("isIntalled");//
+		//Node n= installXMLDocument.getFirstChild().getAttributes().getNamedItem("isIntalled");//
 		
 		//System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+Boolean.getBoolean(n.getNodeValue())+" "+ new Boolean(true));
-		verifyInstallationState(installXMLDocument);
+		verifyInstallationState(installXMLDocument);/**/
 		
-		if("true".equalsIgnoreCase(n.getNodeValue())){
-			return;
-		}
+//		if("true".equalsIgnoreCase(n.getNodeValue())){
+//			return;
+//		}
     	////////////
     	//verifyInstallationState(installXMLDocument);
     	configRDFFile();
-    	n.setNodeValue(Boolean.toString(true));
+    	//n.setNodeValue(Boolean.toString(true));
     	//////////save
     	File instConfigFile=new File(installDir,installConfigFileName);
 		OutputFormat format = new OutputFormat();//(Document)core);
@@ -146,12 +158,13 @@ public class RDFConfigFileUpdater {
 					ptBaseFolder=ptBaseFolder+File.separator;
 				}
 				String xmlPath[][]={
-								{"pt:EntitiesTable", "pt:entitiesFile",(new File(installDir,(String)fileTable.get("entitiesFile"))).toString()},
-								//{"pt:InferenceEngine","pt:baseFolder", (new File(installDir)).toString()+File.separator},
-								{"pt:InferenceEngine","pt:baseFolder", ptBaseFolder},
-								{"pt:InferenceEngine","pt:prologFiles", (String)fileTable.get("prologFiles")},
-								{"pt:InferenceEngine","pt:license", (String)fileTable.get("license")},
-								{"pt:CredentialStore","pt:file", (new File(installDir,(String)fileTable.get("keystore"))).toString()}
+						{"pt:EntitiesTable", "pt:entitiesFile",(new File(installDir,(String)fileTable.get("entitiesFile"))).toString()},
+						//{"pt:InferenceEngine","pt:baseFolder", (new File(installDir)).toString()+File.separator},
+						{"pt:InferenceEngine","pt:baseFolder", ptBaseFolder},
+						{"pt:InferenceEngine","pt:prologFiles", (String)fileTable.get("prologFiles")},
+						{"pt:InferenceEngine","pt:license", (String)fileTable.get("license")},
+						{"pt:CredentialStore","pt:file", (new File(installDir,(String)fileTable.get("keystore"))).toString()}
+						//{"pt:MetaInterpreter","pt:peerName", "patrice"}		
 								};
 				
 				for(int i=0; i<xmlPath.length;i++){
@@ -185,6 +198,62 @@ public class RDFConfigFileUpdater {
 		}
 	}   
     
+	public void changeAlias(String newAlias){
+		if(newAlias==null){
+			return;
+		}
+		
+		File rdfFile= new File(installDir,(String)fileTable.get("configFile"));
+		
+		if(rdfFile.exists()){
+			//rdfFile.renameTo(new File(installDir,(String)fileTable.get("rdfFile")+".bk"));
+    		try {
+				DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+				DocumentBuilder builder = factory.newDocumentBuilder();
+				Document document=builder.parse(rdfFile);
+				//check if already installed
+				//Node n= document.getFirstChild();//
+				//System.out.println("NODEROOT:"+n.getNodeName());//+" "+n.getAttributes().getNamedItem("isIntalled"));
+				//change the document.
+				String ptBaseFolder=(installDir).toString();
+				if(!ptBaseFolder.endsWith(File.separator)){
+					ptBaseFolder=ptBaseFolder+File.separator;
+				}
+				String xmlPath[][]={
+						{"pt:MetaInterpreter","pt:peerName", newAlias}		
+								};
+				
+				for(int i=0; i<xmlPath.length;i++){
+					setTextValue(xmlPath[i],document);
+				}
+				
+				//backup
+				rdfFile.renameTo(new File(installDir,(String)fileTable.get("configFile")+".bk"));
+				
+				//save
+				rdfFile=new File(installDir,(String)fileTable.get("configFile"));
+				OutputFormat format = new OutputFormat();//(Document)core);
+				format.setLineSeparator(LineSeparator.Windows);
+				format.setIndenting(true);
+				format.setLineWidth(0);             
+				format.setPreserveSpace(true);
+				XMLSerializer serializer = new XMLSerializer (
+				new FileWriter(rdfFile), format);
+				serializer.asDOMSerializer();
+				serializer.serialize(document);
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
     private void verifyInstallationState(Document document)throws IOException{
 			String fileName;
 			NodeList nList=document.getElementsByTagName("file");
@@ -207,10 +276,6 @@ public class RDFConfigFileUpdater {
     
     public String getRDFConfigFile() throws IOException{
     	String rdfFileName=(String)fileTable.get("configFile");
-//    	if(rdfFileName==null){
-//    		verifyInstallationState(installXMLDocument);//build table
-//    		rdfFileName=(String)fileTable.get("configFile");
-//    	}
     	File rdfFile= new File(installDir,rdfFileName);
     	return rdfFile.toURI().toString();
     }
@@ -222,11 +287,13 @@ public class RDFConfigFileUpdater {
 //					"C:\\dev_root\\pt\\");//http://127.0.0.1:7703/myapp-0.1-dev/
 		RDFConfigFileUpdater is= 
 			new RDFConfigFileUpdater(
-					"serverInstall.xml",
-					"C:\\Dokumente und Einstellungen\\pat_dev\\PeerTrustConfig");//http://127.0.0.1:7703/myapp-0.1-dev/
+					"install.xml",
+					"/home/congo/.peertrust");
+					//"C:\\Dokumente und Einstellungen\\pat_dev\\PeerTrustConfig");//http://127.0.0.1:7703/myapp-0.1-dev/
 		//System.out.println(is.getFilesToInstall());
-		is.update();
 		
+		//is.changeAlias("coolio");
+		is.update();
 		
 	}
 

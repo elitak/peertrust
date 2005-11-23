@@ -5,10 +5,10 @@ import java.io.Serializable;
 
 
 /**
- * Represent a protocol object send from a credential distribution client
+ * Represent a protocol object send by a credential distribution client
  * to a server to get a credential.
  * 
- * @author pat_dev
+ * @author Patrice Congo (token77)
  *
  */
 public class CredentialRequest implements Serializable {
@@ -25,22 +25,23 @@ public class CredentialRequest implements Serializable {
 	}
 	
 	/**
-	 * Creates a  named credential.
-	 * @param name
+	 * Creates a  Request for a named credential.
+	 * @param name -- the name of the credntial to request.
 	 */
 	public CredentialRequest(String name){
 		this.name=name;
 	}
 
 	/**
-	 * @return Returns the name.
+	 * @return Returns the name of the credential to request.
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @param name The name to set.
+	 * Sets the name of the credential to request.
+	 * @param name -- the new name to set.
 	 */
 	public void setName(String name) {
 		this.name = name;

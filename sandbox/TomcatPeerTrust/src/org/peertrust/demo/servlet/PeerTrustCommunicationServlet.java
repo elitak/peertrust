@@ -1,8 +1,5 @@
 /*
  * Created on 14.04.2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package org.peertrust.demo.servlet;
 
@@ -19,44 +16,28 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.peertrust.demo.common.ConfigurationOption;
-
-//import org.peertrust.demo.common.StopCmd;
+import org.peertrust.demo.common.Messenger;
+import org.peertrust.demo.common.Utils;
 import org.peertrust.net.*;
 
-//import java.util.Hashtable;
-//import java.util.Iterator;
-//import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 /**
- * @author pat_dev
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author Patrice Congo (token77)
  */
 public class PeerTrustCommunicationServlet 	extends HttpServlet 
-											/*implements PeerTrustCommunicationListener*/{
+{
 	final static public  String PEER_NAME_KEY="finalDestination"; 
-	//private ServletSideNetServer trustServer=null;
-	//private ServletSideNetClient trustClient=null;
 	private NegotiationObjects negoObjects=null;
-	//private Hashtable messagePool= new Hashtable(20);
-	private Logger logger;//=Logger.getLogger(this.getClass());
+	private Logger logger;	
+	private Messenger messenger;
+	
 	/* (non-Javadoc)
 	 * @see javax.servlet.GenericServlet#init()
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		//super.init();
-		//ServletContext context=config.getServletContext();
 		negoObjects=
 			NegotiationObjects.createAndAddForAppContext(config);
-		
-		//trustServer= negoObjects.getNetServer();
-		
-		//trustClient= negoObjects.getNetClient();
-		//trustEngin=negoObjects.getPeerTrustEventListener();
-		logger=ConfigurationOption.getLogger(this.getClass().getName());
+		messenger=negoObjects.getMessenger();
+		logger=Utils.getLogger(this.getClass().getName());
 		return;		
 	}
 	
@@ -78,32 +59,19 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 		//logger.info("com request URI:"+req.getRequestURI());
 		String action = req.getParameter("action");
 		logger.info("com request URI:"+req.getRequestURI()+
-					" action:"+action+ " isL:"+negoObjects.getIsListening()+
+					" action:"+action+ //" isL:"+negoObjects.getIsListening()+
 					" negoObjects:"+negoObjects);
 		if(action==null){
 			//resp.sendError(HttpServletResponse.SC_NO_CONTENT,"no action specify");
 			sendObject(resp,"no action specify");
 		}else if(action.equals("send")){
-			if(negoObjects.getIsListening()){
 				ObjectInputStream objIn = null;
-			    //PrintWriter out = null;
-			    //BufferedReader inTest = null;
 			    Object rcvObj=null;    
 			    try
 			    {  
 			        objIn = new ObjectInputStream(req.getInputStream());				    
-			        // read and send message ti trust server        
 			        rcvObj = objIn.readObject();
-//			        if(rcvObj instanceof HttpSessionRegistrationRequest){
-//			        	
-//			        	Peer peer=((HttpSessionRegistrationRequest)rcvObj).getSource();
-//			        	String sesId=((HttpSessionRegistrationRequest)rcvObj).getSessionKey();
-//			        	System.out.println("Resgistering "+sesId+" peer:"+peer);
-//			        	negoObjects.registerSession(sesId,peer);
-//			        }else{
-//			        	negoObjects.addMessage(rcvObj);
-//			        }
-			        negoObjects.addMessage(rcvObj);
+			        messenger.sendMsg((Message)rcvObj);
 			        //////////////////////////////////////////
 			        sendObject(resp,"Object Send");										
 			    }catch(Exception e){
@@ -112,10 +80,6 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 			    	resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 			    					e.getMessage());
 			    }
-			}else{
-				//resp.sendError(HttpServletResponse.SC_NO_CONTENT,"trust server not listening");
-				sendObject(resp,"trust server not listening");
-			}
 
 		}else if(action.equals("receive")){
 			try {
@@ -125,21 +89,16 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 				
 				Object toSend=null;
 				if(obj instanceof Peer){
-					System.out.println("------------------------------Listening client peer:"+obj);
 					logger.info("Listening client peer:"+obj);
-					//negoObjects.addPeerTrustCommunicationListener((Peer)obj, this);
 					HttpSession ses= req.getSession(true);
 					
 					if(ses.getAttribute(PEER_NAME_KEY)==null){
 						//peer for final removal
 						System.out.println("-------logging peer communication channel"+ses.getId());
-						ses.setAttribute(PEER_NAME_KEY,(Peer)obj);				
+						ses.setAttribute(PEER_NAME_KEY,(Peer)obj);
 					}
-					
-					//look and see if there is a message
-					BlockingQueue messageFIFO=
-						negoObjects.getMessageFIFO(((Peer)obj));
-					toSend=messageFIFO.take();
+					messenger.openChannel((Peer)obj);	
+					toSend=messenger.receiveMsg((Peer)obj);
 				}else{
 					toSend="send a peer object to receive anything";
 				}
@@ -183,12 +142,7 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 	
 	
 	public void destroy() {
-//		ArrayBlockingQueue queue=null;
-//		for(Iterator it =messagePool.values().iterator();it.hasNext();){
-//			queue=(ArrayBlockingQueue)it.next();
-//			queue.clear();
-//			queue.offer(new StopCmd());
-//		}
+		//TODO close all channels
 		super.destroy();
 	}
 }

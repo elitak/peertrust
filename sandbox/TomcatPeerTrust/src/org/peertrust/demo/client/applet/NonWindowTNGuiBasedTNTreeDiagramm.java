@@ -23,7 +23,14 @@ import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
-
+/**
+ * A modification of TNTreeDiagramm to get ride of 
+ * dependency to TNGui so that it can be embedded in a
+ * non Frame container
+ * 
+ * @author Patrice Congo (token77)
+ *
+ */
 public class NonWindowTNGuiBasedTNTreeDiagramm {
 	private static Logger log = Logger.getLogger(NonWindowTNGuiBasedTNTreeDiagramm.class);
 
@@ -136,8 +143,8 @@ public class NonWindowTNGuiBasedTNTreeDiagramm {
 
         int sourcePort = query.getSource().getPort();
 
-        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
-                + sourcePort;
+//        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
+//                + sourcePort;
 
         String targetAddress = query.getTarget().getAddress();
 
@@ -145,8 +152,8 @@ public class NonWindowTNGuiBasedTNTreeDiagramm {
 
         int targetPort = query.getTarget().getPort();
 
-        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
-                + targetPort;
+//        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
+//                + targetPort;
 
         long reqQueryId = query.getReqQueryId();
 
@@ -326,14 +333,14 @@ public class NonWindowTNGuiBasedTNTreeDiagramm {
 	
 	        }
 	
-	        String sourceAddress = answer.getSource().getAddress();
+//	        String sourceAddress = answer.getSource().getAddress();
+//	
+//	        String sourceAlias = answer.getSource().getAlias();
+//	
+//	        int sourcePort = answer.getSource().getPort();
 	
-	        String sourceAlias = answer.getSource().getAlias();
-	
-	        int sourcePort = answer.getSource().getPort();
-	
-	        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
-	                + sourcePort;
+//	        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
+//	                + sourcePort;
 	
 	        String targetAddress = answer.getTarget().getAddress();
 	
@@ -341,8 +348,8 @@ public class NonWindowTNGuiBasedTNTreeDiagramm {
 	
 	        int targetPort = answer.getTarget().getPort();
 	
-	        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
-	                + targetPort;
+//	        String targetIdentifier = targetAlias + ":" + targetAddress + ":"
+//	                + targetPort;
 	
 	        String goal = "<" + answer.getGoal() + ">";
 	
@@ -364,7 +371,7 @@ public class NonWindowTNGuiBasedTNTreeDiagramm {
 	
 	            return;
 	
-	        long id = reqQueryId;
+	        //long id = reqQueryId;
 	
 	        TNNode node = null;
 	

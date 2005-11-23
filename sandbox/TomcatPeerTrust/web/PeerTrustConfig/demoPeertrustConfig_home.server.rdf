@@ -28,7 +28,7 @@
 	================================================================== -->
 	<pt:MetaInterpreter rdf:about="#MetaInterpreter">
 		<pt:javaClass>org.peertrust.meta.MetaInterpreter</pt:javaClass>
-		<pt:peerName>elearn</pt:peerName>
+		<pt:peerName>ELearn</pt:peerName>
 		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
 		<pt:inferenceEngine rdf:resource="#InferenceEngine"/>
 		<pt:queue rdf:resource="#Queue"/>

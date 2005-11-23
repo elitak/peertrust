@@ -104,7 +104,7 @@
 					</tr>
 				</table>
 				<br/>
-				 <a href="javascript:requestCredential('peertrustCommunityMember')">Get peertrust comminity membership to get developper email</a>
+				 <a href="javascript:requestCredential('cred_peertrustCommunityMember')">Get peertrust comminity membership to get developper email</a>
 			</pt:ElseExhibitNoAttribute>
 		</pt:PT_NegotiableContent> 
 	</div>

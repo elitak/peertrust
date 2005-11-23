@@ -22,32 +22,47 @@ import javax.swing.JTextField;
 
 
 /**
+ * This is a dialog that prompt the user to enter a
+ * user name and password
  * @author pat_dev
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class LoginDlg extends JDialog implements ActionListener {
-
+	/**
+	 * holds the user answer.
+	 */
 	private boolean isOk = false;
-	private JButton okButton,canButton;
+	
+	/** ok button to confirm user entry*/
+	private JButton okButton;
+	
+	/** button to cancel dialog*/
+	private JButton canButton;
+	
+	/** text field to enter user name*/
 	private JTextField usernameTF;
+	
+	/** text field to enter password*/
 	private JPasswordField passwordTF;
 
 	
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * Show a password dlg
+	 * @param frame -- the parent frame, can be null.
+	 * @param name -- the title of the dialog window.
 	 * @throws java.awt.HeadlessException
+	 * @see javax.swing.JDialog
 	 */
 	public LoginDlg(Frame frame, String name) throws HeadlessException {
 		super(frame, name, true);
 		makeLayout();
 	  }
 
+	/**
+	 * make the dialog layout.
+	 *
+	 */
 	private void makeLayout(){
-		//setLayout(new FlowLayout());
-		
 		usernameTF = new JTextField(15);
 		passwordTF = new JPasswordField(15);
 		canButton= new JButton("Cancel"); canButton.addActionListener(this);
@@ -93,7 +108,7 @@ public class LoginDlg extends JDialog implements ActionListener {
 
 	 
 	
-	/* (non-Javadoc)
+	/**
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent ae) {
@@ -104,14 +119,25 @@ public class LoginDlg extends JDialog implements ActionListener {
 		return;
 	}
 
+	/**
+	 * get the user response.
+	 * @return true if user has  klicked the ok 
+	 * 			or false if the user has canceled the dialog
+	 */
 	public boolean isOk(){
 		return isOk;
 	}
 	
+	/**
+	 * @return the user name
+	 */
 	public String getUsername(){
 		return usernameTF.getText();
 	}
 	
+	/**
+	 * @return returns the user passwork
+	 */
 	public String getPassword(){
 		return new String(passwordTF.getPassword());
 	}

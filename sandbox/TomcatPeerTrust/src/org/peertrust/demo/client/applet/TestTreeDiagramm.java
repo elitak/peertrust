@@ -37,11 +37,14 @@ import org.peertrust.meta.Trace;
 import org.peertrust.net.Answer;
 import org.peertrust.net.Peer;
 import org.peertrust.net.Query;
-import org.peertrust.tnviz.app.Graphics;
+//import org.peertrust.tnviz.app.Graphics;
 import org.peertrust.tnviz.app.TNEdge;
 import org.peertrust.tnviz.app.TNNode;
-import org.peertrust.tnviz.app.TNTreeDiagramm;
-
+//import org.peertrust.tnviz.app.TNTreeDiagramm;
+/**
+ * A modification of TNTreeDiagramm to get ride of the
+ * dependencies to Graphics and TNGui
+ */
 public class TestTreeDiagramm {
 	private static Logger log = Logger.getLogger(TestTreeDiagramm.class);
 
@@ -373,11 +376,11 @@ public class TestTreeDiagramm {
 	
 	        }
 	
-	        String sourceAddress = answer.getSource().getAddress();
+	        //String sourceAddress = answer.getSource().getAddress();
 	
-	        String sourceAlias = answer.getSource().getAlias();
+	        //String sourceAlias = answer.getSource().getAlias();
 	
-	        int sourcePort = answer.getSource().getPort();
+	        //int sourcePort = answer.getSource().getPort();
 	
 //	        String sourceIdentifier = sourceAlias + ":" + sourceAddress + ":"
 //	                + sourcePort;

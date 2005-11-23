@@ -18,41 +18,57 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.jgraph.JGraph;
 import org.peertrust.event.EventDispatcher;
 import org.peertrust.event.PTEvent;
 import org.peertrust.event.PTEventListener;
 
 /**
- * @author pat_dev
- *
+ * @author Patrice Congo (token77)
  */
-public class TestNegotiationVisualizationPane extends JPanel  implements PTEventListener {
-	
+public class TestNegotiationVisualizationPane 
+									extends JPanel  
+									implements PTEventListener 
+{
+	/** the minimal dimension of the visualization pane*/
 	private static final Dimension MIN_DIM= new Dimension(800,1600);
-	private static Logger log = Logger.getLogger(NegotiationVisualizationPane.class);
+	
+	/** the peertrust client event dispatcher*/
 	private EventDispatcher _dispatcher;
+	
+	/** the visibility state of the vizualisation pane*/
 	private boolean isVisible;
+	
+	/** A sequemce diagramm implementaion which does depend on Graphics*/
 	private TestSequenceDiagramm seqDiagramm= new TestSequenceDiagramm();
+	
+	/**A tree diagramm implementation which does not depends on Graphics*/
 	private TestTreeDiagramm treeDiagramm= new TestTreeDiagramm();
 	
+	/** holds the diagramm which is curently showing.*/
 	private Object showingDiagramm;
-	//private JScrollPane diaPane;
+	
+	/** The container pane for the diagramm*/
 	private JPanel diaPane;
+	
+	/** the parent container where the diagramm is to be displayed*/
 	private Container parentContainer;
 	
 	/**
-	 * 
+	 * Creates a new TestNegotiationVisualizationPane and makes its layout.
 	 */
 	public TestNegotiationVisualizationPane() {
-		
 		configGUI();
 	}
-
+	/**
+	 * Makes the layout of the visualization pane.
+	 *
+	 */
 	private void configGUI(){
 		isVisible=false;
 		this.setLayout(new BorderLayout());
+		//command buttons
 		this.add(makeCmdPanel(),BorderLayout.NORTH);
 		
 		JScrollPane _diaPane= 
@@ -60,26 +76,24 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,		
 					JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
+		//diagramm and show sequence diagramm 
 		diaPane= new JPanel();
-		//diaPane.setPreferredSize(new Dimension(800,800));
 		_diaPane.setViewportView(diaPane);
-		//diaPane.setLayout(new GridLayout(1,1));
-//		JPanel p= new JPanel();
-//		p.add(diaPane);
 		this.add(_diaPane,BorderLayout.CENTER);
-		
-		/////
 		Dimension minDim= new Dimension(800,1600);
 		seqDiagramm.getGraph().setMinimumSize(minDim);
 		seqDiagramm.getGraph().setPreferredSize(minDim);
 		treeDiagramm.getGraph().setMinimumSize(minDim);
 		seqDiagramm.getGraph().setPreferredSize(minDim);//getToolkit().getScreenSize()
-		////
 		showSeqDiagramm();
 		return;
 	}
-	
-	JPanel makeCmdPanel(){
+	/** 
+	 * make the command panel. It hold buttons to change the
+	 * showing diagramm or wipe it.
+	 * @return a panel containing the control buttons
+	 */
+	private JPanel makeCmdPanel(){
 		JPanel panel= new JPanel();
 		panel.setLayout(new GridLayout(1,3));
 		panel.add(showSeqButton());
@@ -87,8 +101,12 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		panel.add(wipeDiagrammButton());
 		return panel;
 	}
-	
-	JButton showSeqButton(){
+	/** 
+	 * Create a button, which, when it is klicked, shows the
+	 * sequence diagramm. 
+	 * @return the button to show the sequence diagramm
+	 */
+	private JButton showSeqButton(){
 		JButton b= new JButton("Show Seq Graph");
 		ActionListener al= new ActionListener(){
 
@@ -100,7 +118,10 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		b.addActionListener(al);
 		return b;
 	}
-	
+	/**
+	 * Creates a button, which showsthe tree diagramm, when it klicked.
+	 * @return the button to show the tree diagramm
+	 */
 	JButton showTreeDiagrammButton(){
 		JButton b= new JButton("Show Tree Graph");
 		ActionListener al= new ActionListener(){
@@ -113,7 +134,10 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		b.addActionListener(al);
 		return b;
 	}
-	
+	/**
+	 * Creates a button, which wipe the diagramms when it is klicked
+	 * @return the button to wipe the diagramms
+	 */
 	private JButton wipeDiagrammButton(){
 		JButton b= new JButton("Wipe Graph");
 		ActionListener al= new ActionListener(){
@@ -127,8 +151,6 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 					seqDiagramm.wipeGraph();				
 					seqDiagramm.getGraph().setMinimumSize(MIN_DIM);
 					seqDiagramm.refreshGraph();
-//					parentContainer.invalidate();
-//					parentContainer.doLayout();
 					diaPane.removeAll();
 					JGraph graph;
 					//because graoh still shows  
@@ -148,6 +170,9 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		return b;
 	}
 	
+	/**
+	 * shows the sequence diagramm 
+	 */
 	private void showSeqDiagramm(){
 		if(showingDiagramm!=seqDiagramm){
 			diaPane.removeAll();
@@ -157,9 +182,6 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 			diaPane.invalidate();
 			//this.repaint(500);
 			if(parentContainer!=null){
-//				//parentContainer.repaint(500);
-//				treeDiagramm.getGraph().setPreferredSize(parentContainer.getPreferredSize());
-//				parentContainer.validate();
 				this.invalidate();
 				parentContainer.getParent().validate();
 			}
@@ -167,17 +189,16 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 		}
 	}
 	
+	/**
+	 * Shows the tree diagramm
+	 *
+	 */
 	private void showTreeDiagramm(){
 		if(showingDiagramm!=treeDiagramm){
 			diaPane.removeAll();
-			//seqDiagramm.getGraph().setPreferredSize(new Dimension(800,800));
-			//diaPane.getViewport().setPreferredSize(new Dimension(800,800));
-			//diaPane.setViewportView(seqDiagramm.getGraph());
 			diaPane.add(treeDiagramm.getGraph());
 			diaPane.setBackground(Color.BLUE);
 			diaPane.invalidate();
-			//parentContainer.validate();
-			//this.repaint(500);
 			if(parentContainer!=null){
 				this.invalidate();
 				parentContainer.getParent().validate();
@@ -218,6 +239,10 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
         }
     }
     
+    /**
+     * Registers the TestNegotiationVisualization to receives
+     * peertrust events and sets it visible.
+     */
     private void startListenToPTEvent(){
     	if(_dispatcher!=null){
     		_dispatcher.register(this,PTEvent.class);
@@ -236,19 +261,19 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 						parentContainer.getWidth(),
 						parentContainer.getHeight());
     }
-    
+    /**
+     * Unregisters this TestNegotiationVisualizationPane as listener
+     * for peertrust event and hides it.
+     *
+     */
     private void stopListenToPTEvent(){
     	if(_dispatcher!=null){
     		_dispatcher.unregister(this);
     	}
     	isVisible=false;
     	parentContainer.removeAll();
-    	//parentContainer.invalidate();
-    	//this.setVisible(isVisible);
     	this.invalidate();
     	parentContainer.invalidate();
-//    	parentContainer.validate();
-//    	parentContainer.getParent().validate();
     	parentContainer.repaint(
 				parentContainer.getX(),
 				parentContainer.getY(),
@@ -256,7 +281,10 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 				parentContainer.getHeight());
     	
     }
-    
+  
+    /**
+     * Toggle the visibility of the visualization pane.
+     */
 	public void toggleVisualization(){
 		if(isVisible){
 			stopListenToPTEvent();
@@ -279,7 +307,9 @@ public class TestNegotiationVisualizationPane extends JPanel  implements PTEvent
 	public void setParentContainer(Container parentContainer) {
 		this.parentContainer = parentContainer;
 	}
-	
+	/**
+	 * @return true if the visualization is visible; false if not.
+	 */
 	public  boolean getIsDisplayed(){
 		return isVisible;
 	}

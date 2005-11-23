@@ -1,0 +1,10 @@
+signed(rule(acmMember(alice) @ acm, [], []),
+            acm, signature(acm)).
+signed(rule(ieeeMember(alice) @ ieee, [], []),
+            ieee, signature(ieee)).
+
+policy(acmMember(alice) @ acm $ Requester,
+            [bbbMember(Requester) @ bbb @ Requester]).
+            
+policy(ieeeMember(alice) @ ieee $ Requester,
+            [bbbMember(Requester) @ bbb @ Requester]).

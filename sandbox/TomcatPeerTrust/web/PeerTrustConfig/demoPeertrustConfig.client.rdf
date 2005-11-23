@@ -75,6 +75,7 @@
 		<!-- pt:javaClass>org.peertrust.demo.client.ClientSidePTEventListener</pt:javaClass -->
 		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:CommunicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 	</pt:EventListener>
 	
 	<!-- ======================================================================
@@ -85,7 +86,7 @@
 		<!--<pt:baseFolder>${user.home}/trust/</pt:baseFolder> -->
 		<pt:baseFolder>${user.home}\pt\</pt:baseFolder>
 		<!-- pt:prologFiles>demoPolicies.alice</pt:prologFiles -->
-		<pt:prologFiles>alice.min</pt:prologFiles>
+		<pt:prologFiles>client_policies.min</pt:prologFiles>
 		<pt:rdfFiles></pt:rdfFiles>
 		<pt:license>minervagui.mca</pt:license>
 		<pt:debugMode>true</pt:debugMode>

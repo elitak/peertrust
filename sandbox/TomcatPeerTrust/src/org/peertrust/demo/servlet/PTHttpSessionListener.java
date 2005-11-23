@@ -1,25 +1,15 @@
 /*
  * Created on 14.07.2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package org.peertrust.demo.servlet;
-
-import java.util.concurrent.BlockingQueue;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-
-import org.peertrust.demo.common.StopCmd;
 import org.peertrust.net.Peer;
 
 /**
- * @author pat_dev
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author Patrice Congo (token77)
  */
 public class PTHttpSessionListener implements HttpSessionListener {
 
@@ -28,7 +18,6 @@ public class PTHttpSessionListener implements HttpSessionListener {
 	 */
 	public PTHttpSessionListener() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -50,10 +39,16 @@ public class PTHttpSessionListener implements HttpSessionListener {
 		if(finalDestination!=null){
 			try {
 				ServletContext context=se.getSession().getServletContext();
-				NegotiationObjectRepository negoObjects= 
-					(NegotiationObjectRepository)context.getAttribute(NegotiationObjects.class.getName());
-				BlockingQueue queue=negoObjects.removeMessageFIFO(finalDestination);
-				queue.offer(new StopCmd());
+//				NegotiationObjectRepository negoObjects= 
+//					(NegotiationObjectRepository)context.getAttribute(NegotiationObjects.class.getName());
+
+				NegotiationObjects negoObjects= 
+						(NegotiationObjects)context.getAttribute(
+											NegotiationObjects.class.getName());
+
+				//BlockingQueue queue;//=negoObjects.removeMessageFIFO(finalDestination);
+				negoObjects.getMessenger().closeChannel(finalDestination);
+				//queue.offer(new StopCmd());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

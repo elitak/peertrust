@@ -31,7 +31,7 @@ public class PolicySystemImpl implements PolicySystem {
 	final static public String POLICY_TAG="policy";
 	final static public String ATTRIBUTE_POLICY_NAME="policyName";
 	final static public String ATTRIBUTE_POLICY_VALUE="policyValue";
-	final static public String ATTRIBUTE_INCLUDED_POLICY="includedPolicy"; 
+	//final static public String ATTRIBUTE_INCLUDED_POLICY="includedPolicy"; 
 	
 	private Cache policyCache;
 	
@@ -52,15 +52,15 @@ public class PolicySystemImpl implements PolicySystem {
 		Policy pol=(Policy)policyCache.get(policyName);
 		Vector policies=new Vector();
 		String includedPol;
-		while(pol!=null){
+		//while(pol!=null){
 			policies.add(pol);
-			includedPol=pol.getIncludedPolicy();
-			if(includedPol==null){
-				pol=null;
-			}else{
-				pol=(Policy)policyCache.get(includedPol);
-			}
-		}
+//			includedPol=pol.getIncludedPolicy();
+//			if(includedPol==null){
+//				pol=null;
+//			}else{
+//				pol=(Policy)policyCache.get(includedPol);
+//			}
+		//}
 		Collections.reverse(policies);//policies.
 		return policies;
 	}
@@ -131,13 +131,13 @@ public class PolicySystemImpl implements PolicySystem {
 			nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME).getNodeValue();
 		String policyValue=
 			nodeMap.getNamedItem(ATTRIBUTE_POLICY_VALUE).getNodeValue();
-		String includedPolicy=
-			nodeMap.getNamedItem(ATTRIBUTE_INCLUDED_POLICY).getNodeValue();
+//		String includedPolicy=
+//			nodeMap.getNamedItem(ATTRIBUTE_INCLUDED_POLICY).getNodeValue();
 		Policy pol=new Policy(policyName,policyValue);
-		includedPolicy=includedPolicy.trim();
-		if(includedPolicy.length()!=0){
-			pol.setIncludedPolicy(includedPolicy);
-		}
+//		includedPolicy=includedPolicy.trim();
+//		if(includedPolicy.length()!=0){
+//			pol.setIncludedPolicy(includedPolicy);
+//		}
 		return pol;
 	}
 

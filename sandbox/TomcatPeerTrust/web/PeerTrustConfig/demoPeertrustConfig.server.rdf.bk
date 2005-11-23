@@ -1,10 +1,9 @@
-<?xml version='1.0' encoding='ISO-8859-1'?>
-<!DOCTYPE rdf:RDF [
-        <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
-        <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
-        <!ENTITY pt 'http://www.l3s.de/~olmedilla/peertrust/Vocabulary#'>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [<!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+<!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+<!ENTITY pt 'http://www.l3s.de/~olmedilla/peertrust/Vocabulary#'>
 ]>
-<rdf:RDF xmlns:rdf="&rdf;" xmlns:rdfs="&rdfs;" xmlns:pt="&pt;">
+<rdf:RDF xmlns:pt="http://www.l3s.de/~olmedilla/peertrust/Vocabulary#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 
  	<!-- ======================================================================
 	Peertrust Engine
@@ -29,13 +28,13 @@
 	================================================================== -->
 	<pt:MetaInterpreter rdf:about="#MetaInterpreter">
 		<pt:javaClass>org.peertrust.meta.MetaInterpreter</pt:javaClass>
-		<pt:peerName>ELearn</pt:peerName>
+		<pt:peerName>elearn</pt:peerName>
 		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
 		<pt:inferenceEngine rdf:resource="#InferenceEngine"/>
 		<pt:queue rdf:resource="#Queue"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
-		<pt:runTimeOptions rdf:resource="#RunTimeOptions" />
+		<pt:runTimeOptions rdf:resource="#RunTimeOptions"/>
 	</pt:MetaInterpreter>
 
 	<!-- ======================================================================
@@ -48,7 +47,7 @@
 		<pt:queue rdf:resource="#Queue"/>
 		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
-		<pt:runTimeOptions rdf:resource="#RunTimeOptions" />
+		<pt:runTimeOptions rdf:resource="#RunTimeOptions"/>
 	</pt:MetaInterpreterListener>
 
 	<!-- ======================================================================
@@ -64,7 +63,7 @@
 	====================================================================== -->
 	<pt:EntitiesTable rdf:about="#EntitiesTable">
 		<pt:javaClass>org.peertrust.net.EntitiesTable</pt:javaClass>
-		<pt:entitiesFile>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\entities.dat</pt:entitiesFile>
+		<pt:entitiesFile>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/entities.dat</pt:entitiesFile>
 	</pt:EntitiesTable>
 
 	<!-- ======================================================================
@@ -81,10 +80,10 @@
 	<pt:InferenceEngine rdf:about="#InferenceEngine">
 		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
 		<!--<pt:baseFolder>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\trust\</pt:baseFolder> -->
-		<pt:baseFolder>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\</pt:baseFolder>
+		<pt:baseFolder>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/</pt:baseFolder>
 		<!-- pt:prologFiles>demoPolicies.eLearn</pt:prologFiles -->
 		<pt:prologFiles>eLearn.min</pt:prologFiles>
-		<pt:rdfFiles></pt:rdfFiles>
+		<pt:rdfFiles/>
 		<pt:license>minervagui.mca</pt:license>
 		<pt:debugMode>true</pt:debugMode>
 	</pt:InferenceEngine>
@@ -101,7 +100,7 @@
 	====================================================================== -->
 	<pt:CommunicationChannelFactory rdf:about="#CommunicationChannelFactory">
 		<pt:javaClass>org.peertrust.demo.servlet.ServletSideHTTPCommunicationFactory</pt:javaClass>
-		<pt:host>localhost</pt:host>
+		<pt:host>127.0.0.1</pt:host>
 		<pt:port>7703</pt:port>
 	</pt:CommunicationChannelFactory>
 
@@ -110,7 +109,7 @@
 	====================================================================== -->
 	<pt:CredentialStore rdf:about="#CredentialStore">
 		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
-		<pt:file>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\server_keystore</pt:file>
+		<pt:file>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/server_keystore</pt:file>
 		<pt:storePassword>serverstorepw</pt:storePassword>
 	</pt:CredentialStore>
 </rdf:RDF>

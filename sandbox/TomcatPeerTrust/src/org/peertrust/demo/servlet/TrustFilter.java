@@ -25,7 +25,7 @@ import org.peertrust.demo.resourcemanagement.TrustManager;
 import org.peertrust.net.Peer;
 
 /**
- * @author pat_dev
+ * @author Patrice Congo
  *
  */
 public class TrustFilter implements Filter{
@@ -53,6 +53,9 @@ public class TrustFilter implements Filter{
 				System.out.println("filtering protected  page");
 				HttpSession session=
 					((HttpServletRequest)req).getSession(true);
+				if(session.isNew()){
+					session.setMaxInactiveInterval(60*30);//30min
+				}
 				System.out.println("filtering protected  page session:"+session);
 				//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
 				Peer peer=null;
@@ -66,12 +69,7 @@ public class TrustFilter implements Filter{
 				if(peerName==null){ 
 					//start peertrust and register session
 					System.out.println("***************NO PEER NAME REGISTRATION PAGE***********************************");
-					System.out.println("***************************************************************");
-//					PublicResource res=
-//						new PublicResource(
-//								"_exact_",
-//								((HttpServletRequest)req).getRequestURI());//"/demo/jsp/sessionRegistration.jsp");
-//					regJsp.setRequestServingMechanimName("sessionRegistration");	
+					//System.out.println("***************************************************************");	
 					RequestServingMechanism servingMechanism=
 						trustManager.getRequestServingMechanismByName("sessionRegistration");
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
@@ -96,11 +94,6 @@ public class TrustFilter implements Filter{
 														this.filterConfig.getServletContext());
 						return;
 					}else{
-//		           		resp.setContentType("text/html");
-//						resp.getWriter().println(
-//								"Cannot access "+res.getUrl()+
-//								" cause:"+((ProtectedResource)res).getReason());
-//						resp.flushBuffer();
 						RequestServingMechanism servingMechanism=
 							trustManager.getRequestServingMechanismByName("credentialDownload");
 						servingMechanism.serveRequest(	(HttpServletRequest)req,
@@ -138,22 +131,6 @@ public class TrustFilter implements Filter{
 	public void init(FilterConfig filterConfig) throws ServletException {
 		this.filterConfig=filterConfig;
 		doInit();
-//		
-//		String negotiationObjectsContext= 
-//			(String)filterConfig.getInitParameter("NegotiationObjectsContext");
-//		System.out.println(">>>>>>>>>>>>>>>>>>NegotiationObjectsContext:"+negotiationObjectsContext);
-//		System.out.println(">>>>>>>>>>>>>>>>>>Original Context:"+filterConfig.getServletContext().getServletContextName());
-//		ServletContext demoContext=
-//			filterConfig.getServletContext().getContext("/demo"); 
-//		negoObjects= 
-//			NegotiationObjects.createAndAddForAppContext(demoContext);
-//		trustManager=(negoObjects!=null)?negoObjects.getTrustManager():null;
-//			
-////		negoObjects= 
-////			NegotiationObjects.createAndAddForAppContext(
-////									filterConfig.getServletContext());
-////		trustManager=negoObjects.getTrustManager();
-//		System.out.println("TrustManager just creation:"+trustManager);
 		return;
 	}
 
@@ -178,11 +155,7 @@ public class TrustFilter implements Filter{
 		System.out.println(">>>>>>>>>>>>>>>>>>Original Context:"+filterContext.getServletContextName());
 		filterContext.log(">>>>>>>>>>>>>>>>>>1FilterName:"+filterConfig.getFilterName());
 		//get demo context	
-//		ServletContext demoContext=filterContext;
-//		if(!negotiationObjectsContext.equals(filterContext.getServletContextName())){
-//			demoContext= filterContext.getContext("demo"); 
-//		}
-		 
+
 		ServletContext demoContext=filterContext.getContext(negotiationObjectsContext);//	"/demo");
 		
 		negoObjects= 

@@ -41,11 +41,11 @@ import org.peertrust.tnviz.app.TNNode;
  * diagramm and highlights each node and edge one after another in the correct
  * order in which they were created.
  * </p><p>
- * $Id: JPanelGuiBasedTNReplay.java,v 1.2 2005/10/31 00:07:37 token77 Exp $
+ * $Id: JPanelGuiBasedTNReplay.java,v 1.3 2005/11/23 23:24:02 token77 Exp $
  * <br/>
  * Date: 10-Feb-2005
  * <br/>
- * Last changed: $Date: 2005/10/31 00:07:37 $
+ * Last changed: $Date: 2005/11/23 23:24:02 $
  * by $Author: token77 $
  * </p>
  * @author Michael Schaefer and Sebastian Wittler
@@ -81,7 +81,7 @@ public class JPanelGuiBasedTNReplay extends Thread {
      * highlighted. Invisible nodes will be ignored.
      */
     public void run() {
-        String id = "";
+        //String id = "";
         Object current = null;
         Object previous = null;
         for (Enumeration en = graphPath.elements(); en.hasMoreElements();) {

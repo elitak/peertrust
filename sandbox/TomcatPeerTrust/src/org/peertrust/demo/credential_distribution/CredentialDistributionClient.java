@@ -7,24 +7,39 @@ import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.common.Executable;
 import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
 import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
-import org.peertrust.demo.peertrust_com_asp.PTCommunicationASPObject;
-import org.peertrust.net.AbstractFactory;
-import org.peertrust.net.NetClient;
 import org.peertrust.net.Peer;
+
+/**
+ * CredentialDistributionClient provide mechnism to request a named credential.
+ * It uses a PTCommunicationASP for communication and an Executable
+ * to cary out the appropriate step after credential response(e.g. installtion)
+ * 
+ * @author Patrice Congo (token77)
+ */
 
 public class CredentialDistributionClient implements PTComASPMessageListener {
 	/**
-	 * The peertrust netclient used to send request message
+	 * Provides generic comunication on top of the peertrust comunication
 	 */
-	private NetClient netClient;
+	private PTCommunicationASP comASP;
+	
+//	/**
+//	 * The peertrust netclient used to send request message
+//	 */
+//	private NetClient netClient;
 	
 	/**
-	 * Represent the action to execute when the answer to the request is received
+	 * Represent the action to execute when the answer 
+	 * to the request is received
 	 */
 	private Executable executeOnCredentialResponse;
 	
 	/**
+	 * Implemented to receive CredentialResponse an passed it to
+	 * the executeOnCredentialResponse Execution for
+	 * further processing.
 	 * 
+	 * @see org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener#PTMessageReceived(Serializable, Peer, Peer)
 	 */
 	public void PTMessageReceived(	Serializable message, 
 									Peer source, 
@@ -35,16 +50,18 @@ public class CredentialDistributionClient implements PTComASPMessageListener {
 	}
 
 	/**
-	 * To request a credential. 
+	 * To request a named credential. 
 	 * @param name -- the name of the credential
 	 * @param source -- the requesting peer
 	 * @param target -- the distributor peer
 	 */
 	public void requestCredential(String name, Peer source, Peer target){
+		
 		CredentialRequest req= 
 			new CredentialRequest(name);
 		
-		PTCommunicationASPObject.send(netClient,req,source,target);
+		//PTCommunicationASPObject.send(netClient,req,source,target);
+		comASP.send(req,source,target);
 	}
 	
 	/**
@@ -71,14 +88,15 @@ public class CredentialDistributionClient implements PTComASPMessageListener {
 			trustClient.getComponent(Vocabulary.EventListener);
 		if(eventL instanceof PTCommunicationASP){
 			((PTCommunicationASP)eventL).registerPTComASPMessageListener(this,CredentialResponse.class);
+			comASP=(PTCommunicationASP)eventL;
 		}else{
 			throw new Error("PTCommunicationASP expected as EventListener for pt but got "+eventL);
 		}
 		
-		netClient=
-			((AbstractFactory)
-					trustClient.getComponent(Vocabulary.CommunicationChannelFactory)).createNetClient();
-		
+//		netClient=
+//			((AbstractFactory)
+//					trustClient.getComponent(Vocabulary.CommunicationChannelFactory)).createNetClient();
+//		
 		
 	}
 

@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.10 2005/10/24 11:15:00 token77 Exp $
+     $Id: build.xml,v 1.11 2005/11/23 23:24:03 token77 Exp $
 -->
 
 
@@ -61,7 +61,7 @@
 
 -->
 	
-  <property file="build.linux.properties"/>
+  <property file="build_home.linux.properties"/>
   <!-- property file="${user.home}/build.properties"/ -->
 
 
@@ -144,7 +144,7 @@
   of these tasks, see <http://localhost:8080/tomcat-docs/manager-howto.html>.
 
 -->
-
+ 
   <taskdef name="deploy"   classname="org.apache.catalina.ant.DeployTask"/>
   <taskdef name="list"     classname="org.apache.catalina.ant.ListTask"/>
   <taskdef name="reload"   classname="org.apache.catalina.ant.ReloadTask"/>
@@ -459,7 +459,8 @@
 	  	<antcall target="CopyJars"/>
 </target>
 	
-<target name="CopyJars">
+<target name="CopyJars"
+		description="copy jars to catalina/shared/lib">
 	<!-- copy    todir="${basedir}/data/WEB-INF/lib">
 		   <fileset dir="${web.home}/jws/">
 		   		<include name="peertrust.jar"/>

@@ -14,7 +14,7 @@ import org.peertrust.net.Peer;
  *   
  * 
  * @see org.peertrust.demo.servlet.PeertrustCommunicationServlet.
- * @author pat_dev
+ * @author Patrice Congo (token77)
  *
  */
 public class HttpClientPeer extends Peer implements Serializable{

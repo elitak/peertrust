@@ -17,6 +17,6 @@
 	</appFiles>
 	
 	<userCustomFiles>
-		<file ID="prologFiles">alice.min</file>		
+		<file ID="prologFiles">client_policies.min</file>		
 	</userCustomFiles>
 </ptInstall>

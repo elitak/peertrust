@@ -4,11 +4,10 @@
 package org.peertrust.demo.session_registration;
 
 import java.io.Serializable;
-//import org.peertrust.net.Peer;
 
 /**
  * Protocol object to un/register an httpsesson. 
- * @author pat_dev
+ * @author Patrice Congo (token77)
  *
  */
  
@@ -32,7 +31,9 @@ public class HttpSessionRegistrationRequest  implements Serializable{
 	 * @param source -- the sending peer(e.g. on th browsers seid )
 	 * @parm target -- the destination peer(e.g. on the http server side)
 	 */
-	public HttpSessionRegistrationRequest(String sessionKey/*,Peer source, Peer target*/) {
+	public HttpSessionRegistrationRequest(
+								String sessionKey) 
+	{
 		this(sessionKey,/*source,target,*/MAKE_REGISTRATION);
 	}
 	
@@ -46,7 +47,8 @@ public class HttpSessionRegistrationRequest  implements Serializable{
 	public HttpSessionRegistrationRequest(	String sessionKey,
 											/*Peer source, 
 											Peer target,*/
-											int cmd) {
+											int cmd) 
+	{
 		this.cmd=cmd;
 		this.sessionKey=sessionKey;
 	}
@@ -54,21 +56,24 @@ public class HttpSessionRegistrationRequest  implements Serializable{
 	/**
 	 * @return Returns the sessionKey.
 	 */
-	public String getSessionKey() {
+	public String getSessionKey() 
+	{
 		return sessionKey;
 	}
 
 	/**
 	 * @param sessionKey The sessionKey to set.
 	 */
-	public void setSessionKey(String sessionKey) {
+	public void setSessionKey(String sessionKey) 
+	{
 		this.sessionKey = sessionKey;
 	}
 	
 	/**
 	 * @return true if the registration is to be made
 	 */
-	public boolean doMakeRegistration(){
+	public boolean doMakeRegistration()
+	{
 		return cmd==MAKE_REGISTRATION;
 	}
 	
@@ -76,7 +81,8 @@ public class HttpSessionRegistrationRequest  implements Serializable{
 	 * 
 	 * @return trueif the registration is to be removed.
 	 */
-	public boolean doRemoveRegistration(){
+	public boolean doRemoveRegistration()
+	{
 		return cmd==REMOVE_REGISTRATION; 
 	} 
 }

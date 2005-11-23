@@ -1,8 +1,5 @@
 /*
  * Created on 20.04.2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package org.peertrust.demo.client;
 
@@ -15,25 +12,38 @@ import org.peertrust.net.NetServer;
 import org.peertrust.net.Peer;
 
 /**
- * @author pat_dev
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ *This class provide an concrete implementation of the AbstractFactory.
+ *It is based on ClientSideNetClient and ClientSideNetserver. 
+ *They provide mechanisms to do peertrust communication thow an http connection.
+ *This "http-tunneling" communication required the adequate http based partner peer.
+ *  
+ * 
+ *@author Patrice Congo
+ *@see org.peertrusr.demo.client.ClientSideNetClient
+ *@see org.peertrusr.demo.client.ClientSideNetServer
+ * 
  */
 public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Configurable {
 	
+	/** represents the server peer in the http server*/
 	final private Peer httpServerPeer= new Peer("alias","addi",0);
+	/** represents the local (in the browser applet) peer*/
 	final private Peer localPeer= new Peer("_local_","_addi_",0);
-	
+	/** represents the url of the web application in charge of peertrust the communication*/
 	private String webAppURLPath=null;
 	
-	//private SecureRandom secRandom=null;
 	private Logger logger=Logger.getLogger(this.getClass());
 	
+	/**represents the applet peer net client which sends 
+	 * its messages throw http post*/
 	private ClientSideNetClient ptClient;
+	
+	/** represents the appler peer net server which 
+	 * listen to incoming message using http get request.*/ 
 	private ClientSideNetServer ptServer;
 	
-	/* (non-Javadoc)
+	
+	/** 
 	 * @see org.peertrust.net.AbstractFactory#getServerPeer(java.lang.String)
 	 */
 	public Peer getServerPeer(String serverName) {
@@ -42,30 +52,29 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.net.AbstractFactory#createNetClient()
 	 */
 	public NetClient createNetClient() {
 		return ptClient;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.net.AbstractFactory#createNetServer()
 	 */
 	public NetServer createNetServer() {
 		return ptServer;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {	
-		//localPeerAlias="alice";
-		//make unique client
 		ptClient= 
-			new ClientSideNetClient(webAppURLPath, httpServerPeer,/*localPeerAlias,*/logger);
-		//ptClient.setHttpServer(serverPeer);//getServerPeer(randomAlias));
-		//create unique net server
+			new ClientSideNetClient(webAppURLPath, 
+									httpServerPeer,
+									/*localPeerAlias,*/
+									logger);
 		ptServer=
 			new ClientSideNetServer(localPeer,	
 									httpServerPeer,//getServerPeer(randomAlias),
@@ -73,25 +82,13 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 									logger);
 	}
 	
-
-//	/**
-//	 * @return Returns the randomServerName.
-//	 */
-//	public String getRandomAlias() {
-//		return randomAlias;
-//	}
-//	/**
-//	 * @param randomServerName The randomServerName to set.
-//	 */
-//	public void setRandomAlias(String randomAlias) {
-//		this.randomAlias = randomAlias;
-//	}
 	/**
 	 * @return Returns the serverIP.
 	 */
 	public String getHttpServerIP() {
 		return httpServerPeer.getAddress();
 	}
+	
 	/**
 	 * @param serverIP The serverIP to set.
 	 */
@@ -146,14 +143,16 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 
 	
 	/**
-	 * @return Returns the _host
+	 * @return Returns the address of the local peer.
 	 */
 	public String getHost() {
 		return localPeer.getAddress();
 	}
 	
 	/**
-	 * @param _host The _host to set.
+	 * Sets the address of the local peer.
+	 * E.g. use in automatic initialization with .rdf config file.
+	 * @param the  new address for the local peer.
 	 */
 	public void setHost(String _host) {
 		//this._host = _host;
@@ -164,14 +163,16 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 	}
 	
 	/**
-	 * @return Returns the _port.
+	 * @return Returns the port of the local peer.
 	 */
 	public int getPort() {
 		return localPeer.getPort();
 	}
 	
 	/**
-	 * @param _port The _port to set.
+	 * Sets the port for the local peer.
+	 * @param _port the new integer value for the local peer 
+	 * (e.g. use in automatic initialization with .rdf config file).
 	 */
 	public void setPort(int _port) {
 		if(_port>0){
@@ -179,6 +180,11 @@ public class ClientSideHTTPCommunicationFactory implements AbstractFactory, Conf
 		}
 	}
 		
+	/** 
+	 * Destroy the communucation factory.
+	 * Done by delegation to the destroy methods of the peer trust client and server instances
+	 *
+	 */
 	public void destroy(){
 		ptClient.destroy();
 		ptServer.destroy();

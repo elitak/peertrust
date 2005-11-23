@@ -25,21 +25,32 @@ import javax.swing.JTextArea;
 
 
 /**
- * @author pat_dev
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * A pane with an interace to show text message on it.
+ * 
+ * @author Patrice Congo (token77)
  */
 public class EchoPane extends JPanel {
-	public static String LIMIT_STR="\n*******************************************************************\n";
+	/** the limiter between the messages*/
+	public static final String LIMIT_STR=
+		"\n*******************************************************************\n";
+	
+	/** text area used to show the tex messages*/
 	JTextArea textArea= new JTextArea();
+	
+	/** the popup menu of the pane*/
 	JPopupMenu popupMenu=new JPopupMenu("Edit");
 	
+	/**
+	 * Creates a new echo pane.
+	 */
 	public EchoPane(){
 		makeLayout();
 		makePopupMenu();
 	}
 	
+	/**
+	 * Makes the echo pane layout.
+	 */
 	private void makeLayout(){
 		setLayout(new GridLayout(1,1));
 		JScrollPane sPane= new JScrollPane(textArea);		
@@ -47,22 +58,15 @@ public class EchoPane extends JPanel {
 		validate();
 		return;
 	}
-	
+	/**
+	 * create the popup menu for this echo pane.
+	 * The menu provides a an entry to clear the pane.
+	 */
 	private void makePopupMenu(){
 		popupMenu.setLabel("Menu");
 		JMenuItem menuItem= new JMenuItem("clear");
 		popupMenu.add(menuItem);
 		
-//		ActionListener aL= new ActionListener(){
-//
-//			public void actionPerformed(ActionEvent ae) {
-//				Object source= ae.getSource();
-//				if(source.equals(EchoPane.this)){
-//					popupMenu.show(EchoPane.this,0,0);
-//				}
-//			}
-//			
-//		};
 		MouseListener mouseL= new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				System.out.println("txt1:"+e);
@@ -94,11 +98,21 @@ public class EchoPane extends JPanel {
 		menuItem.addMouseListener(mouseL);
 	}
 	
+	/**
+	 * Shows a text message in this echo pane.
+	 * @param message -- the string message to show
+	 */
 	public void echo(String message){
 		echo(message,null);
 		return;
 	}
-	
+	/**
+	 * show a thowable allong with explanation message
+	 * int the echo pane.
+	 *  
+	 * @param message -- the explanation massage
+	 * @param th -- the throwable to show
+	 */
 	public void echo(String message, Throwable th){
 		textArea.append(LIMIT_STR);
 		textArea.append(message);
@@ -131,7 +145,6 @@ public class EchoPane extends JPanel {
 			echoPane.echo("My Own Exception:",th);
 		}
 		return;
-	}
-	
+	}	
 	
 }

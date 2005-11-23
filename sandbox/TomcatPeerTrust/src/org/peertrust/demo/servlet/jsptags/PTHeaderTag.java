@@ -140,9 +140,10 @@ public class PTHeaderTag extends TagSupport {
 //		PTPropertyEvaluator evaluator=
 //			(PTPropertyEvaluator)Class.forName(
 //					PtEvaluatorMock.class.getName()).newInstance();
-		PTPropertyEvaluator evaluator=
-			(PTPropertyEvaluator)Class.forName(
-					"org.peertrust.demo.servlet.jsptags.PtEvaluatorMock").newInstance();
+		
+//		PTPropertyEvaluator evaluator=
+//			(PTPropertyEvaluator)Class.forName(
+//					"org.peertrust.demo.servlet.jsptags.PtEvaluatorMock").newInstance();
 	}
 	
 }

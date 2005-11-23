@@ -13,7 +13,7 @@ public class Policy {
 	
 	private String policyName;
 	private String policyValue;
-	private String includedPolicy= null;
+	//private String includedPolicy= null;
 	
 	/**
 	 * 
@@ -23,13 +23,13 @@ public class Policy {
 		this.policyValue=policyValue;
 	}
 
-	public void setIncludedPolicy(String policy){
-		includedPolicy=policy;
-	}
-
-	public String getIncludedPolicy(){
-		return includedPolicy;
-	}
+//	public void setIncludedPolicy(String policy){
+//		includedPolicy=policy;
+//	}
+//
+//	public String getIncludedPolicy(){
+//		return includedPolicy;
+//	}
 	
 	public String getPolicyName() {
 		return policyName;
@@ -44,8 +44,8 @@ public class Policy {
 	 */
 	public String toString() {
 		return 	"policyName:"+policyName+
-				" policyValue:"+policyValue+
-				" includedPolicy:"+includedPolicy;
+				" policyValue:"+policyValue;//+
+				//" includedPolicy:"+includedPolicy;
 	}
 	
 	

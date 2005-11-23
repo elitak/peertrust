@@ -1,6 +1,4 @@
-	/**
- * 
- */
+
 package org.peertrust.demo.client.applet;
 
 
@@ -20,24 +18,31 @@ import org.peertrust.tnviz.app.TNGraphics;
 import org.peertrust.tnviz.gui.TNGui;
 
 /**
- * @author pat_dev
+ * A Wrapper for the TNGui for easy intergration in the demo applet.
+ * @author Congo Patrice (token77)
  *
  */
 public class NegotiationVisualization  implements PTEventListener {
 	
-	
+	/** logger*/
 	private static Logger log = Logger.getLogger(NegotiationVisualizationPane.class);
+	
+	/** visualization graphics object*/
 	private Graphics graphics;//= new TNGraphics();
+	
+	/** peertrust client event dispatcher*/
 	private EventDispatcher _dispatcher;
-	//private boolean isVisible;
+	
 	/**
-	 * 
+	 * Creates and show a new NegotiationVisualization
 	 */
-	public NegotiationVisualization() {
-		
+	public NegotiationVisualization() {		
 		configGUI();
 	}
 
+	/**
+	 * configure the grapghics object and set its gui visible 
+	 */
 	private void configGUI(){
 		graphics= new TNGraphics();
 		TNGui gui=graphics.getGui();
@@ -48,6 +53,8 @@ public class NegotiationVisualization  implements PTEventListener {
 		
 		return;
 	}
+	
+	
 	/**
      * This method gets an event and processes it. Either new query or new
      * answer object are created according to the event information. Then this
@@ -110,12 +117,20 @@ public class NegotiationVisualization  implements PTEventListener {
         }
     }
     
+    /**
+     * connect this NegotiationVisualization to the
+     * event dispatcher and set it visible
+     */
     private void startListenToPTEvent(){
     	_dispatcher.register(this,PTEvent.class);
     	TNGui gui=graphics.getGui();
     	gui.setVisible(true);
     }
     
+    /**
+     * disconnect this NegotiationVisualization to the event 
+     * dispatcher and hide the visualization windows
+     */
     private void stopListenToPTEvent(){
     	_dispatcher.unregister(this);
     	TNGui gui=graphics.getGui();
@@ -125,6 +140,10 @@ public class NegotiationVisualization  implements PTEventListener {
     	gui.validate();
     }
     
+    /**
+     * Toggle to visualization window visibility
+     *
+     */
 	public void toggleVisualization(){
 		//System.out.println("isVisible:"+isVisible+ " panelIsv:"+graphics.getGui().isVisible());
 		if(graphics.getGui().isVisible()){

@@ -23,22 +23,34 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Peer;
 import org.peertrust.net.Query;
 import org.peertrust.tnviz.app.Graphics;
-import org.peertrust.tnviz.gui.TNGui;
+//import org.peertrust.tnviz.gui.TNGui;
 
 /**
- * @author pat_dev
- *
+ * Provides a peertrust negotiation visualization pane based on a JPanel.
+ * This visualization pane kann therefore be embeddeb in any container.
+ * 
+ * @author Patrice Congo (token77)
  */
 public class NegotiationVisualizationPane extends JPanel  implements PTEventListener {
-		 
+	
+	/** private logger*/
 	private static Logger log = Logger.getLogger(NegotiationVisualizationPane.class);
+	
+	/** A modification of Gaphics which does not rely on a Frame(TNGui) as visualization panel*/
 	private Graphics graphics= new JPanelGuiBasedTNGraphics();
-	//private boolean isVisible;
+	
+	/** the peertrust client event dispatchen*/
 	private EventDispatcher _dispatcher;
+	
+	/** the current container of the visualization pane. Necessaray to 
+	 * toggle the visibility of the visualization pane.
+	 */
 	private Container container;
 	
 	/**
+	 * Creates a viszualizationPane and config its layout.
 	 * @param isDoubleBuffered
+	 * @see javax.swing.JPanel#JPanel(boolean)
 	 */
 	public NegotiationVisualizationPane(boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
@@ -46,23 +58,22 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
 	}
 
 	/**
-	 * 
+	 * Creates a viszualizationPane and config its layout.
 	 */
 	public NegotiationVisualizationPane() {
 		super();
 		configGUI();
 	}
 
+	/**
+	 * configure the layout of the visualization 
+	 */
 	private void configGUI(){
 		this.setLayout(new GridLayout(1,1));
-		//this.setBackground(Color.BLACK);
-		//this.add(graphics.getGraph());
 		this.add(((JPanelGuiBasedTNGraphics)graphics).getJPanelTNGui());
-		//((JPanelGuiBasedTNGraphics)graphics).getJPanelTNGui().setVisible(true);
-		//((JPanelGuiBasedTNGraphics)graphics).refreshGraph();
-		//setVisible(false);
 		return;
 	}
+	
 	/**
      * This method gets an event and processes it. Either new query or new
      * answer object are created according to the event information. Then this
@@ -106,23 +117,6 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
         }
         graphics.updateGraph();
     }
-
-    
-//    /**
-//     * Returns the EventDispatcher.
-//     * @return The EventDispatcher.
-//     */
-//    public EventDispatcher getEventDispatcher() {
-//        return _dispatcher;
-//    }
-//
-//    /**
-//     * Sets the EventDispatcher to the given object.
-//     * @param dispatcher The new EventDispatcher.
-//     */
-//    public void setEventDispatcher(EventDispatcher dispatcher) {
-//        this._dispatcher = dispatcher;
-//    }
     
 /**
 	 * @return Returns the container.
@@ -138,14 +132,6 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
 		this.container = container;
 	}
 
-	//    public void startListenToPTEvent(EventDispatcher ed){
-//    	ed.register(this,PTEvent.class);
-//    }
-//    
-//    public void stopListenToPTEvent(EventDispatcher ed){
-//    	ed.unregister(this);
-//    }
-//    
 	/**
 	 * @param args
 	 */
@@ -214,13 +200,6 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
 		return (JPanelGuiBasedTNGraphics)graphics;
 	}
 
-//	/**
-//	 * @param graphics The graphics to set.
-//	 */
-//	public void setGraphics(Graphics graphics) {
-//		this.graphics = graphics;
-//	}
-	
 	//////////////////////////////
 	 /**
      * Returns the EventDispatcher.
@@ -237,7 +216,11 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
     public void setEventDispatcher(EventDispatcher dispatcher) {
         this._dispatcher = dispatcher;
     }
-    
+  
+    /**
+     * connects the visualization  to the event dispatcher
+     * and set it visible.
+     */
     private void startListenToPTEvent(){
     	System.out.println("startListenToPTEvent");
     	if(_dispatcher!=null){
@@ -255,6 +238,10 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
     	System.out.println("root:"+((JPanelGuiBasedTNGraphics)graphics).getRoot());
     }
     
+    /**
+     * Unregister this NegotiationVisualizationPane to listen to peertrust
+     * events and removed it from the container.
+     */
     private void stopListenToPTEvent(){
     	System.out.println("stopListenToPTEvent");
     	if(_dispatcher!=null){
@@ -267,7 +254,9 @@ public class NegotiationVisualizationPane extends JPanel  implements PTEventList
     	container.repaint();//validate();
     	//((JPanelGuiBasedTNGraphics)graphics).refreshGraph();
     }
-    
+    /**
+     * toggle the visibility of the NegotiationVisualizationPane
+     */
 	public void toggleVisualization(){
 		if(isVisible()){
 			stopListenToPTEvent();

@@ -33,33 +33,65 @@ import org.xml.sax.SAXException;
 
 
 /**
- * @author pat_dev
- *Use to install the most recent pt files to the local system.
+ * InstallationSession represents an installation session for 
+ * peertrust files. It basicaly installs the most recent 
+ * peertrust files to the local system
+ *  
+ * @author Patrice Congo
  */
 public class InstallationSession {
-	static final String PROLOG_FILE_ID="prologFiles";
-	static final String[] FILES_IDS= {	"prologFile",
+	
+	static private final String PROLOG_FILE_ID="prologFiles";
+	
+	/** the ids of the files used in the xml description*/ 
+	static private final String[] FILES_IDS= {	
+										"prologFile",
 										"entitiesFile",
 										"configFile",
 										"license",
 										"keystore"};
+	/** the based url of the source containg peertrust file*/ 
 	private URL sourceBase;
+	
+	/** the name of the installation config file*/ 
 	private String installConfigFileName;
+	
+	/** the path of the installation dir*/
 	private String installDir; 
 	
+	/** conatins the latest message*/
 	private String message="None";
 	
+	/** the xml document builder*/
 	private DocumentBuilder builder;
+	
+	/** the factory of xml document builder*/
 	private DocumentBuilderFactory factory;
+	
+	/** an xml document representing the local installation config xml file*/
 	private Document localInstallDom=null;
+	
+	/** an xml document representing the remote installation config xml file*/
 	private Document remoteInstallDom=null;
+	
+	/** contains the application files */
 	private Vector appFiles;
+	
+	/** conatins the file customs to the user need (e.g. policy file)*/
 	private Vector userCustomFiles;
 	
+	/** a hashtable containing the application files*/
 	private Hashtable appFileTable= new Hashtable();
 	
+	/** the version of the xml installation config file on the remote server*/
 	private String remoteVersion;
+	
+	/** the version of the local xml installation config file */
 	private String localVersion;
+	
+	/** the alias of the user*/
+	private String realAlias;
+	
 	/**
 	 * Create an InstallationSession with a specified source base, 
 	 * the installation file name and theloacal installation dir
@@ -72,7 +104,8 @@ public class InstallationSession {
 	 */
 	public InstallationSession(	String sourceBase, 
 								String installFileName,
-								String installDir) throws ParserConfigurationException, SAXException, IOException{
+								String installDir,
+								String realAlias) throws ParserConfigurationException, SAXException, IOException{
 		if(sourceBase==null){
 			throw new NullPointerException("Param sourceBase is null");
 		}else if(installFileName==null){
@@ -83,7 +116,7 @@ public class InstallationSession {
 			this.sourceBase= new URL(sourceBase);
 			this.installConfigFileName=installFileName;
 			this.installDir=installDir;
-			
+			this.realAlias=realAlias;
 			///xml objects
 			factory=DocumentBuilderFactory.newInstance();
 			builder = factory.newDocumentBuilder();
@@ -146,8 +179,14 @@ public class InstallationSession {
     	return;
     }
     
-    
-    public void doInstallation(boolean doInstall, boolean doInstallUserCustomFiles) throws IOException{
+    /** 
+     *Copies the  files to the local system.
+     */
+    public void doInstallation(
+    						boolean doInstall, 
+    						boolean doInstallUserCustomFiles) 
+    						throws IOException
+    {
     	if(doInstall){
 	    	File ptDir = new File(installDir);
 	    	if(!ptDir.exists()){
@@ -202,16 +241,21 @@ public class InstallationSession {
     	configRDFFile();
     	
     }
-    
-    public void setTextValue(String[] xmlPath,Document rdfDocument){
+    /**
+     *Sets the text value of an rdf xml element. 
+     * @param xmlPath -- specifies the xml element an the tex to set
+     * @param rdfDocument -- the rdf document which wil be changed
+     */
+    public void setTextValue(
+    					String[] xmlPath,
+    					Document rdfDocument)
+    {
     	if(xmlPath.length<3){
     		return;
     	}else{
     		//get resource e.g pt:EntitiesTable
     		NodeList nl= rdfDocument.getElementsByTagName(xmlPath[0]);
     		Node node=null;
-//    		Node el=nl.item(0); //the resource
-//    		nl=el.getOwnerDocument().getElementsByTagName(xmlPath[1]);
     		for(int i=0;i<200;i++){//<200 just to quit somewhen
     			node=nl.item(i);//the resource definition which have a about property
     			if(node==null){
@@ -246,13 +290,23 @@ public class InstallationSession {
     		}
     	}
     }
-    
+  
+    /**
+     * gets the url of the local config file as string
+     * @return the url of the local config file
+     * @throws SAXException
+     * @throws IOException
+     */
     public String getConfigFileURL() throws SAXException, IOException{
     	getAppFilesToInstall();//ensure table init
-    	File rdfFile= new File(installDir,(String)appFileTable.get("configFile"));
+    	File rdfFile= new File(	installDir,
+    							(String)appFileTable.get("configFile"));
     	return rdfFile.toURI().toURL().toString();
     }
     
+    /**
+     * Updates the rdf file with user data.
+     */
 	public void configRDFFile(){
 		File rdfFile= new File(installDir,(String)appFileTable.get("configFile"));
 		
@@ -271,11 +325,14 @@ public class InstallationSession {
 								{"pt:InferenceEngine","pt:baseFolder", ptBaseFolder},
 								{"pt:InferenceEngine","pt:prologFiles", (String)appFileTable.get("prologFiles")},
 								{"pt:InferenceEngine","pt:license", (String)appFileTable.get("license")},
-								{"pt:CredentialStore","pt:file", (new File(installDir,(String)appFileTable.get("keystore"))).toString()}
+								{"pt:CredentialStore","pt:file", (new File(installDir,(String)appFileTable.get("keystore"))).toString()},
+								{"pt:MetaInterpreter","pt:peerName", realAlias}/////TODO change name
 								};
 				
 				for(int i=0; i<xmlPath.length;i++){
-					setTextValue(xmlPath[i],document);
+					if(xmlPath[i][2]!=null){
+						setTextValue(xmlPath[i],document);
+					}
 				}
 				
 				//backup
@@ -300,7 +357,16 @@ public class InstallationSession {
 		}
 	}
     
-    public void copyFile(String httpSource, File localDestination){
+	/**
+	 * copy the files from the httpserver to the local file system
+	 * 
+	 * @param httpSource -- the url of the http file resouce to copy
+	 * @param localDestination -- the distination file
+	 */
+    public void copyFile(
+    				String httpSource, 
+    				File localDestination)
+    {
 		HttpClient httpClient= new HttpClient();
 		GetMethod getMethod= new GetMethod(httpSource);
 		try {
@@ -318,8 +384,18 @@ public class InstallationSession {
 		
 	}
     
-    public boolean verifyInstallDirContent(File instDir) throws SAXException, 
-																IOException{
+    /**
+     * Verifies if all peertrust file that the local installatio directory
+     * should contain are presents.  
+     * @param instDir -- the local installation dir
+     * @return true if the installation dir contains all file it should
+     * 			or false if a file is missing. 
+     * @throws SAXException
+     * @throws IOException
+     */
+    public boolean verifyInstallDirContent(File instDir) 
+    										throws SAXException,IOException
+    {
 
     	File file;
     	String fileName;
@@ -349,7 +425,12 @@ public class InstallationSession {
     }
     
     
-    
+    /**
+     * 
+     * @return the file to install 
+     * @throws SAXException
+     * @throws IOException
+     */
     public Vector getAppFilesToInstall() throws SAXException, IOException{
     	Vector fNames= new Vector();
     	
@@ -471,7 +552,9 @@ public class InstallationSession {
     }
     
     
-    
+    /**
+     * @return the latest cached message
+     */
 	public String getMessage() {
 		return message;
 	}
@@ -502,6 +585,24 @@ public class InstallationSession {
 		}
 	}
 	
+	
+	
+	
+	
+	/**
+	 * @return Returns the realAlias.
+	 */
+	public String getRealAlias() {
+		return realAlias;
+	}
+
+	/**
+	 * @param realAlias The realAlias to set.
+	 */
+	public void setRealAlias(String realAlias) {
+		this.realAlias = realAlias;
+	}
+
 	public static void main(String[] args) throws Exception{
 //		InstallationSession is= 
 //			new InstallationSession(
@@ -511,7 +612,8 @@ public class InstallationSession {
 		InstallationSession is= 
 			new InstallationSession(
 					"http://127.0.0.1:7703/demo/PeerTrustConfig/","install.xml",
-					"/home/pat_dev/pt");//http://127.0.0.1:7703/myapp-0.1-dev/
+					"/home/pat_dev/pt",
+					null);//http://127.0.0.1:7703/myapp-0.1-dev/
 		//System.out.println(is.getFilesToInstall());
 		//is.install();
 		//is.configRDFFile();

@@ -18,7 +18,7 @@ import javax.servlet.jsp.tagext.Tag;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class PTParamCreateTag extends BodyTagSupport{
-	private String name;
+	//private String name;
 	private PTParamCreationSpecification ptCreateSpec;
 	
 	private boolean ifSpecAlreadySet=false;
@@ -71,7 +71,7 @@ public class PTParamCreateTag extends BodyTagSupport{
 
 
 	public void setName(String name) {
-		this.name = name;
+		//this.name = name;
 		System.out.println("-------------------- name:"+name);
 		//this.ptCreateSpec.set
 		this.ptCreateSpec= new PTParamCreationSpecification(name);
@@ -121,7 +121,7 @@ public class PTParamCreateTag extends BodyTagSupport{
 
 
 	public void release() {
-		name=null;
+		//name=null;
 		ptCreateSpec=null;
 		
 		ifSpecAlreadySet=false;
