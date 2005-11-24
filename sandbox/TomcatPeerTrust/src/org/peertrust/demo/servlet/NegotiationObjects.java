@@ -4,9 +4,13 @@
 package org.peertrust.demo.servlet;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.servlet.*;
 import org.apache.log4j.Logger;
 import org.peertrust.PTEngine;
@@ -42,14 +46,31 @@ public class NegotiationObjects
 	/** the trustclient communication factory*/
 	private ServletSideHTTPCommunicationFactory comFactory=null;
 	
+	/** the path of the peertrust rdf config file*/
 	private String configFilePath=null;
 	
+	/** mesage logger*/
 	private Logger logger;
 	
-	private Hashtable sessionTable=new Hashtable(); 
+	/** 
+	 * contained registered sessions; A key is the peer
+	 * peer for which the session is registered.
+	 */
+	private Hashtable sessionTable=new Hashtable();
+	
+	/**
+	 * the manager for the trust negotiation
+	 */
 	private TrustManager trustManager;
 	
+	/**
+	 *The path to the trust manager config file 
+	 */
 	private String _TrustManagerConfigFile;
+	
+	/**
+	 * A registerer for peertrust http session
+	 */
 	private PTComASPMessageListener httpSessionRegisterer; 
 	
 	/**
@@ -176,14 +197,12 @@ public class NegotiationObjects
 		String[] components = { defaultComponent } ;
 		String[]configFiles={configFilePath};
 		try {		
-			//config.startApp(configFiles, components) ;
 			trustClient= new TrustClient(configFiles,components);
-			//config=trustClient.getPTConfigurator();
 		} catch (ConfigurationException e) {
 			logger.error("--starting peertrust server fail",e);
+			throw new Error("--starting peertrust server fail",e);
 		}
 		try {
-			//engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine);
 			PTEngine engine = 
 				(PTEngine) trustClient.getComponent(Vocabulary.PeertrustEngine);	
 			comFactory=
@@ -210,6 +229,8 @@ public class NegotiationObjects
 	
 	
 	/**
+	 * Destroys the NegotiationObjects and the objects it contains.
+	 * 
 	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#destroy()
 	 */
 	public void destroy(){
@@ -226,13 +247,24 @@ public class NegotiationObjects
 	 * Makes a new trust manager.
 	 */
 	private void makeTrustManager(){
+//		trustManager= 
+//			new TrustManager(
+//						trustClient,
+//						_TrustManagerConfigFile);
 		trustManager= 
-			new TrustManager(
-						trustClient,
-						_TrustManagerConfigFile);		
+			new TrustManager();
+		trustManager.setTrustClient(trustClient);
+		trustManager.setSetupFilePath(_TrustManagerConfigFile);
+		try {
+			trustManager.init();
+		} catch (ConfigurationException e) {
+			throw new Error("Coud not create and init TrustManager");
+		}
 	}
 	
 	/**
+	 * @return Returns the trust manager
+	 *  
 	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getTrustManager()
 	 */
 	public TrustManager getTrustManager(){
@@ -240,27 +272,40 @@ public class NegotiationObjects
 	}
 	
 	
-	/**
-	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#registerSession(java.lang.String, org.peertrust.net.Peer)
-	 */
-	public void registerSession(String key, Peer peer){
-		sessionTable.put(key, peer);
-	}
+//	/**
+//	 * 
+//	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#registerSession(java.lang.String, org.peertrust.net.Peer)
+//	 */
+//	public void registerSession(String key, Peer peer){
+//		sessionTable.put(key, peer);
+//	}
 	
 	/**
+	 * To get the peer registern for the spefied session
+	 * @param key -- the registered session key
 	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getSessionPeer(java.lang.String)
 	 */
 	public Peer getSessionPeer(String key){
+		if(key==null){
+			return null;
+		}
 		return (Peer)sessionTable.get(key);
 	}
 
 	/**
+	 * @return Returns the trust client.
 	 * @see org.peertrust.demo.servlet.NegotiationObjectRepository#getTrustClient()
 	 */
 	public TrustClient getTrustClient() {
 		return trustClient;
 	}
 	
+	/**
+	 * Constructs the http session registerer.
+	 * It listens to registration requests and does 
+	 * the registration steps.
+	 *
+	 */
 	public void makeHttpSessionRegisterer(){
 		PTComASPMessageListener l= new PTComASPMessageListener(){
 
@@ -271,6 +316,7 @@ public class NegotiationObjects
 			{
 				//register session
 				if(message instanceof HttpSessionRegistrationRequest){
+					
 					HttpSessionRegistrationRequest req=
 						(HttpSessionRegistrationRequest)message;
 					if(req.doMakeRegistration()){
@@ -288,10 +334,19 @@ public class NegotiationObjects
 						System.out.println("Peer:"+source);
 						System.out.println("*********************************Registerering END**********************");
 					}else if(req.doRemoveRegistration()){
+						System.out.println("*********************************UnRegisterering**********************");
 						sessionTable.remove(req.getSessionKey());
 						EntitiesTable entitiesTable = 
 							(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
 						entitiesTable.remove(source.getAlias());
+						try {
+							getMessenger().closeChannel(source);
+						} catch (IOException e) {
+							logger.debug(	
+									"Unregistering;Could not close channel "+
+											"for "+source,
+									e);
+						}
 					}
 				}else{	
 					System.out.println("Cannot handle "+message.getClass());
@@ -299,6 +354,7 @@ public class NegotiationObjects
 			}
 			
 		};
+		
 		if(trustClient==null){
 			throw 
 				new RuntimeException("TrustClient not started therefore Registerer cannot be registered\n"+
@@ -319,12 +375,56 @@ public class NegotiationObjects
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return Returns the messenger of the comfactory.
+	 * 
 	 * @see org.peertrust.demo.servlet.ServletSideHTTPCommunicationFactory#getMessenger()
 	 */
 	public Messenger getMessenger() {
 		return comFactory.getMessenger();
 	}
 	
+	
+	/**
+	 * Removed all session entries linked to the specified 
+	 * peer;
+	 * @param 	leavingPeer -- the peer which entries will be
+	 * 			removed.
+	 */
+	public void  removePeertrustSessionEntries(Peer leavingPeer){
+		if(leavingPeer==null){
+			return;
+		}
+		
+		String leavingPeerAlias=leavingPeer.getAlias();
+		
+		if(leavingPeerAlias==null){
+			return;
+		}
+		
+		for(	Iterator it=sessionTable.entrySet().iterator(); 
+				it.hasNext();){
+			Map.Entry entry=(Map.Entry)it.next();
+			
+			if(leavingPeerAlias.equals((String)entry.getValue())){
+				sessionTable.remove(entry.getClass());
+				
+			}
+			
+		}
+		
+		EntitiesTable entitiesTable = 
+			(EntitiesTable) trustClient.getComponent(Vocabulary.EntitiesTable) ;
+		entitiesTable.remove(leavingPeerAlias);
+		try {
+			getMessenger().closeChannel(leavingPeer);
+		} catch (IOException e) {
+			logger.debug(	
+					"Unregistering;Could not close channel "+
+							"for "+leavingPeer,
+					e);
+		}
+		
+	}
 	
 }

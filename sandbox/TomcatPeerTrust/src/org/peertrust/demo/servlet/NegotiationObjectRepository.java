@@ -14,7 +14,7 @@ public interface NegotiationObjectRepository {
 	
 	public abstract Messenger getMessenger();
 
-	public abstract void registerSession(String key, Peer peer);
+//	public abstract void registerSession(String key, Peer peer);
 
 	public abstract Peer getSessionPeer(String key);
 

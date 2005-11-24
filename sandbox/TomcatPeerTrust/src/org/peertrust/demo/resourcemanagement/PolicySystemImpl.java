@@ -12,6 +12,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -25,7 +27,7 @@ import org.xml.sax.SAXException;
  * @author pat_dev
  *
  */
-public class PolicySystemImpl implements PolicySystem {
+public class PolicySystemImpl implements PolicySystem, Configurable {
 	final static public String ROOT_TAG_POLICY_SYSTEM="policySystem";
 	final static public String ATTRIBUT_TYPE="type";
 	final static public String POLICY_TAG="policy";
@@ -34,6 +36,7 @@ public class PolicySystemImpl implements PolicySystem {
 	//final static public String ATTRIBUTE_INCLUDED_POLICY="includedPolicy"; 
 	
 	private Cache policyCache;
+	private String setupFilePath;
 	
 	
 	/**
@@ -41,7 +44,6 @@ public class PolicySystemImpl implements PolicySystem {
 	 */
 	public PolicySystemImpl() {
 		super();
-		//policyCache= new Cache(new TestElementCreator());
 	}
 
 	/* (non-Javadoc)
@@ -51,7 +53,7 @@ public class PolicySystemImpl implements PolicySystem {
 		
 		Policy pol=(Policy)policyCache.get(policyName);
 		Vector policies=new Vector();
-		String includedPol;
+//		String includedPol;
 		//while(pol!=null){
 			policies.add(pol);
 //			includedPol=pol.getIncludedPolicy();
@@ -68,8 +70,12 @@ public class PolicySystemImpl implements PolicySystem {
 	/* (non-Javadoc)
 	 * @see org.peertrust.demo.resourcemanagement.PolicySystem#setup(java.lang.String)
 	 */
-	public void setup(String xmlSetupFileName)
-			throws UnsupportedFormatException, ParserConfigurationException, SAXException, IOException {
+	private void setup(String xmlSetupFileName)
+							throws 	UnsupportedFormatException, 
+									ParserConfigurationException, 
+									SAXException, 
+									IOException 
+	{
 		if(xmlSetupFileName==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -168,6 +174,39 @@ public class PolicySystemImpl implements PolicySystem {
 		
 	}
 	
+	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public String getSetupFilePath() {
+		return setupFilePath;
+	}
+
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(String setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+
+	
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(setupFilePath==null){
+			throw new Error("setupFilePath must not be null");
+		}
+		
+		try {
+			setup(setupFilePath);
+		} catch (Exception e) {
+			throw new ConfigurationException("PolicySystemImpl Setup Fail",e);
+		} 
+	}
+
 	static public void main(String[] args)throws Throwable{
 		final String setupFile=
 			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_mng_config.xml";

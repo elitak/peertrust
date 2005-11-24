@@ -10,18 +10,33 @@ import org.peertrust.net.*;
 import java.io.IOException;
 
 /**
+ * ServletSideNetClient implements NetClient to
+ * Provides an interface to send messages in an http 
+ * communication context.
+ * 
  * @author Patrice Congo (token77)
  */
 public class ServletSideNetClient implements NetClient{
 	
-//	private Hashtable listenerPool;
-	
+	/** 
+	 * The messeneger to which the sends are delegated 
+	 */
 	private Messenger messenger;
 	
+	/**
+	 * Message logger
+	 */
 	private Logger logger;
 	
-	PeerTrustCommunicationListener peerTrustCommunicationListener;
 	
+	/**
+	 * Creates a new ServerSideNetClient.
+	 * This client will delegates to send to the provided 
+	 * client.
+	 * 
+	 * @param logger -- message logger
+	 * @param messenger -- messenger use to send message
+	 */
 	public ServletSideNetClient(
 							Logger logger,
 							Messenger messenger)
@@ -30,14 +45,21 @@ public class ServletSideNetClient implements NetClient{
 		this.messenger=messenger;
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * Sends a message.
+	 * Note that the provided destination peer is ignored
+	 * since it is already in the message object.
+	 * The actual sending is delegated to the messenger.
+	 * @param mes -- the message to send
+	 * @param finalDestination -- the destination of the message
+	 * 
 	 * @see org.peertrust.net.NetClient#send(org.peertrust.net.Message, org.peertrust.net.Peer)
 	 */
 	public void send(Message mes, Peer finalDestination) {
 		logger.info("\nServlet PT engine sending message to:"+
 					finalDestination.getAlias()+ 
-					" listener:"+
-					peerTrustCommunicationListener);
+					" listener:"/*+
+					peerTrustCommunicationListener*/);
 		try {
 			messenger.sendMsg(mes);
 		} catch (IOException e) {

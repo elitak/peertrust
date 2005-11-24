@@ -9,110 +9,115 @@ import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.peertrust.TrustClient;
+import org.peertrust.config.Configurable;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.credential_distribution.CredentialDistributionServer;
 import org.peertrust.demo.credential_distribution.CredentialRequest;
 import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
+import org.peertrust.exception.ConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
- * @author pat_dev
+ * Trust manager is the central repository for objects 
+ * participating in the trust negotiation in the http context.
+ * 
+ * @author Patrice Congo(token77)
  *
  */
-public class TrustManager {
-
-	class SimplePolicyEvaluator implements PolicyEvaluator{
-		static final public String PEER_NAME_SPACE_HOLDER="Requester";
-		private TrustClient trustClient;
-		private String message=null;
-		public SimplePolicyEvaluator(TrustClient trustClient){
-			this.trustClient=trustClient;
-			this.trustClient.setTimeout(10*1000);
-			this.trustClient.setSleepInterval(100);
-		}
-		
-
-		/**
-		 * @return Returns the message.
-		 */
-		public String getMessage() {
-			return message;
-		}
-
-
-		/**
-		 * @param message The message to set.
-		 */
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
-
-		/* (non-Javadoc)
-		 * @see org.peertrust.demo.resourcemanagement.PolicyEvaluator#eval(java.util.Vector)
-		 */
-		synchronized public int eval(Vector policyVector, String negotiatingPeerName) {
-			final int SIZE=policyVector.size();
-			Policy pol=null;
-			long id;
-			Boolean result;
-			String query;
-			for(int i=0; i<SIZE;i++){
-				pol=(Policy)policyVector.elementAt(i);
-				query=buildQuery(pol.getPolicyValue(),negotiatingPeerName);
-				if(query!=null){
-					id=trustClient.sendQuery(query);
-					trustClient.waitForQuery(id);
-					result=trustClient.isQuerySuccessful(id);
-					System.out.println("-------------------------Nego"+i+"\n"+
-								"id: "+id+" result:"+result+" query:"+query+ 
-								" finished:"+trustClient.isQueryFinished(id));
-					
-					if(result==null){
-						return i;
-					}else if(!result.booleanValue()){
-						return i;
-					}
-				}else{
-					message="Automatic peer online registration not done!";
-					return 0;
-				}
-			}
-			return PolicyEvaluator.SUCCESS_FLAG;
-		}
-		
-		private String buildQuery(String polValue, String negotiatinPeerName){
-			try{
-				polValue=polValue.replaceAll(PEER_NAME_SPACE_HOLDER,negotiatinPeerName);
-				System.out.println("parsed query:"+polValue);
-				return polValue;
-			}catch(NullPointerException e){
-				e.printStackTrace();
-				return null;
-			}
-			
-		}
-	}
-	
+public class TrustManager implements Configurable
+{
+	/**
+	 * a resource classifier
+	 */
 	private ResourceClassifier resourceClassifier;
-	private PolicySystem policySystem;
-	private PolicyEvaluator policyEvaluator;
-	//private TrustClient trustClient;
-	private RequestServingMechanismPool requestServingMechanismPool;
-	private CredentialDistributionServer credentialDistributionServer;
 	
 	/**
-	 * 
+	 * the policy system
 	 */
-	public TrustManager(TrustClient trustClient,  
+	private PolicySystem policySystem;
+	
+	/**
+	 * the policy evaluator
+	 */
+	private PolicyEvaluator policyEvaluator;
+	
+	/**
+	 * a pool of requestServingMechanism
+	 */
+	private RequestServingMechanismPool requestServingMechanismPool;
+	
+	/**
+	 * The credential distribution server 
+	 */
+	private CredentialDistributionServer credentialDistributionServer;
+	
+	/** 
+	 * Path of the xml setup file
+	 */
+	private String setupFilePath;
+	
+	/**
+	 * The trust client used bei the evaluator. hold for compatibility
+	 * reason. expected to be removed.
+	 */
+	TrustClient trustClient;
+	
+	public TrustManager(){
+		//empty
+	}
+	
+	/**
+	 * Creates a trust manager.
+	 */
+	private TrustManager(TrustClient trustClient,  
 						String resourceMngXmlConfigPath
-//						String classifierXMLSetupFilePath,
-//						String policySystemXMLSetupFilePath,
-//						String policyEvaluatorXMLSetupPath,
-//						String requestServingMechanismPoolSetupFile
 						) {
-		System.out.println("*************>resourceMngXmlConfigPath:"+resourceMngXmlConfigPath);
-		System.out.println();
+//		System.out.println("\n*************>resourceMngXmlConfigPath:"+resourceMngXmlConfigPath);
+//		this.trustClient=trustClient;
+//		this.resourceClassifier= 
+//			makeResourceClassifier(resourceMngXmlConfigPath);//classifierXMLSetupFilePath);
+//		this.policySystem=
+//			makePolicySystem(resourceMngXmlConfigPath);//policySystemXMLSetupFilePath);
+//		//this.trustClient=trustClient;
+//		this.policyEvaluator=
+//			makePolicyEvaluator(
+//							resourceMngXmlConfigPath,//policyEvaluatorXMLSetupPath,
+//							trustClient);
+//		try {
+//			this.requestServingMechanismPool=
+//				makeRequestServingMechanismPool(resourceMngXmlConfigPath);//requestServingMechanismPoolSetupFile);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (SetupException e) {
+//			e.printStackTrace();
+//		}
+//		
+//	
+//		try {
+//			this.credentialDistributionServer=
+//				makeCredentialDistributionServer(resourceMngXmlConfigPath,trustClient);
+//		} catch (NullPointerException e) {
+//			e.printStackTrace();
+//		} catch (SAXException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (ParserConfigurationException e) {
+//			e.printStackTrace();
+//		}
+		try {
+			setup(trustClient,resourceMngXmlConfigPath);
+		} catch (Exception e) {
+			throw new Error("TrustManager Setupt fails");
+		}
+	}
+
+	private void setup(
+				TrustClient trustClient,  
+				String resourceMngXmlConfigPath) throws Exception
+	{
+		System.out.println("\n*************>resourceMngXmlConfigPath:"+resourceMngXmlConfigPath);
+		this.trustClient=trustClient;
 		this.resourceClassifier= 
 			makeResourceClassifier(resourceMngXmlConfigPath);//classifierXMLSetupFilePath);
 		this.policySystem=
@@ -122,87 +127,86 @@ public class TrustManager {
 			makePolicyEvaluator(
 							resourceMngXmlConfigPath,//policyEvaluatorXMLSetupPath,
 							trustClient);
-		try {
-			this.requestServingMechanismPool=
+		
+		this.requestServingMechanismPool=
 				makeRequestServingMechanismPool(resourceMngXmlConfigPath);//requestServingMechanismPoolSetupFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SetupException e) {
-			e.printStackTrace();
-		}
+		
 		
 	
-		try {
-			this.credentialDistributionServer=
+		this.credentialDistributionServer=
 				makeCredentialDistributionServer(resourceMngXmlConfigPath,trustClient);
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
 		
 	}
-
-	private ResourceClassifier makeResourceClassifier(String classifierXMLSetupFilePath){
+	
+	private ResourceClassifier makeResourceClassifier(
+								String classifierXMLSetupFilePath)
+	{
 		
 		try {
 			ResourceClassifierImpl classifier=
 				new ResourceClassifierImpl();
-			classifier.setup(classifierXMLSetupFilePath);
+			//classifier.setup(classifierXMLSetupFilePath);
+			classifier.setSetupFilePath(classifierXMLSetupFilePath);
+			classifier.init();
 			return classifier;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (UnsupportedFormatException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		}
-		return null;
+		} catch (ConfigurationException  e) {
+			throw new Error("Could create and set up ResourceClassifier",e);
+		} 
 	}
 	
 	private PolicySystem makePolicySystem(String policySystemXMLSetupFilePath){
 		try {
-			PolicySystemImpl polSystem=
-				new PolicySystemImpl();
-			polSystem.setup(policySystemXMLSetupFilePath);
+			PolicySystemImpl polSystem= new PolicySystemImpl();
+			//polSystem.setup(policySystemXMLSetupFilePath);
+			polSystem.setSetupFilePath(policySystemXMLSetupFilePath);
+			polSystem.init();
 			return polSystem;
-		} catch (UnsupportedFormatException e) {
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+			throw new Error("Could not create and init the PolicySystem");
+		} 
 	}
 	
 	private PolicyEvaluator makePolicyEvaluator(String policyEvaluatorXMLSetupPath, 
 												TrustClient trustClient){
 		//this.trustClient=trustClient;
 		
-		return new SimplePolicyEvaluator(trustClient);
+		///return new SimplePolicyEvaluator(trustClient);
+		try {
+			SimplePolicyEvaluator e=
+					new SimplePolicyEvaluator();
+			e.setTrustClient(trustClient);
+			e.init();
+			return e;
+		} catch (ConfigurationException e) {
+			throw new Error("Could not create the PolicyEvaluator",e);
+		}
 	}
 	
-	private RequestServingMechanismPool makeRequestServingMechanismPool(String requestServingMechanismPoolSetupFile) throws IOException, SetupException{
-		RequestServingMechanismPool pool=
-						new RequestServingMechanismPool();
-		pool.setup(requestServingMechanismPoolSetupFile);
-		System.out.println("\n============================MECHANISM POOL READY===========================");
-		return pool;
+	private RequestServingMechanismPool makeRequestServingMechanismPool(
+									String requestServingMechanismPoolSetupFile) 
+									throws IOException, SetupException
+	{
+		try {
+			RequestServingMechanismPool pool=
+							new RequestServingMechanismPool();
+			//pool.setup(requestServingMechanismPoolSetupFile);
+			pool.setSetupFilePath(requestServingMechanismPoolSetupFile);
+			pool.init();
+			System.out.println("\n============================MECHANISM POOL READY===========================");
+			return pool;
+			
+		} catch (ConfigurationException e) {
+			throw new Error("Could not create the mechnism pool",e);
+		}
+		
 	}
 	
 	public Resource classifyResource(String url){
 		Resource res=resourceClassifier.getResource(url);
 		return res;
 	}
+	
 	public Resource guardResource(Resource res, String negotiatingPeerName) throws IllegalAccessPolicyAssociation{
 		
 		//pt negotiation if external protected resource
@@ -288,6 +292,61 @@ public class TrustManager {
 		return credentialDistributionServer.getCredentialStore().getCredentialDescription(credName);
 	}
 	
+	
+	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public String getSetupFilePath() {
+		return setupFilePath;
+	}
+
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(String setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+
+	
+	
+	
+	/**
+	 * @return Returns the trustClient.
+	 */
+	public TrustClient getTrustClient() {
+		return trustClient;
+	}
+
+	/**
+	 * @param trustClient The trustClient to set.
+	 */
+	public void setTrustClient(TrustClient trustClient) {
+		this.trustClient = trustClient;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(setupFilePath==null){
+			throw new ConfigurationException("setupFilePath must not be null");
+		}
+		
+		if(trustClient==null){
+			throw new ConfigurationException("trustClient must not be null");
+		}
+		
+		try {
+			setup(trustClient,setupFilePath);
+		} catch (Exception e) {
+			throw new ConfigurationException("TrustManagerFails",e);
+		}
+	}
+	
+	
+
 	static public void main(String[] args){
 		System.out.println("dadad Requester ggg Requester".replaceAll("Requester","alice"));
 	}

@@ -14,6 +14,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -25,7 +27,9 @@ import org.xml.sax.SAXException;
  * @author pat_dev
  *
  */
-public class ResourceClassifierImpl implements ResourceClassifier{
+public class ResourceClassifierImpl implements 	ResourceClassifier,
+												Configurable
+{
 	
 	public static final String RESOURCE_TAG_NAME="resourceClass";
 	//public static final String ATTRIBUTE_IS_PROTECTED="isProtected"; 
@@ -43,6 +47,8 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 		
 	
 	private Vector resources= new Vector();
+	private String setupFilePath;
+	
 	/**
 	 * 
 	 */
@@ -145,7 +151,7 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 		return getResourceFromCollection(resourceVirtualAbsURL);
 	}
 
-	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
+	private void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
 		if(urlOfXmlConfigFile==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -265,6 +271,38 @@ public class ResourceClassifierImpl implements ResourceClassifier{
 	}
 
 	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public String getSetupFilePath() {
+		return setupFilePath;
+	}
+
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(String setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+
+	
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(setupFilePath==null){
+			throw new Error("setupFilePath must not be null");
+		}
+		try{
+			setup(setupFilePath);
+		}catch(Throwable th){
+			throw new ConfigurationException("Recource Classifier setup fail",th);
+		}
+		
+	}
+
 	static public void main(String[] agrs)throws Exception{
 //		String setupFile=
 //			//"G:\\eclipse_software\\TomcatPeerTrust\\web\\resource_management_files\\resource_classification.xml";

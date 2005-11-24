@@ -75,6 +75,9 @@ public class DemoApplet extends JApplet
 	 */
 	class HttpSessionRegistrant implements PTComASPMessageListener
 	{
+			/** hold the session key of the last registered session*/
+			String lastSessionKey=null;
+			
 			/** denotes the hhtp url of the resource which because of it
 			 * is protected require trust negotiation and therefore a
 			 * registration of the browser peer.
@@ -129,8 +132,33 @@ public class DemoApplet extends JApplet
 				ptClient.sendToHttpServer(mes);
 				echoPane.echo("serverPeer:"+ptClient.getServerPeer());
 				this.protectedUrl=protectedURL;
+				this.lastSessionKey=sessionKey;
 				return;
 			}
+			
+			public void unregisterLastSession()
+			{
+				if(lastSessionKey!=null){
+					echoPane.echo("Unregistering session:"+lastSessionKey);
+					HttpSessionRegistrationRequest req=
+								new HttpSessionRegistrationRequest(
+															lastSessionKey);
+					req.setRegistrationCmd(
+							HttpSessionRegistrationRequest.REMOVE_REGISTRATION);
+					
+					Message mes=
+						new PTCommunicationASPObject(
+										ptClient.getLocalPeer(),
+										ptClient.getServerPeer(),
+										req);
+					ptClient.sendToHttpServer(mes);
+					
+					this.protectedUrl=null;					
+					lastSessionKey=null;
+				}
+				return;
+			}
+			
 			
 		};
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -830,7 +858,9 @@ public class DemoApplet extends JApplet
 	 * @see java.awt.applet.Applet#destroy()
 	 */
 	public void destroy() {
+	
 		System.out.println("Destroying!");
+		httpSessionRegistrant.unregisterLastSession();
 		workerFIFO.offer(new StopCmd());
 		if(ptClient!=null){
 			ptClient.destroy();

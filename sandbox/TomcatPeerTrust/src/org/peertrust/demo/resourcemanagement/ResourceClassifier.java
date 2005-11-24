@@ -22,19 +22,19 @@ public interface ResourceClassifier {
 	 */
 	public Resource getResource(String resourceVirtualAbsURL);
 	
-	/**
-	 * To setup the resource classifier using the specified config file.
-	 * E.g. loading a resource classification from the an ontology
-	 * The config file format must have the folowing format:
-	 * <ResourceClassifier type="..">
-	 *  ... type depandent
-	 * </ResourceClassifier>
-	 * 
-	 * @param urlOfXMLConfigFile -- url of the config file
-	 * @throws IOException -- if any IO exception 
-	 * @throws UnsupportedFormatException -- if xml config file type is not supported
-	 * @throws ParserConfigurationException 
-	 * @throws SAXException 
-	 */
-	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException;
+//	/**
+//	 * To setup the resource classifier using the specified config file.
+//	 * E.g. loading a resource classification from the an ontology
+//	 * The config file format must have the folowing format:
+//	 * <ResourceClassifier type="..">
+//	 *  ... type depandent
+//	 * </ResourceClassifier>
+//	 * 
+//	 * @param urlOfXMLConfigFile -- url of the config file
+//	 * @throws IOException -- if any IO exception 
+//	 * @throws UnsupportedFormatException -- if xml config file type is not supported
+//	 * @throws ParserConfigurationException 
+//	 * @throws SAXException 
+//	 */
+//	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException;
 }

@@ -11,6 +11,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -18,18 +20,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class RequestServingMechanismPool {
+public class RequestServingMechanismPool implements Configurable
+{
 	
 
 	private Hashtable mechanismsPool; 
 	private RequestServingMechanism defaultMechanism;
+	private String setupFilePath;
 	
 	public RequestServingMechanismPool(){
 		mechanismsPool= new Hashtable();
 		defaultMechanism=null;
 	}
 	
-	public void setup(String xmlSetupFilePath)throws IOException, SetupException{
+	private void setup(String xmlSetupFilePath)throws IOException, SetupException{
 		if(xmlSetupFilePath==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -149,6 +153,43 @@ public class RequestServingMechanismPool {
 				"\nPool:"+this.mechanismsPool.toString()+"\n";
 	}
 	
+
+	
+	
+	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public String getSetupFilePath() {
+		return setupFilePath;
+	}
+
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(String setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(setupFilePath==null){
+			throw new ConfigurationException(
+					"setupFilePath must not be null"); 
+		}
+		
+		try {
+			setup(setupFilePath);
+		} catch (IOException e) {
+			throw new ConfigurationException("Error while setting up",e);
+		} catch (SetupException e) {
+			throw new ConfigurationException("Error while setting up",e);
+		}
+		
+	}
 
 	/**
 	 * @param args

@@ -21,20 +21,43 @@ import org.peertrust.demo.common.Utils;
 import org.peertrust.net.*;
 
 /**
+ * This servlet is reponsible for the peertrust communication.
+ * Its provides the mechanism to send and listen to the peertrust messages.
+ * A call of a specific functionality (send or receive) is done using 
+ * a parameter, named "action" in the http request:
+ * <ul>
+ * 	<li/> 	if action="send", the post java object will be send throw the messenger
+ * 			to the targeted peer.
+ *  
+ * 	<li/>  	if action="receive", the post data must be an object of type Peer;
+ * 			and it will be use to listen at the messenger for messages.
+ * 			if no message is available at that time the call will block. 			
+ * </ul>  
  * @author Patrice Congo (token77)
  */
 public class PeerTrustCommunicationServlet 	extends HttpServlet 
 {
+	/** 
+	 * key used to logged a listening peer in the session context
+	 */
 	final static public  String PEER_NAME_KEY="finalDestination"; 
-	private NegotiationObjects negoObjects=null;
+	
+	/**
+	 * message logger.
+	 */
 	private Logger logger;	
+	
+	/**
+	 * The messenger used for sending and receiving the message.
+	 */
 	private Messenger messenger;
 	
-	/* (non-Javadoc)
+	/**
+	 * Inits the servlet. 
 	 * @see javax.servlet.GenericServlet#init()
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		negoObjects=
+		NegotiationObjects negoObjects=
 			NegotiationObjects.createAndAddForAppContext(config);
 		messenger=negoObjects.getMessenger();
 		logger=Utils.getLogger(this.getClass().getName());
@@ -42,28 +65,51 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 	}
 	
 	
-	/* (non-Javadoc)
+	/**
+	 * Responds a not supported to http get response.
+	 *  
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doGet(
+					HttpServletRequest req, 
+					HttpServletResponse resp)
+							throws 	ServletException, 
+									IOException 
+	{
 		sendObject(resp,"GET NOT SUPPORTED");
 	}
 	
 	
-	/* (non-Javadoc)
+	/**
+	 * Serves the peertrust communication request.
+	 * It gets the first the action parameter of the request and
+	 * does the requested action:
+	 * <ul>
+	 * 	<li/> 	if action="send", the post java object will be send throw the messenger
+	 * 			to the targeted peer.
+	 *  
+	 * 	<li/>  	if action="receive", the post data must be an object of type Peer;
+	 * 			and it will be use to listen at the messenger for messages.
+	 * 			if no message is available at that time the call will block.
+	 *  <li/>   if actio=null, a "no action specified" message ist returned as
+	 *  		response
+	 *  <li/> 	if action="ask" not implemented 
+	 *  
+	 *  <li/>	else  a "action not supported" message is return as response.		
+	 * </ul>  
+	 * 
 	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		//logger.info("com request URI:"+req.getRequestURI());
+	protected void doPost(
+						HttpServletRequest req, 
+						HttpServletResponse resp)
+						throws ServletException, IOException 
+	{
 		String action = req.getParameter("action");
 		logger.info("com request URI:"+req.getRequestURI()+
-					" action:"+action+ //" isL:"+negoObjects.getIsListening()+
-					" negoObjects:"+negoObjects);
+					" action:"+action);
 		if(action==null){
-			//resp.sendError(HttpServletResponse.SC_NO_CONTENT,"no action specify");
-			sendObject(resp,"no action specify");
+			sendObject(resp,"no action specified");
 		}else if(action.equals("send")){
 				ObjectInputStream objIn = null;
 			    Object rcvObj=null;    
@@ -112,14 +158,20 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 				logger.error("Error while listening:",th);sendObject(resp,th);
 			}
 		}else if(action.equals("ask")){
-			//resp.getWriter().print("NO");
 			sendObject(resp,"NO");
 		}else{
 			sendObject(resp,"action not supported:"+action);
 		}
 	}
 	
-	private void sendObject(HttpServletResponse resp, Object toSend){
+	/**
+	 * Send a java object as hhtp post response.
+	 * 
+	 * @param resp -- the http servlet response
+	 * @param toSend -- the object to send.
+	 */
+	private void sendObject(HttpServletResponse resp, Object toSend)
+	{
 		try {
 			ByteArrayOutputStream byteStream=
 				new ByteArrayOutputStream();
@@ -137,11 +189,15 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 	}
 	
 
-	
+	 
 
 	
-	
-	public void destroy() {
+	/**
+	 * Overriden to close all the open channel.
+	 * (not implemented jet)
+	 */
+	public void destroy() 
+	{
 		//TODO close all channels
 		super.destroy();
 	}

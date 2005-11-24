@@ -9,50 +9,56 @@ import javax.servlet.http.HttpSessionListener;
 import org.peertrust.net.Peer;
 
 /**
+ * PTHttpSessionListener dooes listen for session end; 
+ * and removes session peer.
  * @author Patrice Congo (token77)
  */
-public class PTHttpSessionListener implements HttpSessionListener {
+public class PTHttpSessionListener implements HttpSessionListener 
+{
 
 	/**
-	 * 
+	 * Creates a new PTHttpSessionListener
 	 */
 	public PTHttpSessionListener() {
 		super();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Receives session creation event, does nothing
 	 * @see javax.servlet.http.HttpSessionListener#sessionCreated(javax.servlet.http.HttpSessionEvent)
 	 */
-	public void sessionCreated(HttpSessionEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void sessionCreated(HttpSessionEvent arg0) 
+	{
+		//nothing
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Receives session Destroyed events and removes all references 
+	 * the registered peer.
+	 * 
 	 * @see javax.servlet.http.HttpSessionListener#sessionDestroyed(javax.servlet.http.HttpSessionEvent)
 	 */
-	public void sessionDestroyed(HttpSessionEvent se) {
-		
-		Peer finalDestination =
+	public void sessionDestroyed(HttpSessionEvent se) 
+	{
+		Peer leavingPeer =
 			(Peer)se.getSession().getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
-		System.out.println("removing:"+finalDestination);
-		if(finalDestination!=null){
+		
+		if(leavingPeer!=null){
+			
+			System.out.println("=============>removing:"+leavingPeer);
+			
 			try {
 				ServletContext context=se.getSession().getServletContext();
-//				NegotiationObjectRepository negoObjects= 
-//					(NegotiationObjectRepository)context.getAttribute(NegotiationObjects.class.getName());
-
 				NegotiationObjects negoObjects= 
 						(NegotiationObjects)context.getAttribute(
 											NegotiationObjects.class.getName());
-
-				//BlockingQueue queue;//=negoObjects.removeMessageFIFO(finalDestination);
-				negoObjects.getMessenger().closeChannel(finalDestination);
-				//queue.offer(new StopCmd());
+				negoObjects.removePeertrustSessionEntries(leavingPeer);	
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	
 }

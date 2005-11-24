@@ -75,7 +75,7 @@
 		<!-- pt:javaClass>org.peertrust.demo.client.ClientSidePTEventListener</pt:javaClass -->
 		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
-		<pt:CommunicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
+		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 	</pt:EventListener>
 	
 	<!-- ======================================================================

@@ -15,16 +15,36 @@ import org.peertrust.net.NetServer;
 import org.peertrust.net.Peer;
 
 /**
+ * ServletSideHTTPCommunicationFactory provide a communication factory
+ * which kann be use a http servlet context.
+ * 
  * @author Patrice Congo (token77)
  */
 public class ServletSideHTTPCommunicationFactory 
-							implements AbstractFactory, Configurable {
+							implements AbstractFactory, Configurable 
+{
+	/**
+	 * message logger
+	 */
 	private Logger logger;
+	
+	/**
+	 * the ip of the http server.
+	 */
 	private String httpServerIP;
+	
+	/**
+	 * the service port of the http server.
+	 */
 	private int httpServerPort;
 	
+	/**
+	 * 
+	 */
 	private Messenger messenger;
+	
 	private ServletSideNetServer netServer;
+	
 	private ServletSideNetClient netClient;
 	
 	

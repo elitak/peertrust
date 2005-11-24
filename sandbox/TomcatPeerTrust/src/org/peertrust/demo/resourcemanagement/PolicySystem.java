@@ -23,14 +23,14 @@ public interface PolicySystem {
 	 */
 	Vector getPolicies(String policyName );
 	
-	/**
-	 * To setup the Policy system. 
-	 * The setup process uses the following xml setip file 
-	 * 
-	 * @param xmlSetupFilePath -- the xml configuration file path
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
-	 */
-	public void setup(String xmlSetupFileName) throws UnsupportedFormatException, ParserConfigurationException, SAXException, IOException;
+//	/**
+//	 * To setup the Policy system. 
+//	 * The setup process uses the following xml setip file 
+//	 * 
+//	 * @param xmlSetupFilePath -- the xml configuration file path
+//	 * @throws IOException 
+//	 * @throws SAXException 
+//	 * @throws ParserConfigurationException 
+//	 */
+//	public void setup(String xmlSetupFileName) throws UnsupportedFormatException, ParserConfigurationException, SAXException, IOException;
 }

@@ -11,12 +11,13 @@ import java.io.Serializable;
  *
  */
  
-public class HttpSessionRegistrationRequest  implements Serializable{
+public class HttpSessionRegistrationRequest  implements Serializable
+{
 	/** command for registration*/
 	static public int MAKE_REGISTRATION=0;
 	
-	/** comand for dereistration*/
-	static public int REMOVE_REGISTRATION=0;
+	/** comand for de-registration*/
+	static public int REMOVE_REGISTRATION=1;
 	
 	/** the session ke to register*/
 	private String sessionKey;
@@ -85,4 +86,8 @@ public class HttpSessionRegistrationRequest  implements Serializable{
 	{
 		return cmd==REMOVE_REGISTRATION; 
 	} 
+	
+	public void setRegistrationCmd(int cmd){
+		this.cmd=cmd;
+	}
 }
