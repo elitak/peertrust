@@ -62,55 +62,24 @@ public class TrustManager implements Configurable
 	 */
 	TrustClient trustClient;
 	
+	//TODO remove this since actualy the trust manager is becoming just a king of repository and fasade
+	 
+	/**
+	 * Creates a virgin TrustManager object.
+	 * The initialization of this object then take too steps:
+	 * <lu>
+	 * <li/>set the setupFilePath and trustClient using the
+	 * 		appropriate setter.
+	 * <li>call init
+	 * </ul> 
+	 * These 2 steps will 4 e.g. be done automaticaly if the
+	 * Trustmanager object is build from a peertrust configuration 
+	 * rdf file.
+	 */
 	public TrustManager(){
 		//empty
 	}
 	
-	/**
-	 * Creates a trust manager.
-	 */
-	private TrustManager(TrustClient trustClient,  
-						String resourceMngXmlConfigPath
-						) {
-//		System.out.println("\n*************>resourceMngXmlConfigPath:"+resourceMngXmlConfigPath);
-//		this.trustClient=trustClient;
-//		this.resourceClassifier= 
-//			makeResourceClassifier(resourceMngXmlConfigPath);//classifierXMLSetupFilePath);
-//		this.policySystem=
-//			makePolicySystem(resourceMngXmlConfigPath);//policySystemXMLSetupFilePath);
-//		//this.trustClient=trustClient;
-//		this.policyEvaluator=
-//			makePolicyEvaluator(
-//							resourceMngXmlConfigPath,//policyEvaluatorXMLSetupPath,
-//							trustClient);
-//		try {
-//			this.requestServingMechanismPool=
-//				makeRequestServingMechanismPool(resourceMngXmlConfigPath);//requestServingMechanismPoolSetupFile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (SetupException e) {
-//			e.printStackTrace();
-//		}
-//		
-//	
-//		try {
-//			this.credentialDistributionServer=
-//				makeCredentialDistributionServer(resourceMngXmlConfigPath,trustClient);
-//		} catch (NullPointerException e) {
-//			e.printStackTrace();
-//		} catch (SAXException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (ParserConfigurationException e) {
-//			e.printStackTrace();
-//		}
-		try {
-			setup(trustClient,resourceMngXmlConfigPath);
-		} catch (Exception e) {
-			throw new Error("TrustManager Setupt fails");
-		}
-	}
 
 	private void setup(
 				TrustClient trustClient,  
@@ -295,6 +264,88 @@ public class TrustManager implements Configurable
 	
 	
 	
+	/**
+	 * @return Returns the credentialDistributionServer.
+	 */
+	public CredentialDistributionServer getCredentialDistributionServer() {
+		return credentialDistributionServer;
+	}
+
+
+	/**
+	 * @param credentialDistributionServer The credentialDistributionServer to set.
+	 */
+	public void setCredentialDistributionServer(
+			CredentialDistributionServer credentialDistributionServer) {
+		this.credentialDistributionServer = credentialDistributionServer;
+	}
+
+
+	/**
+	 * @return Returns the policyEvaluator.
+	 */
+	public PolicyEvaluator getPolicyEvaluator() {
+		return policyEvaluator;
+	}
+
+
+	/**
+	 * @param policyEvaluator The policyEvaluator to set.
+	 */
+	public void setPolicyEvaluator(PolicyEvaluator policyEvaluator) {
+		this.policyEvaluator = policyEvaluator;
+	}
+
+
+	/**
+	 * @return Returns the policySystem.
+	 */
+	public PolicySystem getPolicySystem() {
+		return policySystem;
+	}
+
+
+	/**
+	 * @param policySystem The policySystem to set.
+	 */
+	public void setPolicySystem(PolicySystem policySystem) {
+		this.policySystem = policySystem;
+	}
+
+
+	/**
+	 * @return Returns the requestServingMechanismPool.
+	 */
+	public RequestServingMechanismPool getRequestServingMechanismPool() {
+		return requestServingMechanismPool;
+	}
+
+
+	/**
+	 * @param requestServingMechanismPool The requestServingMechanismPool to set.
+	 */
+	public void setRequestServingMechanismPool(
+			RequestServingMechanismPool requestServingMechanismPool) {
+		this.requestServingMechanismPool = requestServingMechanismPool;
+	}
+
+
+	/**
+	 * @return Returns the resourceClassifier.
+	 */
+	public ResourceClassifier getResourceClassifier() {
+		return resourceClassifier;
+	}
+
+
+	/**
+	 * @param resourceClassifier The resourceClassifier to set.
+	 */
+	public void setResourceClassifier(ResourceClassifier resourceClassifier) {
+		this.resourceClassifier = resourceClassifier;
+	}
+
+
 	/**
 	 * @return Returns the setupFilePath.
 	 */

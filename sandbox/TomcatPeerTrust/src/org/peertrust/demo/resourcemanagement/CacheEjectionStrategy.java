@@ -4,7 +4,10 @@
 package org.peertrust.demo.resourcemanagement;
 
 /**
- * @author pat_dev
+ * Implementation of this CacheEjectionstrategy prove the Cache
+ * with an ejection mechanism.
+ * 
+ * @author Patrice Congo(token77)
  *
  */
 public interface CacheEjectionStrategy {

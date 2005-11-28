@@ -11,12 +11,15 @@ import java.io.IOException;
 
 /**
  * ServletSideNetClient implements NetClient to
- * Provides an interface to send messages in an http 
- * communication context.
+ * provides an interface to send messages.
+ * It delegates the sending to a messenger. 
+ * It can therefore easily used in an http 
+ * communication context where the sending cannot be
+ * done directely.
  * 
  * @author Patrice Congo (token77)
  */
-public class ServletSideNetClient implements NetClient{
+public class MessengerBasedNetClient implements NetClient{
 	
 	/** 
 	 * The messeneger to which the sends are delegated 
@@ -37,7 +40,7 @@ public class ServletSideNetClient implements NetClient{
 	 * @param logger -- message logger
 	 * @param messenger -- messenger use to send message
 	 */
-	public ServletSideNetClient(
+	public MessengerBasedNetClient(
 							Logger logger,
 							Messenger messenger)
 	{

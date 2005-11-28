@@ -12,17 +12,52 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-public class RequestServingByForwarding implements RequestServingMechanism{
+/**
+ * RequestServingByForwarding is a request serving mechanism that
+ * forward the requests to another wed application url
+ * 
+ * @author Patrice Congo (token77)
+ *
+ */
+public class RequestServingByForwarding 
+					implements RequestServingMechanism
+{
+	/**
+	 * The name of the mechanism.
+	 */
 	private String name;
+	
+	/**
+	 * the url to forward the request to.
+	 */
 	private String forwardTo;
+	
+	/**
+	 * The regular expression used to match the request url 
+	 */
 	private String matchingPattern;
+	
+	/**
+	 * the web application context path
+	 */
 	private String context;
 	
+	/**
+	 * Serves the passed request. The request is forwarded
+	 * to another url.
+	 * @param req -- the request object
+	 * @param resp -- to req the associated response object
+	 * @param chain -- the filter chain for the request
+	 * @param servletContext -- the context of the serving servlet
+	 * @see RequestServingMechanism#serveRequest(HttpServletRequest, HttpServletResponse, FilterChain, Resource, ServletContext)  
+	 */
 	public void serveRequest(	HttpServletRequest req, 
 								HttpServletResponse resp, 
 								FilterChain chain, 
 								Resource resource,
-								ServletContext servletContext) throws IOException, ServletException {
+								ServletContext servletContext) 
+								throws IOException, ServletException 
+	{
 		req.setAttribute("resource",resource);
 		System.out.println("=============================FORWARDING TO=======================");
 		System.out.println("destination:"+forwardTo+ "\nres:"+req.getAttribute("resource"));
@@ -40,7 +75,11 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 		}
 		return;		
 	}
-
+	
+	/**
+	 * Build the mechanism from the passed xml document node
+	 * @param mechanismNode -- an xml node representing mechanism  
+	 */
 	public void setup(Node mechanismNode) throws SetupException{
 		NamedNodeMap attrs=mechanismNode.getAttributes();			
 		this.name=
@@ -60,20 +99,23 @@ public class RequestServingByForwarding implements RequestServingMechanism{
 		}
 	}
 
+	/**
+	 * @return returns the mechanism name
+	 */
 	public String getMechanismName() {
 		return name;
 	}
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.demo.resourcemanagement.RequestServingMechanism#getMatchingPattern()
 	 */
 	public String getMatchingPattern() {
 		return matchingPattern;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

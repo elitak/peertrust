@@ -43,9 +43,9 @@ public class ServletSideHTTPCommunicationFactory
 	 */
 	private Messenger messenger;
 	
-	private ServletSideNetServer netServer;
+	private MessengerBasedNetServer netServer;
 	
-	private ServletSideNetClient netClient;
+	private MessengerBasedNetClient netClient;
 	
 	
 	public ServletSideHTTPCommunicationFactory()
@@ -86,7 +86,7 @@ public class ServletSideHTTPCommunicationFactory
 	private void createUniqueNetserver(){
 //		create the UNIQUE peertrust server that will be use during communication
 		netServer=
-			new ServletSideNetServer(
+			new MessengerBasedNetServer(
 									logger,
 									getServerPeer("elearn"),
 									messenger);//TODO change hard coded
@@ -95,7 +95,7 @@ public class ServletSideHTTPCommunicationFactory
 	
 	private void createUniqueNetClient(){
 		netClient= 
-			new ServletSideNetClient(logger,messenger);
+			new MessengerBasedNetClient(logger,messenger);
 
 	}
 	

@@ -11,10 +11,34 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-public class RequestServingByFollowingChain implements RequestServingMechanism {
+/**
+ * RequestServingByFollowingChain simply serves the request
+ * by following the normal scheduled chain 
+ * @author Patrice Congo(token77)
+ *
+ */
+public class RequestServingByFollowingChain 
+						implements RequestServingMechanism 
+{
+	/**
+	 * The name of the mechanism
+	 */
 	private String name;
+	
+	/**
+	 * A regular expresion used to match the request url 
+	 */
 	private String matchingPattern;
 	
+	/**
+	 * Serves the passed request. The normal service chain
+	 * is followed.
+	 * @param req -- the request object
+	 * @param resp -- to req the associated response object
+	 * @param chain -- the filter chain for the request
+	 * @param servletContext -- the context of the serving servlet
+	 * @see RequestServingMechanism#serveRequest(HttpServletRequest, HttpServletResponse, FilterChain, Resource, ServletContext)  
+	 */
 	public void serveRequest(
 							HttpServletRequest req, 
 							HttpServletResponse resp,
@@ -35,7 +59,11 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 		
 		chain.doFilter(req,resp);
 	}
-
+	
+	/**
+	 * Build the mechanism from the passed xml document node
+	 * @param mechanismNode -- an xml node representing mechanism  
+	 */
 	public void setup(Node mechanismNode)throws SetupException {
 		NamedNodeMap attrs=mechanismNode.getAttributes();			
 		this.name=
@@ -50,18 +78,21 @@ public class RequestServingByFollowingChain implements RequestServingMechanism {
 		}
 	}
 
+	/**
+	 * @return returns the mechanism name
+	 */
 	public String getMechanismName() {
 		return name;
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.demo.resourcemanagement.RequestServingMechanism#getMatchingPattern()
 	 */
 	public String getMatchingPattern() {
 		return matchingPattern;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

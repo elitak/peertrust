@@ -20,20 +20,70 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * RequestServingMechanismPool is a pool of RequestServingMechanism.
+ * The response to a resource request depends:
+ *	 i) on the protection level of the of the resource ,
+ *	 ii)on the setup level of the http session (is the peer already known 
+ *		by the server)
+ * A RequestServingMechnism specifies the steps to serve a request. 
+ * Its XML represention is the <mechanism> element. 
+ * The class attribute 
+ * the class that implement the particular mechnism. E.g. RequestServingByFollowingChain 
+ * which just follow the normal request hanndling chain. 
+ * In some cases (e.g session registration) it is necessary to 
+ * forward the request to another handler(jsp or servlet). 
+ * the forwardto attribute is used to specify a url of the service.
+ * The mechnism are gathered in a pool represented by the 
+ * <RequestservingMechnism> element. 
+ * Note that This element must contains a mechanism named default, 
+ * which will handle the request that match not other mechnism. 
+ * @author Patrice Congo(token77)
+ *
+ */
 public class RequestServingMechanismPool implements Configurable
 {
 	
 
+	/**
+	 * an hastable containing the request serving mechanisms
+	 */
 	private Hashtable mechanismsPool; 
+	
+	/**
+	 * The default serving mechanism
+	 */
 	private RequestServingMechanism defaultMechanism;
+	
+	/**
+	 * the path to the xml setting path
+	 */
 	private String setupFilePath;
 	
-	public RequestServingMechanismPool(){
+	/**
+	 * Construct a virgin RequestServingMechanismPool.
+	 * To fill the pool, the following steps are necessary:
+	 * <ul>
+	 * 	<li/>Set the setupFilePath using the appropriate setter
+	 * 	<li/>Call the init to fill the pool from the xml mechnism description
+	 * </ul>
+	 *
+	 */
+	public RequestServingMechanismPool()
+	{
 		mechanismsPool= new Hashtable();
 		defaultMechanism=null;
 	}
 	
-	private void setup(String xmlSetupFilePath)throws IOException, SetupException{
+	/**
+	 *	Parses  the xml description file an fill the pool accordingly. 
+	 * @param xmlSetupFilePath
+	 * @throws IOException
+	 * @throws SetupException
+	 */
+	private void setup(	String xmlSetupFilePath)
+						throws IOException, SetupException
+	{
 		if(xmlSetupFilePath==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -92,8 +142,18 @@ public class RequestServingMechanismPool implements Configurable
 		}
 	}
 	
-	static private RequestServingMechanism getRequestServingMechnaismFromXMLNode(Node mechanismNode)
-													throws SetupException{
+	/**
+	 * Build a RequestSeringMechanism object from the provided
+	 * xml node
+	 * @param mechanismNode -- the xml document node
+	 * @return the RequestServingMechanism represented by the xml node
+	 * @throws SetupException
+	 */
+	static private RequestServingMechanism 
+						getRequestServingMechnaismFromXMLNode(
+													Node mechanismNode)
+													throws SetupException
+	{
 		
 		try{
 			NamedNodeMap attrs=mechanismNode.getAttributes();			
@@ -118,6 +178,12 @@ public class RequestServingMechanismPool implements Configurable
 			
 	}
 	
+	/**
+	 * To get the mechanism corresponding that is to be used to
+	 * serves the provided request url
+	 * @param url -- the requested url
+	 * @return the RequestServingMechanism for this url 
+	 */
 	public RequestServingMechanism getMechanism(String url){
 		if(url==null){
 			return defaultMechanism;
@@ -133,6 +199,11 @@ public class RequestServingMechanismPool implements Configurable
 		
 	}
 	
+	/**
+	 * To get the RequestServingMechanism with the specified name.
+	 * @param name -- the name of the mechanism
+	 * @return the RequetServingMechanism with the specified name
+	 */
 	public RequestServingMechanism getMechanismByName(String name){
 		if(name==null){
 			return null;
@@ -144,7 +215,7 @@ public class RequestServingMechanismPool implements Configurable
 	}
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -172,7 +243,7 @@ public class RequestServingMechanismPool implements Configurable
 		this.setupFilePath = setupFilePath;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {

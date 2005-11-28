@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
@@ -24,7 +21,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * @author pat_dev
+ * Privodes an Implementation of a ResourceClassifier.
+ * The actual classification is specified in an 
+ * xml file.
+ * 
+ * @author Patrice Congo(token77)
  *
  */
 public class ResourceClassifierImpl implements 	ResourceClassifier,
@@ -32,7 +33,6 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 {
 	
 	public static final String RESOURCE_TAG_NAME="resourceClass";
-	//public static final String ATTRIBUTE_IS_PROTECTED="isProtected"; 
 	public static final String ATTRIBUTE_URL="url";
 	public static final String ATTRIBUTE_MATCHING_STRATEGY="matchingStrategy";
 	public static final String ATTRIBUTE_POLICY_NAME="policyName";
@@ -40,22 +40,55 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 	public static final String ROOT_TAG_NAME="ResourceClassifier";
 	public static final String ATTRIBUTE_CREDENTIALS="credentials";
 	
+	/**
+	 * 
+	 */
 	final private Comparator exactMatchingComparator=
 							makeExactMatchingComparator();
+	/**
+	 * A comparator which uses regular expression for comparison
+	 */
 	final private Comparator regExprMatchingComparator=
 							makeRegExprMatchingComparator();
 		
-	
+	/**
+	 *Contains the resource models or templates which are cloned and customized 
+	 *for the actual resource.  
+	 */
 	private Vector resources= new Vector();
+	
+	/**
+	 * the pathof the xml setup file which contains the classification
+	 * spefication.
+	 */
 	private String setupFilePath;
 	
 	/**
-	 * 
+	 * Constructs a virgin ResourceClassificationImpl object.
+	 * For this object to become valide and usable a further 2 step
+	 * setup is necessary:
+	 * <ul>
+	 * <li>set setupFilePath with the appropriate setter,
+	 * <li>call init the finalze the setup
+	 * </ul>
+	 * This is e.g. done automatically when ResourceClassifierimpl is
+	 * created from a rdf config file.
 	 */
 	public ResourceClassifierImpl() {
 		super();
 	}
 
+	/**
+	 * Implements a linear seach algotrithm which return the index
+	 * of a resource matching an url according to the provided 
+	 * comparator.
+	 * 
+	 * @param 	resources -- a vector of resource templates.
+	 * @param 	url -- the url to match.
+	 * @param 	exactMatchingComparator -- the Comparator use for the 
+	 * 			comparaison.
+	 * @return	return the index of the template resource matching the url
+	 */
 	public static int linearSearch(
 									Vector resources,
 									String url,
@@ -71,6 +104,13 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 		return -1;
 	}
 	
+	/**
+	 * Construsts a comparator which performs an exact matche between 
+	 * the url of a resource template with a real url
+	 * 
+	 * @return the created comparator
+	 * @see java.util.Comparator
+	 */
 	private Comparator makeExactMatchingComparator(){
 		return new Comparator(){
 
@@ -96,7 +136,7 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 						return -1;//not equals
 					}
 					String resURL=res.getUrl();
-					System.out.println("\n*********Comparing: "+resURL+"\t"+url+"\n");
+					//System.out.println("\n*********Comparing: "+resURL+"\t"+url+"\n");
 					return resURL.compareTo(url);
 				}
 				
@@ -105,8 +145,15 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 		};
 	}
 	
+	/**
+	 * Construsts a comparator which performs an regular expresion based
+	 * matche between the url of a resource template with a real url
+	 * 
+	 * @return the created comparator
+	 * @see java.util.Comparator
+	 */
 	private Comparator makeRegExprMatchingComparator(){
-		return new Comparator(){
+			return new Comparator(){
 
 			
 			public int compare(Object obj0, Object obj1) {
@@ -144,14 +191,30 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 		};
 	}
 	
-	///resource classifier interface implementation
-	
-	public Resource getResource(String resourceVirtualAbsURL) {
+	/**
+	 * To get the resource corresponding to the a provided url.
+	 * The work is delegated to getResourceFromCollection.
+	 * @param reourceURL -- the url of the resource
+	 * @return 	the resource corresponding to the provided url
+	 */
+	public Resource getResource(String resourceURL) {
 		
-		return getResourceFromCollection(resourceVirtualAbsURL);
+		return getResourceFromCollection(resourceURL);
 	}
 
-	private void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
+
+	/**
+	 * Parses the xml classificatio specification file and builds the
+	 * object internal state.
+	 * 
+	 * @param urlOfXmlConfigFile -- the path of the axm setup file.
+	 * @throws IOException
+	 * @throws UnsupportedFormatException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @see ResourceClassifier#setup(String)
+	 */
+	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
 		if(urlOfXmlConfigFile==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -200,6 +263,12 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 		/>
 		 
 	*/
+	
+	/**
+	 * Build the reource object from the appropriate xml node.
+	 * @param resourceClassNode -- the node representing the resource
+	 * @param return the constructed resource object
+	 */
 	static private Resource getResourceFromXMLNode(Node resourceClassNode){
 		System.out.println("resourceClassNode:"+resourceClassNode);
 		NamedNodeMap nodeMap=resourceClassNode.getAttributes();
@@ -246,7 +315,16 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 		}
 	}
 	
-	public Resource getResourceFromCollection(String url){
+	/**
+	 * Gets the resource template from the resource template vector
+	 * and uses it to build the url specific resource object.
+	 * First an exact match is try then a match based on regular
+	 * expression 
+	 * @param url -- the url for which a resource object is build
+	 * 
+	 * @return the resource object for the provided url
+	 */
+	private Resource getResourceFromCollection(String url){
 		if(url==null){
 			return null;
 		}else{
@@ -288,7 +366,7 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {

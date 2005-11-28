@@ -25,21 +25,49 @@ import org.peertrust.demo.resourcemanagement.TrustManager;
 import org.peertrust.net.Peer;
 
 /**
+ * TrustFilter does filter the http requests and provides
+ * mechanism to serve to request according to its trust level.
+ *  
  * @author Patrice Congo
  *
  */
 public class TrustFilter implements Filter{
 	
 	private NegotiationObjectRepository negoObjects;
+	/**
+	 * The trust manager used to serve the request
+	 */
 	private TrustManager trustManager;
+	
+	/**
+	 * The filter config
+	 */
 	private FilterConfig filterConfig;
 	
-	public void destroy() {
+	/**
+	 * @see javax.servlet.Filter#destroy()
+	 */
+	public void destroy() 
+	{
 		return;
 	}
 	
-	public void doFilter(ServletRequest req, ServletResponse resp,
-			FilterChain chain) throws IOException, ServletException {
+	/**
+	 * Called to filter the request.
+	 * This method classifies the request resource; and serves
+	 * it using the trustManager. An additional session registration
+	 * check is done in case of a protected resource. If no 
+	 * peer registration is available for the current session a registration
+	 * page is send back.
+	 * 
+	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+	 */
+	public void doFilter(
+					ServletRequest req, 
+					ServletResponse resp,
+					FilterChain chain) 
+					throws IOException, ServletException 
+	{
 			
 		doInit();
 		try{
@@ -127,14 +155,22 @@ public class TrustFilter implements Filter{
 		//chain.doFilter(req,resp);
 		return;
 	}
-	
-	public void init(FilterConfig filterConfig) throws ServletException {
+	/**
+	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+	 */
+	public void init(FilterConfig filterConfig) throws ServletException 
+	{
 		this.filterConfig=filterConfig;
 		doInit();
 		return;
 	}
 
-	private void doInit(){
+	/**
+	 * Does the actual init task. 
+	 * This task consist of getting the trust manager.
+	 */
+	private void doInit()
+	{
 		if(filterConfig==null){
 			System.out.println("filterConfig is null!");
 			return;

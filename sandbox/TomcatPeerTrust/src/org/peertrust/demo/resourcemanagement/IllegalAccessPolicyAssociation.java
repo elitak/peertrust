@@ -4,42 +4,48 @@
 package org.peertrust.demo.resourcemanagement;
 
 /**
- * @author pat_dev
+ * Exception to throw if a policy name or value is NULL when
+ * getting it during the negotiation process.
+ * @author Patrice Congo
  *
  */
 public class IllegalAccessPolicyAssociation extends Exception {
 
 	/**
-	 * 
+	 * Constructs a blank IllegalAccessPolicyAssociation 
 	 */
 	public IllegalAccessPolicyAssociation() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param arg0
+	 * Constructs a blank IllegalAccessPolicyAssociation with
+	 * the pased message.
+	 * @param message
 	 */
-	public IllegalAccessPolicyAssociation(String arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public IllegalAccessPolicyAssociation(String message) {
+		super(message);
 	}
 
 	/**
+	 * Constructs a blank IllegalAccessPolicyAssociation with a message
+	 * and the cause
 	 * @param arg0
 	 * @param arg1
 	 */
-	public IllegalAccessPolicyAssociation(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
+	public IllegalAccessPolicyAssociation(
+									String message, 
+									Throwable cause) 
+	{
+		super(message, cause);
 	}
 
 	/**
-	 * @param arg0
+	 * Constructs a blank IllegalAccessPolicyAssociation with a cause
+	 * @param cause -- the cause of this exception
 	 */
-	public IllegalAccessPolicyAssociation(Throwable arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public IllegalAccessPolicyAssociation(Throwable cause) {
+		super(cause);
 	}
 
 }

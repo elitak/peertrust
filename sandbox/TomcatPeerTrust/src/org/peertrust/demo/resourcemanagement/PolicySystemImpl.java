@@ -24,53 +24,84 @@ import org.xml.sax.SAXException;
 
 
 /**
- * @author pat_dev
- *
+ * A PolicySystem sytem is a pool of policies.
+ * PolicySystemImpl provides a policy system which can be 
+ * construct from an xml specifiation.
+ *  
+ * <policySystem> is an xml is the xml element for a  PolicySystem 
+ * object. The policies in the pool are represented by the
+ * <policy> element.
+ *  
+ * @author Patrice Congo (token77)
  */
-public class PolicySystemImpl implements PolicySystem, Configurable {
+public class PolicySystemImpl implements PolicySystem, Configurable 
+{
+	/**
+	 * The element name that represent the xml polycy system.
+	 */
 	final static public String ROOT_TAG_POLICY_SYSTEM="policySystem";
+	
+	/**
+	 * the name of the <policSystem> attribute that hold its type
+	 * type aims at version control 
+	 */
 	final static public String ATTRIBUT_TYPE="type";
+	
+	/**
+	 * the element name representing a policy
+	 */
 	final static public String POLICY_TAG="policy";
+	
+	/**
+	 * The name of the <policy> attribute containing the policy name
+	 */
 	final static public String ATTRIBUTE_POLICY_NAME="policyName";
+	/**
+	 * The name of the <polic> attribute containing thepolicy value
+	 */
 	final static public String ATTRIBUTE_POLICY_VALUE="policyValue";
 	//final static public String ATTRIBUTE_INCLUDED_POLICY="includedPolicy"; 
 	
+	/**
+	 *The cache which holds the policies 
+	 */
 	private Cache policyCache;
+	
+	/**
+	 * The xml setup file name
+	 */
 	private String setupFilePath;
 	
 	
 	/**
-	 * 
+	 * Construct a virgin PolicySystem.
+	 * To finisch the setup of the new object 2 steps are
+	 * required:
+	 * <ul>
+	 * 	<li/>sets the setupFilePath with the appropriate setter
+	 * 	<li/>call init to fill the pool using the set xml file 
+	 * <ul>
 	 */
 	public PolicySystemImpl() {
 		super();
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.demo.resourcemanagement.PolicySystem#getPolicies(java.lang.String)
 	 */
 	public Vector getPolicies(String policyName) {
 		
 		Policy pol=(Policy)policyCache.get(policyName);
 		Vector policies=new Vector();
-//		String includedPol;
-		//while(pol!=null){
-			policies.add(pol);
-//			includedPol=pol.getIncludedPolicy();
-//			if(includedPol==null){
-//				pol=null;
-//			}else{
-//				pol=(Policy)policyCache.get(includedPol);
-//			}
-		//}
+		policies.add(pol);
 		Collections.reverse(policies);//policies.
 		return policies;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.demo.resourcemanagement.PolicySystem#setup(java.lang.String)
 	 */
-	private void setup(String xmlSetupFileName)
+	public void setup(String xmlSetupFileName)
 							throws 	UnsupportedFormatException, 
 									ParserConfigurationException, 
 									SAXException, 
@@ -124,12 +155,16 @@ public class PolicySystemImpl implements PolicySystem, Configurable {
 		}
 
 	}
-	/*
-	 * <policy
-		policyName="ieeeMember"
-		policyValue="ieeeMemberPolicy(Requester)"
-		includedPolicy="" 
-		/>
+	/**
+	 * Constructs a plicy from the provided xml node.
+	 * The node has the following format:
+	 * <code>
+	 * 		<policy
+	 *			policyName="ieeeMember"
+	 *			policyValue="ieeeMemberPolicy(Requester)"
+	 *			includedPolicy="" 
+	 *		/>
+	 *	</code>
 	 */
 	static private Policy getPolicyFromXMLNode(Node polNode){
 		NamedNodeMap nodeMap= polNode.getAttributes();
@@ -137,13 +172,7 @@ public class PolicySystemImpl implements PolicySystem, Configurable {
 			nodeMap.getNamedItem(ATTRIBUTE_POLICY_NAME).getNodeValue();
 		String policyValue=
 			nodeMap.getNamedItem(ATTRIBUTE_POLICY_VALUE).getNodeValue();
-//		String includedPolicy=
-//			nodeMap.getNamedItem(ATTRIBUTE_INCLUDED_POLICY).getNodeValue();
 		Policy pol=new Policy(policyName,policyValue);
-//		includedPolicy=includedPolicy.trim();
-//		if(includedPolicy.length()!=0){
-//			pol.setIncludedPolicy(includedPolicy);
-//		}
 		return pol;
 	}
 
@@ -192,7 +221,7 @@ public class PolicySystemImpl implements PolicySystem, Configurable {
 
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {

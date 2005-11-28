@@ -11,8 +11,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
- * @author pat_dev
- *
+ * A PolicySystem sytem is a pool of policies.
+ * A policy system maybe crustruct from an xml specification
+ * In that case the setup() method must be implemented accoding
+ * to the chosen xml tag.  
+ *  
+ * @author Patrice Congo (token77)
  */
 public interface PolicySystem {
 	/**
@@ -23,14 +27,14 @@ public interface PolicySystem {
 	 */
 	Vector getPolicies(String policyName );
 	
-//	/**
-//	 * To setup the Policy system. 
-//	 * The setup process uses the following xml setip file 
-//	 * 
-//	 * @param xmlSetupFilePath -- the xml configuration file path
-//	 * @throws IOException 
-//	 * @throws SAXException 
-//	 * @throws ParserConfigurationException 
-//	 */
-//	public void setup(String xmlSetupFileName) throws UnsupportedFormatException, ParserConfigurationException, SAXException, IOException;
+	/**
+	 * To setup the Policy system. 
+	 * The setup process uses the following xml setip file 
+	 * 
+	 * @param xmlSetupFilePath -- the xml configuration file path
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 */
+	public void setup(String xmlSetupFileName) throws UnsupportedFormatException, ParserConfigurationException, SAXException, IOException;
 }

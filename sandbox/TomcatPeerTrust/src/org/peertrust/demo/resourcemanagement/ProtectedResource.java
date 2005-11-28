@@ -6,31 +6,47 @@ package org.peertrust.demo.resourcemanagement;
 import java.util.Vector;
 
 /**
+ * A Protected Resource is a resource that requires 
+ * peertrust negotiation.
+ * 
  * @author pat_dev
  *
  */
-public class ProtectedResource extends Resource {
+public class ProtectedResource extends Resource 
+{
 
+	/**
+	 * the name of the policy that protects this resource
+	 */
 	private String policyName;
 	
+	/**
+	 * a flag signaling whether the resource can now be access or 
+	 * not. It is set after negitonation. 
+	 */
 	boolean canAccess=false;
-	private String reason=null;
+	
+	/**
+	 *Holds the reason why this resource cannot be access. 
+	 */
+	private String reason="_No_Nego_Done_Yet_";
+	
+	/**
+	 * Hold the credentials required to get this resource and which
+	 * the remote peer must provide.
+	 */
 	private Vector credentials=new Vector(8);
 	
 	/**
-	 * @param matchingStrategy
-	 * @param realURL
-	 * @param virtualURL
+	 * Contructs a ProtectedResource
+	 * @param matchingStrategy -- the expression used to match urls 
+	 * @param url -- the url of this resource
 	 */
 	public ProtectedResource(String matchingStrategy, String url) {
 		super(matchingStrategy, url);
-		// TODO Auto-generated constructor stub
 	}
 
 	
-
-
-
 	/**
 	 * @return Returns the policyName.
 	 */
@@ -83,7 +99,7 @@ public class ProtectedResource extends Resource {
 
 
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -95,6 +111,12 @@ public class ProtectedResource extends Resource {
 				"\n";
 	}
 
+	/**
+	 * To clone this resource and customized it with the provided 
+	 * url.
+	 * @param url -- the url of the clone resource
+	 * @return
+	 */
 	public ProtectedResource getCopy(String url){
 		ProtectedResource res=
 			new ProtectedResource(getMatchingStrategy(),url);
@@ -106,13 +128,22 @@ public class ProtectedResource extends Resource {
 		return res;
 	}
 	
-	public void addCredential(String cred){
-		if(cred!=null){
-			credentials.add(cred);
+	/**
+	 * Adds a credential name which the remode user must provide
+	 * @param credName -- the name of the require credential 
+	 */
+	public void addCredential(String credName){
+		if(credName!=null){
+			credentials.add(credName);
 		}
 		return;
 	}
 	
+	/**
+	 * Get a copy of the credentials which the remote
+	 * peer must still provide
+	 * @return a vector of credential names
+	 */
 	public Vector getCredentials(){
 		Vector v=new Vector(credentials.capacity());
 		boolean bol=v.addAll(credentials);

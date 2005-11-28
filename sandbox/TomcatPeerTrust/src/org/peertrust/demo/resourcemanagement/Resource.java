@@ -4,17 +4,34 @@
 package org.peertrust.demo.resourcemanagement;
 
 /**
- * @author pat_dev
+ * Resource represents a resource identified by an url.
+ * It contains the mechanism used to to serve requests. 
+ * @author Patrice Congo(token77)
  *
  */
 abstract public class Resource {
-	//final static public String PROTECTION_
-	//protected String virtualURL=null;
-	//protected String realURL=null;
+	/**
+	 * the resource url
+	 */
 	protected String url=null;
+	/**
+	 * a tring represneting the matching strategy to use
+	 */
 	protected String matchingStrategy=null;
+	
+	/**
+	 * themechanism name to use to serve request for this resource
+	 */
 	protected String requestServingMechanimName="default";
 	
+	/**
+	 * Inits the resource  matchingStrategy name and  
+	 * url of this resource.
+	 * 
+	 * @param 	matchingStrategy -- the key for the strategy used to match
+	 * 			the url 
+	 * @param url -- the resource url or url pattern
+	 */
 	public Resource(String matchingStrategy, String url){//String realURL, String virtualURL) {
 		super();
 		if(matchingStrategy==null || url==null){
@@ -23,16 +40,21 @@ abstract public class Resource {
 		
 		
 		this.matchingStrategy = matchingStrategy;
-		this.url=url;
-//		this.realURL = realURL;
-//		this.virtualURL = virtualURL;
-		
+		this.url=url;		
 	}
 
+	/**
+	 * 
+	 * @return the matching strategy of this resource
+	 */
 	public String getMatchingStrategy() {
 		return matchingStrategy;
 	}
 
+	/**
+	 * sets the matchingStrategy of this resource
+	 * @param matchingStrategy -- the new matching strategy
+	 */
 	public void setMatchingStrategy(String matchingStrategy) {
 		this.matchingStrategy = matchingStrategy;
 	}
@@ -67,7 +89,7 @@ abstract public class Resource {
 		this.requestServingMechanimName = requestServingMechanimName;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

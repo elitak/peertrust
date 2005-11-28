@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.peertrust.demo.resourcemanagement;
 
 
@@ -10,36 +7,42 @@ package org.peertrust.demo.resourcemanagement;
  *
  */
 public class Policy {
-	
+	/**
+	 * the name of the policy
+	 */
 	private String policyName;
-	private String policyValue;
-	//private String includedPolicy= null;
 	
 	/**
-	 * 
+	 * the value of the policy
+	 */
+	private String policyValue;
+	
+	/**
+	 *Construct a new policy object
+	 *@param policyName -- the name of the new policy
+	 *@param policyValue -- the value of the new policy 
 	 */
 	public Policy(String policyName, String policyValue) {
 		this.policyName=policyName;
 		this.policyValue=policyValue;
 	}
-
-//	public void setIncludedPolicy(String policy){
-//		includedPolicy=policy;
-//	}
-//
-//	public String getIncludedPolicy(){
-//		return includedPolicy;
-//	}
 	
+	/**
+	 * @return returns the policy name
+	 */
 	public String getPolicyName() {
 		return policyName;
 	}
 
+	/**
+	 * return the policy value
+	 * @return
+	 */
 	public String getPolicyValue() {
 		return policyValue;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

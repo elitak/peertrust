@@ -14,20 +14,68 @@ import org.w3c.dom.Node;
  * Classes which implements this interface provides a mechanism to generate the appropriate
  * response to a request. such a mechnism is e.g. necessary when filter chain is not directly follow 
  * but the request is forwarded to a serving jsp.
+ * <code>
+ * 	<mechanism 	name="_mechanism_name_"
+				class="_mechanism_class_"
+				forwardTo="_url_to_forward_the_request_to"
+				context="_web application context path of the forwardto url" 
+				matchingPattern="pattern used to match the url">
+	</mechanism>
+ * </code>
  *   
- * @author pat_dev
+ * @author Patrice Congo (token77)
  *
  */
-public interface RequestServingMechanism {
+public interface RequestServingMechanism 
+{
+	/**
+	 * the name of the <mechanism> attribute that holds the 
+	 * the mechanism name
+	 */
 	static final public String ATTRIBUTE_NAME="name";
-	static final public String ATTRIBUTE_BASE_DIR="baseDir";
+	
+	
+	//static final public String ATTRIBUTE_BASE_DIR="baseDir";
+	
+	/**
+	 * the name of the <mechanism> attribute that holds the 
+	 * the mechanism matching pattern
+	 */
 	static final public String ATTRIBUTE_MATCHING_PATTERN="matchingPattern";
+	
+	/**
+	 * The tag name od the xml element representing the mechnism pool
+	 */
 	final static public String ROOT_TAG_SERVING_MECHANISM="RequestServingMechanism";
+	
+	/**
+	 * the name of the <mechanism> tag
+	 */
 	final static public String MECHANISM_TAG="mechanism";
+	
+	/**
+	 * the name of the <mechanism> attribute that holds the 
+	 * the mechanism class
+	 */
 	final static public String ATTRIBUTE_CLASS="class";
+	
+	/**
+	 * the name of the <mechanism> attribute that holds the 
+	 * the mechanism url to forward the request to.
+	 */
 	final static public String ATTRIBUTE_FORWARD_TO="forwardTo";
+	
+	/**
+	 * the name of the dafault <mechanism> 
+	 */
 	final static public String DEFAULT_NAME="default";
+	
+	/**
+	 * the name of the <mechanism> attribute that holds the 
+	 * the mechanism web application context path of the forward to url
+	 */
 	final static public String ATTRIBUTE_CONTEXT="context";
+	
 	/**
 	 * To respond to a request. the overall resource management framework is 
 	 * base a gate TrustFilter. Therefore the corresponding chain must be pass as an argument. 

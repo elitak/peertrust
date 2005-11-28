@@ -12,16 +12,37 @@ import org.peertrust.net.Peer;
 import java.io.IOException;
 
 /**
+ * MessengerBasedNetServer provides a implementation of
+ * NetServer based on a messenger. I.e. It uses  the messenger to
+ * vor the data.
+ * 
  * @author Patrice Congo (token77)
  */
-public class ServletSideNetServer implements NetServer {
+public class MessengerBasedNetServer implements NetServer {
 
-	
+	/**
+	 * the messenger used for listening.
+	 */
 	Messenger messenger; 
+	
+	/**
+	 * Message logger
+	 */
 	Logger logger;
+	
+	/**
+	 * represents the local peer
+	 */
 	Peer localPeer;
 	
-	public ServletSideNetServer(
+	/**
+	 *Constructs a new MessengerBasedNetServer
+	 *  
+	 * @param logger -- the logger to use
+	 * @param localPeer -- represents the local negotiating peer
+	 * @param messenger -- the messenger used to listen
+	 */
+	public MessengerBasedNetServer(
 							Logger logger, 
 							Peer localPeer,
 							Messenger messenger)
@@ -36,7 +57,7 @@ public class ServletSideNetServer implements NetServer {
 		}
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.net.NetServer#listen()
 	 */
 	public Message listen() {
