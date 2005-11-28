@@ -3,7 +3,8 @@ package org.peertrust.demo.resourcemanagement;
 
 /**
  * Implementation of the CacheElementCreator provide
- * a cache with a mechanism to create objects.
+ * a cache with a mechanism to create objects. This is
+ * used if a cache miss accors
  * 
  * @author Patrice Congo (token77)
  *

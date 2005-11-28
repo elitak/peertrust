@@ -6,7 +6,7 @@ package org.peertrust.demo.resourcemanagement;
 /**
  * Exception to throw if a policy name or value is NULL when
  * getting it during the negotiation process.
- * @author Patrice Congo
+ * @author Patrice Congo (token77)
  *
  */
 public class IllegalAccessPolicyAssociation extends Exception {

@@ -4,61 +4,73 @@
 package org.peertrust.demo.resourcemanagement;
 
 
-import java.util.Vector;
 
 import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 
 /**
- * @author pat_dev
- *
+ *Cache provide a cache implementation which ejection strategy
+ *and element creation can be customized.
+ * 
+ * @author Patrice Congo (token77)
  */
-public class Cache {
-	
-	class FIFOEjectionStrategy implements CacheEjectionStrategy{
-		private int size;
-		private Vector keyFiFo=new Vector();
-		/* (non-Javadoc)
-		 * @see org.peertrust.demo.resourcemanagement.CacheEjectionStrategy#setSize(int)
-		 */
-		public void setSize(int size) {
-			this.size=size;			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.peertrust.demo.resourcemanagement.CacheEjectionStrategy#indicateLastAccess(java.lang.Object)
-		 */
-		public Object indicateLastAccess(Object key) {
-			keyFiFo.add(key);
-			if(keyFiFo.size()>size){
-				Object toRemoveKey=keyFiFo.firstElement();
-				keyFiFo.remove(toRemoveKey);
-				return toRemoveKey;
-			}else{
-				return null;
-			}
-		}
-		
-	}
+public class Cache 
+{
 	
 	static final public int DEFAULT_SIZE=64;
 	
+	/**
+	 * the cache element creator
+	 */
 	private CacheElementCreator cacheElementCreator;
+	
+	/**
+	 * the hashtable that hold the elements
+	 */
 	private Hashtable cacheElements= new Hashtable();
+	
+	/**
+	 * the ejection strategy use by the cache
+	 */
 	private CacheEjectionStrategy ejectionStrategy;
 	
 	
 	
 	/**
-	 * 
+	 * To create a new cache which uses the provide element
+	 * creator. This cache has the default FIFO ejection strategy
+	 * @param cacheElementCreator -- the element creator for the new cache 
 	 */
-	public Cache(CacheElementCreator cacheElementCreator) {
+	public Cache(CacheElementCreator cacheElementCreator) 
+	{
 		super();
 		ejectionStrategy=new FIFOEjectionStrategy();
 		ejectionStrategy.setSize(DEFAULT_SIZE);
 		this.cacheElementCreator=cacheElementCreator;
 	}
 
+	/**
+	 * To create a new cache which uses the provide element
+	 * creator and ejection strategy. 
+	 * @param cacheElementCreator -- the element creator for the new cache
+	 * @param ejectionStrategy -- the ejection strategy to use in the new cache 
+	 */
+	public Cache(
+				CacheElementCreator cacheElementCreator,
+				CacheEjectionStrategy ejectionStrategy) 
+	{
+		super();
+		ejectionStrategy=new FIFOEjectionStrategy();
+		ejectionStrategy.setSize(DEFAULT_SIZE);
+		this.cacheElementCreator=cacheElementCreator;
+		this.ejectionStrategy=ejectionStrategy;
+	}
 	
+	/**
+	 * To get a cache element.
+	 * @param key -- the key of the element to get
+	 * @return the cache element with the key as provided
+	 * @throws NullPointerException
+	 */
 	synchronized public Object get(Object key) throws NullPointerException{
 		if(key==null){
 			throw new NullPointerException("kex must not be null");
@@ -82,13 +94,20 @@ public class Cache {
 		return element;
 	}
 	
+	/**
+	 * clear the cache.
+	 */
 	synchronized public void clear(){
 		cacheElements.clear();
 	}
 	
 	
-	
-	public void setSize(int size) {
+	/**
+	 * Set the cache size
+	 * @param size
+	 */
+	public void setSize(int size) 
+	{
 		if(ejectionStrategy!=null){
 			this.setSize(size);
 		}
@@ -96,7 +115,40 @@ public class Cache {
 	
 	
 	
-	static public void main(String[] args){
+	/**
+	 * @return Returns the cacheElementCreator.
+	 */
+	public CacheElementCreator getCacheElementCreator() 
+	{
+		return cacheElementCreator;
+	}
+
+	/**
+	 * @param cacheElementCreator The cacheElementCreator to set.
+	 */
+	public void setCacheElementCreator(CacheElementCreator cacheElementCreator) 
+	{
+		this.cacheElementCreator = cacheElementCreator;
+	}
+
+	/**
+	 * @return Returns the ejectionStrategy.
+	 */
+	public CacheEjectionStrategy getEjectionStrategy() 
+	{
+		return ejectionStrategy;
+	}
+
+	/**
+	 * @param ejectionStrategy The ejectionStrategy to set.
+	 */
+	public void setEjectionStrategy(CacheEjectionStrategy ejectionStrategy) 
+	{
+		this.ejectionStrategy = ejectionStrategy;
+	}
+
+	static public void main(String[] args)
+	{
 		CacheElementCreator creator= new CacheElementCreator(){
 
 			public Object createCacheElement(Object key) {

@@ -18,9 +18,11 @@ public interface CacheEjectionStrategy {
 	public void setSize(int size);
 	
 	/**
-	 * Indicate last access to the cache element ejector.
+	 * Indicate last access cache element to the ejector.
+	 * If an element need to be removed the key of the element
+	 * is return.
 	 * @param key -- the key of the lastely access element
-	 * @return -- the element to remove
+	 * @return -- the key of the element to remove
 	 */
 	public Object indicateLastAccess(Object key);
 	

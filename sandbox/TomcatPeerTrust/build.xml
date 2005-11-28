@@ -18,7 +18,7 @@
                              image files), including the WEB-INF subdirectory
                              and its configuration file contents.
 
-     $Id: build.xml,v 1.12 2005/11/24 16:55:30 token77 Exp $
+     $Id: build.xml,v 1.13 2005/11/28 23:02:47 token77 Exp $
 -->
 
 
@@ -61,7 +61,7 @@
 
 -->
 	
-  <property file="build_kbs.linux.properties"/>
+  <property file="build_home.linux.properties"/>
   <!-- property file="${user.home}/build.properties"/ -->
 
 

@@ -10,7 +10,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
- * @author pat_dev
+ * The ResourceClassifier specifies the interface a class must
+ * implement to provided mechanism to classify resources.
+ *  
+ * @author Patrice Congo (token77)
  *
  */
 public interface ResourceClassifier {

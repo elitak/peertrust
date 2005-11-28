@@ -39,27 +39,42 @@ public class ServletSideHTTPCommunicationFactory
 	private int httpServerPort;
 	
 	/**
-	 * 
+	 * The messenger used for comunication
 	 */
 	private Messenger messenger;
 	
+	/**
+	 * The net client return by createNetClient. 
+	 */
 	private MessengerBasedNetServer netServer;
 	
+	/**
+	 * The net servert return by createNetServer 
+	 */
 	private MessengerBasedNetClient netClient;
 	
-	
+	/**
+	 * Creates a virgin ServletSideHTTPCommunicationFactory.
+	 * Full setup is then done in 2 steps:
+	 * <ul>
+	 * 	<li/>set httpServerIP, httpServerPort with setPort and set
+	 * 		setHost 
+	 * 	<li/>call init to finalize setup.
+	 * </ul>.
+	 *
+	 */
 	public ServletSideHTTPCommunicationFactory()
 	{
 		//nothing
 	}
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.net.AbstractFactory#getServerPeer(java.lang.String)
 	 */
 	public Peer getServerPeer(String alias) {		
 		return new Peer(alias, httpServerIP,httpServerPort);
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.net.AbstractFactory#createNetClient()
 	 */
 	public NetClient createNetClient() {
@@ -67,7 +82,7 @@ public class ServletSideHTTPCommunicationFactory
 		return netClient;
 	}
 
-	/* (non-Javadoc)
+	/** 
 	 * @see org.peertrust.net.AbstractFactory#createNetServer()
 	 */
 	public NetServer createNetServer() {
@@ -76,6 +91,9 @@ public class ServletSideHTTPCommunicationFactory
 	}
 
 	
+	/**
+	 * @see Configurable#init()
+	 */
 	public void init() throws ConfigurationException {
 		messenger= new QueueBasedMessenger();
 		logger=Utils.getLogger(this.getClass().getName());
@@ -83,8 +101,12 @@ public class ServletSideHTTPCommunicationFactory
         createUniqueNetClient();
 	}
 	
+	/**
+	 * create the UNIQUE peertrust server that will be used 
+	 * during communication
+	 *
+	 */
 	private void createUniqueNetserver(){
-//		create the UNIQUE peertrust server that will be use during communication
 		netServer=
 			new MessengerBasedNetServer(
 									logger,
@@ -93,6 +115,10 @@ public class ServletSideHTTPCommunicationFactory
 		return;
 	}
 	
+	/**
+	 * create the UNIQUE peertrust net client that will be used 
+	 * during communication
+	 */
 	private void createUniqueNetClient(){
 		netClient= 
 			new MessengerBasedNetClient(logger,messenger);
@@ -153,19 +179,19 @@ public class ServletSideHTTPCommunicationFactory
 		//this._port = _port;
 		this.httpServerPort=_port;
 	}
+	
 	/**
 	 * @return Returns the messenger.
 	 */
 	public Messenger getMessenger() {
 		return messenger;
 	}
+	
 	/**
 	 * @param messenger The messenger to set.
 	 */
 	public void setMessenger(Messenger messenger) {
 		this.messenger = messenger;
 	}
-		
-	
-	
+			
 }

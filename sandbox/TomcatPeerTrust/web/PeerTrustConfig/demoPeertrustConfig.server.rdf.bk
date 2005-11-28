@@ -63,7 +63,7 @@
 	====================================================================== -->
 	<pt:EntitiesTable rdf:about="#EntitiesTable">
 		<pt:javaClass>org.peertrust.net.EntitiesTable</pt:javaClass>
-		<pt:entitiesFile>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/entities.dat</pt:entitiesFile>
+		<pt:entitiesFile>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/entities.dat</pt:entitiesFile>
 	</pt:EntitiesTable>
 
 	<!-- ======================================================================
@@ -80,7 +80,7 @@
 	<pt:InferenceEngine rdf:about="#InferenceEngine">
 		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
 		<!--<pt:baseFolder>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\trust\</pt:baseFolder> -->
-		<pt:baseFolder>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/</pt:baseFolder>
+		<pt:baseFolder>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/</pt:baseFolder>
 		<!-- pt:prologFiles>demoPolicies.eLearn</pt:prologFiles -->
 		<pt:prologFiles>eLearn.min</pt:prologFiles>
 		<pt:rdfFiles/>
@@ -109,7 +109,7 @@
 	====================================================================== -->
 	<pt:CredentialStore rdf:about="#CredentialStore">
 		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
-		<pt:file>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/server_keystore</pt:file>
+		<pt:file>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/server_keystore</pt:file>
 		<pt:storePassword>serverstorepw</pt:storePassword>
 	</pt:CredentialStore>
 </rdf:RDF>

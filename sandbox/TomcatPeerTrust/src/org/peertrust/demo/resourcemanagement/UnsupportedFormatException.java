@@ -1,45 +1,50 @@
-/**
- * 
- */
 package org.peertrust.demo.resourcemanagement;
 
 /**
- * @author pat_dev
+ * Exception thrown is a format is not supported.
+ * E.g. if a setup from an xml file encounters an unsupported 
+ * xml tagrere 
+ * 
+ * @author Patrice Congo
  *
  */
 public class UnsupportedFormatException extends Exception {
 
 	/**
-	 * 
+	 * Create a blank new UnsupportedFormatException 
 	 */
 	public UnsupportedFormatException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param arg0
+	 * Creates a new UnsupportedFormatException with its
+	 * message set to the passed value.
+	 * @param message -- message for the new exception
 	 */
-	public UnsupportedFormatException(String arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public UnsupportedFormatException(String message) {
+		super(message);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 *Creates a new UnsupportedFormatException and sets its
+	 *message ans cause with the passed value 
+	 * @param message -- the mesage for the new UnsupportedFormatException 
+	 * @param cause -- the cause for the new UnsupportedFormatException
 	 */
-	public UnsupportedFormatException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
+	public UnsupportedFormatException(String message, Throwable cause) 
+	{
+		super(message, cause);
 	}
 
 	/**
-	 * @param arg0
+	 * Creates a new UnsupportedFormatException and sets its cause with
+	 * the passed value
+	 * @param cause -- the cause for the new UnsupportedFormatException
 	 */
-	public UnsupportedFormatException(Throwable arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public UnsupportedFormatException(Throwable cause) 
+	{
+		super(cause);
 	}
 
 }

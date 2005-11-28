@@ -3,8 +3,9 @@ package org.peertrust.demo.resourcemanagement;
 
 
 /**
- * @author pat_dev
- *
+ * This is an abtraction for a policy.
+ * 
+ * @author Patrice Congo (token77)
  */
 public class Policy {
 	/**
@@ -47,8 +48,7 @@ public class Policy {
 	 */
 	public String toString() {
 		return 	"policyName:"+policyName+
-				" policyValue:"+policyValue;//+
-				//" includedPolicy:"+includedPolicy;
+				" policyValue:"+policyValue;
 	}
 	
 	

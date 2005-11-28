@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package org.peertrust.demo.resourcemanagement;
 
 import java.io.IOException;
