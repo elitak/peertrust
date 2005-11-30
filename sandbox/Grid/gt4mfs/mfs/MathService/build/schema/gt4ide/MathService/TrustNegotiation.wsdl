@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TrustNegotiation"
+    targetNamespace="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" 
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<wsdl:types>
+	<xsd:schema targetNamespace="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+    	xmlns:tns="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+    	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+		<xsd:complexType name="peer">
+    		<xsd:sequence>
+    			<xsd:element name="alias" type="xsd:string"/>
+    			<xsd:element name="address" type="xsd:string"/>
+        		<xsd:element name="port" type="xsd:int"/>
+    		</xsd:sequence>
+   		</xsd:complexType>
+
+
+    	<xsd:element name="negotiateTrust">
+    		<xsd:complexType>
+    			<xsd:sequence>
+    				<xsd:element name="source" type="tns:peer"/>
+        			<xsd:element name="target" type="tns:peer"/>
+        			<xsd:element name="trace"  minOccurs="1" maxOccurs="unbounded" type="xsd:string"/>
+					<xsd:element name="goal" type="xsd:string"/>
+					<xsd:element name="proof" type="xsd:string"/>
+					<xsd:element name="status" type="xsd:int"/>
+					<xsd:element name="reqQueryId" type="xsd:long"/>
+					<xsd:element name="messageType" type="xsd:int"/>
+        		</xsd:sequence> 
+    		</xsd:complexType>
+    	</xsd:element>
+    
+    
+    	<xsd:element name="negotiateTrustResponse">
+    		<xsd:complexType/>
+		</xsd:element>   
+
+		<xsd:element name="getNotificationURI">
+    		<xsd:complexType/>
+		</xsd:element>
+		
+		<xsd:element name="getNotificationURIResponse">
+    		<xsd:complexType>
+    			<xsd:sequence>
+    				<xsd:element name="namespaceURI" type="xsd:string"/>
+        			<xsd:element name="localPart" type="xsd:string"/>
+    			</xsd:sequence>    		
+    		</xsd:complexType>
+		</xsd:element>
+		
+		<!-- Custom Notification Message -->
+
+		<xsd:element name="TrustNegotiationNotificationMessage" type="tns:TrustNegotiationNotificationMessageType"/>
+	
+		<xsd:complexType name="TrustNegotiationNotificationMessageType">
+			<xsd:sequence>
+				<xsd:element name="source" type="tns:peer"/>
+				<xsd:element name="target" type="tns:peer"/>
+        		<xsd:element name="trace"  minOccurs="1" maxOccurs="unbounded" type="xsd:string"/>
+				<xsd:element name="goal" type="xsd:string"/>
+				<xsd:element name="proof" type="xsd:string"/>
+				<xsd:element name="status" type="xsd:int"/>
+				<xsd:element name="reqQueryId" type="xsd:long"/>
+				<xsd:element name="messageType" type="xsd:int"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	
+		<xsd:complexType name="TrustNegotiationNotificationMessageWrapperType">
+			<xsd:sequence>
+				<xsd:element ref="tns:TrustNegotiationNotificationMessage"/>
+			</xsd:sequence>
+		</xsd:complexType>
+
+	</xsd:schema>
+</wsdl:types>
+
+<wsdl:message name="NegotiateTrustRequest">
+	<wsdl:part name="request" element="tns:negotiateTrust"/>
+</wsdl:message>
+
+<wsdl:message name="NegotiateTrustResponse">
+	<wsdl:part name="response" element="tns:negotiateTrustResponse"/>
+</wsdl:message>
+
+<wsdl:message name="GetNotificationURIRequest">
+	<wsdl:part name="request" element="tns:getNotificationURI"/>
+</wsdl:message>
+
+<wsdl:message name="GetNotificationURIResponse">
+	<wsdl:part name="response" element="tns:getNotificationURIResponse"/>
+</wsdl:message>
+
+<wsdl:portType name="TrustNegotiation">
+	<wsdl:operation name="negotiateTrust">
+		<wsdl:input message="tns:NegotiateTrustRequest"/>
+		<wsdl:output message="tns:NegotiateTrustResponse"/>
+	</wsdl:operation>
+	<wsdl:operation name="getNotificationURI">
+		<wsdl:input message="tns:GetNotificationURIRequest"/>
+		<wsdl:output message="tns:GetNotificationURIResponse"/>	
+	</wsdl:operation>
+</wsdl:portType>	
+</definitions>

@@ -1,0 +1,189 @@
+Buildfile: build.xml
+
+init:
+     [echo] ============= Peertrust 1.0-20050602 [2004] ==============
+     [echo] ==== Trust Negotiation for Peers on the Semantic Web =====
+
+initstart:
+
+demoClient:
+
+commonPeer:
+
+copyFiles:
+     [echo] Copying files from /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/config in /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient
+
+defaultstart:
+
+start:
+     [echo] Starting org.peertrust.TrustClient in /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient
+     [java] log4j:ERROR Could not connect to remote log4j server at [localhost]. We will try again later.
+     [java] java.net.ConnectException: Connection refused
+     [java] 	at java.net.PlainSocketImpl.socketConnect(Native Method)
+     [java] 	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:305)
+     [java] 	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:171)
+     [java] 	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:158)
+     [java] 	at java.net.Socket.connect(Socket.java:452)
+     [java] 	at java.net.Socket.connect(Socket.java:402)
+     [java] 	at java.net.Socket.<init>(Socket.java:309)
+     [java] 	at java.net.Socket.<init>(Socket.java:153)
+     [java] 	at org.apache.log4j.net.SocketAppender.connect(SocketAppender.java:195)
+     [java] 	at org.apache.log4j.net.SocketAppender.activateOptions(SocketAppender.java:152)
+     [java] 	at org.apache.log4j.config.PropertySetter.activate(PropertySetter.java:247)
+     [java] 	at org.apache.log4j.config.PropertySetter.setProperties(PropertySetter.java:123)
+     [java] 	at org.apache.log4j.config.PropertySetter.setProperties(PropertySetter.java:87)
+     [java] 	at org.apache.log4j.PropertyConfigurator.parseAppender(PropertyConfigurator.java:645)
+     [java] 	at org.apache.log4j.PropertyConfigurator.parseCategory(PropertyConfigurator.java:603)
+     [java] 	at org.apache.log4j.PropertyConfigurator.configureRootCategory(PropertyConfigurator.java:500)
+     [java] 	at org.apache.log4j.PropertyConfigurator.doConfigure(PropertyConfigurator.java:406)
+     [java] 	at org.apache.log4j.PropertyConfigurator.doConfigure(PropertyConfigurator.java:307)
+     [java] 	at org.apache.log4j.PropertyConfigurator.configure(PropertyConfigurator.java:315)
+     [java] 	at org.peertrust.config.PTConfigurator.init(PTConfigurator.java:120)
+     [java] 	at org.peertrust.config.PTConfigurator.<init>(PTConfigurator.java:106)
+     [java] 	at org.peertrust.TrustClient.main(TrustClient.java:133)
+     [java] INFO  [main] (PTConfigurator:123) - Log4j configured based on file ".logconfig"
+     [java] DEBUG [main] (PTConfigurator:125) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] INFO  [main] (PTConfigurator:127) - Current directory: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient
+     [java] DEBUG [main] (PTConfigurator:140) - .startApp()
+     [java] DEBUG [main] (PTConfigurator:169) - .loadConfiguration()
+     [java] DEBUG [main] (PTConfigurator:186) - .loadConfiguration() (file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf)
+     [java] INFO  [main] (PTConfigurator:192) - Read 49 statements from configuration file
+     [java] DEBUG [main] (PTConfigurator:209) - .baseConfigure()
+     [java] INFO  [main] (PTConfigurator:211) - Retrieving root node of configuration file...
+     [java] INFO  [main] (PTConfigurator:217) - Resource configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEngine
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:PTEngine]
+     [java] DEBUG [main] (PTEngine:63) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEngine]
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:MetaInterpreter]
+     [java] DEBUG [main] (MetaInterpreter:88) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#MetaInterpreter]
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:RunTimeOptions]
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#RunTimeOptions]
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'runningMode', value 'demo'
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:PTEventDispatcher]
+     [java] DEBUG [main] (PTEventDispatcher:51) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEventDispatcher]
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:Queue]
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#Queue]
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:InferenceEngine]
+     [java] DEBUG [main] (MinervaProlog:79) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#InferenceEngine]
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'baseFolder', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/'
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'prologFiles', value 'demoPolicies.alice'
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'license', value 'minervagui.mca'
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'rdfFiles', value ''
+     [java] DEBUG [main] (MinervaProlog:89) - (Init) PrologFiles = demoPolicies.alice - RdfFiles =  - _baseFolder = /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/ - License = minervagui.mca
+     [java] DEBUG [main] (MinervaProlog:111) - Engine initialized
+     [java] DEBUG [main] (MinervaProlog:188) - Inserting debug_on in the KB
+     [java] DEBUG [main] (MinervaProlog:124) - Program loaded
+     [java] DEBUG [main] (MinervaProlog:166) - Loading file /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPolicies.alice into the inference engine
+     [java] DEBUG [main] (MinervaProlog:168) - File /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPolicies.alice loaded
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'peerName', value 'Alice'
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:CommunicationChannelFactory]
+     [java] DEBUG [main] (SimpleSocketFactory:53) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#CommunicationChannelFactory]
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'host', value 'localhost'
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:EntitiesTable]
+     [java] DEBUG [main] (EntitiesTable:57) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#EntitiesTable]
+     [java] DEBUG [main] (PTConfigurator:404) - Property 'entitiesFile', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/entities.dat'
+     [java] DEBUG [main] (EntitiesTable:62) - (Init) Entities file: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/entities.dat
+     [java] INFO  [main] (MetaInterpreter:117) - PeerName = alice
+     [java] DEBUG [main] (MetaInterpreter:118) - (Init) PeerName = alice
+     [java] DEBUG [main] (MinervaProlog:188) - Inserting peerName(alice) in the KB
+     [java] DEBUG [main] (SimpleSocketFactory:73) - Creating new ClientSocket
+     [java] DEBUG [main] (SimpleClientSocket:53) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (MetaInterpreter:151) - Local Peer: alias = alice - host = localhost - port = 32000
+     [java] DEBUG [main] (PTEventDispatcher:86) - .registering org.peertrust.meta.MetaInterpreter to event org.peertrust.event.QueryEvent
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:172) - start
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:MetaInterpreterListener]
+     [java] DEBUG [main] (MetaInterpreterListener:70) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#MetaInterpreterListener]
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#CommunicationChannelFactory is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#EntitiesTable is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#RunTimeOptions is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#Queue is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#InferenceEngine is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (SimpleSocketFactory:81) - Creating new ServerSocket
+     [java] DEBUG [main] (SimpleSocketFactory:82) - port: 32000
+     [java] DEBUG [main] (SimpleServerSocket:52) - $Id: fileclient.txt,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+     [java] DEBUG [MetaInterpreterListener] (MetaInterpreterListener:105) - start
+     [java] INFO  [MetaInterpreterListener] (MetaInterpreterListener:128) - System ready
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTConfigurator:260) - .createObject() [Resource:PTEventListener]
+     [java] DEBUG [main] (PTConfigurator:309) - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEventListener]
+     [java] DEBUG [main] (PTConfigurator:251) - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+     [java] DEBUG [main] (PTEventDispatcher:86) - .registering org.peertrust.tnviz.app.TNVizListener to event org.peertrust.event.PTEvent
+     [java] INFO  [main] (PTConfigurator:162) - Basic peer configuration succeded
+     [java] INFO  [main] (PTConfigurator:508) - Peer configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/demoClient/demoPeertrustConfig.client.rdf#PTEngine
+     [java] DEBUG [main] (PTEventDispatcher:108) - Distributing event org.peertrust.event.QueryEvent from org.peertrust.TrustClient
+     [java] DEBUG [main] (PTEventDispatcher:122) - 1 elements registered for the event org.peertrust.event.QueryEvent
+     [java] DEBUG [main] (PTEventDispatcher:124) - Broadcasting event to listeners registered for the event org.peertrust.event.QueryEvent
+     [java] DEBUG [main] (Tree:328) - Parsing proof: []
+     [java] DEBUG [main] (Tree:92) - Created: Id: |1| - originalGoal: |request(spanishCourse,Session) @ elearn| - Goal: |request(spanishCourse,Session) @ elearn| Subgoals: |[query(request(spanishCourse,Session) @ elearn,no)]| - Proof: |[]| LastExpandedGoal: |null|
+     [java] DEBUG [main] (MetaInterpreter:197) - New query received from client: request(spanishCourse,Session) @ elearn
+     [java] DEBUG [main] (PTEventDispatcher:122) - 1 elements registered for the event org.peertrust.event.PTEvent
+     [java] DEBUG [main] (PTEventDispatcher:124) - Broadcasting event to listeners registered for the event org.peertrust.event.PTEvent
+     [java] DEBUG [main] (TNVizListener:68) - New query received from client: request(spanishCourse,Session) @ elearn - 1 - []
+     [java] DEBUG [MetaInterpreter] (LogicQuery:49) - Created: Query: |request(spanishCourse,Session) @ elearn| - Subgoals: |[query(request(spanishCourse,Session) @ elearn,no)]| Requester: |client|
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:407) - Process logic query: request(spanishCourse,Session) @ elearn - [query(request(spanishCourse,Session) @ elearn,no)]
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:415) - Query: tree(request(spanishCourse,Session) @ elearn,[query(request(spanishCourse,Session) @ elearn,no)],[],client)
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:419) - Minerva Query: tree(@(request(spanishCourse,V5057266),elearn),[query(@(request(spanishCourse,V5057266),elearn),no)],[],client)
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:424) - Sending to the engine:processTree(tree(@(request(spanishCourse,V5057266),elearn),[query(@(request(spanishCourse,V5057266),elearn),no)],[],client),Return)
+     [java] entra request(spanishCourse,_274) @ elearn -  request(spanishCourse,_274) @ elearn -  no - [] -  [] - client
+     [java] checking local
+     [java] checking for rule for goal: request(spanishCourse,_274) @ elearn $ client
+     [java] checking for internal rule for goal: request(spanishCourse,_274) @ elearn $ client
+     [java] checking for signed rule for goal: request(spanishCourse,_274) @ elearn $ client
+     [java] checking for rule for goal: request(spanishCourse,_274) @ elearn
+     [java] checking for internal rule for goal: request(spanishCourse,_274) @ elearn
+     [java] checking for signed rule for goal: request(spanishCourse,_274) @ elearn
+     [java] checking remote
+     [java] Remote1
+     [java] Remote1 - Peer = alice - Issuer = elearn - Goal = request(spanishCourse,_274)
+     [java] Finishing remote 1
+     [java] remote passed
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:426) - Receiving from the engine:[tree(@(request(spanishCourse,V21906867),elearn),[],[],elearn,request(spanishCourse,V21906867))]
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:439) - Parsed results: [tree(request(spanishCourse,V21906867)@elearn,[],[],elearn,request(spanishCourse,V21906867))]
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:450) - Current tree string: tree(request(spanishCourse,V21906867)@elearn,[],[],elearn,request(spanishCourse,V21906867))
+     [java] DEBUG [MetaInterpreter] (MinervaProlog:456) - Delegator: elearn
+     [java] DEBUG [MetaInterpreter] (LogicAnswer:52) - Created: Goal: |request(spanishCourse,V21906867)@elearn| - Subgoals: |[]| - Proof: |[]|
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:280) - results == 1
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:319) - Searching for delegator 'elearn' in the entities table
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:328) - Delegator == elearn
+     [java] DEBUG [MetaInterpreter] (Tree:328) - Parsing proof: []
+     [java] DEBUG [MetaInterpreter] (Tree:92) - Created: Id: |2| - originalGoal: |request(spanishCourse,V21906867)@elearn| - Goal: |request(spanishCourse,V21906867)@elearn| Subgoals: |[]| - Proof: |[]| LastExpandedGoal: |request(spanishCourse,V21906867)|
+     [java] DEBUG [MetaInterpreter] (Tree:328) - Parsing proof: []
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:343) - Initial requester: client
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:344) - Delegated to: elearn
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:346) - Trace is:[request(spanishCourse,V21906867)?]
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:351) - Sending request request(spanishCourse,V21906867) to elearn from alice
+     [java] DEBUG [MetaInterpreter] (MetaInterpreter:365) - Send query to localhost:37000 from alice
+     [java] DEBUG [MetaInterpreter] (SimpleClientSocket:64) - Send() org.peertrust.net.Query@1706da8 to elearn
+     [java] java.net.ConnectException: Connection refused
+     [java] 	at java.net.PlainSocketImpl.socketConnect(Native Method)
+     [java] 	at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:305)
+     [java] DEBUG [MetaInterpreter] (PTEventDispatcher:108) - Distributing event org.peertrust.event.QueryEvent from org.peertrust.meta.MetaInterpreter
+     [java] 	at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:171)
+     [java] 	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:158)
+     [java] 	at java.net.Socket.connect(Socket.java:452)
+     [java] 	at java.net.Socket.connect(Socket.java:402)
+     [java] 	at java.net.Socket.<init>(Socket.java:309)
+     [java] DEBUG [MetaInterpreter] (PTEventDispatcher:122) - 1 elements registered for the event org.peertrust.event.QueryEvent
+     [java] 	at java.net.Socket.<init>(Socket.java:124)
+     [java] 	at org.peertrust.net.socket.SimpleClientSocket.send(SimpleClientSocket.java:73)
+     [java] 	at org.peertrust.meta.MetaInterpreter.sendMessage(MetaInterpreter.java:378)
+     [java] 	at org.peertrust.meta.MetaInterpreter.processQueue(MetaInterpreter.java:352)
+     [java] 	at org.peertrust.meta.MetaInterpreter.run(MetaInterpreter.java:177)
+     [java] 	at java.lang.Thread.run(Thread.java:534)
+     [java] DEBUG [MetaInterpreter] (PTEventDispatcher:124) - Broadcasting event to listeners registered for the event org.peertrust.event.QueryEvent
+     [java] DEBUG [MetaInterpreter] (PTEventDispatcher:122) - 1 elements registered for the event org.peertrust.event.PTEvent
+     [java] DEBUG [MetaInterpreter] (PTEventDispatcher:124) - Broadcasting event to listeners registered for the event org.peertrust.event.PTEvent
+     [java] DEBUG [MetaInterpreter] (TNVizListener:68) - New query received from alice: request(spanishCourse,V21906867) - 2 - [request(spanishCourse,V21906867)?]
+     [java] DEBUG [MetaInterpreter] (TNTreeDiagramm:216) - [request(spanishCourse,V21906867)?]
+     [java] DEBUG [MetaInterpreter] (TNTreeDiagramm:223) - [request(spanishCourse,V21906867)?]length 1
+     [java] DEBUG [Thread-1] (MetaInterpreterListener:144) - Stopping
+
+BUILD SUCCESSFUL
+Total time: 7 seconds

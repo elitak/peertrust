@@ -1,0 +1,174 @@
+INFO main org.peertrust.config.PTConfigurator - Log4j configured based on file ".logconfig"
+DEBUG main org.peertrust.config.PTConfigurator - $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+INFO main org.peertrust.config.PTConfigurator - Current directory: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server
+DEBUG main org.peertrust.config.PTConfigurator - .startApp()
+DEBUG main org.peertrust.config.PTConfigurator - .loadConfiguration()
+DEBUG main org.peertrust.config.PTConfigurator - .loadConfiguration() (file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf)
+INFO main org.peertrust.config.PTConfigurator - Read 54 statements from configuration file
+DEBUG main org.peertrust.config.PTConfigurator - .baseConfigure()
+INFO main org.peertrust.config.PTConfigurator - Retrieving root node of configuration file...
+INFO main org.peertrust.config.PTConfigurator - Resource configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEngine
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEngine]
+DEBUG main org.peertrust.PTEngine - $Id: PTEngine.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEngine]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEventListener]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventListener]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEventDispatcher]
+DEBUG main org.peertrust.event.PTEventDispatcher - $Id: PTEventDispatcher.java,v 1.5 2005/05/22 17:56:46 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher]
+DEBUG main org.peertrust.event.PTEventDispatcher - .registering org.peertrust.event.SimplePeer to event org.peertrust.event.PTEvent
+DEBUG main org.peertrust.event.PTEventListener - Event listener registered
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:MetaInterpreterListener]
+DEBUG main org.peertrust.meta.MetaInterpreterListener - $Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#MetaInterpreterListener]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:InferenceEngine]
+DEBUG main org.peertrust.inference.MinervaProlog - $Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#InferenceEngine]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'license', value 'minervagui.mca'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'baseFolder', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'prologFiles', value 'policies.eLearn'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'rdfFiles', value ''
+DEBUG main org.peertrust.inference.MinervaProlog - (Init) PrologFiles = policies.eLearn - RdfFiles =  - _baseFolder = /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/ - License = minervagui.mca
+DEBUG main org.peertrust.inference.MinervaProlog - Engine initialized
+DEBUG main org.peertrust.inference.MinervaProlog - Inserting debug_on in the KB
+DEBUG main org.peertrust.inference.MinervaProlog - Program loaded
+DEBUG main org.peertrust.inference.MinervaProlog - Loading file /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/policies.eLearn into the inference engine
+DEBUG main org.peertrust.inference.MinervaProlog - File /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/policies.eLearn loaded
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:Queue]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#Queue]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:EntitiesTable]
+DEBUG main org.peertrust.net.EntitiesTable - $Id: EntitiesTable.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#EntitiesTable]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'entitiesFile', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/entities.dat'
+DEBUG main org.peertrust.net.EntitiesTable - (Init) Entities file: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/entities.dat
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:CommunicationChannelFactory]
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - $Id: SecureSocketFactory.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CommunicationChannelFactory]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'host', value 'localhost'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'storePassword', value 'serverstorepw'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'keyPassword', value 'serverpw'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'keystoreFile', value 'server_keystore'
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:RunTimeOptions]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#RunTimeOptions]
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - Creating new NetServer
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - port: 37000 - keystoreFile: server_keystore - keyPassword: serverpw - storePassword: serverstorepw
+DEBUG main org.peertrust.net.ssl.SecureServerSocket - $Id: SecureServerSocket.java,v 1.5 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG MetaInterpreterListener org.peertrust.meta.MetaInterpreterListener - start
+INFO MetaInterpreterListener org.peertrust.meta.MetaInterpreterListener - System ready
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:MetaInterpreter]
+DEBUG main org.peertrust.meta.MetaInterpreter - $Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#MetaInterpreter]
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#InferenceEngine is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:CredentialStore]
+DEBUG main org.peertrust.security.credentials.CredentialStore - Created
+DEBUG main org.peertrust.security.credentials.x509.X509CredentialStore - created
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CredentialStore]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'file', value 'server_keystore'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'storePassword', value 'serverstorepw'
+ERROR main org.peertrust.security.credentials.x509.X509Credential - This Certificate has no 'SubjectAlternativeExtension.
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#EntitiesTable is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#RunTimeOptions is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - Property 'peerName', value 'ELearn'
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CommunicationChannelFactory is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#Queue is already defined in the configuration file. Reusing object
+INFO main org.peertrust.meta.MetaInterpreter - PeerName = elearn
+DEBUG main org.peertrust.meta.MetaInterpreter - (Init) PeerName = elearn
+DEBUG main org.peertrust.inference.MinervaProlog - Inserting peerName(elearn) in the KB
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - Creating new NetClient
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - keystoreFile: server_keystore - keyPassword: serverpw - storePassword: serverstorepw
+DEBUG main org.peertrust.net.ssl.SecureClientSocket - $Id: SecureClientSocket.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.meta.MetaInterpreter - Local Peer: alias = elearn - host = localhost - port = 37000
+DEBUG main org.peertrust.event.PTEventDispatcher - .registering org.peertrust.meta.MetaInterpreter to event org.peertrust.event.QueryEvent
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+INFO main org.peertrust.config.PTConfigurator - Basic peer configuration succeded
+DEBUG MetaInterpreter org.peertrust.meta.MetaInterpreter - start
+DEBUG Thread-1 org.peertrust.meta.MetaInterpreterListener - Stopping
+INFO main org.peertrust.config.PTConfigurator - Log4j configured based on file ".logconfig"
+DEBUG main org.peertrust.config.PTConfigurator - $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+INFO main org.peertrust.config.PTConfigurator - Current directory: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server
+DEBUG main org.peertrust.config.PTConfigurator - .startApp()
+DEBUG main org.peertrust.config.PTConfigurator - .loadConfiguration()
+DEBUG main org.peertrust.config.PTConfigurator - .loadConfiguration() (file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf)
+INFO main org.peertrust.config.PTConfigurator - Read 54 statements from configuration file
+DEBUG main org.peertrust.config.PTConfigurator - .baseConfigure()
+INFO main org.peertrust.config.PTConfigurator - Retrieving root node of configuration file...
+INFO main org.peertrust.config.PTConfigurator - Resource configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEngine
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEngine]
+DEBUG main org.peertrust.PTEngine - $Id: PTEngine.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEngine]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEventListener]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventListener]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:PTEventDispatcher]
+DEBUG main org.peertrust.event.PTEventDispatcher - $Id: PTEventDispatcher.java,v 1.5 2005/05/22 17:56:46 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher]
+DEBUG main org.peertrust.event.PTEventDispatcher - .registering org.peertrust.event.SimplePeer to event org.peertrust.event.PTEvent
+DEBUG main org.peertrust.event.PTEventListener - Event listener registered
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:MetaInterpreterListener]
+DEBUG main org.peertrust.meta.MetaInterpreterListener - $Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#MetaInterpreterListener]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:InferenceEngine]
+DEBUG main org.peertrust.inference.MinervaProlog - $Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#InferenceEngine]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'license', value 'minervagui.mca'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'baseFolder', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'prologFiles', value 'policies.eLearn'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'rdfFiles', value ''
+DEBUG main org.peertrust.inference.MinervaProlog - (Init) PrologFiles = policies.eLearn - RdfFiles =  - _baseFolder = /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/ - License = minervagui.mca
+DEBUG main org.peertrust.inference.MinervaProlog - Engine initialized
+DEBUG main org.peertrust.inference.MinervaProlog - Inserting debug_on in the KB
+DEBUG main org.peertrust.inference.MinervaProlog - Program loaded
+DEBUG main org.peertrust.inference.MinervaProlog - Loading file /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/policies.eLearn into the inference engine
+DEBUG main org.peertrust.inference.MinervaProlog - File /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/policies.eLearn loaded
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:Queue]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#Queue]
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:EntitiesTable]
+DEBUG main org.peertrust.net.EntitiesTable - $Id: EntitiesTable.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#EntitiesTable]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'entitiesFile', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/entities.dat'
+DEBUG main org.peertrust.net.EntitiesTable - (Init) Entities file: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/entities.dat
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:CommunicationChannelFactory]
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - $Id: SecureSocketFactory.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CommunicationChannelFactory]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'host', value 'localhost'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'storePassword', value 'serverstorepw'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'keyPassword', value 'serverpw'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'keystoreFile', value 'server_keystore'
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:RunTimeOptions]
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#RunTimeOptions]
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - Creating new NetServer
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - port: 37000 - keystoreFile: server_keystore - keyPassword: serverpw - storePassword: serverstorepw
+DEBUG main org.peertrust.net.ssl.SecureServerSocket - $Id: SecureServerSocket.java,v 1.5 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG MetaInterpreterListener org.peertrust.meta.MetaInterpreterListener - start
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:MetaInterpreter]
+INFO MetaInterpreterListener org.peertrust.meta.MetaInterpreterListener - System ready
+DEBUG main org.peertrust.meta.MetaInterpreter - $Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#MetaInterpreter]
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#InferenceEngine is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - .createObject() [Resource:CredentialStore]
+DEBUG main org.peertrust.security.credentials.CredentialStore - Created
+DEBUG main org.peertrust.security.credentials.x509.X509CredentialStore - created
+DEBUG main org.peertrust.config.PTConfigurator - .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CredentialStore]
+DEBUG main org.peertrust.config.PTConfigurator - Property 'file', value 'server_keystore'
+DEBUG main org.peertrust.config.PTConfigurator - Property 'storePassword', value 'serverstorepw'
+ERROR main org.peertrust.security.credentials.x509.X509Credential - This Certificate has no 'SubjectAlternativeExtension.
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#EntitiesTable is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#RunTimeOptions is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - Property 'peerName', value 'ELearn'
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#CommunicationChannelFactory is already defined in the configuration file. Reusing object
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#Queue is already defined in the configuration file. Reusing object
+INFO main org.peertrust.meta.MetaInterpreter - PeerName = elearn
+DEBUG main org.peertrust.meta.MetaInterpreter - (Init) PeerName = elearn
+DEBUG main org.peertrust.inference.MinervaProlog - Inserting peerName(elearn) in the KB
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - Creating new NetClient
+DEBUG main org.peertrust.net.ssl.SecureSocketFactory - keystoreFile: server_keystore - keyPassword: serverpw - storePassword: serverstorepw
+DEBUG main org.peertrust.net.ssl.SecureClientSocket - $Id: SecureClientSocket.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG main org.peertrust.meta.MetaInterpreter - Local Peer: alias = elearn - host = localhost - port = 37000
+DEBUG main org.peertrust.event.PTEventDispatcher - .registering org.peertrust.meta.MetaInterpreter to event org.peertrust.event.QueryEvent
+DEBUG main org.peertrust.config.PTConfigurator - The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/server/peertrustConfig.server.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+INFO main org.peertrust.config.PTConfigurator - Basic peer configuration succeded
+DEBUG MetaInterpreter org.peertrust.meta.MetaInterpreter - start
+DEBUG Thread-1 org.peertrust.meta.MetaInterpreterListener - Stopping

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="MathService"
+    targetNamespace="http://www.globus.org/gt4ide/example/MathService"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://www.globus.org/gt4ide/example/MathService"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" 
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor"
+    xmlns:wsrlw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl"    
+    xmlns:wsrp="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.xsd"
+    xmlns:wsrpw="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+    xmlns:wsntw="http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" 
+    xmlns:wstn="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<wsdl:import 
+    namespace=
+    "http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl"
+    location="../../wsrf/properties/WS-ResourceProperties.wsdl" />
+
+<wsdl:import 
+    namespace=
+    "http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceLifetime-1.2-draft-01.wsdl"
+    location="../../wsrf/lifetime/WS-ResourceLifetime.wsdl" />
+
+<wsdl:import 
+    namespace=
+    "http://docs.oasis-open.org/wsn/2004/06/wsn-WS-BaseNotification-1.2-draft-01.wsdl" 
+    location="../../wsrf/notification/WS-BaseN.wsdl"/>
+
+<wsdl:import namespace="http://linux.egov.pub.ro/ionut/TrustNegotiation.wsdl"
+	location="TrustNegotiation.wsdl"/>
+	
+
+	
+
+
+<types>
+	<xsd:schema targetNamespace="http://www.globus.org/gt4ide/example/MathService"
+    	xmlns:tns="http://www.globus.org/gt4ide/example/MathService"
+    	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+		<!-- Requests and responses -->
+	
+		<xsd:element name="add" type="xsd:int"/>
+		<xsd:element name="addResponse">
+			<xsd:complexType/>
+		</xsd:element>
+
+		<xsd:element name="substract" type="xsd:int"/>
+		<xsd:element name="substractResponse">
+			<xsd:complexType/>
+		</xsd:element>
+
+		<xsd:element name="getValueRP">
+			<xsd:complexType/>
+		</xsd:element>
+		<xsd:element name="getValueRPResponse" type="xsd:int"/>
+
+		
+			
+
+		<!-- Define your Resource Properties here. For example:-->
+
+		<xsd:element name="Value" type="xsd:int"/>
+		<xsd:element name="LastOp" type="xsd:string"/>
+	
+	
+		<xsd:element name="MathResourceProperties">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="tns:Value" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="tns:LastOp" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+		</xsd:element>	
+
+	
+		<!-- For Trust Negotiation Stuff-->
+		
+	</xsd:schema>
+</types>
+
+<!--BEGIN MESSAGE DEFINITIONS - DO NOT MODIFY THIS BLOCK!!! -->
+<message name="AddInputMessage">
+	<part name="parameters" element="tns:add"/>
+</message>
+<message name="AddOutputMessage">
+	<part name="parameters" element="tns:addResponse"/>
+</message>
+
+<message name="SubstractInputMessage">
+	<part name="parameters" element="tns:substract"/>
+</message>
+<message name="SubstractOutputMessage">
+	<part name="parameters" element="tns:substractResponse"/>
+</message>
+
+<message name="GetValueRPInputMessage">
+	<part name="parameters" element="tns:getValueRP"/>
+</message>
+<message name="GetValueRPOutputMessage">
+	<part name="parameters" element="tns:getValueRPResponse"/>
+</message>
+
+
+
+
+<!--END MESSAGE DEFINITIONS -->
+
+
+
+<portType name="MathPortType"   wsdlpp:extends="wsrpw:GetResourceProperty 
+												wsrpw:GetMultipleResourceProperties
+												wsrpw:SetResourceProperties
+												wsrpw:QueryResourceProperties
+												wsntw:NotificationProducer
+												wstn:TrustNegotiation"
+							  	wsrp:ResourceProperties="tns:MathResourceProperties">
+
+<!-- Don't forget to specify your Resource Properties. For example:
+         <portType name="MathPortType" wsrp:ResourceProperties="tns:MathResourceProperties">
+-->
+
+	<!--BEGIN OPERATION DEFINITIONS - DO NOT MODIFY THIS BLOCK!!! -->
+	
+	<operation name="add">
+		<input message="tns:AddInputMessage"/>
+		<output message="tns:AddOutputMessage"/>
+	</operation>
+        
+	<operation name="substract">
+		<input message="tns:SubstractInputMessage"/>
+		<output message="tns:SubstractOutputMessage"/>
+	</operation>
+
+	<operation name="getValueRP">
+		<input message="tns:GetValueRPInputMessage"/>
+		<output message="tns:GetValueRPOutputMessage"/>
+	</operation>
+	
+	
+	
+	<!-- FOR THE NEGOTIATION CONTEXT STUFF -->
+	
+
+</portType>
+
+</definitions>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="MathService" targetNamespace="http://www.globus.org/gt4ide/example/MathService/service" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:binding="http://www.globus.org/gt4ide/example/MathService/bindings" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://www.globus.org/gt4ide/example/MathService/bindings" location="Math_bindings.wsdl"/>
+  <wsdl:service name="MathService">
+    <wsdl:port name="MathPortTypePort" binding="binding:MathPortTypeSOAPBinding">
+      <soap:address location="http://localhost:8080/wsrf/services/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

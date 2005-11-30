@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE rdf:RDF [
+        <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+        <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+        <!ENTITY pt 'http://www.l3s.de/~olmedilla/peertrust/Vocabulary#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;" xmlns:rdfs="&rdfs;" xmlns:pt="&pt;">
+
+ 	<!-- ======================================================================
+	PeertrustEngine
+	================================================================== -->
+	<pt:PeertrustEngine rdf:about="#Example1">
+		<pt:javaClass>test.org.peertrust.config.TestClass</pt:javaClass>
+		<pt:string>testing</pt:string>
+		<pt:bool>true</pt:bool>
+		<pt:integer>33</pt:integer>
+		<pt:longinteger>33333</pt:longinteger>
+		<pt:vector rdf:resource="#Vector1"/>
+		<pt:example2 rdf:resource="#Example2"/>
+		<pt:extraExample rdf:resource="#Example3"/>
+	</pt:PeertrustEngine>
+
+	<rdf:Seq rdf:about="#Vector1">
+		<rdf:li>Element 1</rdf:li>
+		<rdf:li>Element 2</rdf:li>
+	</rdf:Seq>
+
+	<!-- ======================================================================
+	Example3
+	================================================================== -->
+	<pt:Example3 rdf:about="#Example3">
+		<pt:javaClass>test.org.peertrust.config.TestClass</pt:javaClass>
+		<pt:string>testing3</pt:string>
+		<pt:bool>true</pt:bool>
+		<pt:integer>-66</pt:integer>
+		<pt:longinteger>-99</pt:longinteger>
+		<pt:vector rdf:resource="#Vector3"/>
+		<pt:example2 rdf:resource="#Example2"/>
+	</pt:Example3>
+	
+	<rdf:Seq rdf:about="#Vector3">
+		<rdf:li>Element 100</rdf:li>
+		<rdf:li>Element 111</rdf:li>
+	</rdf:Seq>
+	
+	<!-- ======================================================================
+	Example2
+	================================================================== -->
+	<pt:Example2 rdf:about="#Example2">
+		<pt:javaClass>test.org.peertrust.config.TestClass</pt:javaClass>
+		<pt:string>testing2</pt:string>
+		<pt:bool>false</pt:bool>
+		<pt:integer>-99</pt:integer>
+		<pt:longinteger>-99999</pt:longinteger>
+		<pt:vector rdf:resource="#Vector2"/>
+	</pt:Example2>
+
+	<rdf:Seq rdf:about="#Vector2">
+		<rdf:li>Element 3</rdf:li>
+		<rdf:li>Element 4</rdf:li>
+	</rdf:Seq>
+	
+</rdf:RDF>

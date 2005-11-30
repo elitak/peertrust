@@ -1,0 +1,292 @@
+INFO         2005-05-28 20:53:09,755 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:123 Log4j configured based on file ".logconfig"
+DEBUG        2005-05-28 20:53:09,762 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:125 $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+INFO         2005-05-28 20:53:09,765 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:127 Current directory: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client
+DEBUG        2005-05-28 20:53:09,771 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:140 .startApp()
+DEBUG        2005-05-28 20:53:09,772 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:169 .loadConfiguration()
+DEBUG        2005-05-28 20:53:09,775 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:186 .loadConfiguration() (file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf)
+INFO         2005-05-28 20:53:10,583 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:192 Read 54 statements from configuration file
+DEBUG        2005-05-28 20:53:10,584 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:209 .baseConfigure()
+INFO         2005-05-28 20:53:10,585 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:211 Retrieving root node of configuration file...
+INFO         2005-05-28 20:53:10,631 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:217 Resource configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEngine
+DEBUG        2005-05-28 20:53:10,633 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:PTEngine]
+DEBUG        2005-05-28 20:53:10,641 [main] org.peertrust.PTEngine
+ PTEngine.java:63 $Id: PTEngine.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:10,641 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEngine]
+DEBUG        2005-05-28 20:53:10,653 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:PTEventListener]
+DEBUG        2005-05-28 20:53:16,042 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEventListener]
+DEBUG        2005-05-28 20:53:16,049 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:PTEventDispatcher]
+DEBUG        2005-05-28 20:53:16,078 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:51 $Id: PTEventDispatcher.java,v 1.5 2005/05/22 17:56:46 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:16,079 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEventDispatcher]
+DEBUG        2005-05-28 20:53:16,090 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:86 .registering org.peertrust.tnviz.app.TNVizListener to event org.peertrust.event.PTEvent
+DEBUG        2005-05-28 20:53:16,091 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:MetaInterpreter]
+DEBUG        2005-05-28 20:53:16,098 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:88 $Id: MetaInterpreter.java,v 1.17 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:16,107 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#MetaInterpreter]
+DEBUG        2005-05-28 20:53:16,238 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:CredentialStore]
+DEBUG        2005-05-28 20:53:16,249 [main] org.peertrust.security.credentials.CredentialStore
+ CredentialStore.java:51 Created
+DEBUG        2005-05-28 20:53:16,254 [main] org.peertrust.security.credentials.x509.X509CredentialStore
+ X509CredentialStore.java:58 created
+DEBUG        2005-05-28 20:53:16,255 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#CredentialStore]
+DEBUG        2005-05-28 20:53:16,298 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'storePassword', value 'clientstorepw'
+DEBUG        2005-05-28 20:53:16,299 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'file', value 'client_keystore'
+DEBUG        2005-05-28 20:53:16,560 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:104 Test if <<[2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))]>> is a Credential. (was [2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))])
+DEBUG        2005-05-28 20:53:16,561 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:105 SubjectAlternativeName 1: [2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))]
+DEBUG        2005-05-28 20:53:16,562 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:107 Casting the extension to a Collection. (java.util.Collections$UnmodifiableRandomAccessList)
+DEBUG        2005-05-28 20:53:16,562 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:115 Extracted String: signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))
+DEBUG        2005-05-28 20:53:16,564 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:104 Test if <<[2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))]>> is a Credential. (was [2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))])
+DEBUG        2005-05-28 20:53:16,565 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:105 SubjectAlternativeName 1: [2, signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))]
+DEBUG        2005-05-28 20:53:16,566 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:107 Casting the extension to a Collection. (java.util.Collections$UnmodifiableRandomAccessList)
+DEBUG        2005-05-28 20:53:16,567 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:115 Extracted String: signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))
+ERROR        2005-05-28 20:53:16,575 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:120 This Certificate has no 'SubjectAlternativeExtension.
+DEBUG        2005-05-28 20:53:16,575 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:104 Test if <<[2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))]>> is a Credential. (was [2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))])
+DEBUG        2005-05-28 20:53:16,576 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:105 SubjectAlternativeName 1: [2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))]
+DEBUG        2005-05-28 20:53:16,577 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:107 Casting the extension to a Collection. (java.util.Collections$UnmodifiableRandomAccessList)
+DEBUG        2005-05-28 20:53:16,577 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:115 Extracted String: signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))
+DEBUG        2005-05-28 20:53:16,578 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:104 Test if <<[2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))]>> is a Credential. (was [2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))])
+DEBUG        2005-05-28 20:53:16,579 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:105 SubjectAlternativeName 1: [2, signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))]
+DEBUG        2005-05-28 20:53:16,579 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:107 Casting the extension to a Collection. (java.util.Collections$UnmodifiableRandomAccessList)
+DEBUG        2005-05-28 20:53:16,581 [main] org.peertrust.security.credentials.x509.X509Credential
+ X509Credential.java:115 Extracted String: signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))
+DEBUG        2005-05-28 20:53:16,582 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'peerName', value 'Alice'
+DEBUG        2005-05-28 20:53:16,583 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:16,594 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:EntitiesTable]
+DEBUG        2005-05-28 20:53:16,596 [main] org.peertrust.net.EntitiesTable
+ EntitiesTable.java:57 $Id: EntitiesTable.java,v 1.3 2005/05/22 17:56:44 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:16,597 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#EntitiesTable]
+DEBUG        2005-05-28 20:53:16,600 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'entitiesFile', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/entities.dat'
+DEBUG        2005-05-28 20:53:16,602 [main] org.peertrust.net.EntitiesTable
+ EntitiesTable.java:62 (Init) Entities file: /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/entities.dat
+DEBUG        2005-05-28 20:53:16,630 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:RunTimeOptions]
+DEBUG        2005-05-28 20:53:16,632 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#RunTimeOptions]
+DEBUG        2005-05-28 20:53:16,634 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:Queue]
+DEBUG        2005-05-28 20:53:16,638 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#Queue]
+DEBUG        2005-05-28 20:53:16,643 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:CommunicationChannelFactory]
+DEBUG        2005-05-28 20:53:16,648 [main] org.peertrust.net.ssl.SecureSocketFactory
+ SecureSocketFactory.java:56 $Id: SecureSocketFactory.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:16,650 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#CommunicationChannelFactory]
+DEBUG        2005-05-28 20:53:16,654 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'storePassword', value 'clientstorepw'
+DEBUG        2005-05-28 20:53:16,657 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'keyPassword', value 'clientpw'
+DEBUG        2005-05-28 20:53:16,660 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'host', value 'localhost'
+DEBUG        2005-05-28 20:53:16,666 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'keystoreFile', value 'client_keystore'
+DEBUG        2005-05-28 20:53:16,668 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:InferenceEngine]
+DEBUG        2005-05-28 20:53:16,687 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:79 $Id: MinervaProlog.java,v 1.8 2005/05/22 17:56:47 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:16,688 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#InferenceEngine]
+DEBUG        2005-05-28 20:53:16,695 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'prologFiles', value 'policies.alice'
+DEBUG        2005-05-28 20:53:16,696 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'license', value 'minervagui.mca'
+DEBUG        2005-05-28 20:53:16,697 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'baseFolder', value '/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/'
+DEBUG        2005-05-28 20:53:16,698 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:404 Property 'rdfFiles', value ''
+DEBUG        2005-05-28 20:53:16,699 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:89 (Init) PrologFiles = policies.alice - RdfFiles =  - _baseFolder = /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/ - License = minervagui.mca
+DEBUG        2005-05-28 20:53:16,928 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:111 Engine initialized
+DEBUG        2005-05-28 20:53:16,979 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:188 Inserting debug_on in the KB
+DEBUG        2005-05-28 20:53:17,046 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:124 Program loaded
+DEBUG        2005-05-28 20:53:17,088 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:166 Loading file /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/policies.alice into the inference engine
+DEBUG        2005-05-28 20:53:17,113 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:168 File /home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/policies.alice loaded
+INFO         2005-05-28 20:53:17,115 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:117 PeerName = alice
+DEBUG        2005-05-28 20:53:17,116 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:118 (Init) PeerName = alice
+DEBUG        2005-05-28 20:53:17,116 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:188 Inserting peerName(alice) in the KB
+DEBUG        2005-05-28 20:53:17,120 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:138 Adding credential string 'signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice))'
+DEBUG        2005-05-28 20:53:17,120 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:188 Inserting signed(rule(policeOfficer(alice) @ caStatePolice, [], []), caStatePolice, signature(caStatePolice)) in the KB
+DEBUG        2005-05-28 20:53:17,124 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:138 Adding credential string 'signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState))'
+DEBUG        2005-05-28 20:53:17,125 [main] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:188 Inserting signed(rule(drivingLicense(alice) @ caState, [], []), caState, signature(caState)) in the KB
+DEBUG        2005-05-28 20:53:17,126 [main] org.peertrust.net.ssl.SecureSocketFactory
+ SecureSocketFactory.java:76 Creating new NetClient
+DEBUG        2005-05-28 20:53:17,127 [main] org.peertrust.net.ssl.SecureSocketFactory
+ SecureSocketFactory.java:77 keystoreFile: client_keystore - keyPassword: clientpw - storePassword: clientstorepw
+DEBUG        2005-05-28 20:53:17,130 [main] org.peertrust.net.ssl.SecureClientSocket
+ SecureClientSocket.java:67 $Id: SecureClientSocket.java,v 1.4 2005/05/22 17:56:45 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:17,422 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:151 Local Peer: alias = alice - host = localhost - port = 32000
+DEBUG        2005-05-28 20:53:17,424 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:86 .registering org.peertrust.meta.MetaInterpreter to event org.peertrust.event.QueryEvent
+DEBUG        2005-05-28 20:53:17,425 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,426 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:260 .createObject() [Resource:MetaInterpreterListener]
+DEBUG        2005-05-28 20:53:17,428 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:172 start
+DEBUG        2005-05-28 20:53:17,429 [main] org.peertrust.meta.MetaInterpreterListener
+ MetaInterpreterListener.java:70 $Id: MetaInterpreterListener.java,v 1.12 2005/05/22 17:56:49 dolmedilla Exp $
+DEBUG        2005-05-28 20:53:17,431 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:309 .configure() [Object:file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#MetaInterpreterListener]
+DEBUG        2005-05-28 20:53:17,433 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#EntitiesTable is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,436 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#CommunicationChannelFactory is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,437 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#RunTimeOptions is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,439 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#InferenceEngine is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,442 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEventDispatcher is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,444 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:251 The object file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#Queue is already defined in the configuration file. Reusing object
+DEBUG        2005-05-28 20:53:17,445 [main] org.peertrust.net.ssl.SecureSocketFactory
+ SecureSocketFactory.java:85 Creating new NetServer
+DEBUG        2005-05-28 20:53:17,446 [main] org.peertrust.net.ssl.SecureSocketFactory
+ SecureSocketFactory.java:86 port: 32000 - keystoreFile: client_keystore - keyPassword: clientpw - storePassword: clientstorepw
+DEBUG        2005-05-28 20:53:17,450 [main] org.peertrust.net.ssl.SecureServerSocket
+ SecureServerSocket.java:65 $Id: SecureServerSocket.java,v 1.5 2005/05/22 17:56:45 dolmedilla Exp $
+INFO         2005-05-28 20:53:17,466 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:162 Basic peer configuration succeded
+INFO         2005-05-28 20:53:17,467 [main] org.peertrust.config.PTConfigurator
+ PTConfigurator.java:508 Peer configured: file:/home/ionut/Eclipse/eclipse/workspace/peertrust/peertrust/testenv/client/peertrustConfig.client.rdf#PTEngine
+DEBUG        2005-05-28 20:53:17,468 [MetaInterpreterListener] org.peertrust.meta.MetaInterpreterListener
+ MetaInterpreterListener.java:105 start
+INFO         2005-05-28 20:53:17,469 [MetaInterpreterListener] org.peertrust.meta.MetaInterpreterListener
+ MetaInterpreterListener.java:128 System ready
+DEBUG        2005-05-28 20:53:17,471 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:108 Distributing event org.peertrust.event.QueryEvent from org.peertrust.TrustClient
+DEBUG        2005-05-28 20:53:17,472 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:122 1 elements registered for the event org.peertrust.event.QueryEvent
+DEBUG        2005-05-28 20:53:17,473 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:124 Broadcasting event to listeners registered for the event org.peertrust.event.QueryEvent
+DEBUG        2005-05-28 20:53:17,478 [main] org.peertrust.meta.Tree
+ Tree.java:328 Parsing proof: []
+DEBUG        2005-05-28 20:53:17,479 [main] org.peertrust.meta.Tree
+ Tree.java:92 Created: Id: |1| - originalGoal: |request(spanishCourse,Session) @ elearn| - Goal: |request(spanishCourse,Session) @ elearn| Subgoals: |[query(request(spanishCourse,Session) @ elearn,no)]| - Proof: |[]| LastExpandedGoal: |null|
+DEBUG        2005-05-28 20:53:17,481 [main] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:197 New query received from client: request(spanishCourse,Session) @ elearn
+DEBUG        2005-05-28 20:53:17,485 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:122 1 elements registered for the event org.peertrust.event.PTEvent
+DEBUG        2005-05-28 20:53:17,487 [main] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:124 Broadcasting event to listeners registered for the event org.peertrust.event.PTEvent
+DEBUG        2005-05-28 20:53:17,488 [main] org.peertrust.tnviz.app.TNVizListener
+ TNVizListener.java:68 New query received from client: request(spanishCourse,Session) @ elearn - 1 - []
+DEBUG        2005-05-28 20:53:17,632 [MetaInterpreter] org.peertrust.inference.LogicQuery
+ LogicQuery.java:49 Created: Query: |request(spanishCourse,Session) @ elearn| - Subgoals: |[query(request(spanishCourse,Session) @ elearn,no)]| Requester: |client|
+DEBUG        2005-05-28 20:53:17,633 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:407 Process logic query: request(spanishCourse,Session) @ elearn - [query(request(spanishCourse,Session) @ elearn,no)]
+DEBUG        2005-05-28 20:53:17,633 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:415 Query: tree(request(spanishCourse,Session) @ elearn,[query(request(spanishCourse,Session) @ elearn,no)],[],client)
+DEBUG        2005-05-28 20:53:17,634 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:419 Minerva Query: tree(@(request(spanishCourse,V11894426),elearn),[query(@(request(spanishCourse,V11894426),elearn),no)],[],client)
+DEBUG        2005-05-28 20:53:17,635 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:424 Sending to the engine:processTree(tree(@(request(spanishCourse,V11894426),elearn),[query(@(request(spanishCourse,V11894426),elearn),no)],[],client),Return)
+DEBUG        2005-05-28 20:53:17,656 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:426 Receiving from the engine:[tree(@(request(spanishCourse,V22775072),elearn),[],[],elearn,request(spanishCourse,V22775072))]
+DEBUG        2005-05-28 20:53:17,658 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:439 Parsed results: [tree(request(spanishCourse,V22775072)@elearn,[],[],elearn,request(spanishCourse,V22775072))]
+DEBUG        2005-05-28 20:53:17,659 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:450 Current tree string: tree(request(spanishCourse,V22775072)@elearn,[],[],elearn,request(spanishCourse,V22775072))
+DEBUG        2005-05-28 20:53:17,679 [MetaInterpreter] org.peertrust.inference.MinervaProlog
+ MinervaProlog.java:456 Delegator: elearn
+DEBUG        2005-05-28 20:53:17,681 [MetaInterpreter] org.peertrust.inference.LogicAnswer
+ LogicAnswer.java:52 Created: Goal: |request(spanishCourse,V22775072)@elearn| - Subgoals: |[]| - Proof: |[]|
+DEBUG        2005-05-28 20:53:17,682 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:280 results == 1
+DEBUG        2005-05-28 20:53:17,682 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:319 Searching for delegator 'elearn' in the entities table
+DEBUG        2005-05-28 20:53:17,682 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:328 Delegator == elearn
+DEBUG        2005-05-28 20:53:17,683 [MetaInterpreter] org.peertrust.meta.Tree
+ Tree.java:328 Parsing proof: []
+DEBUG        2005-05-28 20:53:17,683 [MetaInterpreter] org.peertrust.meta.Tree
+ Tree.java:92 Created: Id: |2| - originalGoal: |request(spanishCourse,V22775072)@elearn| - Goal: |request(spanishCourse,V22775072)@elearn| Subgoals: |[]| - Proof: |[]| LastExpandedGoal: |request(spanishCourse,V22775072)|
+DEBUG        2005-05-28 20:53:17,685 [MetaInterpreter] org.peertrust.meta.Tree
+ Tree.java:328 Parsing proof: []
+DEBUG        2005-05-28 20:53:17,686 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:343 Initial requester: client
+DEBUG        2005-05-28 20:53:17,687 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:344 Delegated to: elearn
+DEBUG        2005-05-28 20:53:17,687 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:346 Trace is:[request(spanishCourse,V22775072)?]
+DEBUG        2005-05-28 20:53:17,688 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:351 Sending request request(spanishCourse,V22775072) to elearn from alice
+DEBUG        2005-05-28 20:53:17,689 [MetaInterpreter] org.peertrust.meta.MetaInterpreter
+ MetaInterpreter.java:365 Send query to localhost:37000 from alice
+DEBUG        2005-05-28 20:53:17,690 [MetaInterpreter] org.peertrust.net.ssl.SecureClientSocket
+ SecureClientSocket.java:106 Send() org.peertrust.net.Query@1aacd5f to elearn
+DEBUG        2005-05-28 20:53:17,692 [MetaInterpreter] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:108 Distributing event org.peertrust.event.QueryEvent from org.peertrust.meta.MetaInterpreter
+DEBUG        2005-05-28 20:53:17,693 [MetaInterpreter] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:122 1 elements registered for the event org.peertrust.event.QueryEvent
+DEBUG        2005-05-28 20:53:17,695 [MetaInterpreter] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:124 Broadcasting event to listeners registered for the event org.peertrust.event.QueryEvent
+DEBUG        2005-05-28 20:53:17,695 [MetaInterpreter] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:122 1 elements registered for the event org.peertrust.event.PTEvent
+DEBUG        2005-05-28 20:53:17,698 [MetaInterpreter] org.peertrust.event.PTEventDispatcher
+ PTEventDispatcher.java:124 Broadcasting event to listeners registered for the event org.peertrust.event.PTEvent
+DEBUG        2005-05-28 20:53:17,699 [MetaInterpreter] org.peertrust.tnviz.app.TNVizListener
+ TNVizListener.java:68 New query received from alice: request(spanishCourse,V22775072) - 2 - [request(spanishCourse,V22775072)?]
+DEBUG        2005-05-28 20:53:17,757 [MetaInterpreter] org.peertrust.tnviz.app.TNTreeDiagramm
+ TNTreeDiagramm.java:216 [request(spanishCourse,V22775072)?]
+DEBUG        2005-05-28 20:53:17,759 [MetaInterpreter] org.peertrust.tnviz.app.TNTreeDiagramm
+ TNTreeDiagramm.java:223 [request(spanishCourse,V22775072)?]length 1
+DEBUG        2005-05-28 20:53:23,115 [Thread-1] org.peertrust.meta.MetaInterpreterListener
+ MetaInterpreterListener.java:144 Stopping

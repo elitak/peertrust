@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="MathFactoryService" targetNamespace="http://www.globus.org/gt4ide/example/MathFactoryService/bindings" xmlns:porttype="http://www.globus.org/gt4ide/example/MathFactoryService" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://www.globus.org/gt4ide/example/MathFactoryService" location="MathFactory_flattened.wsdl"/>
+  <wsdl:binding name="MathFactoryPortTypeSOAPBinding" type="porttype:MathFactoryPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="createResource">
+      <soap:operation soapAction="http://www.globus.org/gt4ide/example/MathFactoryService/MathFactoryPortType/createResourceRequest"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+</wsdl:definitions>

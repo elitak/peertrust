@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" size="692,233" id="taurusdbsunihannoverdeknausskiLab1" metadata="nsuml-1.4" initialized="true" showWireOptions="3">
+  <children xsi:type="editmodel:ClassEditModel" location="202,50" size="84,29" id="taurusdbsunihannoverdeknausskiLab2" runTimeClassModel="taurusdbsunihannoverdeknausskiLab3;taurusdbsunihannoverdeknausskiLab21;taurusdbsunihannoverdeknausskiLab7;taurusdbsunihannoverdeknausskiLab15;taurusdbsunihannoverdeknausskiLab9;taurusdbsunihannoverdeknausskiLab24">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="50,50" size="102,85" id="taurusdbsunihannoverdeknausskiLab66" runTimeClassModel="taurusdbsunihannoverdeknausskiLab85;taurusdbsunihannoverdeknausskiLab83;taurusdbsunihannoverdeknausskiLab70;taurusdbsunihannoverdeknausskiLab73;taurusdbsunihannoverdeknausskiLab76;taurusdbsunihannoverdeknausskiLab78;taurusdbsunihannoverdeknausskiLab67;taurusdbsunihannoverdeknausskiLab71;taurusdbsunihannoverdeknausskiLab74;taurusdbsunihannoverdeknausskiLab75">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel" size="79,36">
+      <children xsi:type="editmodel:MethodEditModel" id="taurusdbsunihannoverdeknausskiLab76"/>
+      <children xsi:type="editmodel:MethodEditModel" id="taurusdbsunihannoverdeknausskiLab78"/>
+    </children>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <children xsi:type="editmodel:ClassEditModel" location="336,50" size="79,29" id="taurusdbsunihannoverdeknausskiLab126" runTimeClassModel="taurusdbsunihannoverdeknausskiLab129;taurusdbsunihannoverdeknausskiLab131;taurusdbsunihannoverdeknausskiLab141;taurusdbsunihannoverdeknausskiLab133;taurusdbsunihannoverdeknausskiLab138;taurusdbsunihannoverdeknausskiLab127">
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <children xsi:type="editmodel:CompartmentEditModel"/>
+    <classifierPreferences xsi:type="editmodel:UMLClassDiagramClassifierPreference" showStereotype="true" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true"/>
+  </children>
+  <classDiagramPreferences xsi:type="editmodel:UMLClassDiagramPreference" attributeSorter="Natural" methodSorter="Natural" innerClassSorter="Natural" showPublicAttributes="true" showPackageAttributes="true" showPublicMethods="true" showPackageMethods="true" showPublicInnerClasses="true" showPackageInnerClasses="true" showInterfaceStereotype="true" showClassStereotype="true" showPackageStereotype="true"/>
+</editmodel:ClassDiagramEditModel>

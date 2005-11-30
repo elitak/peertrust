@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="MathFactoryService" targetNamespace="http://www.globus.org/gt4ide/example/MathFactoryService" xmlns:tns="http://www.globus.org/gt4ide/example/MathFactoryService" xmlns:wsdlpp="http://www.globus.org/namespaces/2004/10/WSDLPreprocessor" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://docs.oasis-open.org/wsrf/2004/06/wsrf-WS-ResourceProperties-1.2-draft-01.wsdl" location="../../wsrf/properties/WS-ResourceProperties.wsdl"/>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.globus.org/gt4ide/example/MathFactoryService" xmlns:tns="http://www.globus.org/gt4ide/example/MathFactoryService" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:import namespace="http://schemas.xmlsoap.org/ws/2004/03/addressing" schemaLocation="../../ws/addressing/WS-Addressing.xsd"/>
+
+
+	<!-- Requests and responses -->
+
+	<xsd:element name="createResource">
+		<xsd:complexType/>
+	</xsd:element>
+	<xsd:element name="createResourceResponse">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element ref="wsa:EndpointReference"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="CreateResourceResponse">
+    <wsdl:part name="response" element="tns:createResourceResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CreateResourceRequest">
+    <wsdl:part name="request" element="tns:createResource"/>
+  </wsdl:message>
+  <wsdl:portType name="MathFactoryPortType">
+    <wsdl:operation name="createResource">
+      <wsdl:input message="tns:CreateResourceRequest"/>
+      <wsdl:output message="tns:CreateResourceResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>
