@@ -22,6 +22,7 @@ package org.peertrust;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.peertrust.config.Configurable;
 import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.event.AnswerEvent;
@@ -40,16 +41,16 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.12 2005/08/26 13:46:30 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.13 2005/12/05 16:20:20 token77 Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/26 13:46:30 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2005/12/05 16:20:20 $
+ * by $Author: token77 $
  * </p>
  * @author olmedilla
  */
-public class TrustClient implements PTEventListener
+public class TrustClient implements PTEventListener, Configurable
 {	
 	static final String DEFAULT_ALIAS = "Client" ;
 
@@ -77,6 +78,12 @@ public class TrustClient implements PTEventListener
 	int _sleepInterval ;
 	
 //	private String localAlias ;
+	
+	public TrustClient () throws ConfigurationException
+	{
+		//nothing
+		System.out.println("\n==============create TrustClient");
+	}
 	
 	public TrustClient (String [] configurationArgs, String [] components) throws ConfigurationException
 	{
@@ -477,4 +484,56 @@ public class TrustClient implements PTEventListener
 	public void setTimeout(int timeout) {
 		this._timeout = timeout;
 	}
+	
+////////////////////////////////////
+	
+	/**
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException 
+	{
+		System.out.println("\n==============init TrustClient");
+				
+		if(_engine == null){
+			throw new ConfigurationException("engine not set");
+		}
+		if(_ed == null){
+			throw new ConfigurationException("event dispatcher net set") ;
+		}
+		
+		_ed.register(this, PTEvent.class) ;
+				
+		_id = 0 ;
+		_queries = new Hashtable() ;
+		
+		setAlias(DEFAULT_ALIAS) ;
+		setTimeout(DEFAULT_TIMEOUT) ;
+		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
+		
+	}
+	
+	/**
+	 * @return retur n the event dispatcher
+	 */
+	public EventDispatcher getEventDispatcher() 
+	{
+		return _ed;
+	}
+	
+	/**
+	 * @param _dispatcher The _dispatcher to set.
+	 */
+	public void setEventDispatcher(EventDispatcher _dispatcher) 
+	{
+		this._ed = _dispatcher;
+	}
+	
+	public void setPeertrustEngine(PTEngine _engine){
+		this._engine=_engine;
+	}
+	
+	public PTEngine getPeertrustEngine(PTEngine _engine){
+		return this._engine;
+	}
+	
 }
