@@ -42,20 +42,25 @@ public class PTHttpSessionListener implements HttpSessionListener
 	{
 		Peer leavingPeer =
 			(Peer)se.getSession().getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
-		
+				
 		if(leavingPeer!=null){
-			
-			System.out.println("=============>removing:"+leavingPeer);
+			ServletContext context=se.getSession().getServletContext();
+			context.log("=============>removing:"+leavingPeer);
 			
 			try {
-				ServletContext context=se.getSession().getServletContext();
-				NegotiationObjects negoObjects= 
-						(NegotiationObjects)context.getAttribute(
-											NegotiationObjects.class.getName());
+				
+//				NegotiationObjects negoObjects= 
+//						(NegotiationObjects)context.getAttribute(
+//											NegotiationObjects.class.getName());
+				NegotiationObjects negoObjects=
+					NegotiationObjects.createAndAddForAppContext(context);
 				negoObjects.removePeertrustSessionEntries(leavingPeer);	
 				
 			} catch (Exception e) {
-				e.printStackTrace();
+				context.log(
+					"Error while removing registration for this peer:"+
+						leavingPeer,
+					e);
 			}
 		}
 	}

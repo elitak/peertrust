@@ -45,6 +45,11 @@ public class TrustFilter implements Filter{
 	private FilterConfig filterConfig;
 	
 	/**
+	 * The trust filter servlet context.
+	 */
+	ServletContext filterContext;
+	
+	/**
 	 * @see javax.servlet.Filter#destroy()
 	 */
 	public void destroy() 
@@ -70,34 +75,39 @@ public class TrustFilter implements Filter{
 	{
 			
 		doInit();
+		String url=((HttpServletRequest)req).getRequestURI();
 		try{
-			String url=((HttpServletRequest)req).getRequestURI();
-			System.out.println("\n************************FILTERING***********************************************");
-			System.out.println("\nurl:"+url);
-			System.out.println("\n************************FILTERING END***********************************************\n");
+			
+			filterContext.log(
+				"\n************************FILTERING log***********************************************"+
+				"\nurl:"+url+
+				"\n************************FILTERING log END***********************************************\n");
 			
 			Resource res= trustManager.classifyResource(url);
 			if(res instanceof ProtectedResource){
-				System.out.println("filtering protected  page");
 				HttpSession session=
 					((HttpServletRequest)req).getSession(true);
 				if(session.isNew()){
 					session.setMaxInactiveInterval(60*30);//30min
 				}
-				System.out.println("filtering protected  page session:"+session);
+				
 				//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
 				Peer peer=null;
 				if(session!=null){
 					peer=negoObjects.getSessionPeer(session.getId());
 				}
+				filterContext.log(
+						"****************serving protected resource log ***********"+
+						"\nfiltering protected  page session:"+session+
+						"\nRegistered peer:"+peer);
+				
 				String peerName= null;
 				if(peer!=null){
 					peerName=peer.getAlias();
 				}
+				
 				if(peerName==null){ 
 					//start peertrust and register session
-					System.out.println("***************NO PEER NAME REGISTRATION PAGE***********************************");
-					//System.out.println("***************************************************************");	
 					RequestServingMechanism servingMechanism=
 						trustManager.getRequestServingMechanismByName("sessionRegistration");
 					servingMechanism.serveRequest(	(HttpServletRequest)req,
@@ -106,12 +116,13 @@ public class TrustFilter implements Filter{
 													res,
 													filterConfig.getServletContext());//regJsp);
 				}else{
-					System.out.println("filtering peerName:"+peerName);
+					
 					res=trustManager.guardResource(res,peerName);
 					if(((ProtectedResource)res).getCanAccess()){			
-						System.out.println("\n==================ACCCESSING PROTECTED RESOURCE===================");
-						System.out.println("trustManager:"+trustManager+ "\t res:"+res);
-						System.out.println("\n==================================================================");
+						filterContext.log(
+								"\n==================ACCCESSING PROTECTED RESOURCE==================="+
+								"trustManager:"+trustManager+ "\t res:"+res+
+								"\n==================================================================");
 						
 						RequestServingMechanism servingMechanism=
 							trustManager.getRequestServingMechanismByURL(res.getUrl());//getRequestServingMechanimName());
@@ -133,12 +144,13 @@ public class TrustFilter implements Filter{
 					}
 				}
 			}else{
-					System.out.println("\n=======================ACCESSING PUBLIC RESOURCE==================");
-					System.out.println("trustManager:"+trustManager+ "\t res:"+res);
-					System.out.println("\n==================================================================");
-					RequestServingMechanism servingMechanism=
+				filterContext.log(
+						"\n=======================ACCESSING PUBLIC RESOURCE=================="+
+						"trustManager:"+trustManager+ "\t res:"+res+
+						"\n==================================================================");
+				RequestServingMechanism servingMechanism=
 						trustManager.getRequestServingMechanismByURL(res.getUrl());//res.getRequestServingMechanimName());
-					servingMechanism.serveRequest(	(HttpServletRequest)req,
+				servingMechanism.serveRequest(	(HttpServletRequest)req,
 													(HttpServletResponse)resp,
 													chain,
 													res,
@@ -148,9 +160,11 @@ public class TrustFilter implements Filter{
 			}
 			
 		}catch(ClassCastException castEx){
-			castEx.printStackTrace();
+			filterContext.log(	"Error while sering:"+url,
+								castEx);
 		} catch (IllegalAccessPolicyAssociation e) {
-			e.printStackTrace();
+			filterContext.log(	"Error while sering:"+url,
+					e);
 		}
 		//chain.doFilter(req,resp);
 		return;
@@ -172,27 +186,27 @@ public class TrustFilter implements Filter{
 	private void doInit()
 	{
 		if(filterConfig==null){
-			System.out.println("filterConfig is null!");
-			return;
+			throw  new Error("filterConfig is null!");
 		}
 		
 		if(negoObjects!=null){
-			System.out.println("Initialization already done!");
 			return;
 		}
 		
 		
-		ServletContext filterContext=filterConfig.getServletContext();
+		filterContext=filterConfig.getServletContext();
 		String negotiationObjectsContext= 
 			(String)filterContext.getInitParameter("NegotiationObjectsContext");
 		
-		System.out.println(">>>>>>>>>>>>>>>>>>FilterName:"+filterConfig.getFilterName());
-		System.out.println(">>>>>>>>>>>>>>>>>>NegotiationObjectsContext:"+negotiationObjectsContext);
-		System.out.println(">>>>>>>>>>>>>>>>>>Original Context:"+filterContext.getServletContextName());
-		filterContext.log(">>>>>>>>>>>>>>>>>>1FilterName:"+filterConfig.getFilterName());
+		filterContext.log(
+				"\n>>>>>>>>>>>>>>>>>>FilterName:"+filterConfig.getFilterName()+
+				"\n>>>>>>>>>>>>>>>>>>NegotiationObjectsContext:"+negotiationObjectsContext+
+				"\n>>>>>>>>>>>>>>>>>>Original Context:"+filterContext.getServletContextName()+
+				"\n>>>>>>>>>>>>>>>>>>1FilterName:"+filterConfig.getFilterName());
 		//get demo context	
 
-		ServletContext demoContext=filterContext.getContext(negotiationObjectsContext);//	"/demo");
+		ServletContext demoContext=
+			filterContext.getContext(negotiationObjectsContext);
 		
 		negoObjects= 
 			NegotiationObjects.createAndAddForAppContext(demoContext);

@@ -58,7 +58,7 @@ public class RequestServingMechanismPool implements Configurable
 	/**
 	 * the path to the xml setting path
 	 */
-	private String setupFilePath;
+	private StringWrapper setupFilePath;
 	
 	/**
 	 * Construct a virgin RequestServingMechanismPool.
@@ -81,7 +81,7 @@ public class RequestServingMechanismPool implements Configurable
 	 * @throws IOException
 	 * @throws SetupException
 	 */
-	private void setup(	String xmlSetupFilePath)
+	private void setup(	StringWrapper xmlSetupFilePath)
 						throws IOException, SetupException
 	{
 		if(xmlSetupFilePath==null){
@@ -92,7 +92,7 @@ public class RequestServingMechanismPool implements Configurable
 			DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
-			Document dom = builder.parse(xmlSetupFilePath);
+			Document dom = builder.parse(xmlSetupFilePath.getWrappedString());
 			
 			NodeList rootNodeList=
 				dom.getElementsByTagName(RequestServingMechanism.ROOT_TAG_SERVING_MECHANISM);
@@ -232,14 +232,14 @@ public class RequestServingMechanismPool implements Configurable
 	/**
 	 * @return Returns the setupFilePath.
 	 */
-	public String getSetupFilePath() {
+	public StringWrapper getSetupFilePath() {
 		return setupFilePath;
 	}
 
 	/**
 	 * @param setupFilePath The setupFilePath to set.
 	 */
-	public void setSetupFilePath(String setupFilePath) {
+	public void setSetupFilePath(StringWrapper setupFilePath) {
 		this.setupFilePath = setupFilePath;
 	}
 
@@ -266,8 +266,11 @@ public class RequestServingMechanismPool implements Configurable
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		String xmlSetupFilePath=
+		String _xmlSetupFilePath=
 			"/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml";
+		StringWrapper xmlSetupFilePath= new StringWrapper();
+		xmlSetupFilePath.setWrappedString(_xmlSetupFilePath);
+		xmlSetupFilePath.init();
 		RequestServingMechanismPool pool=
 					new RequestServingMechanismPool();
 		pool.setup(xmlSetupFilePath);

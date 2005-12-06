@@ -5,6 +5,131 @@
 ]>
 <rdf:RDF xmlns:pt="http://www.l3s.de/~olmedilla/peertrust/Vocabulary#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 
+
+	<!-- ======================================================================
+	TrustManager; it provide a fasade to manage trust negotiation in http context
+	================================================================== -->
+	<pt:TrustManager rdf:about="#TrustManager">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.TrustManager</pt:javaClass>
+		<pt:peertrustEngine rdf:resource="#PTEngine"/>
+		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:requestServingMechanismPool rdf:resource="#RequestServingMechanismPool"/>
+		<pt:resourceClassifier rdf:resource="#ResourceClassifier"/>
+		<pt:policySystem rdf:resource="#PolicySystem"/>
+		<pt:policyEvaluator rdf:resource="#PolicyEvaluator"/>
+		<pt:trustClient rdf:resource="#TrustClient"/>
+		<pt:credentialDistributionServer rdf:resource="#CredentialDistributionServer"/>
+		<pt:sessionRegisterer rdf:resource="#SessionRegisterer"/>
+	</pt:TrustManager>
+
+	<!-- ======================================================================
+	RequestServingMechanismPool; it is a pool of mechanism which are used to
+	serve a resource request
+	================================================================== -->
+	<pt:RequestServingMechanismPool rdf:about="#RequestServingMechanismPool">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.RequestServingMechanismPool</pt:javaClass>
+		<!-- pt:setupFilePath>
+			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
+		</pt:setupFilePath -->
+		<pt:setupFilePath rdf:resource="#ResourceManagementSetupFile"/>
+		<!-- pt:eventDispatcher rdf:resource="#PTEventDispatcher"/ -->
+	</pt:RequestServingMechanismPool>
+
+	<!-- ======================================================================
+	ResourceClassifier used to classify a resource  indentofy by an url
+	================================================================== -->
+	<pt:ResourceClassifier rdf:about="#ResourceClassifier">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.ResourceClassifierImpl</pt:javaClass>
+		<!-- pt:setupFilePath>
+			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
+		</pt:setupFilePath-->
+		<pt:setupFilePath rdf:resource="#ResourceManagementSetupFile"/>
+		<!-- pt:eventDispatcher rdf:resource="#PTEventDispatcher"/ -->
+	</pt:ResourceClassifier>
+
+	<!-- ======================================================================
+	ResourceClassifier used to classify a resource  indentofy by an url
+	================================================================== -->
+	<pt:PolicySystem rdf:about="#PolicySystem">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.PolicySystemImpl</pt:javaClass>
+		<!-- pt:setupFilePath>
+			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
+		</pt:setupFilePath -->
+		<pt:setupFilePath rdf:resource="#ResourceManagementSetupFile"/>
+		<!-- pt:eventDispatcher rdf:resource="#PTEventDispatcher"/ -->
+	</pt:PolicySystem>
+
+	<!-- ======================================================================
+	Policy Evaluator evaluates policies using the trustclient, if necessary it
+	customize tthe policy for the actual negotiating peer.
+	================================================================== -->
+	<pt:PolicyEvaluator rdf:about="#PolicyEvaluator">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.SimplePolicyEvaluator</pt:javaClass>
+		<pt:trustClient rdf:resource="#TrustClient"/>
+	</pt:PolicyEvaluator>
+
+	<!-- ======================================================================
+	CredentialDistributionServer; It is used to distibute credentials.
+	All to communication is done the an PTCommunicationASP which needs to be
+	added as peertrust event listener
+	================================================================== -->
+	<pt:CredentialDistributionServer rdf:about="#CredentialDistributionServer">
+		<pt:javaClass>org.peertrust.demo.credential_distribution.CredentialDistributionServer</pt:javaClass>
+		<pt:trustClient rdf:resource="#TrustClient"/>
+		<pt:comASP rdf:resource="#PTEventListener"/>
+		<!-- pt:setupFilePath>
+			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
+		</pt:setupFilePath -->
+		<pt:setupFilePath rdf:resource="#ResourceManagementSetupFile"/>
+	</pt:CredentialDistributionServer>
+
+	<pt:ResourceManagementSetupFile rdf:about="#ResourceManagementSetupFile">
+		<pt:javaClass>org.peertrust.demo.resourcemanagement.StringWrapper</pt:javaClass>
+		<!--pt:javaClass>org.peertrust.demo.resourcemanagement.StringWrapper</pt:javaClass-->
+		<pt:wrappedString>
+			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
+		</pt:wrappedString>
+	</pt:ResourceManagementSetupFile>
+
+
+
+	<!-- ======================================================================
+	The Messennger is used in communication context if direct sending is not
+	possible like in for http listening peer through a blocking http request.
+	================================================================== -->
+	<pt:SessionRegisterer rdf:about="#SessionRegisterer">
+		<pt:javaClass>org.peertrust.demo.session_registration.SessionRegisterer</pt:javaClass>
+		<pt:messenger rdf:resource="#Messenger"/>
+		<pt:entitiesTable rdf:resource="#EntitiesTable"/>
+		<pt:communicationASP rdf:resource="#PTEventListener"/>
+		<!--pt:trustClient	 rdf:resource="#TrustClient"/ -->
+	</pt:SessionRegisterer>
+
+
+	<!-- ======================================================================
+	The Messennger is used in communication context if direct sending is not
+	possible like in for http listening peer through a blocking http request.
+	================================================================== -->
+	<pt:Messenger rdf:about="#Messenger">
+		<pt:javaClass>org.peertrust.demo.common.QueueBasedMessenger</pt:javaClass>
+		<!--pt:trustClient	 rdf:resource="#TrustClient"/-->
+	</pt:Messenger>
+
+
+
+	<!-- ======================================================================
+	TrustCkient; it provide a fasade to start a negotiation andd wait for its outcome
+	================================================================== -->
+	<pt:TrustClient rdf:about="#TrustClient">
+		<pt:javaClass>org.peertrust.TrustClient</pt:javaClass>
+		<pt:peertrustEngine rdf:resource="#PTEngine"/>
+		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<!-- pt:metaInterpreterListener rdf:resource="#MetaInterpreterListener"/ -->
+		<!--pt:eventDispatcher rdf:resource="#PTEventDispatcher"/-->
+		<!--pt:eventListener rdf:resource="#PTEventListener"/ -->
+	</pt:TrustClient>
+
+
  	<!-- ======================================================================
 	Peertrust Engine
 	================================================================== -->
@@ -22,7 +147,7 @@
 	<pt:EventDispatcher rdf:about="#PTEventDispatcher">
 		<pt:javaClass>org.peertrust.event.PTEventDispatcher</pt:javaClass>
 	</pt:EventDispatcher>
-	
+
 	<!-- ======================================================================
 	MetaInterpreter
 	================================================================== -->
@@ -57,13 +182,13 @@
 		<pt:javaClass>org.peertrust.config.RunTimeOptions</pt:javaClass>
 		<pt:runningMode>demo</pt:runningMode>
 	</pt:RuntimeOptions>
-	
+
 	<!-- ======================================================================
 	Entities Table
 	====================================================================== -->
 	<pt:EntitiesTable rdf:about="#EntitiesTable">
 		<pt:javaClass>org.peertrust.net.EntitiesTable</pt:javaClass>
-		<pt:entitiesFile>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/entities.dat</pt:entitiesFile>
+		<pt:entitiesFile>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/entities.dat</pt:entitiesFile>
 	</pt:EntitiesTable>
 
 	<!-- ======================================================================
@@ -73,14 +198,14 @@
 		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
 	</pt:EventListener>
-	
+
 	<!-- ======================================================================
 	Inference Engine
 	================================================================== -->
 	<pt:InferenceEngine rdf:about="#InferenceEngine">
 		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
 		<!--<pt:baseFolder>C:\dev_root\TomcatPeerTrust\web\PeerTrustConfig\trust\</pt:baseFolder> -->
-		<pt:baseFolder>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/</pt:baseFolder>
+		<pt:baseFolder>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/</pt:baseFolder>
 		<!-- pt:prologFiles>demoPolicies.eLearn</pt:prologFiles -->
 		<pt:prologFiles>eLearn.min</pt:prologFiles>
 		<pt:rdfFiles/>
@@ -102,6 +227,7 @@
 		<pt:javaClass>org.peertrust.demo.servlet.ServletSideHTTPCommunicationFactory</pt:javaClass>
 		<pt:host>127.0.0.1</pt:host>
 		<pt:port>7703</pt:port>
+		<pt:messenger rdf:resource="#Messenger"/>
 	</pt:CommunicationChannelFactory>
 
 	<!-- ======================================================================
@@ -109,7 +235,7 @@
 	====================================================================== -->
 	<pt:CredentialStore rdf:about="#CredentialStore">
 		<pt:javaClass>org.peertrust.security.credentials.x509.X509CredentialStore</pt:javaClass>
-		<pt:file>/home/pat_dev/eclipse_home/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/server_keystore</pt:file>
+		<pt:file>/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/PeerTrustConfig/server_keystore</pt:file>
 		<pt:storePassword>serverstorepw</pt:storePassword>
 	</pt:CredentialStore>
 </rdf:RDF>

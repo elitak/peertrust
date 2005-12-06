@@ -18,6 +18,8 @@ import javax.swing.JFrame;
 import javax.xml.parsers.ParserConfigurationException;
 
 import netscape.javascript.JSObject;
+
+import org.apache.log4j.Logger;
 import org.peertrust.TrustClient;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.client.PeerTrustClient;
@@ -91,7 +93,7 @@ public class DemoApplet extends JApplet
 											Peer source, 
 											Peer target) 
 			{
-				System.out.println("RegistrationResponse:"+payload);
+				logger.info("RegistrationResponse:"+payload);
 				if(((HttpSessionRegistrationResponse)payload).isAcknowledgment()){
 					
 					if(protectedUrl!=null){//registration was caused by a protected page
@@ -100,8 +102,10 @@ public class DemoApplet extends JApplet
 							DemoApplet.this.getAppletContext().showDocument(url,"display_frame");
 							protectedUrl=null;
 						} catch (MalformedURLException e) {
+							logger.debug(
+									"error while trying to show this url:"+protectedUrl,
+									e);
 							protectedUrl=null;
-							e.printStackTrace();
 						}
 						//stop progress bar or alert user
 					}else{
@@ -227,6 +231,12 @@ public class DemoApplet extends JApplet
 		private Component visibleComponent; 
 		
 		/**
+		 * apllet local logger
+		 */
+		private Logger logger=Logger.getLogger(DemoApplet.class);
+		
+		
+		/**
 		 * Get browser to show an url in the display frame.
 		 * @param url -- theurl to show
 		 */
@@ -265,7 +275,7 @@ public class DemoApplet extends JApplet
 			return new Executable(){
 	
 				public void execute(Object param) {
-					System.out.println("makeTodoAfterPeerTrustRestart()");
+					logger.info("makeTodoAfterPeerTrustRestart()");
 					EventDispatcher ed=
 						(EventDispatcher)ptClient.getTrustClient().getComponent(Vocabulary.EventDispatcher);
 					if(negotiationVisualization!=null){
@@ -325,7 +335,9 @@ public class DemoApplet extends JApplet
 				strBuffer.append("&negoResource=");				
 				strBuffer.append(resource);
 	
-				URL resourceReqURL= new URL(this.getCodeBase(),strBuffer.toString());
+				URL resourceReqURL= 
+					new URL(this.getCodeBase(),
+							strBuffer.toString());
 				return resourceReqURL;
 			} catch (MalformedURLException e) {
 				return null;
@@ -352,7 +364,7 @@ public class DemoApplet extends JApplet
 	 */
 	public void registerSession(String sessionKey, String postponedURL)
 	{
-		System.out.println("Registering session:"+sessionKey+ " causedBy:"+postponedURL);
+		logger.info("Registering session:"+sessionKey+ " causedBy:"+postponedURL);
 		echoPane.echo("Registering session:"+sessionKey+ "\ncausedBy:"+postponedURL);
 		httpSessionRegistrant.registerSession(sessionKey,postponedURL);
 		return;
@@ -450,9 +462,9 @@ public class DemoApplet extends JApplet
 				while(true){
 					Object obj;
 					try {
-						System.out.println("\nworkerWaiting");
+						logger.info("\nworkerWaiting");
 						obj = workerFIFO.take();	
-						System.out.println("\nworker got obj:"+obj);
+						logger.info("\nworker got obj:"+obj);
 						if(obj==null){
 						
 //						}if(obj instanceof FinalResponse){
@@ -462,13 +474,13 @@ public class DemoApplet extends JApplet
 						}else if(obj instanceof PasswordBasedResourceRequest){
 							((PasswordBasedResourceRequest)obj).request();
 						}else if(obj instanceof StopCmd){
-							System.out.println("\n=========>stopping worker\b");
+							logger.info("\n=========>stopping worker\b");
 							return;
 						}else if(obj instanceof Executable){
 							((Executable)obj).execute(null);
 						}
 					} catch (Throwable e) {
-						e.printStackTrace();
+						logger.debug("Exception at apllet worker",e);
 					}
 				}
 				
@@ -548,7 +560,9 @@ public class DemoApplet extends JApplet
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							logger.debug(
+									"Error while sleeping to wait for echo pane to become visible",
+									e);
 						}
 					}
 					
@@ -641,7 +655,7 @@ public class DemoApplet extends JApplet
 		try{
 			home=System.getProperty("user.home");
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.debug("Unable to get user.home property",e);
 			jsAlert("Cannot create peertrust client. cause:"+e.getLocalizedMessage());
 			return;
 		}
@@ -652,7 +666,8 @@ public class DemoApplet extends JApplet
 		try{
 			sourceBase= new URL(getCodeBase(),"./PeerTrustConfig/");
 		}catch(MalformedURLException e){
-			e.printStackTrace();
+			logger.debug("Unable to make to peertrust file download url",
+						e);
 			jsAlert("Bad remote installation source folder:"+e.getLocalizedMessage());
 			return;
 		}
@@ -664,15 +679,15 @@ public class DemoApplet extends JApplet
 								"install.xml",
 								instDir.toString(),null);
 		} catch (ParserConfigurationException e1) {
-			e1.printStackTrace();
+			logger.debug("Installation of peertrust files fails",e1);
 			jsAlert("Could not create Installation session:"+e1.getLocalizedMessage());
 			return;
 		} catch (SAXException e1) {
-			e1.printStackTrace();
+			logger.debug("Installation of peertrust files fails",e1);
 			jsAlert("Could not create Installation session:"+e1.getLocalizedMessage());
 			return;
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			logger.debug("Installation of peertrust files fails",e1);
 			jsAlert("Could not create Installation session:"+e1.getLocalizedMessage());
 			return;
 		}
@@ -689,13 +704,13 @@ public class DemoApplet extends JApplet
 							installationSession.getPrologFile(),
 							userAlert);
 				trustScheme="PeerTrust";
-				System.out.println("=========>PTclient created:"+ptClient);
+				logger.info("=========>PTclient created:"+ptClient);
 			} catch (SAXException e) {
-				e.printStackTrace();
+				logger.debug("Creatio of a new PeerTrustClient fails",e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.debug("Creatio of a new PeerTrustClient fails",e);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.debug("Creatio of a new PeerTrustClient fails",e);
 			}
 			return;
 		}else{
@@ -731,13 +746,22 @@ public class DemoApplet extends JApplet
 								installationSession.getPrologFile(),
 								userAlert);//this.configurator);
 					trustScheme="PeerTrust";
-					System.out.println("=========>PTclient created:"+ptClient);
+					logger.info("=========>PTclient created:"+ptClient);
 				}catch (MalformedURLException e){
-					e.printStackTrace();echoPane.echo("bad ur",e);clearPTClient();
+					logger.debug(
+							"PT File instalation of PeerTrustClient creation fails",
+							e);
+					echoPane.echo("bad url",e);clearPTClient();
 				} catch (IOException e) {
-					e.printStackTrace();echoPane.echo("IO problem!",e);clearPTClient();
+					logger.debug(
+							"PT File instalation of PeerTrustClient creation fails",
+							e);
+					echoPane.echo("IO problem!",e);
+					clearPTClient();
 				}catch(Throwable th){
-					th.printStackTrace();
+					logger.debug(
+							"PT File instalation of PeerTrustClient creation fails",
+							th);
 					echoPane.echo("could not install or initiate pt using http source directely",th);
 					clearPTClient();
 				}
@@ -757,13 +781,15 @@ public class DemoApplet extends JApplet
 	 * Destroys and remove reference to peertrust client.
 	 */
 	private void clearPTClient(){
-		System.out.println("=======>clearing PTClient!");
+		logger.info("=======>clearing PTClient!");
 		if(ptClient!=null){
 			try{
 				ptClient.destroy();
-			}catch(Throwable th){th.printStackTrace();}
-			ptClient=null;
-			echoPane.echo("ptClient cleared!");
+			}catch(Throwable th){
+				logger.debug("Exceptio while destroying the ptClient",th);
+				ptClient=null;
+				echoPane.echo("ptClient cleared!");
+			}
 		}				
 		trustScheme="User Password";
 	}
@@ -859,7 +885,7 @@ public class DemoApplet extends JApplet
 	 */
 	public void destroy() {
 	
-		System.out.println("Destroying!");
+		logger.info("Destroying!");
 		httpSessionRegistrant.unregisterLastSession();
 		workerFIFO.offer(new StopCmd());
 		if(ptClient!=null){

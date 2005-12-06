@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Vector;
 
+
+import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
 import org.peertrust.event.AnswerEvent;
 import org.peertrust.event.EventDispatcher;
@@ -35,6 +37,11 @@ public class PTCommunicationASP
 	 */
 	private EventDispatcher _dispatcher ;
 	
+	/**
+	 * the PT Communication asp logger
+	 */
+	Logger logger= Logger.getLogger(PTCommunicationASP.class);
+	
 //	/**
 //	 * The communication channel factory which net client is used 
 //	 * to send message.
@@ -57,7 +64,7 @@ public class PTCommunicationASP
 	 */
 	public void event(PTEvent ptEvent) 
 	{
-		System.out.println("*====>ptEvent:"+ptEvent);
+		logger.info("*====>ptEvent:"+ptEvent);
 		if(ptEvent instanceof NewMessageEvent){
 			Object mes=((NewMessageEvent)ptEvent).getMessage();
 			if(mes instanceof PTCommunicationASPObject){
@@ -79,11 +86,11 @@ public class PTCommunicationASP
 					}
 				}
 			}else{
-				System.out.println("\n===================>UnknownNewEvent:"+ptEvent);
+				logger.info("\n===================>UnknownNewEvent:"+ptEvent);
 				//System.out.println("\n=========>QueryEvent:\n"+ptEvent);
 				Vector listeners= 
 					(Vector)listenerPool.get(ptEvent.getClass());//QueryEvent.class);
-				System.out.println("Listeners:"+listeners);
+				logger.info("Listeners:"+listeners);
 				if(listeners!=null){
 					for(int i=listeners.size()-1;i>=0;i--){
 						((PTEventListener)listeners.elementAt(i)).event(ptEvent);
@@ -93,7 +100,7 @@ public class PTCommunicationASP
 				
 			}
 		}else if(ptEvent instanceof QueryEvent){
-			System.out.println("\n=========>QueryEvent:\n"+ptEvent);
+			logger.info("\n=========>QueryEvent:\n"+ptEvent);
 			Vector listeners= 
 				(Vector)listenerPool.get(QueryEvent.class);
 			if(listeners!=null){
@@ -103,7 +110,7 @@ public class PTCommunicationASP
 			}
 			return;
 		}else if(ptEvent instanceof AnswerEvent){
-			System.out.println("\n=======>AnwerEvent:\n"+ptEvent);
+			logger.info("\n=======>AnwerEvent:\n"+ptEvent);
 			Vector listeners= 
 				(Vector)listenerPool.get(AnswerEvent.class);
 			if(listeners!=null){
@@ -113,7 +120,7 @@ public class PTCommunicationASP
 			}
 			return;
 		}else{
-			System.out.println("\n========>Unknown Event:"+ptEvent);
+			logger.info("\n========>Unknown Event:"+ptEvent);
 		}
 	}
 
@@ -167,10 +174,6 @@ public class PTCommunicationASP
 			listenerPool.put(objTypeToListenTo,listenerVect);
 		}
 		listenerVect.add(listener);
-//		System.out.println("****************RegisterListerner for PTCommunicationASP**********************");
-//		System.out.println("Listener:"+listener.getClass());
-//		System.out.println("ListenTo:"+objTypeToListenTo);
-//		System.out.println("****************RegisterListerner for PTCommunicationASP END**********************");
 	}
 	
 	/**
@@ -242,7 +245,6 @@ public class PTCommunicationASP
 	public void setCommunicationChannelFactory(
 							AbstractFactory _CommunicationChannelFactory)
 	{
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!seintin net client in asp");
 		netClient=_CommunicationChannelFactory.createNetClient();
 		//this._CommunicationChannelFactory=_CommunicationChannelFactory;
 	}
@@ -255,7 +257,8 @@ public class PTCommunicationASP
 	 */
 	public void init() throws ConfigurationException 
 	{
-		System.out.println("****************init for PTCommunicationASP**********************");
+		logger.info(
+				"**************init for PTCommunicationASP************");
 		
 		if (_dispatcher == null)
 		{

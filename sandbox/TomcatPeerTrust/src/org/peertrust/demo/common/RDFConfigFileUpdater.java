@@ -81,8 +81,8 @@ public class RDFConfigFileUpdater {
     	configRDFFile();
     	//n.setNodeValue(Boolean.toString(true));
     	//////////save
-    	File instConfigFile=new File(installDir,installConfigFileName);
-		OutputFormat format = new OutputFormat();//(Document)core);
+    	File instConfigFile	=	new File(installDir,installConfigFileName);
+		OutputFormat format = 	new OutputFormat();//(Document)core);
 		format.setLineSeparator(LineSeparator.Windows);
 		format.setIndenting(true);
 		format.setLineWidth(0);             

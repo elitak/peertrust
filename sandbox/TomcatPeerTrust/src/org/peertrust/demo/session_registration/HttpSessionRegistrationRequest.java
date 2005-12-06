@@ -90,4 +90,27 @@ public class HttpSessionRegistrationRequest  implements Serializable
 	public void setRegistrationCmd(int cmd){
 		this.cmd=cmd;
 	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		if(cmd==MAKE_REGISTRATION){
+			return 	"HttpSessionRegistrationRequest: cmd=register "+ 
+					"sessionKey="+
+						sessionKey;
+		}else if(cmd==REMOVE_REGISTRATION){
+			return 	"HttpSessionRegistrationRequest: cmd=unregister "+
+					"sessionKey="+
+						sessionKey;
+		}else{
+			return 	"HttpSessionRegistrationRequest: "+
+					"cmd="+
+						cmd+
+					"sessionKey="+
+						sessionKey;
+		}
+	}
+	
+	
 }

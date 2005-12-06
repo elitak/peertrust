@@ -21,7 +21,8 @@ import org.xml.sax.SAXException;
  * @author Patrice Congo (token77)
  *
  */
-public class CredentialDistributionServer implements PTComASPMessageListener{
+public class CredentialDistributionServer implements PTComASPMessageListener
+{
 
 	/**
 	 *a store of credentials 

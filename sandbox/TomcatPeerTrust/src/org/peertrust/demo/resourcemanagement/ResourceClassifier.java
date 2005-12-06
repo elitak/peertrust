@@ -39,5 +39,5 @@ public interface ResourceClassifier {
 	 * @throws ParserConfigurationException 
 	 * @throws SAXException 
 	 */
-	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException;
+	public void setup(StringWrapper urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException;
 }

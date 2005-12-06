@@ -15,7 +15,7 @@ import org.peertrust.exception.ConfigurationException;
  * @author Patrice Congo(token77)
  *
  */
-class SimplePolicyEvaluator implements 	PolicyEvaluator,
+public class SimplePolicyEvaluator implements 	PolicyEvaluator,
 										Configurable{
 	static final public String PEER_NAME_SPACE_HOLDER="Requester";
 	
@@ -42,6 +42,7 @@ class SimplePolicyEvaluator implements 	PolicyEvaluator,
 	 */
 	public SimplePolicyEvaluator(){
 		//nothing
+		System.out.println("***********SimplePolicyEvaluator creation");
 	}
 	
 

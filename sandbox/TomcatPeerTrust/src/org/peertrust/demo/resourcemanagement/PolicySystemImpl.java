@@ -70,7 +70,7 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 	/**
 	 * The xml setup file name
 	 */
-	private String setupFilePath;
+	private StringWrapper setupFilePath;
 	
 	
 	/**
@@ -122,7 +122,9 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 			if(policyNodeList.getLength()!=1){
 				throw 
 					new Error(	"Illegal xml config file. It must contain exactelly one "+
-								"<"+ROOT_TAG_POLICY_SYSTEM+"> but contains "+policyNodeList.getLength());
+								"<"+ROOT_TAG_POLICY_SYSTEM+"> but contains "+
+								policyNodeList.getLength()+
+								"xmlSetupFileName="+xmlSetupFileName);
 			}else{
 				polRootNode=(Element)policyNodeList.item(0);
 				System.out.println("owner dom:"+polRootNode);
@@ -208,14 +210,14 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 	/**
 	 * @return Returns the setupFilePath.
 	 */
-	public String getSetupFilePath() {
+	public StringWrapper getSetupFilePath() {
 		return setupFilePath;
 	}
 
 	/**
 	 * @param setupFilePath The setupFilePath to set.
 	 */
-	public void setSetupFilePath(String setupFilePath) {
+	public void setSetupFilePath(StringWrapper setupFilePath) {
 		this.setupFilePath = setupFilePath;
 	}
 
@@ -225,12 +227,13 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 	 * @see org.peertrust.config.Configurable#init()
 	 */
 	public void init() throws ConfigurationException {
+		System.out.println("*************init PolicySystemImpl");
 		if(setupFilePath==null){
-			throw new Error("setupFilePath must not be null");
+			throw new ConfigurationException("setupFilePath must not be null");
 		}
 		
 		try {
-			setup(setupFilePath);
+			setup(setupFilePath.getWrappedString());
 		} catch (Exception e) {
 			throw new ConfigurationException("PolicySystemImpl Setup Fail",e);
 		} 

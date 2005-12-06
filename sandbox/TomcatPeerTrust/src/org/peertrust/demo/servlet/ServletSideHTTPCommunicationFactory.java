@@ -95,7 +95,10 @@ public class ServletSideHTTPCommunicationFactory
 	 * @see Configurable#init()
 	 */
 	public void init() throws ConfigurationException {
-		messenger= new QueueBasedMessenger();
+		//messenger= new QueueBasedMessenger();
+		if(messenger==null){
+			throw new ConfigurationException("messenger not set");
+		}
 		logger=Utils.getLogger(this.getClass().getName());
         createUniqueNetserver();
         createUniqueNetClient();

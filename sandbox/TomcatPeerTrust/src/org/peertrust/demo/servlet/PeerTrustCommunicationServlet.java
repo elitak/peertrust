@@ -140,7 +140,7 @@ public class PeerTrustCommunicationServlet 	extends HttpServlet
 					
 					if(ses.getAttribute(PEER_NAME_KEY)==null){
 						//peer for final removal
-						System.out.println("-------logging peer communication channel"+ses.getId());
+						logger.info("-------logging peer communication channel"+ses.getId());
 						ses.setAttribute(PEER_NAME_KEY,(Peer)obj);
 					}
 					messenger.openChannel((Peer)obj);	

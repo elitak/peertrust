@@ -5,7 +5,9 @@ import java.util.Hashtable;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.peertrust.config.Configurable;
 import org.peertrust.demo.common.Utils;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.Peer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -20,7 +22,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Patrice Congo (token77)
  */
-public class CredentialStore {
+public class CredentialStore implements Configurable{
 	
 	/** regular expression patern to find place holder for peer alias*/
 	public static final String PEER_ALIAS_PLACE_HOLDER="\\$\\{_Requester_\\}";
@@ -136,6 +138,8 @@ public class CredentialStore {
 	/** Represents the regular expression to find alias place holder*/ 
 	private String peerAliasPlaceHolder;
 	
+	private String setupFilePath;
+	
 	/**
 	 * Constructs a blank credential store.
 	 * The credential store can be fill from an XML file usind
@@ -245,6 +249,31 @@ public class CredentialStore {
 	 */
 	public String toString() {
 			return "CredentialStore:"+credentials;
+	}
+
+	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public String getSetupFilePath() {
+		return setupFilePath;
+	}
+
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(String setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+
+	/**
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(this.setupFilePath==null){
+			throw new ConfigurationException("setupFilePath not set");
+		}
 	}
 	
 	

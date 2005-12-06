@@ -61,7 +61,7 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 	 * the pathof the xml setup file which contains the classification
 	 * spefication.
 	 */
-	private String setupFilePath;
+	private StringWrapper setupFilePath;
 	
 	/**
 	 * Constructs a virgin ResourceClassificationImpl object.
@@ -214,7 +214,7 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 	 * @throws SAXException
 	 * @see ResourceClassifier#setup(String)
 	 */
-	public void setup(String urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
+	public void setup(StringWrapper urlOfXmlConfigFile) throws IOException, UnsupportedFormatException, ParserConfigurationException, SAXException {
 		if(urlOfXmlConfigFile==null){
 			new NullPointerException("Parameter urlOfXMLConfigFile");
 		}
@@ -223,7 +223,7 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 			DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
-			Document dom = builder.parse(urlOfXmlConfigFile);
+			Document dom = builder.parse(urlOfXmlConfigFile.getWrappedString());
 			NodeList rootNodeList=
 				dom.getElementsByTagName(ROOT_TAG_NAME);
 			Element resRootNode=null;
@@ -353,14 +353,14 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 	/**
 	 * @return Returns the setupFilePath.
 	 */
-	public String getSetupFilePath() {
+	public StringWrapper getSetupFilePath() {
 		return setupFilePath;
 	}
 
 	/**
 	 * @param setupFilePath The setupFilePath to set.
 	 */
-	public void setSetupFilePath(String setupFilePath) {
+	public void setSetupFilePath(StringWrapper setupFilePath) {
 		this.setupFilePath = setupFilePath;
 	}
 

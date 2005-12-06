@@ -6,6 +6,8 @@ import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.peertrust.config.Configurable;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.net.Message;
 import org.peertrust.net.Peer;
 
@@ -15,7 +17,9 @@ import org.peertrust.net.Peer;
  *  
  * @author Patrice Congo
  */
-public class QueueBasedMessenger implements Messenger {
+public class QueueBasedMessenger implements Messenger,
+											Configurable
+{
 
 	/** 
 	 * Contains a channel 
@@ -152,6 +156,14 @@ public class QueueBasedMessenger implements Messenger {
 			throw new IOException(	"Listening process interrupted:"+
 									e.getLocalizedMessage());
 		}
+	}
+
+	/**
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		//empty
+		
 	}
 
 }
