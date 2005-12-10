@@ -42,13 +42,15 @@ public class PTCommunicationASP
 	 */
 	Logger logger= Logger.getLogger(PTCommunicationASP.class);
 	
-//	/**
-//	 * The communication channel factory which net client is used 
-//	 * to send message.
-//	 */
-//	private AbstractFactory _CommunicationChannelFactory;
+	/**
+	 * The communication channel factory which net client is used 
+	 * to send message.
+	 */
+	private AbstractFactory communicationChannelFactory;
 	
-	/** the net client of the communication channel*/
+	/** 
+	 * the net client of the communication channel
+	 */
 	private NetClient netClient;
 	
 	/** contains the listeners with the class of message 
@@ -245,8 +247,7 @@ public class PTCommunicationASP
 	public void setCommunicationChannelFactory(
 							AbstractFactory _CommunicationChannelFactory)
 	{
-		netClient=_CommunicationChannelFactory.createNetClient();
-		//this._CommunicationChannelFactory=_CommunicationChannelFactory;
+		this.communicationChannelFactory=_CommunicationChannelFactory;
 	}
 	
 	/**
@@ -262,10 +263,18 @@ public class PTCommunicationASP
 		
 		if (_dispatcher == null)
 		{
-			String msg = "The event dispatcher is not set for "+PTCommunicationASP.class ;
-			throw new ConfigurationException(msg) ;
+			throw new ConfigurationException(
+						"The event dispatcher is not at "+this.getClass());
 		}
 		
+		if (communicationChannelFactory == null)
+		{
+			throw new ConfigurationException(
+						"The communication factory is not at "+
+						this.getClass());
+		}
+		
+		netClient=communicationChannelFactory.createNetClient();
 		_dispatcher.register(this,NewMessageEvent.class) ;
 		
 	}

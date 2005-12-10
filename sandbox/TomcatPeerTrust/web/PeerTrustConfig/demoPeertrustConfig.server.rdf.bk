@@ -76,7 +76,7 @@
 	<pt:CredentialDistributionServer rdf:about="#CredentialDistributionServer">
 		<pt:javaClass>org.peertrust.demo.credential_distribution.CredentialDistributionServer</pt:javaClass>
 		<pt:trustClient rdf:resource="#TrustClient"/>
-		<pt:comASP rdf:resource="#PTEventListener"/>
+		<pt:communicationASP rdf:resource="#PTEventListener"/>
 		<!-- pt:setupFilePath>
 			/home/congo/eclipse_base/workspace_3_1/TomcatPeerTrust/web/resource_management_files/resource_mng_config.xml
 		</pt:setupFilePath -->
@@ -197,6 +197,7 @@
 	<pt:EventListener rdf:about="#PTEventListener">
 		<pt:javaClass>org.peertrust.demo.peertrust_com_asp.PTCommunicationASP</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<pt:communicationChannelFactory rdf:resource="#CommunicationChannelFactory"/>
 	</pt:EventListener>
 
 	<!-- ======================================================================

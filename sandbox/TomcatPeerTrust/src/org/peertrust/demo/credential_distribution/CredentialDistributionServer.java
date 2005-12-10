@@ -6,9 +6,12 @@ import java.io.Serializable;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.peertrust.TrustClient;
+import org.peertrust.config.Configurable;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.demo.peertrust_com_asp.PTComASPMessageListener;
 import org.peertrust.demo.peertrust_com_asp.PTCommunicationASP;
+import org.peertrust.demo.resourcemanagement.StringWrapper;
+import org.peertrust.exception.ConfigurationException;
 
 import org.peertrust.net.Peer;
 import org.xml.sax.SAXException;
@@ -21,7 +24,9 @@ import org.xml.sax.SAXException;
  * @author Patrice Congo (token77)
  *
  */
-public class CredentialDistributionServer implements PTComASPMessageListener
+public class CredentialDistributionServer 
+						implements 	PTComASPMessageListener,
+									Configurable
 {
 
 	/**
@@ -32,12 +37,21 @@ public class CredentialDistributionServer implements PTComASPMessageListener
 	/**
 	 * Provides generic comunication on top of the peertrust comunication
 	 */
-	private PTCommunicationASP comASP;
+	private PTCommunicationASP communicationASP;
 	
-//	/** used to send the credential*/
-//	private NetClient netClient;
-//	
-	/** create a blank CredentialDistributionServer*/
+	/** 
+	 * Path of the xml setup file
+	 */
+	private StringWrapper setupFilePath;
+		
+	/** 
+	 * Create a virgin CredentialDistributionServer.
+	 * The creation process is to complete by:
+	 * <ul>
+	 * 	<li/>Setting the communicationASP and setupFilePath
+	 * 	<lu/>and then Calling init(). 
+	 * </ul>
+	 */
 	public CredentialDistributionServer(){
 		credentialStore= new CredentialStore();
 	}
@@ -54,10 +68,9 @@ public class CredentialDistributionServer implements PTComASPMessageListener
 			String value=credentialStore.getCredentialValue(credName,source);
 			CredentialResponse credResp=
 				new CredentialResponse(credName,value);
-			System.out.println("Sending credential:\n"+credResp);
+			//System.out.println("Sending credential:\n"+credResp);
 			//swap target and source since we have now the server view
-			//PTCommunicationASPObject.send(netClient,credResp,target,source);
-			comASP.send(credResp,target,source);
+			communicationASP.send(credResp,target,source);
 		}
 	}
 	
@@ -93,18 +106,33 @@ public class CredentialDistributionServer implements PTComASPMessageListener
 			trustClient.getComponent(Vocabulary.EventListener);
 		if(eventL instanceof PTCommunicationASP){
 			((PTCommunicationASP)eventL).registerPTComASPMessageListener(this,CredentialRequest.class);
-			comASP=(PTCommunicationASP)eventL;
+			communicationASP=(PTCommunicationASP)eventL;
 		}else{
 			throw new Error("PTCommunicationASP expected as EventListener for pt but got "+eventL);
 		}
-//		
-//		netClient=
-//			((AbstractFactory)
-//					trustClient.getComponent(Vocabulary.CommunicationChannelFactory)).createNetClient();
 		
 	}
 	
+	public void setup() 
+			throws	NullPointerException, 
+					SAXException, 
+					IOException, 
+					ParserConfigurationException
+	{
+		String credentialStoreXmlFile=setupFilePath.getWrappedString();
+		if(credentialStoreXmlFile==null){
+			throw new NullPointerException(
+					"Parameter credentialStoreXmlFile must not be null");
+		}
 	
+		if(communicationASP==null){
+			throw new Error("PTCommunicationASP must not be null");
+		}
+		
+		credentialStore.setup(credentialStoreXmlFile);
+		System.out.println("CredentialStore:"+credentialStore);
+		communicationASP.registerPTComASPMessageListener(this,CredentialRequest.class);
+	}
 	
 	/**
 	 * @return Returns the credentialStore.
@@ -112,5 +140,78 @@ public class CredentialDistributionServer implements PTComASPMessageListener
 	public CredentialStore getCredentialStore() {
 		return credentialStore;
 	}
+	
+	
+	
+	/**
+	 * @return Returns the communicationASP.
+	 */
+	public PTCommunicationASP getCommunicationASP() {
+		return communicationASP;
+	}
+	/**
+	 * @param communicationASP The communicationASP to set.
+	 */
+	public void setCommunicationASP(PTCommunicationASP communicationASP) {
+		this.communicationASP = communicationASP;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * @return Returns the setupFilePath.
+	 */
+	public StringWrapper getSetupFilePath() {
+		return setupFilePath;
+	}
+	
+	
+	/**
+	 * @param setupFilePath The setupFilePath to set.
+	 */
+	public void setSetupFilePath(StringWrapper setupFilePath) {
+		this.setupFilePath = setupFilePath;
+	}
+	
+	
+	/**
+	 * @see org.peertrust.config.Configurable#init()
+	 */
+	public void init() throws ConfigurationException {
+		if(communicationASP==null){
+			throw  new ConfigurationException(
+						"communicationASP not set at"+this.getClass());
+		}
+		
+		if(setupFilePath==null){
+			throw  new ConfigurationException(
+					"setupFilePath not set at"+this.getClass());
+		}
+		
+		try {
+			setup();
+		} catch (NullPointerException e) {
+			throw new ConfigurationException(
+					"could not setup the credential server internals",
+					e);
+		} catch (SAXException e) {
+			throw new ConfigurationException(
+					"could not setup the credential server internals",
+					e);
+		} catch (IOException e) {
+			throw new ConfigurationException(
+					"could not setup the credential server internals",
+					e);
+		} catch (ParserConfigurationException e) {
+			throw new ConfigurationException(
+					"could not setup the credential server internals",
+					e);
+		}
+
+	}
+	
+	
 	
 }

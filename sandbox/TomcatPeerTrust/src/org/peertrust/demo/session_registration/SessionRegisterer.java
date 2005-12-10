@@ -39,7 +39,7 @@ public class SessionRegisterer implements 	PTComASPMessageListener,
 	
 	private Messenger messenger;
 	
-	PTCommunicationASP communicationASP;
+	private PTCommunicationASP communicationASP;
 	/**
 	 * Implements PTMessageReceived(Serializable, Peer, Peer)  to listen to
 	 * HttpSessionRegistrationRequest
@@ -51,7 +51,7 @@ public class SessionRegisterer implements 	PTComASPMessageListener,
 			Peer target) 
 	{
 		logger.info(
-		"************************Registerering log**********************\n"+
+		"\n************************Registerering log**********************\n"+
 		message+	
 		"\nSource Peer:"+source+
 		"\n************Registerering log END**********************");
@@ -103,6 +103,7 @@ public class SessionRegisterer implements 	PTComASPMessageListener,
 			throw new ConfigurationException(
 					"CommunicationASP not set at"+this.getClass());
 		}
+		sessionTable= new Hashtable();
 		//register for http session registration requests	
 		communicationASP.registerPTComASPMessageListener(
 								this,
@@ -180,16 +181,15 @@ public class SessionRegisterer implements 	PTComASPMessageListener,
 		if(leavingPeerAlias==null){
 			return;
 		}
-		
+		Peer currentPeer;
 		for(	Iterator it=sessionTable.entrySet().iterator(); 
 				it.hasNext();){
 			Map.Entry entry=(Map.Entry)it.next();
-			
-			if(leavingPeerAlias.equals((String)entry.getValue())){
-				sessionTable.remove(entry.getClass());
-				
+			currentPeer=(Peer)entry.getValue();
+			if(leavingPeerAlias.equals(currentPeer.getAlias())){
+				sessionTable.remove(entry.getKey());					
 			}
-			
+						
 		}
 		
 //		EntitiesTable entitiesTable = 
