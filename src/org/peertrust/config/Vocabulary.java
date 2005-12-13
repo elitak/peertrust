@@ -19,6 +19,8 @@
 */
 package org.peertrust.config;
 
+import org.peertrust.TrustClient;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -29,12 +31,12 @@ import com.hp.hpl.jena.rdf.model.RDFException;
  * <p>
  * Specifies the vocabulary accepted by the configurator in the configuration file.
  * </p><p>
- * $Id: Vocabulary.java,v 1.4 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.5 2005/12/13 15:23:37 token77 Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:48 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2005/12/13 15:23:37 $
+ * by $Author: token77 $
  * </p>
  * @author olmedilla 
  */
@@ -126,7 +128,56 @@ public class Vocabulary {
      * EventDispatcher
     */
     public static Resource EventDispatcher ;
-
+    
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////Vocabulary entries for web application//////////////////
+    //////////////////////////////////////////////////////////////////////////
+    /**
+     * Manager trustnegotiation for the web application
+     */
+    public static Resource TrustManager;
+    
+    /**
+     * PeertrustClient, which  provide an fasade to start and wait
+     * for negotiation outcome
+     */
+    static public Resource TrustClient;
+    
+    /**
+     * Classifies a resource identify by an url
+     */
+    public static Resource ResourceClassifier;
+    
+    /**
+     * A store of policy
+     */
+    static public Resource PolicySystem;
+    
+    /**
+     * PolicyEvaluator; it evaluate policies if necessary
+     * customized for the actual peers
+     */
+    static public Resource PolicyEvaluator;
+    
+    /**
+     * Reprsents the setup file of the resource management.
+     */
+    static public Resource ResourceManagementSetupFile;
+    
+    /**
+     * A local messenger, used when direct sending of message
+     * is not possible; e.g. in case of http client as peer.
+     */
+    static public Resource Messenger;
+    
+    /**
+     * SessionRegisterer
+     */
+    static public Resource SessionRegisterer;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    
+    
   static {
     try {
         Model m = new ModelMem();
@@ -166,7 +217,25 @@ public class Vocabulary {
       
       EventDispatcher =
         m.createResource(Vocabulary.uri + "EventDispatcher");
-
+      
+      /////
+      TrustManager=
+    	  m.createResource(Vocabulary.uri+"TrustManager");
+      TrustClient=
+    	  m.createResource(Vocabulary.uri+"TrustClient");
+      ResourceClassifier=
+    	  m.createResource(Vocabulary.uri+"ResourceClassifier");
+      PolicySystem=
+    	  m.createResource(Vocabulary.uri+"PolicySystem");
+      PolicyEvaluator=
+    	  m.createResource(Vocabulary.uri+"PolicyEvaluator");
+      ResourceManagementSetupFile=
+    	  m.createResource(Vocabulary.uri+"ResourceManagementSetupFile");
+      Messenger=
+    	  m.createResource(Vocabulary.uri+"Messenger");
+      SessionRegisterer=
+    	  m.createResource(Vocabulary.uri+"SessionRegisterer");
+      
     } catch (RDFException rdfe) {
       throw(new RuntimeException(rdfe.getMessage()));
     }
