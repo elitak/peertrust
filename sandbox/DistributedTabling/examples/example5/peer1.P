@@ -1,0 +1,6 @@
+
+z(X) <- d(X) @ p2.
+d(b) @ p2 <- signedBy [p2].
+
+
+

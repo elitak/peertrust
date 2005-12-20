@@ -1,0 +1,124 @@
+% we use two special infix operators
+
+:- op(1155,fx,internal).
+
+% rule symbol
+:- op(1150, xfx, '<-' ).
+
+% operators for signed clauses
+:- op(1110, xfx, signedBy ).
+:- op(1110, fx,  signedBy ).
+
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+:- op(601, xfx, $).
+
+% rule( Head, Body, InternalExternal, Peer ).
+% signed( Head, Policy, Issuer, SignedBody, Peer ).
+:- dynamic rule/3.
+:- dynamic signed/4.
+
+
+/* consults the Peer Header file and corresponding Peer logic program */
+
+read_peer( FileNameProgram ):-
+	read_peer_program( FileNameProgram ).
+
+	
+
+
+/* read_peer_program( Peer, FileName ) reads the rules from the program and asserts them
+   in the knowledge base. Both signed and ordinary rules are supported
+*/
+
+read_peer_program( FileName ) :-
+	clean_program, 
+	see( FileName ),
+	read_peer_rules,
+	seen.
+
+clean_program :-
+	db_retractall( rule( _, _, _) ),
+	db_retractall( signed( _, _, _, _ ) ).
+
+
+% Reads one term at a time and asserts the rules in the program.
+% Notice that there is no distinction between internal and public rules at this level.
+read_peer_rules :-
+	read( Rule ), !,
+	( Rule = end_of_file -> 
+		true
+	;
+		assert_peer_rule( Rule ), !,
+		read_peer_rules
+	).
+
+assert_peer_rule( Rule ) :- !,
+	parseRule( Rule, ParsedRule ),
+	db_assert( ParsedRule ).
+
+assert_peer_rule( Rule, ParsedRule ) :- !,
+	parseRule( Rule, ParsedRule ),
+	db_assert( ParsedRule ).
+
+parseRule( internal(Rule), ParsedRule ) :- !,
+	parseRule( Rule, internal, ParsedRule ).
+parseRule( Rule, ParsedRule ) :- !,
+	parseRule( Rule, public, ParsedRule ).
+
+parseRule( ( Head <- Body signedBy ISBody), IntExt, signed(NewHead,Policy,Issuer,SignedBody)) :- !,
+	(  IntExt = public -> true ; throw( 'Internal signed rules not allowed'(( Head <- Body signedBy ISBody))) ), 
+	parseHead( Head, NewHead ),
+	parseBody( Body, Policy ),
+	parseIssuerSignedBody( ISBody, Issuer, SignedBody ).
+parseRule( ( Head <- signedBy ISBody), IntExt, signed(NewHead,[],Issuer,SignedBody) ) :- !,
+	(  IntExt = public -> true ; throw( 'Internal signed rules not allowed' ) ), 
+	parseHead( Head, NewHead ),
+	parseIssuerSignedBody( ISBody, Issuer, SignedBody ).
+parseRule( ( Head <- Body ), IntExt, rule(NewHead,BodyList,IntExt) ) :- !,
+	parseHead( Head, NewHead ),
+	parseBody( Body, BodyList ).
+parseRule( ( Head ), IntExt, rule(NewHead,[],IntExt)  ) :- !,
+	parseHead( Head, NewHead ).
+
+
+% Do not forget to check syntax of Head and Body Literals...
+parseHead( Head $ Requester, Head $  Requester ) :- !.
+parseHead( Head            , Head $ _Requester ) :- !.
+
+parseBody( Body, BodyList ) :-
+	parseCommaList( Body, BodyList ).
+
+parseIssuerSignedBody( [Issuer], Issuer, [] ) :- !.
+parseIssuerSignedBody( ([Issuer], Body), Issuer, BodyList ) :- !,
+	parseCommaList( Body, BodyList ).
+parseIssuerSignedBody( Goal, _, _ ) :-
+	throw( 'Expecting issuer followed by signed body'(Goal) ).
+
+% parseCommaList( (a1, a2, ..., an), [a1, a2, ..., an] )
+
+parseCommaList( (X, Y), [ X | Z]):- !, 
+	parseCommaList( Y, Z ).
+parseCommaList( X, [X]).
+
+
+% Retraction of rules:
+retractall_peer_rules( Head ) :-
+	parseHead( Head, NewHead ),
+	db_retractall( signed( NewHead, _, _, _ ) ),
+	db_retractall( rule( NewHead, _, _ ) ).
+
+
+
+
+
+
+
+
+
+
+
+
+

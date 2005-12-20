@@ -1,0 +1,8 @@
+v(X) <- u(X).
+u(X)$ Req <- s(X) @ Req.
+s(a) @ p4 <- signedBy [p4].
+s(d).
+
+
+
+

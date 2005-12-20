@@ -1,0 +1,15 @@
+internal freeEnroll(spanish101,X) <- policeOfficer(X) @ csp.
+policeOfficer(X) @ csp <- 
+    policeOfficer(X) @ csp @ X 
+    signedBy [bbb], p(X), g(X).
+
+internal freeEnroll(spanish101,X).
+freeEnroll(french101,_).
+
+
+freeEnroll(Course,Requester) $ zzz <- 
+    policeOfficer(Requester) @ csp @ Requester,
+    creditUnits(Course,X),
+    X =< 1.
+
+

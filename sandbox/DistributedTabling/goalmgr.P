@@ -1,0 +1,109 @@
+/* GOAL MANAGER DISPATCHER */
+
+:- op( 1150, xfy, '<-' ).
+
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+:- op(601, xfx, $).
+
+% transaction( InternalID, Requester, ExternalId, Goal ) keeps the
+% transaction Goal information in execution: 
+% - query( ListOfVars, Goal ) 
+% - proof( Goal, Ans ) 
+% - assert( Clause ) 
+% - retract( Head )
+
+:- dynamic transaction/4.
+:- dynamic asked_proof/3.
+
+:- import append/3 from basics.
+
+controller( goalmgr ).
+
+goal_manager_init( _, 0 ) :-
+	db_retractall( transaction( _, _, _, _ ) ),
+	db_retractall( asked_proof(_,_,_) ).
+
+/* GOAL MANAGER MESSAGE HANDLING PROCEDURE */
+
+
+% Processes new query
+% To do: check that peer is instantiated and treat complex goals
+goalmgr( query(ListOfVars, Goal @ Peer,N), Requester, Me, Id, NewId ) :- !,
+	set_status( goalmgr, source ),					% sets process status for termination control
+	send( Me, Peer, call(Goal $ Requester,Id,public)),				% calls the goal
+	db_assert( transaction( Id, Requester, N, query(ListOfVars, Goal) ) ),	% maps internal identifiers with external ones
+	NewId is Id + 1.						% computes new identifier
+
+% Receives a new answer for a query
+goalmgr( answer(Goal,Id), _Peer, Me, State, State ) :- !,
+	(   db_query( transaction( Id, Requester, N, query(Subst, Goal) ) )
+	->  send_msg( Me, Requester, answer( Subst, N ) )
+	;   debug_msg( 'goalmgr.P', ['Received Answer of terminated query ', answer(Subst,Goal,N)], 0 )
+	).
+
+
+% Asks for the proof of a goal
+%  To do: check that the goal was previously executed from
+%         the requester with the given N identifier
+goalmgr( proof(Goal @ Peer, Ans @ Peer, N), Requester, Me, Id, NewId ) :- !,
+	set_status( goalmgr, source ),					% sets process status for termination control
+	get_proofid( N, Requester, Id, NewId, ProofId ),
+	send( Me, Peer, proof(Goal $ Requester, Ans $ Requester,ProofId)),				% calls the goal
+	db_assert( transaction( ProofId, Requester, N, proof(Goal @ Peer,Ans @ Peer) ) ).	% maps internal identifiers with external ones
+
+goalmgr( explanation(Rule,Id), _Peer, Me, State, State ) :- !,
+	db_query( transaction( Id, Requester, N, _ ) ),
+	send_msg( Me, Requester, explanation( Rule, N ) ).
+
+
+% Dynamic assertion of goals and rules, updating the tables
+goalmgr( assert(Clause @ Peer,N), Requester, Me, Id, NewId ) :- !,
+	set_status( goalmgr, source ),					% sets process status for termination control
+	send( Me, prover(Peer), assert(Clause)),				% calls the goal
+	db_assert( transaction( Id, Requester, N, assert(Clause @ Peer) ) ),	% maps internal identifiers with external ones
+	NewId is Id + 1.						% computes new identifier
+
+goalmgr( retract(Head @ Peer,N), Requester, Me, Id, NewId ) :- !,
+	set_status( goalmgr, source ),					% sets process status for termination control
+	send( Me, prover(Peer), retract(Head)),				% calls the goal
+	db_assert( transaction( Id, Requester, N, retract(Head @ Peer) ) ),	% maps internal identifiers with external ones
+	NewId is Id + 1.						% computes new identifier
+
+goalmgr( delete(_GroundLit,_N), _Requester, _Me, Id, Id ) :- !.          % ignores deleted messages
+
+% The current set of calls have terminated
+goalmgr( done, _, Me, Id, Id ) :- !,
+	computation_ended( Me ).
+	
+goalmgr( read(_), toplevel, _, State, State ) :- !.
+
+% Unexpected messages has been received
+goalmgr( Msg, Peer, _Me, State, State ) :-
+	debug_msg( 'goalmgr.P', ['Buggy msg ', Peer, ':' , Msg ], 0 ).
+
+
+% keeps track of the previous internal transaction identifiers used to 
+% provide the proof.
+get_proofid( N, Requester, Id, Id, ProofId  ) :-
+	db_query( asked_proof( Requester, N, ProofId ) ), !.
+get_proofid( N, Requester, Id, NewId, Id) :-
+	db_assert( asked_proof( Requester, N, Id ) ),
+	NewId is Id + 1.
+
+% Clears all the transactions, sending the appropriate messages to the
+% callers and sends termination messages to all peers
+computation_ended( Me ) :-
+	db_retract( transaction( _, Requester, N, _ ) ), % Should we remove this information ?
+	send_msg( Me, Requester, done( N ) ),
+	component( Comp, _, _, _, _, _ ),
+	Comp \= goalmgr,
+	Comp \= prover(_),
+	send_msg( Me, Comp, done(N) ),
+	fail.
+computation_ended( _ ).
+
+
+
+

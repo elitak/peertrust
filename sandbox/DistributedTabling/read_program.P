@@ -1,0 +1,65 @@
+:- op( 1110, xfy, '<-' ).
+
+:- dynamic consulted/1.
+:- dynamic table_goal/2.
+:- dynamic rule/2.
+:- dynamic revisable/2.
+
+:- import numbervars/3 from num_vars.
+
+/* consults a logic program */
+
+consult_logic_program( FileName ):-
+	clean_db, 
+	db_assert( consulted( FileName ) ),
+	see( FileName ),
+	read_clauses,
+	seen.
+
+% read_clauses reads a term at a time and processes it.
+read_clauses :-
+    repeat,
+	read( Term ),
+	process_clauses( Term, End ),
+    call(End), !.
+
+
+process_clauses( end_of_file, true ).
+
+process_clauses( ( :- table( Lit, Where ) ), fail ):- !,
+	numbervars( Lit, 0, _),
+	db_assert( table_goal( Lit, Where ) ).
+
+process_clauses( ( :- rev( Lit ) ), fail ):- !,
+	db_assertz( ( revisable( Lit, false ) :- ! ) ).
+
+process_clauses( ( :- rev( Lit, Init ) ), fail ):- !,
+	db_assertz( ( revisable( Lit, Init ) :- ! ) ).
+
+process_clauses( Rule, fail ) :- !,
+	assert_rule( Rule ).
+
+assert_rule( ( H <- Body ) ) :- !,
+	parse( Body, List_Body ),
+	db_assert( rule( H, List_Body ) ).
+assert_rule( Fact ) :- !,
+	db_assert( rule( Fact, []) ).
+
+% parse( (a1, a2, ..., an), [a1, a2, ..., an] )
+
+parse( (X, Y), [ X | Z]):- !, 
+	parse( Y, Z ).
+parse( X, [X]).
+
+
+% clean database
+clean_db:-
+	db_retractall( consulted(_) ),
+	db_retractall( revisable( _, _ ) ),
+	db_retractall( rule(_,_)),
+	db_retractall( table_goal(_, _) ).
+
+
+
+
+

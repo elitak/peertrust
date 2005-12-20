@@ -1,0 +1,147 @@
+% we use two special infix operators
+
+:- op(1155,fx,internal).
+
+% rule symbol
+:- op(1150, xfx, '<-' ).
+
+% operators for signed clauses
+:- op(1110, xfx, signedBy ).
+:- op(1110, fx,  signedBy ).
+
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+:- op(601, xfx, $).
+
+% rule( Head, Body, InternalExternal, Peer ).
+% signed( Head, Policy, Issuer, SignedBody, Peer ).
+:- dynamic rule/4.
+:- dynamic signed/5.
+
+:- export read_peer/2.
+:- export read_peer_header/2.
+:- export read_peer_program/2.
+
+:- export rule/3.
+:- export signed/5.
+
+
+/* consults the Peer Header file and corresponding Peer logic program */
+
+read_peer( Peer, FileNameProgram ):-
+	read_peer_program( Peer, FileNameProgram ).
+
+/* deprecated
+% reads the Header File containing the public declarations.
+% and asserts them in the exported dynamic predicate public(Peer,Goal).
+
+read_peer_header( Peer, FileName ) :-
+	clean_declarations( Peer ),
+	see( FileName ),
+	read_public_declarations( Peer ),
+	seen.
+
+
+% reads one term at a time and asserts de public declarations.
+read_public_declarations( Peer ) :-
+	read( Declaration ), !,
+	( Declaration = end_of_file -> 
+		true
+	;
+		process_public_declaration( Declaration, Peer ), !,
+		read_public_declarations( Peer )
+	).
+		
+process_public_declaration( ( :- public( Pred / Arity) ), Peer ) :- !,
+	functor( Goal, Pred, Arity ),
+	assert( public( Goal, Peer ) ).
+*/
+	
+
+
+/* read_peer_program( Peer, FileName ) reads the rules from the program and asserts them
+   in the knowledge base. Both signed and ordinary rules are supported
+*/
+
+read_peer_program( Peer, FileName ) :-
+	clean_program( Peer ), 
+	see( FileName ),
+	read_peer_rules( Peer ),
+	seen.
+
+clean_program( Peer ) :-
+	retractall( rule( _, _, _, Peer ) ),
+	retractall( signed( _, _, _, _, Peer ) ).
+
+
+% Reads one term at a time and asserts the rules in the program.
+% Notice that there is no distinction between internal and public rules at this level.
+read_peer_rules( Peer ) :-
+	read( Rule ), !,
+	( Rule = end_of_file -> 
+		true
+	;
+		process_peer_rule( Rule, Peer ), !,
+		read_peer_rules( Peer )
+	).
+
+process_peer_rule( internal(Rule), Peer ) :- !,
+	parseRule( Rule, internal, Peer, ParsedRule ),
+	assert( ParsedRule ).
+process_peer_rule( Rule, Peer ) :- !,
+	parseRule( Rule, public, Peer, ParsedRule ),
+	assert( ParsedRule ).
+
+parseRule( ( Head <- Body signedBy ISBody), IntExt, Peer, signed(NewHead,Policy,Issuer,SignedBody,Peer)) :- !,
+	(  IntExt = public -> true ; throw( 'Internal signed rules not allowed'(( Head <- Body signedBy ISBody))) ), 
+	parseHead( Head, NewHead ),
+	parseBody( Body, Policy ),
+	parseIssuerSignedBody( ISBody, Issuer, SignedBody ).
+parseRule( ( Head <- signedBy ISBody), IntExt, Peer, signed(NewHead,[],Issuer,SignedBody,Peer) ) :- !,
+	(  IntExt = public -> true ; throw( 'Internal signed rules not allowed' ) ), 
+	parseHead( Head, NewHead ),
+	parseIssuerSignedBody( ISBody, Issuer, SignedBody ).
+parseRule( ( Head <- Body ), IntExt, Peer, rule(NewHead,BodyList,IntExt,Peer) ) :- !,
+	parseHead( Head, NewHead ),
+	parseBody( Body, BodyList ).
+parseRule( ( Head ), IntExt, Peer, rule(NewHead,[],IntExt,Peer)  ) :- !,
+	parseHead( Head, NewHead ).
+
+
+% Do not forget to check syntax of Head and Body Literals...
+parseHead( Head $ Requester, Head $  Requester ) :- !.
+parseHead( Head            , Head $ _Requester ) :- !.
+
+parseBody( Body, BodyList ) :-
+	parseCommaList( Body, BodyList ).
+
+parseIssuerSignedBody( [Issuer], Issuer, [] ) :- !.
+parseIssuerSignedBody( ([Issuer], Body), Issuer, BodyList ) :- !,
+	parseCommaList( Body, BodyList ).
+parseIssuerSignedBody( Goal, _, _ ) :-
+	throw( 'Expecting issuer followed by signed body'(Goal) ).
+
+% parseCommaList( (a1, a2, ..., an), [a1, a2, ..., an] )
+
+parseCommaList( (X, Y), [ X | Z]):- !, 
+	parseCommaList( Y, Z ).
+parseCommaList( X, [X]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

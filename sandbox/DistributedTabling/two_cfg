@@ -1,0 +1,20 @@
+% example of config file for distributed  
+% tabling system 
+ 
+process( tablemgr, 'helena').
+component( tablemgr, tablemgr, 1, tablemgr, table_manager_init, tablemgr ).
+
+process( goalmgr, 'helena').
+component( goalmgr, goalmgr, 1, goalmgr, goal_manager_init, goalmgr ).
+
+process( tablec(1), 'helena' ).
+component( tablec(1), tablec(1), 1, tablec, table_client_init, table_client ).
+
+process( slxc(1), 'helena' ).
+component( slxc(1), slxc(1), 1, slxc, slx_client_init, slx_client ).
+                 
+process( tablec(2), 'menelau' ).
+component( tablec(2), tablec(2), 2, tablec, table_client_init, table_client ).
+
+process( slxc(2), 'menelau' ).
+component( slxc(2), slxc(2), 1, slxc, slx_client_init, slx_client ).

@@ -1,0 +1,16 @@
+latency_init(_,nothing).
+
+latency_handler(start(N,To),From, Name, _, to(N,From,To) ) :-
+	send_msg(Name,To,hi).
+latency_handler(hi,Sender,Name,State,State) :-
+	send_msg(Name,Sender,dec).
+
+latency_handler(dec,_,Name,State, NewState ) :-
+	decrement_counter(State,Name,NewState).
+
+decrement_counter(nothing,_,nothing) :- !.
+decrement_counter(to(0,From,_),Name,nothing) :- !,
+	send_msg(Name,From, stopped ).
+decrement_counter(to(N,From,To),Name, to(N1,From,To)) :- !,
+	send_msg(Name, To, hi ),
+	N1 is N - 1.

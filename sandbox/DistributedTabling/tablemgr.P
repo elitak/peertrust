@@ -1,0 +1,70 @@
+/* TABLE MANAGER DISPATCHER */
+%:- spy( tablemgr, 5 ).
+%:- spy(_,_).
+
+:- consult(read_program).
+
+:- import append/3 from basics.
+:- import numbervars/3 from num_vars.
+
+table_manager_init( _, ListOfClients ) :-
+	db_retractall( table_goal( _, _ ) ),
+	get_slx_clients( ListOfClients ).
+
+get_slx_clients( ListOfClients - DList ) :-
+	findall( N, component( slxc(N), _, _, _, _, _ ), AuxClients ),
+	append( AuxClients, DList, ListOfClients ).
+	
+
+/* TABLE MANAGER MESSAGE HANDLING PROCEDURE */
+
+
+tablemgr( read(File), toplevel, _, State, State ) :- !,
+	consult_logic_program(File).
+
+tablemgr( assert(Rule), goalmgr, _Me, State, State ) :- !,
+	get_slx_clients( ListOfClients - [] ),
+	assert_all( ListOfClients, Rule ).
+
+% Receives a call for a goal
+tablemgr( call(Lit,GoalId), goalmgr, _Me, State, NewState ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	new_goal( GroundLit, Lit, GoalId, State, NewState ).
+
+tablemgr( call(Lit,GoalId), Sender, _Me, State, NewState ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	select_client( GroundLit, Lit, GoalId, Sender, State, NewState ).
+
+
+
+select_client( GroundLit, Lit, GoalId, tablec(M), State, State ) :-
+	db_query( table_goal( GroundLit, tablec(N) ) ), !,
+	send( tablemgr, tablec(M), table( Lit, tablec(N) ) ),
+	send_fake( tablemgr, slxc(M), tablec(N), call(Lit,GoalId) ).
+
+select_client( GroundLit, Lit, GoalId, tablec(M), [N|RestN]-DL, RestN-NDL ) :-
+	DL = [N|NDL],
+	db_assert( table_goal( GroundLit, tablec(N) ) ),
+	send( tablemgr, tablec(N), table( Lit, tablec(N) ) ),
+	inform_caller( M, N, Lit ),
+	send_fake( tablemgr, slxc(M), tablec(N), call(Lit,GoalId) ).
+	
+inform_caller( M, M, _ ) :- !.
+inform_caller( M, N, Lit ) :- send( tablemgr, tablec(M), table( Lit, tablec(N) ) ).
+
+new_goal( GroundLit, Lit, GoalId, State, State ) :-
+	db_query( table_goal( GroundLit, tablec(N) ) ), !,
+	send_fake( tablemgr, goalmgr, tablec(N), call(Lit,GoalId) ).
+
+new_goal( GroundLit, Lit, GoalId, [N|RestN]-DL, RestN-NDL ) :-
+	DL = [N|NDL],
+	db_assert( table_goal( GroundLit, tablec(N) ) ),
+	send( tablemgr, tablec(N), table( Lit, tablec(N) ) ),
+	send_fake( tablemgr, goalmgr, tablec(N), call(Lit,GoalId) ).
+
+assert_all( [], _ ).
+assert_all( [N|RestC], Rule ) :-
+	send_msg( tablemgr, slxc(N), assert( Rule ) ), !,
+	assert_all( RestC, Rule ).

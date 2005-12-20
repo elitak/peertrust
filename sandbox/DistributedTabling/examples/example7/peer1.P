@@ -1,0 +1,7 @@
+
+v(X) <- e(X) @ p2, v1(X).
+
+internal v1(a).
+internal v1(b).
+v1(c).
+

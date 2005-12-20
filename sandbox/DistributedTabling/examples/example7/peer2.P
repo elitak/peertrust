@@ -1,0 +1,5 @@
+
+e(a).
+internal e(b) <- v(_) @ p1.
+e(c).
+e(d).

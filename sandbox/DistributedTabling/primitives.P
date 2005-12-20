@@ -1,0 +1,75 @@
+% Delivers Msg to a given Pid and Port as determined by find_recipient
+% Signature: deliver_msg( +Pid, +Port, +Msg )
+%
+% Input Arguments : +Pid      -> Pid of the Receiver or 
+%                                'same' if thread in the same process. 
+%                 : +Port     -> Port of the Receiver or
+%                                Fid if thread in the same process. 
+%                 : +Msg      -> Message to deliver
+
+% Delivers Msg to a local queue
+deliver_msg( same, Port, Msg ) :- !,
+	numb_queue( Port, Queue),                       % Gets name of the queue...
+	q_name( Queue, Fid ),                           % to find corresponding Fid.
+	q_put( Fid, Msg ).
+
+% Delivers Msg to another process
+deliver_msg( Pid, Port, Msg ) :- !,
+	debug_msg( 'primitives.P', ['Delivering ', Msg, ' to ', Pid-Port ], 9 ),
+	pvm_send( Pid, Port, Msg ).
+
+% receive made from toplevel
+receive( toplevel, Process, Msg ):- !,
+	pvm_recv( Pid, _, Msg),
+	pid( Process, Pid ).
+
+% receive made from  a stand alone process
+receive( Receiver, Process, Msg ):-
+	component( Receiver, Receiver, _, _, _, _ ), !,
+	pvm_recv( Pid, _, Msg),
+	pid( Process, Pid ).
+
+% receive made from a thread
+receive( Receiver, Process, Msg ):-
+	component( Receiver, Process, Port, _, _, _), !, 
+	numb_queue( Port, Queue),                       % Gets name of the queue...
+	q_name( Queue, Fid ),
+	q_get( Fid, Msg).
+
+% receive non blocking made from toplevel
+receive_n( toplevel, Process, Msg ):- !,
+	pvm_nrecv( Pid, _, Msg),
+	pid( Process, Pid ).
+
+% receive non blocking made from  a stand alone process
+receive_n( Receiver, Process, Msg ):-
+	component( Receiver, Receiver, _, _, _, _ ), !,
+	pvm_nrecv( Pid, _, Msg),
+	pid( Process, Pid ).
+
+% receive non blocking made from a thread
+receive_n( Receiver, Process, Msg ):-
+	component( Receiver, Process, Port, _, _, _),
+	numb_queue( Port, Queue),                       % Gets name of the queue...
+	q_name( Queue, Fid ),
+	q_nget( Fid, Msg).
+
+% Low level receive
+recv( Pid, Port, Msg ) :-
+	pvm_recv( Pid, Port, Msg ).
+
+recv_n( Pid, Port, Msg ) :-
+	pvm_nrecv( Pid, Port, Msg ).
+
+
+/* predicates for transforming queue numbers into queue names */
+
+/* numb_queue( N, q_N ) */
+numb_queue( Port, Queue):-
+	name( Port, Numb_List),
+	name( Queue, [113, 95|Numb_List] ).
+
+/* queue_numb(q_N, N) */
+queue_numb( Queue, Port):-
+	name( Queue, [113, 95|Numb_List] ),
+	name( Port, Numb_List ).

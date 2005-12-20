@@ -1,0 +1,35 @@
+
+/* read configuration file for process and components */
+
+read_config_file( Name ) :-
+	  clean_config,
+        see( Name ),
+        read_file,
+        seen.                 
+
+read_file :-
+        read( Clause ),
+        process_term( Clause ), !,
+        read_file.
+read_file.
+
+process_term( end_of_file ) :- !, fail.
+process_term( process( Name, Machine ) ) :- !,
+        assert( process( Name, Machine ) ).
+
+process_term( component( Tname, Pname, Port, File, 
+			InitGoal, Dispatcher ) ) :- !,
+	assert( component( Tname, Pname, Port, File, 
+	InitGoal, Dispatcher ) ).
+
+process_term( ( _ :- _ ) ) :-
+        write( 'Syntax error.' ), nl, abort.
+
+process_term( Fact ):- !,
+	assert( Fact ). 
+
+
+clean_config :-
+	retractall( process(_,_) ),
+	retractall( component(_,_,_,_,_,_) ),
+	retractall( queue_param(_,_,_) ).

@@ -1,0 +1,8 @@
+% example of config file for distributed  
+% tabling system 
+
+process( teste(1), 'helena' ).
+component( teste(1), teste(1), 1, twoway, latency_init, latency_handler ).
+
+process( teste(2), 'helena' ).
+component( teste(2), teste(2), 1, twoway, latency_init, latency_handler ).

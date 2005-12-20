@@ -1,0 +1,10 @@
+%:- table( reach(X,Y), tablec(1) ).
+%:- table( edge(X,Y), tablec(2) ).
+
+edge(a,b).
+edge(b,c).
+edge(c,a).
+edge(b,e).
+reach(X,Y) <- edge(X,Y).
+reach(X,Y) <- edge(X,Z), reach(Z,Y).
+

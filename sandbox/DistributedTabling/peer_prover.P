@@ -1,0 +1,301 @@
+/* PEER DISPATCHER */
+
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+:- op(601, xfx, $).
+
+:- [readPeerProgram].
+:- import numbervars/3 from num_vars.
+:- import ground/1 from basics.
+
+%:- import read_peer/2 from readPeerProgram.
+%:- import rule/4 from readPeerProgram.
+%:- import signed/5 from readPeerProgram.
+
+:- import append/3 from basics.
+:- import member/2 from basics.
+
+/* Predicates asserted:*/
+:- dynamic consumer_goal/4.
+:- dynamic goal/6.
+:- dynamic sent_explanation/2.
+:- dynamic truth_label/3.
+
+%:- spy( select_literal, _ ).
+%:- spy( slx_client, 5 ).
+
+%:- spy( _, _ ).
+
+/* consumer_goal( TableId, TableClient of TableId, Goal, Mode)
+  - TableID is the identifier of the table in the TableClient (peer)
+  which called the goal
+  - Goal is the goal called. Necessary for dynamic asserts and retracts
+  - Mode keeps whether the call was made in public or internal
+  mode.
+
+  goal( GoalId, TableId, Head, Body, Mode, Explanation )
+  - GoalID is the internally generated identifier of an active goal
+  - TableID is the identifier of the table in the table client (peer)
+  which called the goal
+  - Head is the current instantion of the head in order to obtain the
+  answer correctly instantiated
+  - Body contains the remaining goals to prove. The first one has been
+  invoked
+  - Mode indicates if we are in public or private mode
+  - Explanation keeps track of the logical operation performed, either:
+       o rule( ... ) -> extension by clause of an ordinary rule
+       o signed( ... ) -> extension by clause of signed rule
+       o forward( ... ) -> forwarding a query to a different peer
+       o answer( Answer, ParentGoalID) -> extension by answer. Answer is
+       numbervared.
+
+  sent_explanation(GoalId,ProofId)
+  - GoalId is the identifier of the proof for an answer alrady sent
+  - ProofId is the identifier of the proof for a particular goal 
+  
+ 
+
+*/
+peer_prover_init( _, 0 ) :-
+	db_retractall( consumer_goal( _, _, _, _ ) ), 
+	db_retractall( goal( _, _, _, _, _, _ ) ),
+	db_retractall( sent_explanation(_,_) ).
+
+
+/* SLX CLIENT MESSAGE HANDLING PROCEDURE */
+
+peer_prover( read(File), toplevel, Peer, State, State ) :- !,
+	catch( read_peer( File ), _, send_debug_msg( 'peer_client.P', ['Unable to read file ', File,' by peer ', Peer], 0 ) ).
+
+%slx_client( assert( Rule ), tablemgr, _, State, State ) :- !,
+%	assert_rule( Rule ).
+
+peer_prover( call((Lit @ Issuer $ Requester),TId,Mode), Sender, Me, GoalId, NewGoalId ) :- !,
+	findall( Resolvent, get_signed_rules( Lit @ Issuer $ Requester, TId, Mode, Resolvent), SignedGoals),
+	( SignedGoals = [] 
+	->  ListGoals = [resolvent( TId, (Lit @ Issuer $ Requester), forward(Lit @ Issuer), Mode,
+								     forward(Lit @ Issuer $ Requester))]
+	;   ListGoals = SignedGoals
+	),
+	extension_by_clause( Me, Sender, TId, (Lit @ Issuer $ Requester), Mode, ListGoals, GoalId, NewGoalId ).
+	
+peer_prover( call((Lit $ Requester), TId,Mode), Sender, Me, GoalId, NewGoalId ) :- !,
+	isGround( Lit, YesNo ),
+	findall( Resolvent, get_rules( (Lit $ Requester), TId, Mode, YesNo, Resolvent ), ListGoals ),
+	extension_by_clause( Me, Sender, TId, (Lit $ Requester), Mode, ListGoals, GoalId, NewGoalId ).
+
+peer_prover( answer(Lit,[_,Nr]), Sender, Me, GoalId, NewGoalId ) :- !,
+	extension_by_answer( Me, Sender, Lit, Nr, GoalId, NewGoalId ).
+
+
+:- [getproof].
+
+peer_prover( proof(Tid,Ans,ProofId), _, prover(Me), GoalId, GoalId ) :- !,
+	get_all_proof_from_answer( Tid, Ans, Goals ),
+	send_proof( Goals, ProofId, Me ).
+
+peer_prover( retract( Head ), _, Me, GoalId, GoalId ) :- !,
+	parseHead( Head, NewHead ),
+	retractall_peer_rules( NewHead ),
+	retractall_peer_goals( Me, NewHead ).
+
+peer_prover( delete( GroundLit, [_,Nr] ), _, Me, GoalId, GoalId ) :- !,
+	(   db_query( goal( ChildGoalId, _, _, _, _, answer(GroundLit,Nr) ) )
+	->  delete_goal( Me, ChildGoalId )
+	;   true % the goal has already been removed
+	).
+	
+peer_prover( assert( Rule ), _, Me, GoalId, NewGoalId ) :- !,
+	assert_peer_rule( Rule, ParsedRule ),
+	assert_peer_goals( ParsedRule, Me, GoalId, NewGoalId ).
+	
+
+	
+/********************** EXTENSION BY CLAUSE *********************/
+
+
+get_signed_rules( Call, TId, Mode, 
+		  resolvent( TId, Call, GoalBody, Mode, signed( Call, Policy, Issuer, SignedBody ))) :-
+	db_query(signed( Call, Policy, Issuer, SignedBody )),
+	append( Policy, SignedBody, GoalBody).
+
+get_rules( Call, TId, Mode, IsGround,
+                resolvent( TId, Call, Body, ExecMode, rule( Call, Body, IntExt ) ) ) :-
+	db_query(rule( Call, Body, IntExt )),
+	execution_mode( Mode, IntExt, IsGround, ExecMode ).
+ 
+execution_mode( public, internal, IsGround, internal ) :- !, IsGround = yes.
+execution_mode( public, public, _, public ) :- !.
+execution_mode( internal, internal, _, internal ) :- !.
+execution_mode( internal, public, _, internal ) :- !.
+
+isGround(Lit,yes) :- ground(Lit), !.
+isGround(_,no).
+
+%extension_by_clause( _, _, _, _, [], GoalId, GoalId ) :- !.
+extension_by_clause( Me, Sender, TId, Goal, Mode, ListGoals, GoalId, NextGoalId ) :- !,
+	db_assert( consumer_goal( TId, Sender, Goal, Mode ) ),
+	create_new_goals( ListGoals, Me, GoalId, NextGoalId).
+
+
+create_new_goals( [], _, GoalId, GoalId ) :- !.
+create_new_goals( [resolvent(TId,Head,Body,Mode,Explanation)|RestGoals],Me,GoalId,NewGoalId) :-
+	select_literal( Me, Head, Body, TId, Mode, Explanation, GoalId, AuxGoalId ),
+	create_new_goals( RestGoals, Me, AuxGoalId, NewGoalId ). 
+
+/********************** EXTENSION BY ANSWER *********************/
+
+
+extension_by_answer( prover(N), _Sender, Lit, Nr, GoalId, NewGoalId ) :-
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	db_query( goal( Nr, TId, Head, [Lit|RestBody], Mode, _ ) ), !,
+	select_literal( prover(N), Head, RestBody, TId, Mode, answer(GroundLit,Nr),GoalId, NewGoalId ).
+
+
+% An answer was found	
+select_literal( Peer, Head, [], TId, Mode, Explanation, GoalId, NewGoalId ) :- !,
+	db_query( consumer_goal( TId, Consumer, _, _ ) ),
+	send( Peer, Consumer, answer(Head,TId) ),
+%	send_msg( slxc(N), toplevel, goal( GoalId, ( Head <- [] ) ) ),
+	numbervars( Head, 0, _ ),
+	db_assert( goal( GoalId, TId, Head, [], Mode, Explanation ) ),
+	NewGoalId is GoalId + 1.
+
+% Non-tabled call
+/*
+select_literal( slxc(N), Head, [+ Goal|RestGoal], TId, GoalId, NewGoalId ) :- !,
+	findall( rule( Head, RestGoal ), demo( [Goal] ), ListOfGoals ),
+	create_new_goals( ListOfGoals, slxc(N), TId, GoalId, NewGoalId ).
+*/
+
+% A builtin must be processed
+select_literal( Peer, Head, [Goal|RestGoals], TId, Mode, Explanation, GoalId, NewGoalId  ) :- 
+	builtin( Goal ), !,
+	call( Goal ),
+	select_literal( Peer, Head, RestGoals, TId, Mode, Explanation,GoalId, NewGoalId ).
+
+	 		
+% Otherwise, calls the new literal	
+select_literal( prover(Peer1), Head, [Lit  |RestBody], TId, Mode, Explanation, GoalId, NewGoalId ) :- !,
+	send( prover(Peer1), Peer1, call(Lit $ Peer1,[prover(Peer1),GoalId],Mode) ),
+%	send_msg( prover(Peer1), toplevel, goal( [N,GoalId], ( Head <- [Lit|RestBody] ) ) ),
+	db_assert( goal( GoalId, TId, Head, [Lit |RestBody], Mode, Explanation ) ),
+	NewGoalId is GoalId + 1.
+select_literal( prover(Peer1), Head, forward(Lit @ Peer2), TId, Mode, Explanation, GoalId, NewGoalId ) :- !,
+	send( prover(Peer1), Peer2, call(Lit $ Peer1,[prover(Peer1),GoalId],Mode) ),
+%	send_msg( prover(Peer1), toplevel, goal( [N,GoalId], ( Head <- [Lit|RestBody] ) ) ),
+	db_assert( goal( GoalId, TId, Head, [Lit], Mode, Explanation ) ),
+	NewGoalId is GoalId + 1.
+
+
+% Builtin predicates	
+builtin( _X is _Y ).
+builtin( _X = _Y ).
+builtin( _X < _Y ).
+builtin( _X > _Y ).
+builtin( _X =< _Y ).
+builtin( _X >= _Y ).
+
+/**************** ASSERTION OF RULES ************************/
+
+assert_peer_goals( rule(Head,Body,IntExt), Me, GoalId, NewGoalId ) :-
+	findall( resolvent(TId,Head,Body,ExecMode,rule(Head,Body,IntExt)), 
+		 (   db_query(consumer_goal(TId,_,Head,Mode)),
+		     isGround( Head, YesNo ),
+		     execution_mode( Mode, IntExt, YesNo, ExecMode )
+		 ),
+		 ListOfGoals
+	       ),
+	create_new_goals( ListOfGoals, Me, GoalId, NewGoalId ).
+	
+assert_peer_goals( signed( Head, Policy, Issuer, SignedBody ), Me, GoalId, NewGoalId ) :-
+	append( Policy, SignedBody, Body ),
+	findall( resolvent(TId,Head,Body, Mode,signed( Head, Policy, Issuer, SignedBody ) ), 
+		 (   db_query(consumer_goal(TId,_,Head,Mode)), 
+		     db_query( goal( _, TId, _, _, _, signed(_,_,_,_) ) ) % Only adds dynamic signed rules to non-forwarded tabled goals
+		 ),
+		 ListOfGoals
+	       ),
+	create_new_goals( ListOfGoals, Me, GoalId, NewGoalId ).
+
+
+
+/**************** RETRACTION OF RULES ************************/
+% Remains to be done -> forward clauses
+
+retractall_peer_goals( Peer, Head ) :-
+	db_query( goal( GoalId, _, _, _, _, rule( Head, _, _ ) ) ),
+	db_retractall( sent_explanation( GoalId, _ ) ),
+	delete_goal( Peer, GoalId ),
+	fail.
+retractall_peer_goals( Peer, Head ) :-
+	db_query( goal( GoalId, _, _, _, _, signed( Head, _, _, _ ) ) ),
+	db_retractall( sent_explanation( GoalId, _ ) ),
+	delete_goal( Peer, GoalId ),
+	fail.
+retractall_peer_goals( _, _ ).
+
+
+delete_goal( Me, GoalId ) :-
+	db_retract( goal( GoalId, TableId, Head, Body, _, _ ) ), !,
+	(   Body = [] 
+	->  delete_answer( Me, TableId, Head )
+	;   delete_subgoals( Me, GoalId )
+	).
+
+delete_answer( Me, TableId, Head ) :-
+	(   db_query( goal( _, _, Head, [], _, _ ) )
+	->  true
+	;   db_query( consumer_goal( TableId, Consumer, _, _ ) ),
+	    send( Me, Consumer, delete( Head, TableId ) ) % deletes the answer from the table
+	).
+	
+
+delete_subgoals( prover(Me), GoalId ) :-
+	send( prover(Me), Me, remove([prover(Me),GoalId]) ),     % deletes the consumer from the table
+	db_query( goal( ChildGoalId, _, _, _, _, answer(_,GoalId) ) ),
+	delete_goal( Me, ChildGoalId ),
+	fail.
+delete_subgoals( _, _ ).
+
+
+/**************** VANILLA META-INTERPRETER ************************/
+
+demo( [] ) :- !.
+demo( [B|RestGoals] ) :-
+	builtin( B ), !, 
+	call( B ),
+	demo( RestGoals ).
+demo( [A|RestGoals] ) :-
+	db_query(rule( A, Body )),
+	demo( Body ),
+	demo( RestGoals ).
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

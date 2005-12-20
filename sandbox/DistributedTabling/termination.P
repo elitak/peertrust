@@ -1,0 +1,67 @@
+%:- spy( _, _ ).
+
+:- dynamic status/2.
+:- dynamic deficit/3.
+:- dynamic parent/2.
+
+set_status( Task, Status ) :-
+	retract( status( Task, _ ) ), !,
+	debug_msg( 'termination.P', [status( Task, Status ) ], 8 ),
+	assert( status( Task, Status ) ).
+set_status( Task, Status ) :-
+	debug_msg('termination.P',  [status( Task, Status ) ], 8 ),
+	assert( status( Task, Status ) ).
+
+inc_deficit( Task, Receiver ) :-
+	retract( deficit( Task, Receiver, N ) ), !,
+	N1 is N+1,
+	debug_msg( 'termination.P', [deficit( Task, Receiver, N1 )], 8 ),
+	assert( deficit( Task, Receiver, N1 ) ).
+inc_deficit( Task, Receiver ) :-
+	debug_msg( 'termination.P', [deficit( Task, Receiver, 1 )], 8 ),
+	assert( deficit( Task, Receiver, 1 ) ).
+
+dec_deficit( Task, Receiver ) :-
+	inc_counter( ack ), 
+	retract( deficit( Task, Receiver, N ) ), !,
+	N1 is N-1,
+	debug_msg( 'termination.P', [deficit( Task, Receiver, N1 )], 8 ),
+	assert_deficit(Task, Receiver, N1 ).
+
+assert_deficit( _, _, 0 ) :- !.
+assert_deficit( Task, Receiver, N ) :-
+	assert( deficit( Task, Receiver, N ) ).
+
+received_msg( Name, Sender ) :-
+	status( Name, idle ), !,
+	set_status( Name, nonsource ),
+	assert( parent( Name, Sender ) ).
+received_msg( Name, Sender ) :- 
+	send_system_msg( Name, Sender, ack( Name ) ).
+
+quiescent( Name ) :-
+	status( Name, nonsource ), !,
+	msg_waiting( Name, Waiting ),
+	cleanup( Waiting, Name ).
+
+quiescent( Name ) :-
+	status( Name, source ), !,
+	msg_waiting( Name, Waiting ),
+	done( Waiting, Name ).
+
+quiescent( _ ).
+
+msg_waiting( Name, true ) :-
+	deficit( Name, _, _ ), !.
+msg_waiting( _Name, false ).
+
+cleanup( true, _ ) :- !.
+cleanup( false, Name ) :-
+	retract( parent( Name, Parent ) ),
+	send_system_msg( Name, Parent, ack( Name ) ),
+	set_status( Name, idle ). 
+
+done( true, _ ) :- !.
+done( false, Name ) :-
+	set_status( Name, idle ),
+	send_msg( Name, Name, done ). 

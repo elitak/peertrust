@@ -1,0 +1,120 @@
+:- consult( db ).
+
+:- dynamic start_time/1.
+:- dynamic dispatcher_call/6.
+:- dynamic rule/2.
+:- dynamic state/2.
+:- dynamic simulator/0.
+
+init_component( Name, File, InitName, DispatcherName, InitState ) :-
+	consult( File ),
+	set_status( Name, idle ),
+	functor( InitGoal, InitName, 2 ),
+	arg(1,InitGoal,Name),
+	arg(2,InitGoal,InitState),
+	call( InitGoal ), !, 
+	assert_dispatcher_call( Name, DispatcherName ).
+
+assert_dispatcher_call( Name, DispatcherName ) :-
+	functor( Dispatcher, DispatcherName, 5 ),
+	arg(1,Dispatcher,Msg),
+	arg(2,Dispatcher,Sender),
+	arg(3,Dispatcher,Name),
+	arg(4,Dispatcher,OldState),
+	arg(5,Dispatcher,NewState),
+	assert( dispatcher_call( Name, Msg, Sender, OldState, NewState, Dispatcher) ).
+
+dispatcher_loop( Block, Name, State ) :- 
+	send_system_msg( Name, toplevel, running(Name) ),
+	listen_loop( Block, Name, State ).
+
+listen_loop( true, Name, State ) :- !,
+	debug_msg( 'dispatcher.P', ['Waiting for message (', Name, ')'], 7 ),
+	receive( Name, _, Msg ), 
+	clear_state( Name ),
+	debug_msg('dispatcher.P',  ['Processing message (', Name, ') ', Msg], 7 ),
+	process_msg( Msg, Name, State, NewState ), !,
+	listen_loop( false, Name, NewState ).
+
+listen_loop( false, Name, State ) :- 
+	debug_msg( 'dispatcher.P', ['Reading message (', Name, ')'], 7 ),
+	receive_n( Name, _, Msg ), !,
+	debug_msg( 'dispatcher.P', ['Processing message (', Name, ') ', Msg], 7 ),
+	process_msg( Msg, Name, State, NewState ), !,
+	listen_loop( false, Name, NewState ).
+	
+listen_loop( false, Name, State ) :-
+	debug_msg( 'dispatcher.P', ['No message (', Name, ')'], 7 ),
+	quiescent( Name ), !,
+	save_state( Name, State ), !,
+	listen_loop( true, Name, State ).
+
+clear_state( Name ) :-
+	simulator, !,
+	retract( state( Name, _ ) ),
+	inc_counter( clear_st ).
+clear_state( _ ).
+
+save_state( Name, State ) :-
+	simulator, !,
+	assert( state( Name, State ) ),
+	inc_counter( save_st ).
+save_state( _, _ ).
+
+/* Message processor */
+
+process_msg( ack(Sender), Name, State, State ) :- !, 
+	dec_deficit( Name, Sender ).	% Controls termination 
+
+process_msg( ackmsg(Sender,Msg), Name,  State, NewState ) :- !,
+	received_msg( Name, Sender ), 
+	dispatcher_call( Name, Msg, Sender, State, NewState, Goal ),
+	assert( '$trace'(Name,Sender,Msg,Goal) ),
+	call( Goal ).
+
+process_msg( ackmsg(RealSender,Sender,Msg), Name, State, NewState ) :- !,
+	received_msg( Name, RealSender ), 
+	dispatcher_call( Name, Msg, Sender, State, NewState, Goal ),
+	assert( '$trace'(Name,Sender,Msg,Goal) ),
+	call( Goal ).
+
+process_msg( msg(Sender,Msg), Name,  State, NewState ) :- !,
+	dispatcher_call( Name, Msg, Sender, State, NewState, Goal ),
+	assert( '$trace'(Name,Sender,Msg,Goal) ),
+	call( Goal ).
+
+process_msg( init, Name, _, InitState ):- !,
+	component(Name,  _, _, _, InitName, _ ),
+	functor( InitGoal, InitName, 2 ),
+	arg(1,InitGoal,Name),
+	arg(2,InitGoal,InitState),
+	call( InitGoal ), !.
+
+process_msg( Msg, _Name, State, State ) :- 
+	is_system_msg( Msg ), !,
+	process_system_msg( Msg ).
+
+% Processes system messages
+is_system_msg( kill ).
+is_system_msg( write_conf ).
+is_system_msg( start_time ).
+is_system_msg( end_time ).
+
+process_system_msg( kill ) :- !, fail.
+
+process_system_msg( write_conf ) :- !, 
+	findall( component(Task, Proc, Port, File, Init, Disp), 
+	         component(Task, Proc, Port, File, Init, Disp),
+	         List),
+	debug_msg('dispatcher.P', ['Configuration '|List],0).
+
+process_system_msg( start_time ) :- !,
+	retractall( start_time( _ ) ),
+	cputime(T),
+	assert( start_time( T ) ). 
+
+process_system_msg( end_time ) :- !,
+	retract( start_time( TStart ) ),
+	cputime(TEnd),
+	T is TEnd - TStart,
+	send_system_msg( _, toplevel, time( T ) ).

@@ -1,0 +1,105 @@
+:- consult(read_config).
+:- consult(init).
+:- consult( messages ).
+:- consult( debug ).
+:- consult( pvm ).
+
+:- import append/3 from basics.
+
+:- dynamic counter_pid/1.
+:- dynamic counter/2.
+:- dynamic pid/2.
+
+
+boot_dts( ConfigFile ):-
+	clean_simulation,
+	read_config_file( ConfigFile ),
+	list_processes( Procs ),
+	launch_processes( Procs ),
+	assert( me( toplevel ) ).
+
+list_processes( Procs ) :-
+	findall( ProcName, process( ProcName, _ ), Procs ).
+
+launch_processes( [] ) :- !,
+	get_pid( N ),
+	assert( pid( toplevel, N ) ).
+
+launch_processes( [ProcName|RestProcs] ) :-
+	get_pid( N ),
+	assert( pid( ProcName, N ) ),
+	retractall( me( _ ) ),
+	assert( me( ProcName ) ),
+	init_dispatcher( ProcName, _ ), 
+	launch_processes( RestProcs ).
+
+% Clears the state of all processes and components
+clean_simulation :-
+	retractall( me(_) ),
+	retractall( pid(_,_) ),
+	retractall( state(_,_) ),
+	retractall( code(_,_,_) ).
+
+% starts simulation
+simulate :-
+	findall( Name, state( Name, _ ), Progs ),
+	append( Progs, Tail, Tasks ),
+	simulate( Tasks, Tail ).
+
+simulate( [], _ ) :- !, end_simulation.
+simulate( _, _ ) :-  no_messages, !, end_simulation.
+simulate( [Task|RestTasks], [Task|NewTail] ) :-
+	state( Task, State ),
+	execute_code( Task, State ), !,
+	simulate( RestTasks, NewTail ).
+simulate( [Task|RestTasks], Tail ) :-
+	code_died( Task ), !,
+	simulate( RestTasks, Tail ).
+
+execute_code( Task, State ) :-
+	inc_counter( exec ),
+	retractall( me( _ ) ),
+	assert( me( Task ) ),
+	code( Task, State, Goal ),
+	call( Goal ).
+execute_code( _, _ ) :- !.
+
+code_died( Task ) :-
+	retract( code( Task, _, _ ) ),
+	kill_threads( Task ).
+
+kill_threads( Task ) :-
+	pid( Task, Pid ),
+	component( Name, Task, _, _, _, _ ),
+	retract( state( Name, _ ) ),
+	retractall( msg( Pid, _, _, _ ) ),
+	retractall( msg( queue, Pid, _, _ ) ),
+	fail.
+kill_threads( _ ).
+
+no_messages :-
+	pid( toplevel, Pid ),
+	msg( PidR, _, _, _ ), Pid \= PidR, !, fail.
+no_messages.
+
+end_simulation :-
+	retract( me(_) ),
+	assert( me(toplevel) ).
+
+
+
+get_pid( N1) :-
+	retract( counter_pid( N ) ), !,
+	N1 is N+1,
+	assert( counter_pid( N1 ) ).
+get_pid( 0 ) :-
+	assert( counter_pid( 0 ) ).
+
+inc_counter( Name ) :-
+	retract( counter( Name, N ) ), !,
+	N1 is N+1,
+	assert( counter( Name, N1 ) ).
+inc_counter( Name ) :-
+	assert( counter( Name, 1 ) ).
+
+

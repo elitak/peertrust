@@ -1,0 +1,17 @@
+% example of config file for distributed  
+% tabling system 
+ 
+process( goalmgr, 'helena').
+component( goalmgr, goalmgr, 1, goalmgr, goal_manager_init, goalmgr ).
+
+process( p1, 'helena' ).
+component( p1, p1, 1, peer, peer_init, peer_client ).
+
+process( prover(p1), 'helena' ).
+component( prover(p1), prover(p1), 1, peer_prover, peer_prover_init, peer_prover ).
+                 
+process( p2, 'menelau' ).
+component( p2, p2, 1, peer, peer_init, peer_client ).
+
+process( prover(p2), 'menelau' ).
+component( prover(p2), prover(p2), 1, peer_prover, peer_prover_init, peer_prover ).

@@ -1,0 +1,103 @@
+/* SLX CLIENT DISPATCHER */
+
+:- consult(read_program).
+
+:- import numbervars/3 from num_vars.
+
+/* Predicates asserted:*/
+:- dynamic consumer_goal/2.
+:- dynamic goal/4.
+
+%:- spy( select_literal, _ ).
+%:- spy( slx_client, 5 ).
+
+%:- spy( _, _ ).
+
+slx_client_init( _, 0 ) :-
+	db_retractall( consumer_goal( _, _ ) ), 
+	db_retractall( goal( _, _, _, _ ) ).
+
+
+/* SLX CLIENT MESSAGE HANDLING PROCEDURE */
+
+slx_client( read(File), toplevel, _, State, State ) :- !,
+	consult_logic_program(File).
+
+slx_client( assert( Rule ), tablemgr, _, State, State ) :- !,
+	assert_rule( Rule ).
+	
+slx_client( call(Lit,TId), Sender, Me, GoalId, NewGoalId ) :- !,
+	findall( rule( Lit, Body), db_query(rule( Lit, Body )), ListGoals ),
+	extension_by_clause( Me, Sender, TId, ListGoals, GoalId, NewGoalId ).
+
+slx_client( answer(Lit,[_,Nr]), Sender, Me, GoalId, NewGoalId ) :- !,
+	extension_by_answer( Me, Sender, Lit, Nr, GoalId, NewGoalId ).
+
+
+/********************** EXTENSION BY CLAUSE *********************/
+
+extension_by_clause( _, _, _, [], GoalId, GoalId ) :- !.
+extension_by_clause( Me, Sender, TId, ListGoals, GoalId, NextGoalId ) :- !,
+	db_assert( consumer_goal( TId, Sender ) ),
+	create_new_goals( ListGoals, Me, TId, GoalId, NextGoalId).
+
+
+create_new_goals( [], _, _, GoalId, GoalId ) :- !.
+create_new_goals( [rule(Head,Body)|RestGoals],Me,TId,GoalId,NewGoalId) :-
+	select_literal( Me, Head, Body, TId, GoalId, AuxGoalId ),
+	create_new_goals( RestGoals, Me, TId, AuxGoalId, NewGoalId ). 
+
+/********************** EXTENSION BY ANSWER *********************/
+
+
+extension_by_answer( slxc(N), Sender, Lit, Nr, GoalId, NewGoalId ) :-
+	db_query( goal( Nr, TId, Head, [Lit|RestBody] ) ), !,
+	select_literal( slxc(N), Head, RestBody, TId, GoalId, NewGoalId ).
+
+
+% An answer was found	
+select_literal( slxc(N), Head, [], TId, GoalId, GoalId ) :- !,
+	db_query( consumer_goal( TId, Consumer ) ),
+	send( slxc(N), Consumer, answer(Head,TId) ).
+%	send_msg( slxc(N), toplevel, goal( GoalId, ( Head <- [] ) ) ),
+%	assert( goal( GoalId, TId, Head, [] ) ).
+
+% Non-tabled call
+select_literal( slxc(N), Head, [+ Goal|RestGoal], TId, GoalId, NewGoalId ) :- !,
+	findall( rule( Head, RestGoal ), demo( [Goal] ), ListOfGoals ),
+	create_new_goals( ListOfGoals, slxc(N), TId, GoalId, NewGoalId ).
+
+% A builtin must be processed
+select_literal( Name, Head, [Goal|RestGoals], TId, GoalId, NewGoalId  ) :- 
+	builtin( Goal ), !,
+	call( Goal ),
+	select_literal( Name, Head, RestGoals, TId, GoalId, NewGoalId ).
+
+	 		
+% Otherwise, calls the new literal	
+select_literal( slxc(N), Head, [Lit|RestBody], TId, GoalId, NewGoalId ) :- !,
+	send( slxc(N), tablec(N), call(Lit,[N,GoalId]) ),
+%	send_msg( slxc(N), toplevel, goal( [N,GoalId], ( Head <- [Lit|RestBody] ) ) ),
+	db_assert( goal( GoalId, TId, Head, [Lit|RestBody] ) ),
+	NewGoalId is GoalId + 1.
+
+% Builtin predicates	
+builtin( _X is _Y ).
+builtin( _X = _Y ).
+builtin( _X < _Y ).
+builtin( _X > _Y ).
+builtin( _X =< _Y ).
+builtin( _X >= _Y ).
+
+/**************** VANILLA META-INTERPRETER ************************/
+
+demo( [] ) :- !.
+demo( [B|RestGoals] ) :-
+	builtin( B ), !, 
+	call( B ),
+	demo( RestGoals ).
+demo( [A|RestGoals] ) :-
+	db_query(rule( A, Body )),
+	demo( Body ),
+	demo( RestGoals ).
+	

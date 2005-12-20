@@ -1,0 +1,101 @@
+/* TABLE CLIENT DISPATCHER */
+
+:- consult(read_program).
+
+:- import numbervars/3 from num_vars.
+
+:- dynamic solution/3.
+:- dynamic pending/3.
+:- dynamic tabled/2.
+
+%:- spy( table_client, _ ).
+
+%:- spy table_client/5.
+
+table_client_init( _, 0 ) :-
+	db_retractall( solution( _, _, _ ) ),
+	db_retractall( pending( _, _, _ ) ),
+	db_retractall( table_goal( _, _ ) ),
+	db_retractall( tabled( _, _ ) ).
+
+/* TABLE CLIENT MESSAGE HANDLING PROCEDURE */
+
+
+table_client( read(File), toplevel, _Me, State, State ) :- !,
+	consult_logic_program(File).
+
+% Receives information about location of table for Lit 
+
+table_client( table(Lit,Where), tablemgr, _Me, State, State ) :- !,
+	table_calls( Lit, Where ).
+
+% Receives a new answer for a goal
+table_client( answer(Lit,Tid), _Sender, Me, State, State ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	add_new_answer( Me, Lit, GroundLit, Tid).
+	
+% Receives a call for a goal
+table_client( call(Lit,GoalId), Sender, Me, State, NewState ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	call_literal( Me, Sender, Lit, GroundLit, GoalId, State, NewState  ).
+	
+
+/********************** TABLE HANDLING *********************/
+
+table_calls( Lit, Where ) :- 
+	numbervars( Lit, 0, _ ),
+	db_assertz( table_goal( Lit, Where ) ).
+
+% Asserts the answer if a variant is not already tabled and sends it.
+add_new_answer( MyName, Lit, GroundLit, TableId) :-
+	not db_query( solution( GroundLit, TableId, _ ) ), !,
+	db_assert( solution( GroundLit, TableId, Lit) ),
+	send_answer( MyName, Lit, TableId ).
+
+% Otherwise it does nothing...
+add_new_answer( _, _, _, _).
+
+% Sends one answer to the callers
+send_answer( MyName, Lit, TableId ) :-
+	db_query(pending( TableId, Caller, GoalId )),
+	send( MyName, Caller, answer(Lit,GoalId) ),
+	fail.
+send_answer( _, _, _ ).
+
+send_all_answers( MyName, Caller, TableId, GoalId ) :-
+	db_query(solution( _, TableId, Lit )),
+	send( MyName, Caller, answer( Lit, GoalId ) ),
+	fail.
+send_all_answers( _, _, _, _).
+
+
+% There is already a table for that goal in this table client
+call_literal( MyName, Caller, _Lit, GroundLit, GoalId, MaxTId, MaxTId ) :-
+	db_query(tabled( GroundLit, TableId )), !,
+	db_assert( pending( TableId, Caller, GoalId) ),
+	send_all_answers( MyName, Caller, TableId, GoalId ).
+
+% This table client should table the goal but hasn't started tabling it
+call_literal( MyName, Caller, Lit, GroundLit, GoalId, TableId, NextTableId ) :-
+	db_query(table_goal( GroundLit, MyName )), !,
+	db_assert( pending( TableId, Caller, GoalId) ),
+	create_new_table( MyName, Lit, GroundLit, TableId, NextTableId ).
+
+% There is already another table client for the goal
+call_literal( tablec(N), _Caller, Lit, GroundLit, GoalId, MaxTId, MaxTId ) :-
+	db_query(table_goal( GroundLit, Other )), !,
+	send_fake( tablec(N), slxc(N), Other, call(Lit,GoalId) ).
+
+% Otherwise, send the call to the goal manager to decide where to table it
+call_literal( MyName, _Caller, Lit, _GroundLit, GoalId, MaxTId, MaxTId ) :-
+	send( MyName, tablemgr, call(Lit,GoalId) ).
+
+
+create_new_table( tablec(N), Lit, GroundLit, TableId, NextTableId ) :-
+	send( tablec(N), slxc(N), call(Lit,TableId) ),
+%	send_msg( tablec(N), toplevel, call(Lit,TableId) ),
+	db_assert( tabled( GroundLit, TableId ) ),
+	NextTableId is TableId + 1.
+

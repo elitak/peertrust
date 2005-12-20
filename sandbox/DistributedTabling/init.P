@@ -1,0 +1,49 @@
+:- consult(messages). 
+:- consult(dispatcher).
+%:- consult('threads').
+
+:- dynamic state/2.
+:- dynamic code/3.
+:- dynamic me/1.
+
+:- assert(simulator).
+
+%:- spy( _, _ ).
+%:- spy( process_msg, 4 ). 
+
+init_dispatcher( Name, _ConfigFile ) :-
+ 	start_components( Name ).
+
+
+/* stand alone doesn't create any queues or threads */
+start_components( Name ):-
+	component( Name, Name, _, File, InitName, DispatcherName ), !,	
+	init_component( Name, File, InitName, DispatcherName, InitState ),
+	assert( state( Name, InitState ) ),
+	assert( code( Name, State, listen_loop( true, Name, State ) ) ).
+
+/* start the threads */
+start_components( Pname ):-
+	component(Tname,  Pname, _, File, InitName, DispatcherName ),
+	init_component( Tname, File, InitName, DispatcherName, InitState ),
+	assert( state( Tname, InitState ) ),
+	assert( code( Tname, State, listen_loop( true, Tname, State ) ) ),
+	fail.
+
+/* Enters the main thread loop */
+start_components( Pname ) :-
+	assert( state( Pname, [] ) ),
+	assert( code( Pname, _, thread_dispatcher( Pname ) ) ).
+
+
+
+
+
+
+
+
+
+
+
+
+

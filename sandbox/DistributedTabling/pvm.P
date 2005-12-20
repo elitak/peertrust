@@ -1,0 +1,76 @@
+:- import ith/3 from basics.
+%:- import random/3 from random.
+
+
+%%%% Implementation of pvm_primitives
+
+pvm_send( Pid, Port, Msg ) :-
+	my_pid( From ),
+	assert( msg( Pid, From, Port, Msg ) ),
+	inc_counter( msg ).
+
+pvm_recv( Pid, Port, Msg ) :-
+	( me(toplevel) -> simulate ; true ), 
+	my_pid( To ),
+	( var( Pid ) -> select_channel( To, Pid ) ; true ),
+	retract( msg( To, Pid, Port, Msg ) ).
+
+pvm_nrecv( Pid, Port, Msg ) :-
+	pvm_recv( Pid, Port, Msg ).
+
+% Implementation of pvm_parent. The parent is always the toplevel.
+pvm_parent( Pid ) :-
+	pid( toplevel, Pid ), !.
+pvm_parent( -1 ).
+
+
+% Selects randomly one channel to read from
+
+select_channel( To, Pid ) :-
+	findall( Pid, pid(_,Pid), Procs ),
+	non_empty_channels( Procs, To, Channels, 1, Numb ),
+	ith(1,Channels,Pid).
+/*
+select_channel( To, Pid ) :-
+	findall( Pid, pid(_,Pid), Procs ),
+	non_empty_channels( Procs, To, Channels, 1, Numb ),
+	random(1,Numb,Pos),
+	ith(Pos,Channels, Pid ).
+*/
+
+non_empty_channels( [], _, [], N, N ) :- !.
+non_empty_channels( [Pid|RestPids], To, [Pid|RestChannels], N, NewN ) :- 
+	msg( To, Pid, _, _ ), 
+	N1 is N + 1, !,
+	non_empty_channels( RestPids, To, RestChannels, N1, NewN ).
+non_empty_channels( [_|RestPids], To, RestChannels, N, NewN ) :- 
+	!, non_empty_channels( RestPids, To, RestChannels, N, NewN ).
+	
+
+
+%%%% Implementation of queue primitives:
+
+q_name( Fid, Fid ).
+
+q_put( Fid, Msg ) :-
+	my_pid( Pid ),
+	assert( msg(queue, Pid, Fid, Msg ) ),
+	inc_counter( msg ).
+
+q_get( Fid, Msg ) :-
+	my_pid( Pid ),
+	retract( msg( queue, Pid, Fid, Msg ) ), !.
+
+q_nget( Fid, Msg ) :- q_get( Fid, Msg ).
+
+
+% Auxiliary Predicates:
+my_pid( Pid ) :-
+	me(Name),
+	component(Name, ProcName, _, _, _, _ ), !,
+	pid( ProcName, Pid ).
+my_pid( Pid ) :-
+	me(Name),
+	pid(Name,Pid), !.
+my_pid( Pid ) :-
+	pid( toplevel, Pid ).

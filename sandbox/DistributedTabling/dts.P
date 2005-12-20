@@ -1,0 +1,60 @@
+:- consult('toplevel').
+
+:- import append/3 from basics.
+
+% Top-level interface
+demo( Vars, Goal ) :-
+	get_query_id( N ),
+	send_msg(toplevel, goalmgr, query(Vars,Goal,N) ),
+	report_answers( Vars, N ).
+
+report_answers( Vars, Id ) :-
+	recv( Pid, Port, Msg ),
+	report_answer( Msg, Pid, Vars, Id ).
+
+report_answer( msg(goalmgr,answer( Vars, Id )), _, Vars, Id ).
+report_answer( msg(goalmgr,done( Id )), _, _, Id ) :- !, fail.
+report_answer( Msg , Pid, Vars, Id ) :- !,
+	pid( Sender, Pid ),
+	print_debug_msg( Sender, Msg ), !,
+	report_answers( Vars, Id ).
+
+get_query_id( N1) :-
+	retract( query_id( N ) ), !,
+	N1 is N+1,
+	assert( query_id( N1 ) ).
+get_query_id( 0 ) :-
+	assert( query_id( 0 ) ).
+
+% makes all slxc to read logic program 
+
+read_all( FileName ):-
+	findall( slxc(N), 
+		component( slxc(N), _,_, _, _, _), 
+		List1 ),
+	findall( tablec(M), 
+		component(tablec(M), _, _, _, _, _),
+		List2),
+	append( List1, List2, List_Of_Clients ),
+	read_each(  FileName, List_Of_Clients ),
+	send_system_msg( toplevel, goalmgr, init ),
+	send_system_msg( toplevel, tablemgr, init ).
+
+
+read_each(_, []).
+
+read_each( FileName, [Client|List_Of_Clients] ):-
+	send_system_msg( toplevel, Client, init ),
+	send_msg( toplevel, Client, read( FileName ) ),
+	read_each( FileName, List_Of_Clients ).
+
+	
+% Stops all components 
+halt_all :-
+	halt( _ ),
+	fail.
+halt_all.
+
+halt( Task ):-	
+	component( Task, _, _, _, _, _ ),
+	send_system_msg( toplevel, Task, kill ).

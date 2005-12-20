@@ -1,0 +1,22 @@
+%%% Global Database Predicates
+:- dynamic '$db'/2.
+
+db_assert( Rule ) :-
+	me( I ),
+	assert( '$db'(I,Rule) ).
+
+db_assertz( Rule ) :-
+	me( I ),
+	assertz( '$db'(I,Rule) ).
+
+db_retract( Rule ) :-
+	me( I ),
+	retract( '$db'(I,Rule) ).
+
+db_retractall( Rule ) :-
+	me( I ),
+	retractall( '$db'(I,Rule) ).
+
+db_query( Goal ) :-
+	me( I ),
+	call( '$db'(I,Goal) ).

@@ -1,0 +1,173 @@
+The architecture previously described was implemented via Prolog
+meta-interpreters on top of PVM-Prolog, using the XSB
+Prolog system. The PVM-Prolog (PPVM) library is a Prolog interface
+for PVM system, offering to the logic programing application the
+capabilities of PVM such as process spawning and control, virtual
+machine management and failure handling. PVM-Prolog defines an
+intermediate layer supporting the parallel and distributed execution
+of Prolog programs. This way it is possible to build a real
+distributed environment where several peers interact with each other
+using the PVM message passing mechanisms.
+
+---------------------------------
+I list below an example:
+ 
+ 
+| ?- [dts].
+[dts loaded]
+[toplevel loaded]
+[boot loaded]
+[read_config loaded]
+[init loaded]
+[messages loaded]
+[primitives loaded]
+[termination loaded]
+[dispatcher loaded]
+[db loaded]
+[messages loaded]
+[primitives loaded]
+[termination loaded]
+[debug loaded]
+[pvm loaded]
+ 
+yes
+| ?- boot_dts( 'examples/example7/peer_cfg' ).
+[goalmgr loaded]
+[peer loaded]
+[peer_prover loaded]
+[readPeerProgram loaded]
+[getproof loaded]
+[peer loaded]
+[peer_prover loaded]
+[readPeerProgram loaded]
+[getproof loaded]
+ 
+yes
+| ?- read_each( 'examples/example7/peer1.P', [prover(p1)] ).
+ 
+yes
+| ?- read_each( 'examples/example7/peer2.P', [prover(p2)] ).
+ 
+yes
+| ?- simulate.
+ 
+yes
+| ?- demo( [X], ( v(X) @ p1 ) ).
+ 
+X = a;
+goalmgr >> answer([a],0)
+ 
+X = c;
+goalmgr >> answer([c],0)
+ 
+no
+ 
+NOTE: mark that v(b) is not returned since the call to e(_) is not
+ground.
+ 
+| ?- send_msg( toplevel, goalmgr, proof( ( v(X) @ p1 ), ( v(a) @ p1 ), 1
+) ).
+ 
+X = _h101
+ 
+yes
+| ?- simulate.
+ 
+yes
+| ?- listing( msg ).
+ 
+msg(5,0,0,msg(goalmgr,explanation((v(A) @ p1 $ toplevel <- [e(A) @ p2 $
+p1,v1(A) $ p1]),1))).
+msg(5,0,0,msg(goalmgr,explanation((v1(a) @ p1 $ p1 <- hidden $ p1),1))).
+msg(5,0,0,msg(goalmgr,explanation((e(a) @ p2 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,done(1))).
+ 
+Note the hidden parts of the proof.
+ 
+yes
+| ?- send_msg( toplevel, goalmgr, proof( ( v(X) @ p1 ), ( v(c) @ p1 ), 1
+) ).
+ 
+X = _h101
+ 
+yes
+| ?- simulate.
+ 
+yes
+| ?- listing( msg ).
+ 
+msg(5,0,0,msg(goalmgr,explanation((v(A) @ p1 $ toplevel <- [e(A) @ p2 $
+p1,v1(A) $ p1]),1))).
+msg(5,0,0,msg(goalmgr,explanation((v1(a) @ p1 $ p1 <- hidden $ p1),1))).
+msg(5,0,0,msg(goalmgr,explanation((e(a) @ p2 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,done(1))).
+msg(5,0,0,msg(goalmgr,explanation((v1(c) @ p1 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,explanation((e(c) @ p2 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,done(1))).
+ 
+Note that the explanation only contains the new rules necessary.
+ 
+If you use a different proof id you get all the rules necessary to prove
+the goal:
+yes
+| ?- send_msg( toplevel, goalmgr, proof( ( v(X) @ p1 ), ( v(c) @ p1 ), 2
+) ).
+ 
+X = _h101
+ 
+yes
+| ?- simulate.
+ 
+yes
+| ?- listing( msg ).
+ 
+msg(5,0,0,msg(goalmgr,explanation((v(A) @ p1 $ toplevel <- [e(A) @ p2 $
+p1,v1(A) $ p1]),1))).
+msg(5,0,0,msg(goalmgr,explanation((v1(a) @ p1 $ p1 <- hidden $ p1),1))).
+msg(5,0,0,msg(goalmgr,explanation((e(a) @ p2 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,done(1))).
+msg(5,0,0,msg(goalmgr,explanation((v1(c) @ p1 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,explanation((e(c) @ p2 $ p1 <- []),1))).
+msg(5,0,0,msg(goalmgr,done(1))).
+msg(5,0,0,msg(goalmgr,explanation((v(A) @ p1 $ toplevel <- [e(A) @ p2 $
+p1,v1(A) $ p1]),2))).
+msg(5,0,0,msg(goalmgr,explanation((v1(c) @ p1 $ p1 <- []),2))).
+msg(5,0,0,msg(goalmgr,explanation((e(c) @ p2 $ p1 <- []),2))).
+msg(5,0,0,msg(goalmgr,done(2))).
+ 
+ 
+Now, if you aks for v(b) explicitly you get an yes answer!
+ 
+yes
+| ?- demo( [], ( v(b) @ p1 ) ).
+goalmgr >> explanation((v(_h577) @ p1 $ toplevel <- [e(_h577) @ p2 $
+p1,v1(_h577) $ p1]),1)
+goalmgr >> explanation((v1(a) @ p1 $ p1 <- hidden $ p1),1)
+goalmgr >> explanation((e(a) @ p2 $ p1 <- []),1)
+goalmgr >> explanation((v1(c) @ p1 $ p1 <- []),1)
+goalmgr >> explanation((e(c) @ p2 $ p1 <- []),1)
+goalmgr >> explanation((v(_h1181) @ p1 $ toplevel <- [e(_h1181) @ p2 $
+p1,v1(_h1181) $ p1]),2)
+goalmgr >> explanation((v1(c) @ p1 $ p1 <- []),2)
+goalmgr >> explanation((e(c) @ p2 $ p1 <- []),2)
+goalmgr >> done(2)
+ 
+yes
+| ?- send_msg( toplevel, goalmgr, proof( ( v(b) @ p1 ), ( v(b) @ p1 ), 4
+) ).
+ 
+yes
+| ?- simulate.
+ 
+| ?- listing( msg ).
+ 
+msg(5,0,0,msg(goalmgr,done(1))).
+msg(5,0,0,msg(goalmgr,explanation((v(b) @ p1 $ toplevel <- [e(b) @ p2 $
+p1,v1(b) $ p1]),4))).
+msg(5,0,0,msg(goalmgr,explanation((v1(b) @ p1 $ p1 <- hidden $ p1),4))).
+msg(5,0,0,msg(goalmgr,explanation((e(b) @ p2 $ p1 <- hidden $ p2),4))).
+msg(5,0,0,msg(goalmgr,explanation((e(b) @ p2 $ p1 <- hidden $ p2),4))).
+msg(5,0,0,msg(goalmgr,explanation((e(b) @ p2 $ p1 <- hidden $ p2),4))).
+msg(5,0,0,msg(goalmgr,done(4))).
+ 
+The proof for v(b) hides all the parts.

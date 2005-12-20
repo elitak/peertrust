@@ -1,0 +1,10 @@
+:- table(a, tablec(1)).
+:- table(b, tablec(1)).
+:- table(c, tablec(1)).
+
+a <- b.
+b.
+
+c <- a, b.
+
+

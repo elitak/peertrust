@@ -1,0 +1,8 @@
+policeOfficer(alice) @ csp <- signedBy [csp] .
+
+policeOfficer(alice) @ csp $ Requester <- 
+    member(Requester) @ bbb @ Requester signedBy [csp] .
+
+
+
+

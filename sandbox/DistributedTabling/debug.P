@@ -1,0 +1,44 @@
+% Debugging of messages sent by the dispatcher
+
+:- dynamic debug_level/2.
+
+trace_msg( Sender, Receiver, Msg ) :-
+        debug_msg( 'debug.P', [Sender, '->', Receiver, ':', Msg], 6 ).
+trace_msg( RealSender, Sender, Receiver, Msg ) :-
+        debug_msg( 'debug.P',  [Sender, '->',Receiver, ' via ', RealSender , ':' , Msg], 6 ).
+
+:- assert( debug_level(_,0) ).
+
+% Debugging of builtins
+assert_(A,B,C,D,E) :- ! ,  
+	send_debug_msg(B,assert(C,D - E,A)), 
+	assert(A).
+asserta_(A,B,C,D,E) :- !, 
+	send_debug_msg(B,assert(C,D - E,A)),
+	asserta(A).
+assertz_(A,B,C,D,E) :- !,  
+	send_debug_msg(B,assert(C,D - E,A)),
+	assertz(A).
+retract_(A,B,C,D,E) :- 
+	retract(A), !,
+	send_debug_msg(B,retract(C,D - E,A)).
+retract_(A,B,C,D,E) :- !,
+	send_debug_msg(B,failret(C,D,A)),fail.
+
+% sends a debug message, if the appropriate level is set.
+debug_msg( File, List, Level ) :-
+	debug_level( File, LevelFile ),
+	Level =< LevelFile, !,
+	send_debug_msg( File, output( List ) ).
+debug_msg( _, _, _ ).
+
+
+% Sends the debug message to the toplevel, or prints the message if the current process is the toplevel 
+send_debug_msg( File, Msg ) :-
+        pvm_parent( Pid ),
+        Pid > 0, !,
+        pvm_send( Pid, 0, debug(File,Msg) ).
+send_debug_msg( File, Msg ) :-
+        print_debug_msg( toplevel, debug(File,Msg) ).
+
+

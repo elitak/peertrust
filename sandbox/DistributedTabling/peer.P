@@ -1,0 +1,154 @@
+/* TABLE CLIENT DISPATCHER */
+
+:- import numbervars/3 from num_vars.
+
+:- dynamic solution/3.
+:- dynamic pending/3.
+:- dynamic tabled/3.
+:- dynamic proving/3.
+:- dynamic sharable_rules/1.
+
+/* Dynamic predicates:
+   
+   - tabled( Call $ Peer, Mode, TableId) indicates that the Call $ Peer
+   is already being tabled with a given mode (public/private) in table
+   identified by TableId.
+
+   - solution( GroundLit, TableId, Lit ) stores an answer of table
+   TableId. Grounded version is kept in order to do variant checking,
+   when a new answer arrives. It is sent to the consumers the
+   non-grounded version stored in Lit.
+
+   - pending( TableId, Caller, GoalId ) indicates that GoalId at the
+   given caller is a consumer of table TableId
+
+   - proving( Lit, Ans, ProofId ) indicates that we are already
+   extracting the proof for answer Ans for Goal Lit, in the proof
+   identified by ProofId.
+
+   - sharable_rules( Lit ) indicates whether the call Lit can be shared
+   among peers. This should be extracted from the peer program, which
+   currently is not done.
+
+*/
+
+%:- spy( table_client, _ ).
+
+%:- spy table_client/5.
+
+peer_init( _, 0 ) :-
+	db_retractall( solution( _, _, _ ) ),
+	db_retractall( pending( _, _, _ ) ),
+	db_retractall( tabled( _, _, _ ) ),
+	db_retractall( proving(_,_,_) ),
+	db_retractall( sharable_rules(_) ).
+
+/* TABLE CLIENT MESSAGE HANDLING PROCEDURE */
+
+
+peer_client( read(File), toplevel, Me, State, State ) :- !,
+	send( Me, prover(Me), read(File) ).
+
+% Receives a new answer for a goal
+peer_client( answer(Lit,Tid), _Sender, Me, State, State ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	add_new_answer( Me, Lit, GroundLit, Tid).
+	
+% Receives a call for a goal
+peer_client( call(Lit,GoalId,Mode), Sender, Me, State, NewState ) :- !,
+	copy_term( Lit, GroundLit ),
+	numbervars( GroundLit, 0, _ ),
+	call_literal( Me, Sender, Lit, GroundLit, GoalId, Mode, State, NewState  ).
+	
+% TO DO: not taking care of asking a proof that does not exist
+% TO DO: where to send the proof ? Currently: goalmgr...
+peer_client( proof(Lit,Ans,ProofId), _, Peer, State, State ) :- !,
+	numbervars( Lit, 0, _ ),
+	numbervars( Ans, 0, _ ),
+	(  db_query( proving( Lit, Ans, ProofId ) ) 
+	-> true
+	;  db_assert( proving( Lit, Ans, ProofId ) ),
+	   ( db_query( tabled( Lit, public, Tid ) ) 
+	   -> send( Peer, prover(Peer), proof(Tid,Ans,ProofId) ) 
+	   ; true 
+	   )
+	).
+
+peer_client( delete(GroundLit,TableId), _, Peer, State, State ) :- !,
+	db_retractall( solution( GroundLit, TableId, _ ) ),
+	delete_tabled_answer( Peer, GroundLit, TableId ).
+peer_client( remove(GoalId), Caller, _, State, State ) :- !,
+	db_retractall( pending( _, Caller, GoalId ) ).
+
+
+peer_client( done(Id), Caller, _, State, State ) :-
+	db_retractall( proving(_,_,Id) ),
+	db_retractall( pending(_,Caller,Id) ).
+
+
+
+/********************** CALL *********************/
+
+
+% There is already a table for that goal in this table client
+call_literal( MyName, Caller, _Lit, GroundLit, GoalId, Mode, MaxTId, MaxTId ) :-
+	db_query( tabled( GroundLit, Mode, TableId )), !,
+	db_assert( pending( TableId, Caller, GoalId) ),
+	send_all_answers( MyName, Caller, TableId, GoalId ).
+
+% A new table is required
+call_literal( MyName, Caller, Lit, GroundLit, GoalId, Mode, TableId, NextTableId ) :-
+	db_assert( pending( TableId, Caller, GoalId) ),
+	create_new_table( MyName, Lit, GroundLit, Mode, TableId, NextTableId ).
+
+create_new_table( Peer, Lit, GroundLit, Mode, TableId, NextTableId ) :-
+	send( Peer, prover(Peer), call(Lit,TableId,Mode) ),
+%	send_msg( Peer, toplevel, call(Lit,TableId) ),
+	share_goal( GroundLit, GroundShared ),
+	db_assert( tabled( GroundShared, Mode, TableId ) ),
+	NextTableId is TableId + 1.
+
+
+% sends all answers to a given caller
+send_all_answers( MyName, Caller, TableId, GoalId ) :-
+	db_query(solution( _, TableId, Lit )),
+	send( MyName, Caller, answer( Lit, GoalId ) ),
+	fail.
+send_all_answers( _, _, _, _).
+
+share_goal( '$'(GroundLit,_), GroundLit ) :- 
+	db_query( sharable_rules( GroundLit ) ), !.
+share_goal( GroundLit, GroundLit ).
+
+/********************** ANSWER *********************/
+
+% Asserts the answer if a variant is not already tabled and sends it
+add_new_answer( MyName, '$'(Lit, _), GroundLit, TableId) :-
+	(   db_query( solution( GroundLit, TableId, _ ) ) 
+	-> true % already there...
+	;   db_assert( solution( GroundLit, TableId, Lit) ),
+	    send_answer( MyName, Lit, TableId )
+	).
+
+
+% Sends one answer to all callers
+send_answer( MyName, Lit, TableId ) :-
+	db_query(pending( TableId, Caller, GoalId )),
+	send( MyName, Caller, answer(Lit,GoalId) ),
+	fail.
+send_answer( _, _, _ ).
+
+
+/********************** DELETE *********************/
+delete_tabled_answer( MyName, '$'(GroundLit, _), TableId ) :-
+	db_query(pending( TableId, Caller, GoalId )),
+	send( MyName, Caller, delete(GroundLit,GoalId) ),
+	fail.
+delete_tabled_answer( _, _, _ ).
+
+
+
+
+
+

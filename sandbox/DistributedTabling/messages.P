@@ -1,0 +1,114 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%				        %
+%   Communication Predicates    %
+%				        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- consult( primitives ).
+:- consult( termination ).
+
+%:- spy( _, _ ).
+%:- spy( send, 3 ).
+%:- spy( send_msg, 3 ).
+%:- spy( send_system_msg, 3 ).
+%:- spy( send_fake, 4 ).
+%:- spy( send_fake_msg, 4 ).
+%:- level(6).
+
+% Sends a message, with underlying termination control: send( +Sender, +Receiver, +Msg )
+%
+% Input Arguments : +Sender   -> Name of the Sender
+%                 : +Receiver -> Name of the Receiver
+%                 : +Msg      -> Message to Send
+
+send( Sender, Receiver, Msg ) :- !,
+	trace_msg( Sender, Receiver, Msg ),
+	find_recipient( Sender, Receiver, Pid, Port ),    % Finds recipent of the message
+	deliver_msg( Pid, Port, ackmsg( Sender, Msg ) ),  % Sends the message
+	inc_deficit( Sender, Receiver ).                  % Increases the deficit counter
+
+
+% Sends a fake message, with termination control: send_fake( + RealSender, +Sender, +Receiver, +Msg )
+%
+% Input Arguments : +RealSender -> Name of the Sender
+%                 : +Sender     -> Name of the Presumed Sender
+%                 : +Receiver   -> Name of the Receiver
+%                 : +Msg        -> Message to Send
+%
+% NOTE: An ackmsg/3 is sent. The real sender of the messages is necessary in order to 
+% soundly perform termination control.
+
+send_fake( RealSender, Sender, Receiver, Msg ) :-
+	trace_msg( RealSender, Sender, Receiver, Msg ),
+	find_recipient( RealSender, Receiver, Pid, Port ),           % Finds recipent of the message
+	deliver_msg( Pid, Port, ackmsg( RealSender, Sender, Msg ) ), % Sends the message
+	inc_deficit( RealSender, Receiver ).                         % Increases the deficit counter
+
+
+% Sends a message, without termination control: send_msg( +Sender, +Receiver, +Msg )
+%
+% Input Arguments : +Sender   -> Name of the Sender
+%                 : +Receiver -> Name of the Receiver
+%                 : +Msg      -> Message to Send
+
+% Sends an ordinary message
+send_msg( Sender, Receiver, Msg ):-
+	trace_msg( Sender, Receiver, Msg ),
+	find_recipient( Sender, Receiver, Pid, Port ),       % Finds recipent of the message
+	deliver_msg( Pid, Port, msg( Sender, Msg ) ).        % Sends the message
+
+% Sends a fake message, without termination control: send_fake_msg( + RealSender, +Sender, +Receiver, +Msg )
+%
+% Input Arguments : +RealSender -> Name of the Sender
+%                 : +Sender     -> Name of the Presumed Sender
+%                 : +Receiver   -> Name of the Receiver
+%                 : +Msg        -> Message to Send
+
+send_fake_msg( RealSender, Sender, Receiver, Msg ):-
+	trace_msg( RealSender, Sender, Receiver, Msg ),
+	find_recipient( RealSender, Receiver, Pid, Port ),   % Finds recipent of the message
+	deliver_msg( Pid, Port, msg( Sender, Msg ) ).        % Sends the message
+
+% Sends a system message: send_system_msg( +Sender, +Receiver, +Msg )
+%
+% Input Arguments : +Sender     -> Name of the Presumed Sender
+%                 : +Receiver   -> Name of the Receiver
+%                 : +Msg        -> Message to Send
+
+send_system_msg( Sender, Receiver, Msg ) :-
+	trace_msg( Sender, Receiver, Msg ),
+	find_recipient( Sender, Receiver, Pid, Port ),       % Finds recipent of the message
+	deliver_msg( Pid, Port, Msg ).                       % Sends the message
+
+
+% Finds Pid and Port of Receiver: find_recipient( +Sender, +Receiver, -Pid, -Port )
+%
+% Input Arguments : +Sender   -> Name of the Sender
+%                 : +Receiver -> Name of the Receiver
+%
+% Output Arguments: -Pid      -> Pid of the Receiver or 
+%                                'same' if thread in the same process. 
+%                 : -Port     -> Port of the Receiver or
+%                                Fid if thread in the same process. 
+
+% First treats the special case of the toplevel. Port is always 0.
+find_recipient( _Sender, toplevel, Pid, 0 ) :- !,
+	pid( toplevel, Pid ).                           % Gets the pid from the pid table.
+
+% Tests if Receiver is in the same process of Sender and if it is not in standalone mode
+find_recipient( Sender, Receiver, same, Port ) :-
+	component( Sender, ProcName, _, _, _, _),       % Finds process name of the sender
+	component( Receiver, ProcName, Port, _, _, _),  % Finds process name and port of the receiver
+	Receiver \== ProcName, !.                      % Checks if Receiver is not in standalone mode
+
+% Receiver is not in the same process or is running in standalone mode
+find_recipient( _Sender, Receiver, Pid, Port ) :-
+	component( Receiver, ProcName, Port, _, _, _), !, % Finds process name and port of the receiver
+	pid( ProcName, Pid ).                             % Gets the pid from the pid table.
+
+% Otherwise, one wants to communicate directly with process Receiver
+find_recipient( _Sender, ProcName, Pid, Port ) :-
+	component( _, ProcName, Port, _, _, _),  % Finds process name and port of the receiver
+	pid( ProcName, Pid ).                           % Gets the pid from the pid table.
+
+

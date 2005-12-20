@@ -1,0 +1,9 @@
+freeEnroll(spanish101,X) <- policeOfficer(X) @ csp.
+policeOfficer(X) @ csp <- policeOfficer(X) @ csp @ X.
+
+freeEnroll(Course,Requester) $ Requester <- 
+    policeOfficer(Requester) @ csp @ Requester,
+    creditUnits(Course,X),
+    X =< 1.
+
+

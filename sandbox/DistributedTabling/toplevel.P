@@ -1,0 +1,49 @@
+:- [boot].
+ 
+get_messages( SenderMsg, Msg ) :-
+	receive_n( toplevel, SenderM, M ), !,
+	check_message( SenderM, M, SenderMsg, Msg ).
+	
+check_message( Sender, msg(Sender,Msg), Sender, Msg ).
+check_message( SenderM, M, SenderMsg, Msg ) :-
+	print_debug_msg( SenderM, M ), !,
+	get_messages( SenderMsg, Msg ).
+	
+% uncomment to disable printing of debug messages at the toplevel
+% print_debug_msg( _, _ ) :- !.
+
+% prints message in the toplevel	
+print_debug_msg( Sender, msg(_Sender,Msg) ) :- !,
+	write( Sender ), write( ' >> ' ),
+	write( Msg ), nl.
+print_debug_msg( Sender, debug(File,output(List)) ) :- !,
+	write( Sender ), write( ' ['), write( File ), write(']'),
+	write( ' >> ' ), write_list( List ), nl.
+print_debug_msg( Sender, debug( FileName, call( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Call ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, fail( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Fail ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, unif( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Unif ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, exit( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Exit ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, assert( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Asserted ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, retract( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Retracted ', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, debug( FileName, failret( Name, Arity, Lit ) ) ) :- !,
+	print_msg( 'Fail retract', Sender, FileName, Name, Arity, Lit ).
+print_debug_msg( Sender, SysMsg ) :- !,
+	write( Sender ), write( ' >> ' ),
+	write( SysMsg ), nl.
+
+print_msg( Msg, Sender, File, Name, Arity, Head ) :-
+	write( Sender ), write( ' ['), write( File ), write(']'),
+	write( ' >> ' ), write( Msg ),
+	write( Name ), write( '/' ), write( Arity ), write( ':' ),
+	write( Head ), nl.
+
+write_list([]).
+write_list([H|T]) :-
+	write( H ), !,
+	write_list( T ).

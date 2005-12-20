@@ -1,0 +1,82 @@
+:- op(1150, xfx, '<-' ).
+
+% operators for signed clauses
+:- op(1110, xfx, signedBy ).
+:- op(1110, fx,  signedBy ).
+
+% infix operator definition for @ (remote predicate call)
+:- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+:- op(601, xfx, $).
+
+
+:- import numbervars/3 from num_vars.
+
+% can be made more efficient with tabling - not used for portability
+get_all_proof_from_answer( TID, A, Goals ) :-
+	setof( GoalId, get_proof_from_answer( TID, A, GoalId ), Goals ).
+
+get_proof_from_answer( TID, A, GoalId ) :-
+	db_query( goal( AnsId, TID, A, [], public, EXP ) ),
+	(  GoalId = AnsId ; get_goals_in_proof( EXP, GoalId ) ).
+get_proof_from_answer( TID, A, GoalId ) :-
+	db_query( goal( GoalId, TID, A, [], internal, _ ) ).
+
+get_goals_in_proof( answer(_,GoalId), GoalId ).
+get_goals_in_proof( answer(_,GoalId), NewGoalId ) :- !,
+	db_query( goal( GoalId, _, _, _, _, Exp ) ),
+	get_goals_in_proof( Exp, NewGoalId ).
+
+
+%sends explanations in the current prover and asks others for the proofs
+send_proof( [], _, _ ) :- !.
+send_proof( [GoalId|RestGoals], ProofId, Peer ) :-
+	send_proof_part(GoalId, ProofId, Peer ), !,
+	send_proof( RestGoals, ProofId, Peer ).
+
+send_proof_part( GoalId, ProofId, Peer ) :-
+	db_query( goal(GoalId,_,Head,[],internal,_) ), !,
+	(  \+ db_query( sent_explanation(GoalId,ProofId ) )
+	-> send_explanation( rule( Head,[], internal ), Peer, ProofId ),
+	   db_assert( sent_explanation(GoalId,ProofId) )
+	;  true
+	).	
+send_proof_part( GoalId, ProofId, Peer ) :-
+	db_query( goal(GoalId,_,_,_,_,answer(Ans,ParentId)) ), !,
+	db_query( goal(ParentId,_,_,[Call|_],_,_) ), !,
+	numbervars(Call,0,_),
+	ask_rest_proof( Call, Ans, Peer, ProofId ).
+send_proof_part( GoalId, ProofId, Peer ) :-
+	db_query( goal(GoalId,_,_,_,_,Exp) ), !,
+	(  \+ db_query( sent_explanation(GoalId,ProofId ) )
+	-> send_explanation( Exp, Peer, ProofId ),
+	   db_assert( sent_explanation(GoalId,ProofId) )
+	;  true
+	).
+	
+
+ask_rest_proof( Call @ Peer, Ans @ Peer, Requester, ProofId ) :- !,
+	send(prover(Requester),Peer,proof(Call $ Requester,Ans $ Requester,ProofId)).
+ask_rest_proof( Call, Ans, Requester, ProofId ) :- !,
+	send(prover(Requester),Requester,proof(Call $ Requester,Ans $ Requester,ProofId)).
+
+
+send_explanation( rule( Head $ Requester, _, internal ), Peer, ProofId ) :-
+	send( prover(Peer), goalmgr, explanation( ( Head @ Peer $ Requester <- hidden $ Peer ), ProofId ) ).
+send_explanation( rule( Head $ Requester, Body, public ), Peer, ProofId ) :- !,
+	addrequestertobody( Body, Peer, BodyReq ),
+	send( prover(Peer), goalmgr, explanation( ( Head @ Peer $ Requester <- BodyReq ), ProofId ) ). 	
+send_explanation( signed( Head $ Requester, Policy, Issuer, SignedBody), Peer, ProofId ) :- !,
+	addrequestertobody( Policy, Peer, PolicyReq ),
+	addrequestertobody( SignedBody, Peer, SignedBodyReq ),
+	send( prover(Peer), goalmgr, explanation(( Head @ Peer $ Requester <- PolicyReq signedBy [[Issuer]|SignedBodyReq] ), ProofId ) ).
+send_explanation( forward( Head $ Requester ), Peer, ProofId ) :- !,
+	send( prover(Peer), goalmgr, explanation(( ( Head @ Peer $ Requester ) <- Head $ Peer ), ProofId ) ).
+	
+
+addrequestertobody( [], _, [] ) :- !.
+addrequestertobody( [Lit|RestLits], Requester, [Lit $ Requester|RestNewLits] ) :- !,
+	addrequestertobody( RestLits, Requester, RestNewLits ).
+	
+
