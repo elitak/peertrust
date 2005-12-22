@@ -21,6 +21,8 @@ import org.peertrust.demo.resourcemanagement.ProtectedResource;
 
 import org.peertrust.demo.resourcemanagement.RequestServingMechanism;
 import org.peertrust.demo.resourcemanagement.Resource;
+import org.peertrust.demo.resourcemanagement.ResourceManagementException;
+import org.peertrust.demo.resourcemanagement.ResourceRequestSpec;
 import org.peertrust.demo.resourcemanagement.TrustManager;
 import org.peertrust.net.Peer;
 
@@ -68,6 +70,53 @@ public class TrustFilter implements Filter{
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	public void doFilter(
+			ServletRequest req, 
+			ServletResponse resp,
+			FilterChain chain) 
+			throws IOException, ServletException 
+	{
+		doInit();
+		///session and peer name
+		HttpSession session=
+			((HttpServletRequest)req).getSession(true);
+		if(session.isNew()){
+			session.setMaxInactiveInterval(60*30);//30min
+		}
+		
+		//Peer peer=(Peer)session.getAttribute(PeerTrustCommunicationServlet.PEER_NAME_KEY);
+		Peer peer=null;
+		if(session!=null){
+			peer=negoObjects.getSessionPeer(session.getId());
+		}
+		filterContext.log(
+				"\n****************serving resource log ***********"+
+				"\nfiltering protected  page session:"+session+
+				"\nRegistered peer:"+peer);
+		
+		String peerName= null;
+		if(peer!=null){
+			peerName=peer.getAlias();
+		}
+		///spec
+		ResourceRequestSpec spec=
+			new ResourceRequestSpec(
+						peerName,
+						req,
+						resp,
+						chain,
+						filterConfig.getServletContext());
+		
+		////serving chain
+		try {
+			trustManager.handle(spec);
+		} catch (ResourceManagementException e) {
+			throw new ServletException(
+					"Error while handling resource request");
+		}
+	}
+	
+	
+	public void doFilter_old(
 					ServletRequest req, 
 					ServletResponse resp,
 					FilterChain chain) 

@@ -34,7 +34,9 @@ import org.xml.sax.SAXException;
  *  
  * @author Patrice Congo (token77)
  */
-public class PolicySystemImpl implements PolicySystem, Configurable 
+public class PolicySystemImpl implements 	PolicySystem, 
+											Configurable,
+											ResourceRequestHandler
 {
 	/**
 	 * The element name that represent the xml polycy system.
@@ -62,6 +64,8 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 	final static public String ATTRIBUTE_POLICY_VALUE="policyValue";
 	//final static public String ATTRIBUTE_INCLUDED_POLICY="includedPolicy"; 
 	
+	
+	
 	/**
 	 *The cache which holds the policies 
 	 */
@@ -72,6 +76,10 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 	 */
 	private StringWrapper setupFilePath;
 	
+	/**
+	 * The next handler
+	 */
+	private ResourceRequestHandler nextHandler;
 	
 	/**
 	 * Construct a virgin PolicySystem.
@@ -237,6 +245,70 @@ public class PolicySystemImpl implements PolicySystem, Configurable
 		} catch (Exception e) {
 			throw new ConfigurationException("PolicySystemImpl Setup Fail",e);
 		} 
+	}
+
+	
+	
+	
+	
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#handle(java.lang.Object)
+	 */
+	public void handle(Object requestSpec) throws ResourceManagementException {
+		if(requestSpec == null){
+			throw new ResourceManagementException("Cannot handle null requestSpec");
+		}
+		
+		if(!(requestSpec instanceof ResourceRequestSpec)){
+			throw new ResourceManagementException(
+						"Cannot handle "+requestSpec+
+						" can only handle a "+ResourceRequestSpec.class);
+		}
+		
+		ResourceRequestSpec spec=(ResourceRequestSpec)requestSpec;
+		String peerName=spec.getPeerName();
+		if(peerName!=null){//a peer registered nego possible
+			Resource res=spec.getResource();
+			if(res instanceof ProtectedResource){
+				String policyName=((ProtectedResource)res).getPolicyName();
+				if(policyName==null){
+					throw 
+						new ResourceManagementException(
+								"Policy name associated with "+res.getUrl()+
+								" is null");
+				}
+				if(policyName.trim().length()==0) {
+					throw 
+						new ResourceManagementException(
+							"Policy name associated with "+res.getUrl()+
+							" is empty");
+				}
+				
+				Vector associatePolicies=
+					this.getPolicies(policyName);
+				if(associatePolicies.size()==0){
+					throw 
+					new ResourceManagementException(
+							"Policy with the name "+policyName+ "is empty");
+				}
+				spec.setAttachedPolicies(associatePolicies);
+			}
+		}
+		
+		
+		if(nextHandler!=null){
+			nextHandler.handle(spec);
+		}else{
+			throw new ResourceManagementException(
+					"PolicySystem cannot act as the end of the chain");
+		}
+	}
+
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#setNextHandle(org.peertrust.demo.resourcemanagement.ResourceRequestHandler)
+	 */
+	public void setNextHandle(ResourceRequestHandler nextHandler) {
+		this.nextHandler=nextHandler;
 	}
 
 	static public void main(String[] args)throws Throwable{

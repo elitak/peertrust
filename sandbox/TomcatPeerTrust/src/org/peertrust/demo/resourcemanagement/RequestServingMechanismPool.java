@@ -4,8 +4,11 @@ import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,7 +44,8 @@ import org.xml.sax.SAXException;
  * @author Patrice Congo(token77)
  *
  */
-public class RequestServingMechanismPool implements Configurable
+public class RequestServingMechanismPool implements Configurable,
+													ResourceRequestHandler
 {
 	
 
@@ -59,6 +63,12 @@ public class RequestServingMechanismPool implements Configurable
 	 * the path to the xml setting path
 	 */
 	private StringWrapper setupFilePath;
+	
+	/**
+	 * The next handler in the chain of responsibility for
+	 * serving resource request.
+	 */
+	private ResourceRequestHandler nextHandler;
 	
 	/**
 	 * Construct a virgin RequestServingMechanismPool.
@@ -260,6 +270,68 @@ public class RequestServingMechanismPool implements Configurable
 			throw new ConfigurationException("Error while setting up",e);
 		}
 		
+	}
+
+	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#handle(java.lang.Object)
+	 */
+	public void handle(Object requestSpec) throws ResourceManagementException {
+		if(requestSpec == null){
+			throw new ResourceManagementException("Cannot handle null requestSpec");
+		}
+		
+		if(!(requestSpec instanceof ResourceRequestSpec)){
+			throw new ResourceManagementException(
+						"Cannot handle "+requestSpec+
+						" can only handle a "+ResourceRequestSpec.class);
+		}
+		
+		ResourceRequestSpec spec=(ResourceRequestSpec)requestSpec;
+		String peerName=spec.getPeerName();
+		Resource res=spec.getResource();
+		RequestServingMechanism servingMechanism;
+		if(res instanceof PublicResource){
+			servingMechanism=
+				this.getMechanism(res.getUrl());
+		}else if(peerName==null){//no peer registered
+			servingMechanism=
+				this.getMechanismByName("sessionRegistration");			
+		}else if(res instanceof ProtectedResource){
+			if(((ProtectedResource)res).getCanAccess()){
+				servingMechanism=
+					this.getMechanism(res.getUrl());
+			}else{
+				servingMechanism=
+					this.getMechanismByName("credentialDownload");
+			}
+		}else{//public resource
+			throw new ResourceManagementException(
+					"Invalid resource attribute:"+res);
+		}
+		
+		try{
+			servingMechanism.serveRequest(	
+				(HttpServletRequest)spec.getServletRequest(),//req,
+				(HttpServletResponse)spec.getServletResponse(),//resp,
+				spec.getFilterChain(),//chain,
+				res,
+				spec.getServletContext());
+		}catch(Throwable th){
+			throw new ResourceManagementException(
+					"Exception while serving request: "+res); 
+		}
+		return;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#setNextHandle(org.peertrust.demo.resourcemanagement.ResourceRequestHandler)
+	 */
+	public void setNextHandle(ResourceRequestHandler nextHandler) {
+		this.nextHandler=nextHandler;
 	}
 
 	/**

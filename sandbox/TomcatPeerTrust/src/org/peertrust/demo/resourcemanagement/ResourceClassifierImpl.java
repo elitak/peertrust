@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +30,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class ResourceClassifierImpl implements 	ResourceClassifier,
-												Configurable
+												Configurable,
+												ResourceRequestHandler
 {
 	
 	public static final String RESOURCE_TAG_NAME="resourceClass";
@@ -62,6 +64,8 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 	 * spefication.
 	 */
 	private StringWrapper setupFilePath;
+	
+	private ResourceRequestHandler nextHandler;
 	
 	/**
 	 * Constructs a virgin ResourceClassificationImpl object.
@@ -379,6 +383,49 @@ public class ResourceClassifierImpl implements 	ResourceClassifier,
 			throw new ConfigurationException("Recource Classifier setup fail",th);
 		}
 		
+	}
+
+	
+	
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#handle(java.lang.Object)
+	 */
+	public void handle(Object requestSpec) throws ResourceManagementException {
+		if(requestSpec == null){
+			throw new ResourceManagementException("Cannot handle null requestSpec");
+		}
+		
+		if(!(requestSpec instanceof ResourceRequestSpec)){
+			throw new ResourceManagementException(
+						"Cannot handle "+requestSpec+
+						" can only handle a "+ResourceRequestSpec.class);
+		}
+		
+		ResourceRequestSpec spec=(ResourceRequestSpec)requestSpec;
+		String url=
+			((HttpServletRequest)spec.getServletRequest()).getRequestURI();
+		
+			
+//		filterContext.log(
+//			"\n************************FILTERING log***********************************************"+
+//			"\nurl:"+url+
+//			"\n************************FILTERING log END***********************************************\n");
+			
+		spec.setResource(getResource(url));
+		
+		if(nextHandler!=null){
+			nextHandler.handle(spec);
+		}else{
+			throw new ResourceManagementException(
+					"ResourceClassifier cannot act as the end of the chain");
+		}
+	}
+
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#setNextHandle(org.peertrust.demo.resourcemanagement.ResourceRequestHandler)
+	 */
+	public void setNextHandle(ResourceRequestHandler nextHandler) {
+		this.nextHandler=nextHandler;
 	}
 
 	static public void main(String[] agrs)throws Exception{

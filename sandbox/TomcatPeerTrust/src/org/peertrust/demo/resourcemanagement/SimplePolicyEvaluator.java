@@ -16,7 +16,9 @@ import org.peertrust.exception.ConfigurationException;
  *
  */
 public class SimplePolicyEvaluator implements 	PolicyEvaluator,
-										Configurable{
+												Configurable,
+												ResourceRequestHandler
+{
 	static final public String PEER_NAME_SPACE_HOLDER="Requester";
 	
 	/** 
@@ -27,7 +29,13 @@ public class SimplePolicyEvaluator implements 	PolicyEvaluator,
 	/**
 	 * string use to cache the excexution fails messages
 	 */
-	String message=null;
+	String message=null; //put the return to eval(), decorator pattern?
+	
+	/**
+	 * The next handler in the chain of resposability for resource 
+	 * request serving
+	 */
+	ResourceRequestHandler nextHandler;
 	
 	/**
 	 * Creates a virgin SimplePolicyEvaluator Object.
@@ -59,7 +67,8 @@ public class SimplePolicyEvaluator implements 	PolicyEvaluator,
 	/**
 	 * @param message The message to set.
 	 */
-	public void setMessage(String message) {
+	public void setMessage(String message) 
+	{
 		this.message = message;
 	}
 
@@ -67,7 +76,10 @@ public class SimplePolicyEvaluator implements 	PolicyEvaluator,
 	/** 
 	 * @see org.peertrust.demo.resourcemanagement.PolicyEvaluator#eval(java.util.Vector)
 	 */
-	synchronized public int eval(Vector policyVector, String negotiatingPeerName) {
+	synchronized public int eval(
+							Vector policyVector, 
+							String negotiatingPeerName) 
+	{
 		final int SIZE=policyVector.size();
 		Policy pol=null;
 		long id;
@@ -143,6 +155,68 @@ public class SimplePolicyEvaluator implements 	PolicyEvaluator,
 		this.trustClient.setTimeout(10*1000);
 		this.trustClient.setSleepInterval(100);
 	}
+
+
+
+
+	/* (non-Javadoc)
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#handle(java.lang.Object)
+	 */
+	public void handle(Object requestSpec) throws ResourceManagementException {
+		if(requestSpec == null){
+			throw new ResourceManagementException("Cannot handle null requestSpec");
+		}
+		
+		if(!(requestSpec instanceof ResourceRequestSpec)){
+			throw new ResourceManagementException(
+						"Cannot handle "+requestSpec+
+						" can only handle a "+ResourceRequestSpec.class);
+		}
+		
+		ResourceRequestSpec spec=(ResourceRequestSpec)requestSpec;
+		String peerName=spec.getPeerName();
+		Vector attachedPolicies=spec.getAttachedPolicies();
+		
+		Resource res=spec.getResource();
+		if(peerName!=null && (res instanceof ProtectedResource)){//a peer registered nego possible
+//			evaluate
+			int result=this.eval(
+									attachedPolicies, 
+									peerName);
+			if(result==PolicyEvaluator.SUCCESS_FLAG){
+				((ProtectedResource)res).setCanAccess(true);
+			}else{
+				((ProtectedResource)res).setCanAccess(false);
+				if(message==null){
+					((ProtectedResource)res).setReason(
+							"Fail to evaluate "+
+					((Policy)
+							attachedPolicies.elementAt(result)).getPolicyValue());
+				}else{
+					((ProtectedResource)res).setReason(message);
+				}
+			}
+		}
+		
+		
+		if(nextHandler!=null){
+			nextHandler.handle(spec);
+		}else{
+			throw new ResourceManagementException(
+				"SimplePolicyEvaluator cannot act as the end of the chain");
+		}
+	}
+
+
+
+
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#setNextHandle(org.peertrust.demo.resourcemanagement.ResourceRequestHandler)
+	 */
+	public void setNextHandle(ResourceRequestHandler nextHandler) {
+		this.nextHandler=nextHandler;
+	}
+	
 	
 	
 }

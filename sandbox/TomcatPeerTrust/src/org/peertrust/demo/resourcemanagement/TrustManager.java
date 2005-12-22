@@ -6,6 +6,8 @@ package org.peertrust.demo.resourcemanagement;
 import java.io.IOException;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.peertrust.TrustClient;
@@ -25,7 +27,8 @@ import org.xml.sax.SAXException;
  * @author Patrice Congo(token77)
  *
  */
-public class TrustManager implements Configurable
+public class TrustManager implements 	Configurable,
+										ResourceRequestHandler
 {
 	/**
 	 * a resource classifier
@@ -51,6 +54,12 @@ public class TrustManager implements Configurable
 	 * The credential distribution server 
 	 */
 	private CredentialDistributionServer credentialDistributionServer;
+	
+	/**
+	 * next handler in the chain of resposibility for serving
+	 * resource request. 
+	 */
+	ResourceRequestHandler nextHandler;
 	
 	/** 
 	 * Path of the xml setup file
@@ -452,6 +461,14 @@ public class TrustManager implements Configurable
 			throw new ConfigurationException(
 					"sessionRegisterer not set"+this.getClass());
 		}
+		
+		this.setNextHandle((ResourceRequestHandler)resourceClassifier);
+		((ResourceRequestHandler)resourceClassifier).setNextHandle(
+									(ResourceRequestHandler)policySystem);
+		((ResourceRequestHandler)policySystem).setNextHandle(
+								(ResourceRequestHandler)policyEvaluator);
+		((ResourceRequestHandler)policyEvaluator).setNextHandle(
+					(ResourceRequestHandler)requestServingMechanismPool);
 //		try {
 //			setup(trustClient,setupFilePath);
 //		} catch (Exception e) {
@@ -460,6 +477,41 @@ public class TrustManager implements Configurable
 	}
 	
 	
+
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#handle(java.lang.Object)
+	 */
+	public void handle(Object requestSpec) throws ResourceManagementException {
+		if(requestSpec == null){
+			throw new ResourceManagementException("Cannot handle null requestSpec");
+		}
+		
+		if(!(requestSpec instanceof ResourceRequestSpec)){
+			throw new ResourceManagementException(
+						"Cannot handle "+requestSpec+
+						" can only handle a "+ResourceRequestSpec.class);
+		}
+		
+		ResourceRequestSpec spec=(ResourceRequestSpec)requestSpec;
+		
+		if(nextHandler!=null){
+			nextHandler.handle(spec);
+		}else{
+			throw new ResourceManagementException(
+					"ResourceClassifier cannot act as the end of the chain");
+		}
+		
+		return;
+	}
+
+
+	/**
+	 * @see org.peertrust.demo.resourcemanagement.ResourceRequestHandler#setNextHandle(org.peertrust.demo.resourcemanagement.ResourceRequestHandler)
+	 */
+	public void setNextHandle(ResourceRequestHandler nextHandler) {
+		this.nextHandler=nextHandler;
+	}
+
 
 	static public void main(String[] args){
 		System.out.println("dadad Requester ggg Requester".replaceAll("Requester","alice"));
