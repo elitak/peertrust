@@ -22,6 +22,7 @@ package org.peertrust;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
 import org.peertrust.config.Configurable;
 import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
@@ -35,23 +36,23 @@ import org.peertrust.net.Answer;
 import org.peertrust.net.Peer;
 import org.peertrust.net.Query ;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-
 /**
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.13 2005/12/05 16:20:20 token77 Exp $
+ * $Id: TrustClient.java,v 1.14 2006/01/18 11:03:25 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/12/05 16:20:20 $
- * by $Author: token77 $
+ * Last changed: $Date: 2006/01/18 11:03:25 $
+ * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 public class TrustClient implements PTEventListener, Configurable
 {	
+	private static Logger log = Logger.getLogger(TrustClient.class);
+	
 	static final String DEFAULT_ALIAS = "Client" ;
 
 	static public int DEFAULT_TIMEOUT = 15000 ;
@@ -66,23 +67,21 @@ public class TrustClient implements PTEventListener, Configurable
 	PTConfigurator _config ;
 	PTEngine _engine ;
 	EventDispatcher _ed ;
-	private String _query ;
 	private long _id ;
 	
 	private Hashtable _queries ;
 	
 	private Peer _peer ;
 
-	String _alias ;
-	int _timeout ;
-	int _sleepInterval ;
+	String _alias = DEFAULT_ALIAS ;
+	int _timeout = DEFAULT_TIMEOUT ;
+	int _sleepInterval = DEFAULT_SLEEP_INTERVAL ;
 	
 //	private String localAlias ;
 	
-	public TrustClient () throws ConfigurationException
-	{
-		//nothing
-		System.out.println("\n==============create TrustClient");
+	public TrustClient ()
+	{ 
+		super() ;
 	}
 	
 	public TrustClient (String [] configurationArgs, String [] components) throws ConfigurationException
@@ -97,38 +96,60 @@ public class TrustClient implements PTEventListener, Configurable
 		_config.startApp(configurationArgs, components) ;
 		
 		_engine = (PTEngine) _config.getComponent(Vocabulary.PeertrustEngine) ;
-		_ed = _engine.getEventDispatcher() ;
 		
-		_ed.register(this, PTEvent.class) ;
-		
-		if (_ed == null)
+		if (_engine != null)
 		{
-			System.out.println(ERROR_MESSAGE + "No event dispatcher has been found") ;
+			_ed = _engine.getEventDispatcher() ;
+		
+			_ed.register(this, PTEvent.class) ;
 		}
 		
-		_id = 0 ;
-		_queries = new Hashtable() ;
-		
-		setAlias(DEFAULT_ALIAS) ;
-		setTimeout(DEFAULT_TIMEOUT) ;
-		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
+		init() ;
 	}
 
+	public void init() throws ConfigurationException {
+		String msg = null ;
+		if (_ed == null)
+			msg = "There not exist an event dispatcher" ;
+		else if (_engine == null)
+			msg = "There not exist a PeerTrust engine" ;
+		
+		if (msg != null)
+		{
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
+
+		_id = 0 ;
+		_queries = new Hashtable() ;		
+	}
+
+	private void checkValidTrustClient () throws NullPointerException
+	{
+		if ( (_ed == null) || (_engine == null) )
+		{
+			throw new NullPointerException ("TrustClient is not well initialized") ;
+		}
+	}
+	
 	public void destroy()
 	{
+		checkValidTrustClient () ;
 		_engine.stop() ;
 	}
 	
-	public Object getComponent (Resource resource)
+/*	public Object getComponent (Resource resource)
 	{
 		if (_config == null)
 			return null ;
 		else
 			return _config.getComponent(resource) ; 
-	}
+	}*/
 	
 	public long sendQuery (String query)
 	{
+		checkValidTrustClient () ;
+		
 		_id++ ;
 		
 		// Peer target and Trace are ignored and set to null
@@ -144,6 +165,8 @@ public class TrustClient implements PTEventListener, Configurable
 	
 	public void removeQuery(long id)
 	{
+		checkValidTrustClient () ;
+		
 		QueryEntry tmp = (QueryEntry) _queries.remove(new Long(id)) ;
 		if (tmp == null)
 			System.out.println(ERROR_MESSAGE + "Query with id " + id + " does not exist") ;
@@ -153,6 +176,8 @@ public class TrustClient implements PTEventListener, Configurable
 	 * @see org.peertrust.event.PTEventListener#event(org.peertrust.event.PTEvent)
 	 */
 	public void event(PTEvent event) {
+		checkValidTrustClient () ;
+		
 		if (event instanceof QueryEvent)
 		{
 			QueryEvent qe = (QueryEvent) event ;
@@ -179,6 +204,8 @@ public class TrustClient implements PTEventListener, Configurable
 
 	private QueryEntry checkQuery (long id) throws IllegalArgumentException
 	{
+		checkValidTrustClient () ;
+		
 		QueryEntry qe = (QueryEntry) _queries.get(new Long(id)) ;
 		
 		if (qe == null)
@@ -192,6 +219,8 @@ public class TrustClient implements PTEventListener, Configurable
 	
 	public String[] getAnswers (long queryId)
 	{
+		checkValidTrustClient () ;
+		
 		QueryEntry qe = checkQuery(queryId) ;
 		
 		Vector v = qe.getAnswers() ;
@@ -207,6 +236,8 @@ public class TrustClient implements PTEventListener, Configurable
 		
 	public boolean isQueryFinished (long queryId)
 	{
+		checkValidTrustClient () ;
+		
 		QueryEntry qe = checkQuery(queryId) ;
 		
 		return qe.isFinished() ;
@@ -214,6 +245,8 @@ public class TrustClient implements PTEventListener, Configurable
 	
 	public Boolean isQuerySuccessful(long queryId)
 	{
+		checkValidTrustClient () ;
+		
 		QueryEntry qe = checkQuery(queryId) ;
 		
 		return qe.isSuccessful() ;
@@ -221,6 +254,8 @@ public class TrustClient implements PTEventListener, Configurable
 
 	public Boolean waitForQuery(long id)
 	{
+		checkValidTrustClient () ;
+		
 		long time = System.currentTimeMillis() ;
 
 		while (System.currentTimeMillis() - time < _timeout )
@@ -485,55 +520,17 @@ public class TrustClient implements PTEventListener, Configurable
 		this._timeout = timeout;
 	}
 	
-////////////////////////////////////
-	
 	/**
-	 * @see org.peertrust.config.Configurable#init()
+	 * @param engine The engine to set
 	 */
-	public void init() throws ConfigurationException 
-	{
-		System.out.println("\n==============init TrustClient");
-				
-		if(_engine == null){
-			throw new ConfigurationException("engine not set");
-		}
-		if(_ed == null){
-			throw new ConfigurationException("event dispatcher net set") ;
-		}
-		
-		_ed.register(this, PTEvent.class) ;
-				
-		_id = 0 ;
-		_queries = new Hashtable() ;
-		
-		setAlias(DEFAULT_ALIAS) ;
-		setTimeout(DEFAULT_TIMEOUT) ;
-		setSleepInterval(DEFAULT_SLEEP_INTERVAL) ;
-		
+	public void setEngine (PTEngine engine) {
+		this._engine = engine ;
 	}
 	
 	/**
-	 * @return retur n the event dispatcher
+	 * @param ed The event dispatcher to set
 	 */
-	public EventDispatcher getEventDispatcher() 
-	{
-		return _ed;
+	public void setEventDispatcher(EventDispatcher ed) {
+		this._ed = ed ;
 	}
-	
-	/**
-	 * @param _dispatcher The _dispatcher to set.
-	 */
-	public void setEventDispatcher(EventDispatcher _dispatcher) 
-	{
-		this._ed = _dispatcher;
-	}
-	
-	public void setPeertrustEngine(PTEngine _engine){
-		this._engine=_engine;
-	}
-	
-	public PTEngine getPeertrustEngine(PTEngine _engine){
-		return this._engine;
-	}
-	
 }
