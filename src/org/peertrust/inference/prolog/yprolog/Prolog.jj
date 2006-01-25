@@ -1,0 +1,440 @@
+/*
+ * Modified Calc Grammar for Prolog tests
+ */
+
+/* functor may now be quoted string, i.e. 'assert'( '#cow'(10) ), or '='(A,B).
+ * Operators may now be written in prefix notation, i.e. A=B  =>  =(A,B) */
+
+options {
+    LOOKAHEAD = 1;
+    STATIC = false;
+}
+
+PARSER_BEGIN(Parser)
+
+package org.peertrust.inference.prolog.yprolog;
+
+import java.util.*;
+import java.io.StringReader;
+ 
+public class Parser 
+{
+
+    public static void main(String args[]) throws ParseException 
+    {
+        KnowledgeBase kb = new KnowledgeBase();
+        Parser parser = new Parser( new StringReader(
+        
+			"eq(X,X).   X=X.  fail :- eq(c,d). true. " +
+			"print(X) := 1." +
+			"nl         := 2." +
+			"assert(X)  := 3." +
+
+			"or(X,Y) :- call(X). or(X,Y) :- call(Y)." 
+        ));
+        
+        parser.primitives( kb );
+        kb.dump(true);
+    }
+    
+    public // static 
+    TermList getList (String query) throws ParseException 
+    {
+     	resetVDict();
+	ReInit( new StringReader( query ));
+     	return goals();
+     } 
+
+    public // static 
+    Term getTerm(String query) throws ParseException
+    {
+     	ReInit( new StringReader( query ));
+     	resetVDict();
+	return goal();
+     } 
+
+    //static Hashtable vardict;
+    //static int       varnum;
+    Hashtable vardict;
+    int       varnum;
+    public static int    maxVarnum = 0;
+ 
+    
+    public // static 
+    void resetVDict() 
+    {
+        vardict = new Hashtable();
+        varnum = 0;
+    }
+
+}
+
+
+PARSER_END(Parser)
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "%" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+   < UNARYOP: "\\+" >
+}
+
+TOKEN : /* OPERATORS */
+{
+    < CUT :  "!" >
+  | < ADDOP:  "+" | "-" >
+  | < MULOP:  "*" | "/" | "mod" >
+  | < RELOP:  "=" | "is" | "==" | "!=" | ">" | "<" | ">=" | "<=" >
+}
+
+TOKEN : /* numeric constants */
+{
+        < NUMBER:  (<DIGIT>)+ >
+  |     < #DIGIT: ["0" - "9"] >
+  |     < CHAR_LITERAL:  "'" (~["'","\\","\n","\r"])*   "'" >
+}
+
+TOKEN : /* Function names */
+{
+        < VAR:      ( (<HICASE> |  "_" )  ( <ANYCHAR> )* ) >
+  |     < ATOM:     ( <LOCASE>) ( <ANYCHAR> )*  >
+  
+  |     < #ANYCHAR: ( <LOCASE> | <HICASE> | <DIGIT> | "_" ) > 
+  |     < #LOCASE: ["a"-"z"] > 
+  |     < #HICASE: ["A"-"Z"] > 
+} 
+
+
+    void Program( KnowledgeBase kb ) :
+// --------------------------------------
+    {}
+    {
+        ( clause(kb))+ <EOF>
+    }
+
+    
+    void clause( KnowledgeBase kb ) :
+// --------------------------------------
+    
+{ Term  head;
+  TermList body= null;
+  Clause c;
+}
+    {   { resetVDict();  }
+    
+        head = pred() [ ":-" body = goals() ] "."
+        
+        { c = new Clause( head, body);
+          kb.addClause( c );
+          // System.out.println("Clause: " + c);
+        }
+    }
+
+    void primitives(KnowledgeBase kb) :
+// --------------------------------------
+    {}
+    {
+        ( primitive(kb))+ <EOF>
+    }
+
+
+    void primitive(KnowledgeBase kb) :
+// --------------------------------------
+{ 
+    Term  head;
+    Token tok=null;
+    boolean opt = true;
+    TermList body = null;
+}
+{   { resetVDict();  }
+
+    head = goal() 
+    [ ":="  tok = <NUMBER>  { 
+    		kb.addPrimitive( new Clause( head, new Primitive(tok.image)));
+    		opt = false;
+    	}
+    	
+    | ":-"  body = goals()  {
+    		kb.addPrimitive( new Clause( head, body));
+    		opt = false;
+    	}
+    ] "."
+    
+    { if (opt) kb.addPrimitive( new Clause( head, null)); }
+    
+}
+
+
+    TermList goals() :
+// --------------------------------------
+{
+    Term t;
+    TermList head, last, p;
+}
+    {
+        t = goal() { head = last = new TermList(t) ; }
+        
+        ( "," t = goal() 
+        
+            {
+                last.next = p = new TermList( t );
+                last = p;
+            }
+        )*
+        
+        { return head; }
+    }
+
+    Term pred() :
+// --------------------------------------
+{
+    Token  op;
+    Vector v = new Vector() ;
+	int arity;
+	Term [] terms;
+	Term term;
+}
+{
+    ( op = <ATOM> | op = <ADDOP> | op = <MULOP> | op = <RELOP> |
+	  op = <UNARYOP> )
+	[ "(" arglist( v ) ")" ]
+    
+    {
+        arity = v.size();
+        terms = new Term [arity];
+        for (int i = 0 ; i < arity ; i++)
+            terms[i] = (Term) v.elementAt(i);
+        return new Term( op.image.intern(), terms );
+    
+    }
+  |
+    op = <CHAR_LITERAL> [ "(" arglist( v ) ")" ]
+    
+    {
+        String s = op.image;
+        String functor = s.substring(1,s.length()-1);
+        arity = v.size();
+        if (arity==0) {
+            return new Term( functor.intern(), 0);
+        } else {
+            terms = new Term [arity];
+            for (int i = 0 ; i < arity ; i++)
+                terms[i] = (Term) v.elementAt(i);
+            return new Term( functor.intern(), terms );
+        }
+    }
+/*  	op = <UNARYOP>  term = arg()
+  |
+
+    {
+        terms = new Term [1];
+        terms[0] = term;
+        return new Term( op.image.intern(), terms );
+    
+    }*/
+ /* |
+    op = <CHAR_LITERAL>
+      {
+        String s = op.image;
+        return new Term( s.substring(1,s.length()-1).intern(),0);
+      }*/
+}
+
+    void arglist( Vector v) :
+// --------------------------------------
+{
+    Term t;
+}
+    {
+        t = arg()       { v.addElement( t ); }
+        ( "," 
+          t = arg()     { v.addElement( t ); }
+        )*
+    }
+
+// --------------------------------------
+    Term goal() :
+// --------------------------------------
+{
+    Term x;  
+    Term s1=null, 
+	s2=null,
+	s3=null;
+}
+{
+    "(" s1 = goal_list()
+	    [ "->" s2 = goal_list() ]
+	    [ ";"  s3 = goal_list() ]
+    ")"
+ 
+    {  if ( s2==null && s3 == null) 
+       {
+    		x = new Term("seq",1); x.setarg(0,s1);
+    		return x;
+       }	
+       else if ( s2 == null) return new Term( "or", s1, s3); 
+       else if ( s3 == null) return new Term( "if", s1, s2);
+       else {
+	   Term ts[]= new Term[3];
+	   ts[0] = s1;
+           ts[1] = s2;
+	   ts[2] = s3;
+	   return new Term("if", ts);
+       }
+    }  
+  |
+    x = arg()  {   // System.out.println("   Goal: " + x );  
+                   return x; }
+    
+  | "!"        { return  Term.CUT; }
+}
+
+//------------------------  
+    Term goal_list() :
+//------------------------
+{  Vector v = new Vector(); 
+   Term t;
+}
+{  t = goal()   { v.addElement( t ); }
+   ( "," 
+       t = goal() { v.addElement( t ); }
+   )*
+
+   {   int j = v.size();
+       t = new Term("null",0);;
+       while (--j >= 0 )
+          t = new Term("cons", (Term) v.elementAt(j), t);
+       return t;
+   }
+}
+
+
+
+    Term arg() :
+// --------------------------------------
+  
+    {Term t1, t2;
+    Token op;}
+    {
+        t1 = sum() 
+      ( op = <RELOP>  t2 = sum() 
+      
+        { t1 = new Term( op.image.intern(), t1, t2 ); }
+      )*
+        { return t1; }
+    }
+
+
+    Term sum() :
+// --------------------------------------
+    {Term t1, t2;
+    Token op;}
+    {
+        t1 = factor() 
+      ( op = <ADDOP>  t2 = factor() 
+      
+        { t1 = new Term( op.image.intern(), t1, t2 ); }
+      )*
+        { return t1; }
+    }
+
+    Term factor() :
+// --------------------------------------
+    {Term t1, t2;
+    Token op;}
+    {
+        t1 = operand() 
+      ( op = <MULOP>  t2 = operand() 
+      
+        { t1 = new Term( op.image.intern(), t1, t2 ); }
+      )*
+        { return t1; }
+    }
+
+    Term operand() :   
+// --------------------------------------
+{  Token tok; 
+    Term t;
+}
+{
+  t = pred() 
+    {   return t ;
+    }
+
+| tok = <VAR> 
+    {   
+	String s = tok.image;
+        t = (Term) vardict.get( s );
+        if (t==null) {
+            t = new Term(varnum++); 
+            if (varnum>maxVarnum) maxVarnum = varnum;
+            if( ! s.equals("_") )
+            	vardict.put( s,t);
+        }
+        return t;
+    }
+
+| tok = <NUMBER> 
+    {   
+        return new Number( tok.image.intern() );
+    }
+    
+| t = list() 
+    {   
+        return t;
+    }
+    
+//| "(" t = arg() ")"
+//    {   
+//        return t;
+//    }
+}
+
+    Term list() :
+// --------------------------------------
+{
+    Vector v = new Vector();
+}
+{
+    "["  [  listElems(v) ] "]" 
+    
+        {  if (v.size()==0) 
+                 return new Term("null",0);
+            else
+            {   int j = v.size()-1;
+                Term t = (Term) v.elementAt( j );
+                while (--j >= 0 )
+                    t = new Term("cons", (Term) v.elementAt(j), t);
+                return t;
+            }
+        }
+}
+
+
+   void listElems( Vector v) :
+// --------------------------------------
+{
+    Term t = null;
+}
+{
+    arglist( v )  [  "|"  t = arg() ] 
+    
+        {  if (t== null) 
+                v.addElement(new Term("null",0) );
+           else
+                v.addElement( t );
+        }                       
+}
+

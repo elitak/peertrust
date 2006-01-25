@@ -32,11 +32,11 @@ import org.peertrust.net.Peer;
  * <p>
  * Any class querying an inference engine in the system must implement this interface.
  * </p><p>
- * $Id: InferenceEngine.java,v 1.5 2005/08/07 08:35:13 dolmedilla Exp $
+ * $Id: InferenceEngine.java,v 1.6 2006/01/25 16:07:45 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed:  $Date: 2005/08/07 08:35:13 $
+ * Last changed:  $Date: 2006/01/25 16:07:45 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -48,6 +48,7 @@ public interface InferenceEngine
 	public void unifyTree (Tree tree, String newQuery) throws InferenceEngineException ;
 	public boolean execute (String query) throws InferenceEngineException ;
 	public boolean validate(String Goal,Peer prover,Proof proof) throws InferenceEngineException ;
+	public void consultFile(String fileName) throws InferenceEngineException ;
 	
 	public void insert (String clause) throws InferenceEngineException ;
 	public void setDebugMode (boolean debug) throws InferenceEngineException ;

@@ -18,58 +18,139 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package test.org.peertrust.inference;
+package test.org.peertrust.inference.prolog.parser;
+
 
 import org.apache.log4j.Logger;
-import org.peertrust.config.PTConfigurator;
-import org.peertrust.config.Vocabulary;
-import org.peertrust.exception.ConfigurationException;
-import org.peertrust.inference.MinervaProlog;
-import org.peertrust.inference.prolog.parser.PrologList;
-
-import test.org.peertrust.config.Vocabulary4Tests;
-
-import com.ifcomputer.minerva.MinervaTerm;
+import org.peertrust.inference.prolog.parser.PrologTools;
+import org.peertrust.inference.prolog.parser.PrologTerm;
+import org.peertrust.inference.prolog.yprolog.ParseException;
+import org.peertrust.inference.prolog.yprolog.TokenMgrError;
 
 import junit.framework.*;
 
 /**
- * $Id: MinervaPrologTest.java,v 1.2 2006/01/25 16:07:45 dolmedilla Exp $
- * @author olmedilla
- * @date 05-Dec-2003
- * Last changed  $Date: 2006/01/25 16:07:45 $
+ * <p>
+ * 
+ * </p><p>
+ * $Id: PrologToolsTest.java,v 1.1 2006/01/25 16:07:46 dolmedilla Exp $
+ * <br/>
+ * Date: 19-Jan-2006
+ * <br/>
+ * Last changed: $Date: 2006/01/25 16:07:46 $
  * by $Author: dolmedilla $
- * @description
+ * </p>
+ * @author Daniel Olmedilla
  */
-public class MinervaPrologTest extends TestCase {
+public class PrologToolsTest extends TestCase {
+	private static Logger log = Logger.getLogger(PrologToolsTest.class);
 	
-	private static Logger log = Logger.getLogger(PrologList.class);
-	
-	public MinervaProlog engine = new MinervaProlog() ;
-	
-	public MinervaPrologTest ( String name ) {
+	public PrologToolsTest ( String name ) {
 		super( name ) ;
 	}
 
 	public static Test suite() {
-		return new TestSuite( MinervaPrologTest.class );
+		return new TestSuite( PrologToolsTest.class );
 	}
 
 	public void setUp() {
 	}
-	
-	public void testParse0() {
-	
-		String query = "t1(t@b$c,s@g@n)" ;
-	
-		MinervaTerm term = engine.parse(query) ;
-		log.debug(term.toString()) ;
-	
-		String query2 = engine.unparse(term) ;
-		assertEquals (query, query2) ;
+
+	public void testParseError()
+	{
+		String s = "[tree(employee(alice7,microsoft)@'Microsoft'@alice7,[],[signed(r(employee(alice7,microsoft)@microsoft,[],[]),microsoft,signature(microsoft))@alice7,proved_by(alice7)@company7],manuel)]" ;
+		
+		try {
+			PrologTools.getTerm(s);
+		} catch (TokenMgrError me) {
+			assertTrue(me.getMessage(),true) ;
+			return ;
+		} catch (ParseException e) {
+			fail(e.getMessage()) ;
+		}
+		
+		fail("No exception raised") ;		
 	}
 
-	public void testParse1() {
+	public void testParse1()
+	{
+		String s = "[1,2,X0,a]" ;
+		
+		PrologTerm term = null;
+		try {
+			term = PrologTools.getTerm(s);
+		} catch (ParseException e) {
+			fail(e.getMessage());
+		}
+		
+		assertFalse(term == null) ;
+		assertEquals(s, term.toString()) ;
+	}
+
+	public void testParse2()
+	{
+		String s = "predicate(X0,a,23)" ;
+		
+		PrologTerm term = null;
+		try {
+			term = PrologTools.getTerm(s);
+		} catch (ParseException e) {
+			fail(e.getMessage());
+		}
+				
+		assertFalse(term == null) ;
+		assertEquals(s, term.toString()) ;
+	}
+
+	public void testParse3()
+	{
+		String s = "predicate([1,2,X0,a],X1,a,pred2(23))" ;
+		
+		PrologTerm term = null;
+		try {
+			term = PrologTools.getTerm(s);
+		} catch (ParseException e) {
+			fail(e.getMessage());
+		}
+		
+		assertFalse(term == null) ;
+		assertEquals(s, term.toString()) ;
+	}
+
+	public void testParse5()
+	{
+		String s = "[tree(employee(alice7,microsoft),[],[signed(r(employee(alice7,microsoft),[],[]),microsoft,signature(microsoft)),proved_by(alice7)],manuel)]" ;
+		
+		PrologTerm term = null;
+		try {
+			term = PrologTools.getTerm(s);
+		} catch (ParseException e) {
+			fail(e.getMessage());
+		}
+		
+		System.out.println(s) ;
+		System.out.println(term.toString()) ;
+
+		assertFalse(term == null) ;
+		assertEquals(s, term.toString()) ;
+	}
+
+	public void testParse6()
+	{
+		String s = "tree(document(project7,X0),[query(policy1(document(project7,X0,X1)),no),query(policy2(document(project7,X0,X1)),no),query(get_record(project7,X0),no)],[r(document(project7,X0),[policy1(document(project7,X0,X1)),policy2(document(project7,X0,X1))],[get_record(project7,X0)])],manuel)" ;
+		
+		PrologTerm term = null;
+		try {
+			term = PrologTools.getTerm(s);
+		} catch (ParseException e) {
+			fail(e.getMessage());
+		}
+		
+		assertFalse(term == null) ;
+		assertEquals(s, term.toString()) ;
+	}
+
+/*	public void testParse1() {
 	
 		String query = "[tree(employee(alice7,microsoft)@'Microsoft'@alice7,[],[signed(r(employee(alice7,microsoft)@microsoft,[],[]),microsoft,signature(microsoft))@alice7,proved_by(alice7)@company7],manuel)]" ;
 	
@@ -147,7 +228,7 @@ public class MinervaPrologTest extends TestCase {
 		boolean result2 = engine.execute(query2) ;
 		assertEquals (true, result2) ;
 	}
-
+*/
 	public static void main( String[] args ) {
 		try {
 			junit.textui.TestRunner.run( suite() );

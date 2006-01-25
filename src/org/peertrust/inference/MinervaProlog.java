@@ -43,11 +43,11 @@ import org.peertrust.net.Peer;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.12 2005/08/23 11:50:07 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.13 2006/01/25 16:07:45 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/23 11:50:07 $
+ * Last changed: $Date: 2006/01/25 16:07:45 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -80,7 +80,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.12 2005/08/23 11:50:07 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.13 2006/01/25 16:07:45 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -604,6 +604,14 @@ public class MinervaProlog implements InferenceEngine, Configurable
 		String query = VALIDATE_PREDICATE + "(" + goal + "," + prover.getAlias() + "," + proof.toString() + ")" ;
 		
 		return execute(query) ;
+	}
+
+	public void consultFile(String fileName) throws InferenceEngineException {
+		try {
+			_engine.load(fileName) ;
+		} catch (Exception e) {
+			throw new InferenceEngineException(e);
+		}		
 	}
 }
  
