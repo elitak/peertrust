@@ -148,6 +148,10 @@ public class ResourcePolicyContentProvider
 				return "badRes"+columnIndex;
 			}
 		}
+		else if(element instanceof PSPolicy)
+		{
+			return getPolicyTableCellLabel((PSPolicy)element,columnIndex);
+		}
 		else
 		{
 			logger.warn("cannot handle this kind of object:"+element);
@@ -170,7 +174,34 @@ public class ResourcePolicyContentProvider
 	}
 
 
-	
+	/////////////////////////////////////////////////////////////////////////
+	//////////////////UTIL///////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+	static final private String getPolicyTableCellLabel(
+										PSPolicy policy,
+										int colIndex)
+	{
+		switch(colIndex)
+		{
+			case 0://name
+			{
+				return policy.getHasName();				
+			}
+			case 1:///value 
+			{
+				return policy.getHasValue();
+			}
+			case 2:/// filter for policy is *
+			{
+				return "*";
+			}
+			default:
+			{
+				return "";
+			}
+		}
+		
+	}
 	
 	
 	
