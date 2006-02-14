@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="policysystem.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Policysystem Perspective"
+            class="policysystem.Perspective"
+            id="policysystem.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="policysystem"
+            name="policy system view"/>
+      <view
+            category="policysystem"
+            class="policysystem.views.PolicySystemView"
+            icon="icons/sample.gif"
+            id="policysystem.views.PolicySystemView"
+            name="PolicySystemView"/>
+      <category
+            id="policy system view"
+            name="policy system view"/>
+      <view
+            category="policy system view"
+            class="policysystem.views.PolicySystemGraphView"
+            icon="icons/sample.gif"
+            id="policysystem.views.PolicySystemGraphView"
+            name="Policy System Graph View"/>
+      <view
+            class="policysystem.views.MesgView"
+            id="policysystem.MesgView"
+            name="policysystem.MesgView"/>
+      <view
+            class="policysystem.views.WarningsView"
+            id="policysystem.WarningsView"
+            name="policysystem.WarningsView"/>
+      <view
+            class="policysystem.views.FileSystemView"
+            id="FileSystemView"
+            name="FileSystemView"/>
+      <view
+            allowMultiple="false"
+            class="policysystem.views.ResourcePolicyView"
+            id="policysystem.ResourcePolicyView"
+            name="policysystem.ResourcePolicyView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               id="policysystem.views.PolicySystemView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList"/>
+      </perspectiveExtension>
+      <perspectiveExtension targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               id="policysystem.views.PolicySystemGraphView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList"/>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="policysystem.editors.PSEditor"
+            default="false"
+            id="policysystem.editor1"
+            name="policysystem.editor1"/>
+   </extension>
+   <extension
+         id="policysystemID"
+         point="org.eclipse.core.runtime.products">
+      <product
+      		name="policysystem.Product"
+            application="policysystem.Application"/>
+   </extension>
+
+</plugin>

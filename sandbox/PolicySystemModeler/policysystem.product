@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.1"?>
+
+<product id="policysystem.policysystemID" application="Editor.EditorApplication" useFeatures="false">
+
+
+   <configIni use="default"/>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <plugins>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="policysystem"/>
+   </plugins>
+
+</product>
