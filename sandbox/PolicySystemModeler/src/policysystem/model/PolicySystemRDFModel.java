@@ -10,6 +10,7 @@ import java.util.PropertyResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.modeler.model.RDFModelManipulator;
 
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -27,6 +28,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class PolicySystemRDFModel
 				implements ProjectConfigChangeListener
 {
+	static final public Vector EMPTY_VECTOR=new Vector(0);
 	static final public String POLICY_SYSTEM_RES="PolicySystem"; 
 	static final public String POLICY_SYSTEM_RES_POLICIES="Policies";
 	static final public String POLICY_SYSTEM_RES_RESOURCES="Resources";
@@ -36,7 +38,8 @@ public class PolicySystemRDFModel
 	
 	public static final String NS_KB_SCHEMA=
 			"http://www.l3s.de/peertrust/modeler/schema/#";
-	public static final String NS_KB_DATA=NS_KB_SCHEMA;
+	public static final String NS_KB_DATA=
+		"http://www.l3s.de/peertrust/modeler/data/#";
 	
 	public static final String NS_RDF=
 			"http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -166,9 +169,12 @@ public class PolicySystemRDFModel
 				PROP_HAS_NAME==null ||
 				PROP_HAS_OVERRIDING_RULES==null ||
 				PROP_HAS_SUPER==null ||
-				PROP_HAS_VALUE==null)
+				PROP_HAS_VALUE==null )
 		{
-			logger.error("model error all prop must be non null");
+			RuntimeException ex = 
+				new RuntimeException("model error all prop must be non null");
+			logger.error(ex);
+			throw ex;
 		}
 		return;
 	}
@@ -414,16 +420,36 @@ public class PolicySystemRDFModel
 	}
 	
 	static final public Vector getMultipleProperty(
-												Resource resource, 
-												Property prop) 
+								ModelObjectWrapper modelObjectWrapper, 
+								Property prop) 
 	{
-		if(resource ==null || prop==null)
+		if(modelObjectWrapper ==null || prop==null)
 		{
 			getInstance().logger.warn(
-					"params must not be null: res="+resource+
+					"params must not be null: modelObjectWrapper="+modelObjectWrapper+
 					" prop:"+prop);
-			return null;
+			return new Vector();
 		}
+		
+		Object wrappee=modelObjectWrapper.getModelObject();
+		if(wrappee==null)
+		{
+			getInstance().logger.warn(
+					"Wrapped model object is null; wrapper="+modelObjectWrapper+
+					" return empty vector");
+			return EMPTY_VECTOR;
+			
+		}
+		if(!(modelObjectWrapper.getModelObject() instanceof Resource))
+		{
+			getInstance().logger.warn(
+					"Model object not a resource["+wrappee.getClass()+
+					" return empty Vector");
+			return EMPTY_VECTOR;
+		}
+		
+		Resource resource=(Resource)wrappee;
+		
 		
 		if(policySystemRDFModel==null)
 		{
@@ -438,10 +464,23 @@ public class PolicySystemRDFModel
 		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
 		Vector policies=new Vector();
 		Statement stm;
+		RDFNode object;
 		while(it.hasNext())
 		{
 			stm=it.nextStatement();
-			policies.add(new PSPolicyImpl((Resource)stm.getObject()));
+			
+			//policies.add(new PSPolicyImpl((Resource)stm.getObject()));
+			object=stm.getObject();
+			if(object.isResource()){
+				wrappee=createModelObjectWrapper(
+								(Resource)object,
+								modelObjectWrapper);
+				policies.add(wrappee);
+			}
+			else
+			{
+				policies.add(object);
+			}
 		}
 		
 		return policies;
@@ -512,6 +551,38 @@ public class PolicySystemRDFModel
 		return;
 	}
 	
+	static final public void addMultipleStringProperty(
+			Resource subject, 
+			Property prop,
+			String object) 
+	{
+		if(	subject ==null || 
+			prop==null || 
+			object==null)
+		{
+			getInstance().logger.warn("params subject prop objects must all not be null");
+			return;
+		}
+	
+		if(policySystemRDFModel==null)
+		{
+			getInstance().logger.warn("Model singleton not created");
+			return;
+		}
+	
+		Statement stm=
+			policySystemRDFModel.rdfModel.createStatement(
+								subject,
+								prop,
+								object);
+		if(stm!=null)
+		{
+			policySystemRDFModel.rdfModel.add(stm);
+		}
+		return;
+	}
+	
+	
 	static final public boolean isSubClassOf(
 										Resource res,
 										Resource cls)
@@ -522,10 +593,12 @@ public class PolicySystemRDFModel
 			return false;
 		}
 		return 
-			policySystemRDFModel.rdfModel.contains(res,RDFS.subClassOf,cls);
+			policySystemRDFModel.rdfModel.contains(res,RDF.type,cls);
 	}
 	
-	static final public ModelObjectWrapper createModelObjectWrapper(Resource res)
+	static final public ModelObjectWrapper createModelObjectWrapper(
+												Resource res,
+												ModelObjectWrapper guarded)
 	{
 		if(isSubClassOf(res,CLASS_RESOURCE))
 		{
@@ -533,8 +606,12 @@ public class PolicySystemRDFModel
 		}
 		else if(isSubClassOf(res,CLASS_POLICY))
 		{
-			return new PSPolicyImpl(res);
+			return new PSPolicyImpl(res,guarded);
 		}
+		else if(isSubClassOf(res,CLASS_FILTER))
+		{
+			return new PSFilterImpl(res);
+		}		
 		else if(isSubClassOf(res,CLASS_OVERRIDDING_RULE))
 		{
 			throw new RuntimeException("overrinding rull not suported");
@@ -542,8 +619,21 @@ public class PolicySystemRDFModel
 		else
 		{
 			
+			
 			RuntimeException ex=
-				new RuntimeException("cannot handle this:"+res.getLocalName());
+				new RuntimeException(
+						"\ncannot handle this:"+res.getLocalName()+
+						"\n\t type="+res.getProperty(RDF.type)+
+						"\n\t URI"+res.getURI()+
+						"\n\t "+res.getLocalName());
+			System.out.println("\nStatemenList:");
+			StmtIterator it=
+				getInstance().rdfModel.listStatements(
+									(Resource)null,RDF.type,(RDFNode)null);
+			for(;it.hasNext();)
+			{
+				System.out.println("\n\t"+it.nextStatement());
+			}
 			getInstance().logger.error(ex);
 			throw ex;
 		}

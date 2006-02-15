@@ -5,39 +5,70 @@ package policysystem.model;
 
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
+
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 class PSResourceImpl implements PSResource
 {
 	Resource resource;
+	Logger logger;
+	
 	public PSResourceImpl(Resource resource)
 	{
 		this.resource=resource;
+		logger= Logger.getLogger(PSResourceImpl.class);
 	}
 	
-	public String getHasName() 
+	public String getLabel() 
 	{
-		return PolicySystemRDFModel.getStringProperty(resource,PolicySystemRDFModel.PROP_HAS_NAME);
+		if(resource==null)
+		{
+			logger.warn(
+				"wrapped resources is null; returning null as label");
+			return null;
+		}
+		return PolicySystemRDFModel.getStringProperty(
+								resource,
+								RDFS.label);
 	}
 
-	public void setHasName(String name) 
+	public void setLabel(String label) 
 	{
-		PolicySystemRDFModel.setStringProperty(resource,PolicySystemRDFModel.PROP_HAS_NAME,name);
+		if(label==null)
+		{
+			logger.warn("param name is null skipping setting");
+			return;
+		}
+		if(resource==null)
+		{
+			logger.warn(
+				"wrapped resources is null; skipping setting of label:"+label);
+			return;
+		}
+		
+		PolicySystemRDFModel.setStringProperty(
+								resource,
+								PolicySystemRDFModel.PROP_HAS_NAME,
+								label);
 	}
 
 	public String getHasMapping() 
 	{
-		return PolicySystemRDFModel.getStringProperty(resource,PolicySystemRDFModel.PROP_HAS_MAPPING);
+		return PolicySystemRDFModel.getStringProperty(
+					resource,PolicySystemRDFModel.PROP_HAS_MAPPING);
 	}
 
 	public void setHasMapping(String mapping) {
-		PolicySystemRDFModel.setStringProperty(resource,PolicySystemRDFModel.PROP_HAS_MAPPING,mapping);
+		PolicySystemRDFModel.setStringProperty(
+				resource,PolicySystemRDFModel.PROP_HAS_MAPPING,mapping);
 	}
 
 	public Vector getIsOverrindingRule() {
 		return PolicySystemRDFModel.getMultipleProperty(
-									resource,
-									PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
+							this,//resource,
+							PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
 
 	public void addIsOverrindingRule(PSOverrindingRule rule) {
@@ -52,7 +83,9 @@ class PSResourceImpl implements PSResource
 
 	public Vector getHasSuper() {
 		return
-			PolicySystemRDFModel.getMultipleProperty(resource,PolicySystemRDFModel.PROP_HAS_SUPER);
+			PolicySystemRDFModel.getMultipleProperty(
+							this,//resource,
+							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
 	public void addHasSuper(ModelObjectWrapper parent) {
@@ -73,14 +106,14 @@ class PSResourceImpl implements PSResource
 	public Vector getIsProtectedBy() {
 		return 
 			PolicySystemRDFModel.getMultipleProperty(
-							resource,
+							this,//resource,
 							PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 	}
 
 	public Vector getHasFilter()
 	{
 		return PolicySystemRDFModel.getMultipleProperty(
-					resource,
+					this,//resource,
 					PolicySystemRDFModel.PROP_HAS_FILTER);
 	}
 	public Object getModelObject() {
@@ -89,7 +122,6 @@ class PSResourceImpl implements PSResource
 	
 	public String toString() 
 	{
-		System.out.println("---------------------------------------------SSSS");
-		return "   "+getHasName()+"  ";
+		return "   "+getLabel()+"  ";
 	}
 }

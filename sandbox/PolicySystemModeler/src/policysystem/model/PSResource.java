@@ -4,8 +4,6 @@ import java.util.Vector;
 
 
 public interface PSResource extends ModelObjectWrapper {
-	public String getHasName();
-	public void setHasName(String name);
 	
 	public String getHasMapping();
 	public void setHasMapping(String name);

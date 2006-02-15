@@ -4,6 +4,7 @@
 package policysystem.model;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -16,6 +17,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.internal.registry.StickyViewDescriptor;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -29,6 +31,7 @@ public class ResourcePolicyContentProvider
 					ITableLabelProvider
 {
 
+	static public final Object[] EMPTY_ARRAY= new Object[0];
 	Logger logger;//= Logger.getLogger(ResourcePolicyContentProvider.class);
 	
 	public ResourcePolicyContentProvider()
@@ -44,7 +47,7 @@ public class ResourcePolicyContentProvider
 		if(inputElement==null)
 		{
 			logger.warn("Param inputelement is null");
-			return new Object[0];
+			return EMPTY_ARRAY;
 		}
 		
 		
@@ -55,40 +58,46 @@ public class ResourcePolicyContentProvider
 			if(file.isFile())
 			{
 				logger.warn("Cannot handle file["+file.toURI()+"]; directory expedted");
-				return new Object[0];
+				return EMPTY_ARRAY;//new Object[0];
 			}
 			
 			PSResource res= PolicySystemRDFModel.getResource(file.toString(),true);
 			
 			Vector dirPolicies=res.getIsProtectedBy();
-//					PolicySystemRDFModel.getMultipleProperty(
-//						res,
-//						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 			Vector filters = res.getHasFilter();
-//					PolicySystemRDFModel.getMultipleProperty(
-//							res,
-//							PolicySystemRDFModel.PROP_HAS_FILTER);
+			Vector allPolicies= new Vector();
+			
 			if(dirPolicies!=null)
 			{
-				if(filters!=null)
-				{
-					dirPolicies.addAll(filters);
-				}
-				return dirPolicies.toArray();
+				allPolicies.addAll(dirPolicies);
+			}
+			
+			if(filters!=null)
+			{
+					Iterator it=filters.iterator();
+					PSFilter filter;
+					
+					for(;it.hasNext();)
+					{
+						filter=(PSFilter)it.next();
+						allPolicies.addAll(filter.getIsprotectedBy());
+					}
+			}
+			if(allPolicies.size()>0)
+			{
+				return allPolicies.toArray();
 			}
 			else
 			{
-				if(filters!=null)
-				{
-					return	filters.toArray();
-				}
-				return new Object[0];
+				logger.info("no policy found for:"+inputElement);
+				return EMPTY_ARRAY;
 			}
+			
 		}
 		else
 		{
 			logger.warn("cannot handle this kind of input:"+inputElement);
-			return new Object[0];
+			return EMPTY_ARRAY;
 		}		
 	}
 
@@ -152,10 +161,16 @@ public class ResourcePolicyContentProvider
 		{
 			return getPolicyTableCellLabel((PSPolicy)element,columnIndex);
 		}
+		else if(element instanceof PSFilter)
+		{
+			return getFlterTableCellLabel((PSFilter)element,columnIndex);
+		}
 		else
 		{
-			logger.warn("cannot handle this kind of object:"+element);
-			return "ColA"+columnIndex+" el:"+element;
+			logger.warn(
+					"cannot handle this kind of object:"+element+
+					"element"+element.getClass());
+			return null;//return "ColA"+columnIndex+" el:"+element;
 		}
 		
 	}
@@ -177,7 +192,7 @@ public class ResourcePolicyContentProvider
 	/////////////////////////////////////////////////////////////////////////
 	//////////////////UTIL///////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
-	static final private String getPolicyTableCellLabel(
+	final private String getPolicyTableCellLabel(
 										PSPolicy policy,
 										int colIndex)
 	{
@@ -185,7 +200,7 @@ public class ResourcePolicyContentProvider
 		{
 			case 0://name
 			{
-				return policy.getHasName();				
+				return policy.getLabel();				
 			}
 			case 1:///value 
 			{
@@ -193,7 +208,27 @@ public class ResourcePolicyContentProvider
 			}
 			case 2:/// filter for policy is *
 			{
-				return "*";
+				ModelObjectWrapper guarded=policy.getGuarded();
+				if(guarded instanceof PSFilter)
+				{
+					StringBuffer strBuf= new StringBuffer(512);
+					Iterator it=((PSFilter)guarded).getHasCondition().iterator();
+					for(;it.hasNext();)
+					{
+						strBuf.append(it.next());
+					}
+					return strBuf.toString();
+				}
+				else if(guarded instanceof PSResource)
+				{
+					return "*";
+				}
+				else
+				{
+					logger.warn("Policy Guarded type is unkown:"+guarded+
+							" policy:"+policy.getClass());
+					return "";
+				}
 			}
 			default:
 			{
@@ -204,7 +239,37 @@ public class ResourcePolicyContentProvider
 	}
 	
 	
+	final private String getFlterTableCellLabel(
+												PSFilter filter,
+												int colIndex)
+	{
+		switch(colIndex)
+		{
+			case 0://name
+			{
+					return filter.getLabel();				
+			}
+			case 1:///value 
+			{
+				return "filter";
+			}
+				case 2:/// filter for policy is *
+			{
+					StringBuffer strBuf= new StringBuffer(512);
+					Iterator it=filter.getHasCondition().iterator();
+					for(;it.hasNext();)
+					{
+						strBuf.append(it.next());
+					}
+					return strBuf.toString();
+			}
+			default:
+			{
+				return "";
+			}
+		}
 	
+	}
 	
 	
 	

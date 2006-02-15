@@ -3,6 +3,9 @@
  */
 package policysystem.model;
 
+
+import org.apache.log4j.Logger;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
@@ -10,10 +13,12 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 {
 
 	private Statement stm;
+	private Logger logger;
 	
 	public PSHierarchyRelationshipImpl(Statement stm)
 	{
 		this.stm=stm;
+		logger=Logger.getLogger(PSHierarchyRelationship.class);
 	}
 	
 	public boolean isDirected() {
@@ -26,7 +31,7 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 			return null;
 		}
 		Resource res= stm.getSubject();
-		return PolicySystemRDFModel.createModelObjectWrapper(res);
+		return PolicySystemRDFModel.createModelObjectWrapper(res,null);//TODO change null
 	}
 
 	public void setSource(ModelObjectWrapper source) {
@@ -39,7 +44,7 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 			return null;
 		}
 		Resource res= (Resource)stm.getObject();
-		return PolicySystemRDFModel.createModelObjectWrapper(res);
+		return PolicySystemRDFModel.createModelObjectWrapper(res,null);//TODO change that
 	}
 
 	public void setTarget(ModelObjectWrapper target) {
@@ -55,8 +60,13 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		}
 		
 		return new ModelObjectWrapper[]{
-					PolicySystemRDFModel.createModelObjectWrapper((Resource)stm.getSubject()),
-					PolicySystemRDFModel.createModelObjectWrapper((Resource)stm.getObject())};
+					PolicySystemRDFModel.createModelObjectWrapper(
+							(Resource)stm.getSubject(),
+							null),
+					PolicySystemRDFModel.createModelObjectWrapper(
+							(Resource)stm.getObject(),
+							null)//TODO change these nulls
+							};
 	}
 
 	public Object getModelObject() 
@@ -69,6 +79,29 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 	 */
 	public String toString() {
 		return " ";
+	}
+
+	public String getLabel() {
+		if(stm==null)
+		{
+			logger.warn("wrapped stm is null");
+			return null;
+		}
+		return stm.getPredicate().getLocalName();
+	}
+
+	public void setLabel(String label) {
+		if(label==null)
+		{
+			logger.warn("label is null cannot set!");
+			return;
+		}
+		if(stm==null)
+		{
+			logger.warn("wrapped stm is null cannot set label: "+label);
+			return;
+		}
+		stm.changeObject(label);
 	}
 	
 	
