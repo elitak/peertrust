@@ -6,6 +6,8 @@ package policysystem.model;
 
 import org.apache.log4j.Logger;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
@@ -31,7 +33,7 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 			return null;
 		}
 		Resource res= stm.getSubject();
-		return PolicySystemRDFModel.createModelObjectWrapper(res,null);//TODO change null
+		return PolicySystemRDFModel.getInstance().createModelObjectWrapper(res,null);//TODO change null
 	}
 
 	public void setSource(ModelObjectWrapper source) {
@@ -44,7 +46,7 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 			return null;
 		}
 		Resource res= (Resource)stm.getObject();
-		return PolicySystemRDFModel.createModelObjectWrapper(res,null);//TODO change that
+		return PolicySystemRDFModel.getInstance().createModelObjectWrapper(res,null);//TODO change that
 	}
 
 	public void setTarget(ModelObjectWrapper target) {
@@ -60,10 +62,10 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		}
 		
 		return new ModelObjectWrapper[]{
-					PolicySystemRDFModel.createModelObjectWrapper(
+					PolicySystemRDFModel.getInstance().createModelObjectWrapper(
 							(Resource)stm.getSubject(),
 							null),
-					PolicySystemRDFModel.createModelObjectWrapper(
+					PolicySystemRDFModel.getInstance().createModelObjectWrapper(
 							(Resource)stm.getObject(),
 							null)//TODO change these nulls
 							};

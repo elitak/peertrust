@@ -1,6 +1,7 @@
-package policysystem.model;
+package policysystem.model.abtract;
 
 import java.util.Vector;
+
 
 
 public interface PSResource extends ModelObjectWrapper {

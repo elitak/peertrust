@@ -7,6 +7,11 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSOverrindingRule;
+import policysystem.model.abtract.PSPolicy;
+import policysystem.model.abtract.PSResource;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -66,7 +71,7 @@ class PSResourceImpl implements PSResource
 	}
 
 	public Vector getIsOverrindingRule() {
-		return PolicySystemRDFModel.getMultipleProperty(
+		return PolicySystemRDFModel.getInstance().getMultipleProperty(
 							this,//resource,
 							PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
@@ -75,7 +80,7 @@ class PSResourceImpl implements PSResource
 		resource.addProperty(
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,
 					(Resource)rule.getModelObject());
-		PolicySystemRDFModel.addMultipleProperty(
+		PolicySystemRDFModel.getInstance().addMultipleProperty(
 					resource,
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,
 					(Resource)rule.getModelObject());
@@ -83,20 +88,20 @@ class PSResourceImpl implements PSResource
 
 	public Vector getHasSuper() {
 		return
-			PolicySystemRDFModel.getMultipleProperty(
+			PolicySystemRDFModel.getInstance().getMultipleProperty(
 							this,//resource,
 							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
 	public void addHasSuper(ModelObjectWrapper parent) {
-		PolicySystemRDFModel.addMultipleProperty(
+		PolicySystemRDFModel.getInstance().addMultipleProperty(
 					resource,
 					PolicySystemRDFModel.PROP_HAS_SUPER,
 					(Resource)parent.getModelObject());
 	}
 
 	public void addIsProtectedBy(PSPolicy policy) {
-		PolicySystemRDFModel.addMultipleProperty(
+		PolicySystemRDFModel.getInstance().addMultipleProperty(
 				resource,
 				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
 				(Resource)policy.getModelObject());
@@ -105,14 +110,14 @@ class PSResourceImpl implements PSResource
 
 	public Vector getIsProtectedBy() {
 		return 
-			PolicySystemRDFModel.getMultipleProperty(
+			PolicySystemRDFModel.getInstance().getMultipleProperty(
 							this,//resource,
 							PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 	}
 
 	public Vector getHasFilter()
 	{
-		return PolicySystemRDFModel.getMultipleProperty(
+		return PolicySystemRDFModel.getInstance().getMultipleProperty(
 					this,//resource,
 					PolicySystemRDFModel.PROP_HAS_FILTER);
 	}

@@ -1,5 +1,7 @@
 package policysystem.model;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+
 public interface PSHierarchyRelationship extends ModelObjectWrapper 
 {
 	public boolean isDirected();

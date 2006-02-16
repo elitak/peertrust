@@ -82,8 +82,8 @@ import com.hp.hpl.jena.rdf.model.Statement;
 
 import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.model.HierarchyNodeCreationMechanism;
-import policysystem.model.ModelObjectWrapper;
 import policysystem.model.PolicySystemRDFModel;
+import policysystem.model.abtract.ModelObjectWrapper;
 
 public class GraphEditor extends JPanel implements GraphSelectionListener,
 		KeyListener {
@@ -308,7 +308,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 			
 			ModelObjectWrapper edgeStatement=
 				hierarchyNodeCreationMechanism.createLink(
-							PolicySystemRDFModel.getRdfModel(),
+							PolicySystemRDFModel.getInstance().getRdfModel(),
 							(Resource)sourceMOW.getModelObject(),
 							(Resource)targetMOW.getModelObject());
 			

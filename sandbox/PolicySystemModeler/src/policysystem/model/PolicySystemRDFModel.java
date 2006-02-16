@@ -12,6 +12,9 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.model.RDFModelManipulator;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSResource;
+
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -198,14 +201,14 @@ public class PolicySystemRDFModel
 	
 	
 	
-	static public Model getRdfModel() {
-		if(policySystemRDFModel==null)
+	public Model getRdfModel() {
+		if(rdfModel==null)
 		{
+			logger.warn("RDf model is null");
 			return null;
 		}
 		
 		return policySystemRDFModel.rdfModel;
-		//return rdfModel;
 	}
 
 
@@ -419,13 +422,13 @@ public class PolicySystemRDFModel
 		return;
 	}
 	
-	static final public Vector getMultipleProperty(
+	final public Vector getMultipleProperty(
 								ModelObjectWrapper modelObjectWrapper, 
 								Property prop) 
 	{
 		if(modelObjectWrapper ==null || prop==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"params must not be null: modelObjectWrapper="+modelObjectWrapper+
 					" prop:"+prop);
 			return new Vector();
@@ -434,7 +437,7 @@ public class PolicySystemRDFModel
 		Object wrappee=modelObjectWrapper.getModelObject();
 		if(wrappee==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"Wrapped model object is null; wrapper="+modelObjectWrapper+
 					" return empty vector");
 			return EMPTY_VECTOR;
@@ -442,7 +445,7 @@ public class PolicySystemRDFModel
 		}
 		if(!(modelObjectWrapper.getModelObject() instanceof Resource))
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"Model object not a resource["+wrappee.getClass()+
 					" return empty Vector");
 			return EMPTY_VECTOR;
@@ -453,7 +456,7 @@ public class PolicySystemRDFModel
 		
 		if(policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("model instance not created");
+			logger.warn("model instance not created");
 			return null;//new PSPolicy[]{};
 		}
 		Selector psSel=
@@ -486,19 +489,19 @@ public class PolicySystemRDFModel
 		return policies;
 	}
 	
-	static final public Vector getMultipleStatement(
+	final public Vector getMultipleStatement(
 											Resource resource, 
 											Property prop) 
 	{
 		if(resource ==null || prop==null)
 		{
-			getInstance().logger.warn("params resource and prop must all be non null");
+			logger.warn("params resource and prop must all be non null");
 			return null;
 		}
 		
 		if(policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("model singeton not created yet");
+			logger.warn("model singeton not created yet");
 			return null;//new PSPolicy[]{};
 		}
 		
@@ -507,7 +510,7 @@ public class PolicySystemRDFModel
 						resource,
 						prop,//PROP_IS_PROTECTED_BY,
 						(RDFNode)null);
-		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
+		StmtIterator it=rdfModel.listStatements(psSel);
 		Vector policies=new Vector();
 		Statement stm;
 		while(it.hasNext())
@@ -520,38 +523,38 @@ public class PolicySystemRDFModel
 	}
 	
 	
-	static final public void addMultipleProperty(
-											Resource subject, 
-											Property prop,
-											Resource object) 
+	final public void addMultipleProperty(
+									Resource subject, 
+									Property prop,
+									Resource object) 
 	{
 		if(	subject ==null || 
 			prop==null || 
 			object==null)
 		{
-			getInstance().logger.warn("params subject prop objects must all not be null");
+			logger.warn("params subject prop objects must all not be null");
 			return;
 		}
 		
 		if(policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("Model singleton not created");
+			logger.warn("Model singleton not created");
 			return;
 		}
 		
 		Statement stm=
-			policySystemRDFModel.rdfModel.createStatement(
-														subject,
-														prop,
-														object);
+			rdfModel.createStatement(
+									subject,
+									prop,
+									object);
 		if(stm!=null)
 		{
-			policySystemRDFModel.rdfModel.add(stm);
+			rdfModel.add(stm);
 		}
 		return;
 	}
 	
-	static final public void addMultipleStringProperty(
+	final public void addMultipleStringProperty(
 			Resource subject, 
 			Property prop,
 			String object) 
@@ -560,30 +563,30 @@ public class PolicySystemRDFModel
 			prop==null || 
 			object==null)
 		{
-			getInstance().logger.warn("params subject prop objects must all not be null");
+			logger.warn("params subject prop objects must all not be null");
 			return;
 		}
 	
 		if(policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("Model singleton not created");
+			logger.warn("Model singleton not created");
 			return;
 		}
 	
 		Statement stm=
-			policySystemRDFModel.rdfModel.createStatement(
+			rdfModel.createStatement(
 								subject,
 								prop,
 								object);
 		if(stm!=null)
 		{
-			policySystemRDFModel.rdfModel.add(stm);
+			rdfModel.add(stm);
 		}
 		return;
 	}
 	
 	
-	static final public boolean isSubClassOf(
+	final public boolean isSubClassOf(
 										Resource res,
 										Resource cls)
 	{
@@ -596,7 +599,7 @@ public class PolicySystemRDFModel
 			policySystemRDFModel.rdfModel.contains(res,RDF.type,cls);
 	}
 	
-	static final public ModelObjectWrapper createModelObjectWrapper(
+	final public ModelObjectWrapper createModelObjectWrapper(
 												Resource res,
 												ModelObjectWrapper guarded)
 	{
@@ -639,20 +642,20 @@ public class PolicySystemRDFModel
 		}
 	}
 	
-	static final public PSResource getResource(
+	final public PSResource getResource(
 									String identity,  
 									boolean forceCreation) 
 	{
 		if(identity==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"param resource identity must not be null");
 			return null;
 		}
 		
 		if(policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("model instance not created");
+			logger.warn("model instance not created");
 			return null;
 		}
 		
@@ -673,7 +676,7 @@ public class PolicySystemRDFModel
 		
 		if(it.hasNext())
 		{
-			getInstance().logger.error(
+			logger.error(
 					"Model contents several resources with this identity:"+
 					identity);
 		}

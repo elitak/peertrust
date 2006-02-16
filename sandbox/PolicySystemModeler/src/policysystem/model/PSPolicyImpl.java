@@ -5,6 +5,9 @@ package policysystem.model;
 
 import org.apache.log4j.Logger;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSPolicy;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 

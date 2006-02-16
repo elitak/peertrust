@@ -19,6 +19,11 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.internal.registry.StickyViewDescriptor;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSFilter;
+import policysystem.model.abtract.PSPolicy;
+import policysystem.model.abtract.PSResource;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
@@ -61,7 +66,7 @@ public class ResourcePolicyContentProvider
 				return EMPTY_ARRAY;//new Object[0];
 			}
 			
-			PSResource res= PolicySystemRDFModel.getResource(file.toString(),true);
+			PSResource res= PolicySystemRDFModel.getInstance().getResource(file.toString(),true);
 			
 			Vector dirPolicies=res.getIsProtectedBy();
 			Vector filters = res.getHasFilter();
@@ -104,14 +109,16 @@ public class ResourcePolicyContentProvider
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 	 */
-	public void dispose() {
+	public void dispose() 
+	{
 		
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
 	 */
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) 
+	{
 		
 	}
 
@@ -138,7 +145,7 @@ public class ResourcePolicyContentProvider
 		if(element instanceof Resource)
 		{
 			Resource res=(Resource)element;
-			if(PolicySystemRDFModel.isSubClassOf(
+			if(PolicySystemRDFModel.getInstance().isSubClassOf(
 					res,PolicySystemRDFModel.CLASS_FILTER))
 			{
 				
@@ -146,7 +153,7 @@ public class ResourcePolicyContentProvider
 					res.getProperty(PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 				return "fil"+columnIndex;
 			}
-			else if(PolicySystemRDFModel.isSubClassOf(
+			else if(PolicySystemRDFModel.getInstance().isSubClassOf(
 						res,PolicySystemRDFModel.CLASS_RESOURCE))
 			{
 				return "res"+columnIndex;
@@ -175,16 +182,19 @@ public class ResourcePolicyContentProvider
 		
 	}
 
-	public void addListener(ILabelProviderListener listener) {
+	public void addListener(ILabelProviderListener listener) 
+	{
 		
 	}
 
-	public boolean isLabelProperty(Object element, String property) {
+	public boolean isLabelProperty(Object element, String property) 
+	{
 		System.out.println("isLabelProperty");
 		return false;
 	}
 
-	public void removeListener(ILabelProviderListener listener) {
+	public void removeListener(ILabelProviderListener listener) 
+	{
 		
 	}
 

@@ -1,4 +1,4 @@
-package policysystem.model;
+package policysystem.model.abtract;
 
 public interface ModelObjectWrapper {
 

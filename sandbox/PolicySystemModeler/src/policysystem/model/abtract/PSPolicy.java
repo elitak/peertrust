@@ -1,4 +1,5 @@
-package policysystem.model;
+package policysystem.model.abtract;
+
 
 public interface PSPolicy extends ModelObjectWrapper {
 //	public String getHasName();

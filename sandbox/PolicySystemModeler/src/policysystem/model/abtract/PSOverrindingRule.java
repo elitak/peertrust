@@ -1,10 +1,14 @@
-package policysystem.model;
+package policysystem.model.abtract;
 
 
 
-public interface PSOverrindingRule extends ModelObjectWrapper {
-//	public String getHasName();
-//	public void setHasName(String name);
+/**
+ * 
+ *@author congo
+ *
+ */
+public interface PSOverrindingRule extends ModelObjectWrapper 
+{
 	
 	public PSPolicy getHasOverridden();
 	public void setHasOverriden(PSPolicy policy);

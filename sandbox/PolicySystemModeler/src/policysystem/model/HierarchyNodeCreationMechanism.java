@@ -2,6 +2,8 @@ package policysystem.model;
 
 import org.peertrust.modeler.model.RDFModelManipulator;
 
+import policysystem.model.abtract.ModelObjectWrapper;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;

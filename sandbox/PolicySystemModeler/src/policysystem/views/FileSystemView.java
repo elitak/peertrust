@@ -37,7 +37,8 @@ public class FileSystemView extends ViewPart
 	private ITreeContentProvider contentProvider;
 	private TreeViewer treeView;
 	
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent) 
+	{
 		treeView= new TreeViewer(parent);
 		contentProvider= new FileContentProvider(true);
 		treeView.setContentProvider(contentProvider);
