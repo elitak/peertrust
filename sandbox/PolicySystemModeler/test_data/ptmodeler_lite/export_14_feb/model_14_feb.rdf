@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY rdf_d 'http://www.l3s.de/peertrust/modeler/data/#'>
+	 <!ENTITY rdf_s 'http://www.l3s.de/peertrust/modeler/schema/#'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:rdf_s="&rdf_s;"
+	 xmlns:rdf_d="&rdf_d;"
+	 xmlns:rdfs="&rdfs;">
+<rdf_s:OverridingRule rdf:about="&rdf_d;CourseAttendeeInteadOfStudent"
+	 rdfs:label="CourseAttendeeInteadOfStudent">
+	<rdf_s:hasOverridden rdf:resource="&rdf_d;GiveItToStudent"/>
+	<rdf_s:hasOverrider rdf:resource="&rdf_d;GiveItToGraduatesStudent"/>
+</rdf_s:OverridingRule>
+
+<rdf_s:Filter rdf:about="&rdf_d;PdfFiles"
+	rdfs:label="PdfFiles"
+	rdf_s:hasCondition="*.pdf"
+	>
+	<rdf_s:isProtectedBy rdf:resource="&rdf_d;GiveItToStudent"/>
+</rdf_s:Filter>
+
+<!--rdf_s:OverridingRule rdf:about="&rdf_;PeertrustModelerTools_Instance_3"
+	 rdf_:name="over3"
+	 rdfs:label="PeertrustModelerTools_Instance_3">
+	<rdf_:hasOverridden rdf:resource="&rdf_d;PeertrustModelerTools_Instance_4"/>
+	<rdf_:hasOverrider rdf:resource="&rdf_d;PeertrustModelerTools_Instance_8"/>
+</rdf_s:OverridingRule -->
+<rdf_s:Policy rdf:about="&rdf_d;GiveItToStudent"
+	 rdf_s:hasValue="if(student) git it"
+	 rdfs:label="GiveItToStudent"/>
+
+<rdf_s:Policy rdf:about="&rdf_d;GiveItToCourseAttendee"
+	 rdf_s:hasValue="if(courseAttendee) give it"
+	 rdfs:label="GiveItToCourseAttendee"/>
+
+<rdf_s:Policy rdf:about="&rdf_d;GiveItToProfOrAssistant"
+	 rdf_s:hasValue="if(prof or assistant) give it"
+	 rdfs:label="GiveItToProfOrAssistant"/>
+
+
+<rdf_s:Resource rdf:about="&rdf_d;InstituteHome"
+	 rdfs:label="InstititeHome"
+	 rdf_s:identity="/home/pat_dev/applications/eclipse_sdk_3_1_1/workspace/PolicySystemModeler/test_data/InstituteHome">
+</rdf_s:Resource>
+
+<rdf_s:Resource rdf:about="&rdf_d;AICourse"
+	 rdf_s:identity="AICourse"
+	 rdfs:label="AICoursePDF"
+	 >
+	<rdf_s:hasFilter rdf:resource="&rdf_d;PdfFiles"/>
+	<rdf_s:isProtectedBy rdf:resource="&rdf_d;GiveItToStudent"/>
+	<rdf_s:hasParent rdf:resource="&rdf_d;InstituteHome"/>
+</rdf_s:Resource>
+
+<rdf_s:Resource rdf:about="&rdf_d;StudentPresentation"
+	 rdfs:label="StudentPresentation"
+	 rdf_s:identity="AICourse/StudentPresentation">
+
+	<!-- rdf_s:isProtectedBy rdf:resource="&rdf_d;GiveItToCourseAttendee"/ -->
+	<rdf_s:hasOverridingRule rdf:resource="&rdf_d;CourseAttendeeInteadOfStudent"/>
+	<rdf_s:hasParent rdf:resource="&rdf_d;AICourse"/>
+</rdf_s:Resource>
+
+<rdf_s:Resource rdf:about="&rdf_d;EarlyAccess"
+	 rdfs:label="EarlyAccess"
+	 rdf_s:identity="AICourse/EarlyAccess">
+	<rdf_s:isProtectedBy rdf:resource="&rdf_d;GiveItToProfOrAssistant"/>
+	<rdf_s:hasParent rdf:resource="&rdf_d;AICourse"/>
+</rdf_s:Resource>
+
+
+</rdf:RDF>

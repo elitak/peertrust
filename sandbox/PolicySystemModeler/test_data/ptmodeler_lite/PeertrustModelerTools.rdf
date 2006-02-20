@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY kb 'http://protege.stanford.edu/kb#'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:kb="&kb;"
+	 xmlns:rdfs="&rdfs;">
+<kb:OverridingRule rdf:about="&kb;PeertrustModelerTools_Instance_10"
+	 kb:name="over10"
+	 rdfs:label="PeertrustModelerTools_Instance_10">
+	<kb:hasOverridden rdf:resource="&kb;PeertrustModelerTools_Instance_4"/>
+	<kb:hasOverrider rdf:resource="&kb;PeertrustModelerTools_Instance_8"/>
+</kb:OverridingRule>
+<kb:Filter rdf:about="&kb;PeertrustModelerTools_Instance_2"
+	 kb:hasCondition="*.pdf"
+	 rdfs:label="PeertrustModelerTools_Instance_2">
+	<kb:isProtectedBy rdf:resource="&kb;PeertrustModelerTools_Instance_4"/>
+</kb:Filter>
+<kb:OverridingRule rdf:about="&kb;PeertrustModelerTools_Instance_3"
+	 kb:name="over3"
+	 rdfs:label="PeertrustModelerTools_Instance_3">
+	<kb:hasOverridden rdf:resource="&kb;PeertrustModelerTools_Instance_4"/>
+	<kb:hasOverrider rdf:resource="&kb;PeertrustModelerTools_Instance_8"/>
+</kb:OverridingRule>
+<kb:Policy rdf:about="&kb;PeertrustModelerTools_Instance_4"
+	 kb:hasValue="pol value4"
+	 kb:name="polname4"
+	 rdfs:label="PeertrustModelerTools_Instance_4"/>
+<kb:Resource rdf:about="&kb;PeertrustModelerTools_Instance_5"
+	 kb:name="name1"
+	 rdfs:label="PeertrustModelerTools_Instance_5"/>
+<kb:Resource rdf:about="&kb;PeertrustModelerTools_Instance_6"
+	 kb:name="res6"
+	 rdfs:label="PeertrustModelerTools_Instance_6">
+	<kb:hasFilter rdf:resource="&kb;PeertrustModelerTools_Instance_2"/>
+	<kb:isProtectedBy rdf:resource="&kb;PeertrustModelerTools_Instance_4"/>
+	<kb:hasParent rdf:resource="&kb;PeertrustModelerTools_Instance_5"/>
+</kb:Resource>
+<kb:Policy rdf:about="&kb;PeertrustModelerTools_Instance_8"
+	 kb:hasValue="polvalue8"
+	 kb:name="polname8"
+	 rdfs:label="PeertrustModelerTools_Instance_8"/>
+</rdf:RDF>

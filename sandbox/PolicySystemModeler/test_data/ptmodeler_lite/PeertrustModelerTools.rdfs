@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY kb 'http://protege.stanford.edu/kb#'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:kb="&kb;"
+	 xmlns:rdfs="&rdfs;">
+<kb:KB rdf:about="&kb;Filter"
+	 rdfs:label="Filter">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</kb:KB>
+<rdfs:Class rdf:about="&kb;KB"
+	 rdfs:label="KB">
+	<rdfs:subClassOf rdf:resource="&rdfs;Class"/>
+</rdfs:Class>
+<kb:KB rdf:about="&kb;OverridingRule"
+	 rdfs:label="OverridingRule">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</kb:KB>
+<kb:KB rdf:about="&kb;Policy"
+	 rdfs:label="Policy">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</kb:KB>
+<kb:KB rdf:about="&kb;Resource"
+	 rdfs:label="Resource">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</kb:KB>
+<rdf:Property rdf:about="&kb;hasCondition"
+	 rdfs:label="hasCondition">
+	<rdfs:domain rdf:resource="&kb;Filter"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasFilter"
+	 rdfs:label="hasFilter">
+	<rdfs:range rdf:resource="&kb;Filter"/>
+	<rdfs:domain rdf:resource="&kb;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasOverridden"
+	 rdfs:label="hasOverridden">
+	<rdfs:domain rdf:resource="&kb;OverridingRule"/>
+	<rdfs:range rdf:resource="&kb;Policy"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasOverrider"
+	 rdfs:label="hasOverrider">
+	<rdfs:domain rdf:resource="&kb;OverridingRule"/>
+	<rdfs:range rdf:resource="&kb;Policy"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasOverridingRule"
+	 rdfs:label="hasOverridingRule">
+	<rdfs:range rdf:resource="&kb;OverridingRule"/>
+	<rdfs:domain rdf:resource="&kb;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasParent"
+	 rdfs:label="hasParent">
+	<rdfs:range rdf:resource="&kb;Resource"/>
+	<rdfs:domain rdf:resource="&kb;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;hasValue"
+	 rdfs:label="hasValue">
+	<rdfs:domain rdf:resource="&kb;Policy"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;isInheritable"
+	 rdfs:label="isInheritable">
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;isProtectedBy"
+	 rdfs:label="isProtectedBy">
+	<rdfs:domain rdf:resource="&kb;Filter"/>
+	<rdfs:range rdf:resource="&kb;Policy"/>
+	<rdfs:domain rdf:resource="&kb;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&kb;name"
+	 rdfs:label="name">
+	<rdfs:domain rdf:resource="&kb;OverridingRule"/>
+	<rdfs:domain rdf:resource="&kb;Policy"/>
+	<rdfs:domain rdf:resource="&kb;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+</rdf:RDF>

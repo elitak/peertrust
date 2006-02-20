@@ -48,7 +48,7 @@
             id="policysystem.WarningsView"
             name="policysystem.WarningsView"/>
       <view
-            class="policysystem.views.FileSystemView"
+            class="policysystem.views.PSResourceView"
             id="FileSystemView"
             name="FileSystemView"/>
       <view

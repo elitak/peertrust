@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY rdf_s 'http://www.l3s.de/peertrust/modeler/schema/#'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:rdf_s="&rdf_s;"
+	 xmlns:rdfs="&rdfs;">
+<rdfs:Class rdf:about="&rdf_s;KB"
+	 rdfs:label="KB">
+	<rdfs:subClassOf rdf:resource="&rdfs;Class"/>
+</rdfs:Class>
+<rdf_s:KB rdf:about="&rdf_s;OverridingRule"
+	 rdfs:label="OverridingRule">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_s:KB>
+<rdf_s:KB rdf:about="&rdf_s;Policy"
+	 rdfs:label="Policy">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_s:KB>
+<rdf_s:KB rdf:about="&rdf_s;Resource"
+	 rdfs:label="Resource">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_s:KB>
+<rdf:Property rdf:about="&rdf_s;hasMapping"
+	 rdfs:label="hasMapping">
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasName"
+	 rdfs:label="hasName">
+	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
+	<rdfs:domain rdf:resource="&rdf_s;Policy"/>
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasOverridden"
+	 rdfs:label="hasOverridden">
+	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
+	<rdfs:range rdf:resource="&rdfs;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasOverrider"
+	 rdfs:label="hasOverrider">
+	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
+	<rdfs:range rdf:resource="&rdfs;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasOverridingRule"
+	 rdfs:label="hasOverridingRule">
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasSuper"
+	 rdfs:label="hasSuper">
+	<rdfs:domain rdf:resource="&rdf_s;Policy"/>
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+	<rdfs:range rdf:resource="&rdf_s;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;hasValue"
+	 rdfs:label="hasValue">
+	<rdfs:domain rdf:resource="&rdf_s;Policy"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;isInheritable"
+	 rdfs:label="isInheritable">
+	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_s;isProtectedBy"
+	 rdfs:label="isProtectedBy">
+	<rdfs:range rdf:resource="&rdf_s;Policy"/>
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+</rdf:Property>
+</rdf:RDF>

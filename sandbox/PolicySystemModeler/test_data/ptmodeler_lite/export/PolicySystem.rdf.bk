@@ -1,0 +1,13 @@
+<rdf:RDF
+    xmlns:rdf_s="http://www.l3s.de/peertrust/modeler/schema/#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:rdf_d="http://www.l3s.de/peertrust/modeler/kb#" >
+  <rdf:Description rdf:about="http://www.l3s.de/peertrust/modeler/schema/#Cell 0">
+    <rdf_s:hasMapping>Cell 0</rdf_s:hasMapping>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.l3s.de/peertrust/modeler/schema/#Cell 1">
+    <rdf_s:hasMapping>Cell 1</rdf_s:hasMapping>
+    <rdf_s:hasSuper rdf:resource="http://www.l3s.de/peertrust/modeler/schema/#Cell 0"/>
+  </rdf:Description>
+</rdf:RDF>

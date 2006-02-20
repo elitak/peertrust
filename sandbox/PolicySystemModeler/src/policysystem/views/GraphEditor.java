@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -40,6 +41,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
@@ -50,8 +52,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.plaf.IconUIResource;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.Workbench;
@@ -739,6 +743,26 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		return menu;
 	}
 
+	private ImageIcon getImageIcon(String iconName)
+	{
+		URL insertUrl = getClass().getClassLoader().getResource(
+				RESOURCE_BASE+iconName);
+		ImageIcon icon;
+		if(insertUrl!=null)
+		{
+			icon= new ImageIcon(insertUrl);
+		}
+		else
+		{
+			//icon=new ImageIcon();
+			String imgKey=ISharedImages.IMG_OBJS_INFO_TSK;
+			ISharedImages si=
+				PlatformUI.getWorkbench().getSharedImages();
+			icon= new ImageIcon(si.getImage(imgKey).getImageData().data);
+		}
+		
+		return icon;
+	}
 	//
 	// ToolBar
 	//
@@ -747,9 +771,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		toolbar.setFloatable(false);
 
 		// Insert
-		URL insertUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"insert.gif");
-		ImageIcon insertIcon = new ImageIcon(insertUrl);
+		ImageIcon insertIcon=getImageIcon("insert.gif");
 		toolbar.add(new AbstractAction("", insertIcon) {
 			public void actionPerformed(ActionEvent e) {
 				insert(new Point(10, 10));
@@ -757,9 +779,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		});
 
 		// Toggle Connect Mode
-		URL connectUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"connecton.gif");
-		ImageIcon connectIcon = new ImageIcon(connectUrl);
+//		URL connectUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"connecton.gif");
+//		ImageIcon connectIcon = new ImageIcon(connectUrl);
+		ImageIcon connectIcon=getImageIcon("connection.gif");
 		toolbar.add(new AbstractAction("", connectIcon) {
 			public void actionPerformed(ActionEvent e) {
 				graph.setPortsVisible(!graph.isPortsVisible());
@@ -777,9 +800,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 		// Undo
 		toolbar.addSeparator();
-		URL undoUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"undo.gif");
-		ImageIcon undoIcon = new ImageIcon(undoUrl);
+//		URL undoUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"undo.gif");
+//		ImageIcon undoIcon = new ImageIcon(undoUrl);
+		ImageIcon undoIcon=getImageIcon("undo.gif");
 		undo = new AbstractAction("", undoIcon) {
 			public void actionPerformed(ActionEvent e) {
 				undo();
@@ -789,9 +813,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		toolbar.add(undo);
 
 		// Redo
-		URL redoUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"redo.gif");
-		ImageIcon redoIcon = new ImageIcon(redoUrl);
+//		URL redoUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"redo.gif");
+//		ImageIcon redoIcon = new ImageIcon(redoUrl);
+		ImageIcon redoIcon=getImageIcon("redo.gif");
 		redo = new AbstractAction("", redoIcon) {
 			public void actionPerformed(ActionEvent e) {
 				redo();
@@ -811,33 +836,37 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		action = javax.swing.TransferHandler // JAVA13:
 				// org.jgraph.plaf.basic.TransferHandler
 				.getCopyAction();
-		url = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"copy.gif");
-		action.putValue(Action.SMALL_ICON, new ImageIcon(url));
+//		url = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"copy.gif");
+		ImageIcon cpActionIcon=getImageIcon("copy.gif");
+		action.putValue(Action.SMALL_ICON, cpActionIcon);
 		toolbar.add(copy = new EventRedirector(action));
 
 		// Paste
 		action = javax.swing.TransferHandler // JAVA13:
 				// org.jgraph.plaf.basic.TransferHandler
 				.getPasteAction();
-		url = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"paste.gif");
-		action.putValue(Action.SMALL_ICON, new ImageIcon(url));
+//		url = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"paste.gif");
+		ImageIcon pastActionIcon=getImageIcon("past.gif");
+		action.putValue(Action.SMALL_ICON, pastActionIcon);
 		toolbar.add(paste = new EventRedirector(action));
 
 		// Cut
 		action = javax.swing.TransferHandler // JAVA13:
 				// org.jgraph.plaf.basic.TransferHandler
 				.getCutAction();
-		url = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"cut.gif");
-		action.putValue(Action.SMALL_ICON, new ImageIcon(url));
+//		url = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"cut.gif");
+		ImageIcon cutActionIcon=getImageIcon("cut.gif");
+		action.putValue(Action.SMALL_ICON, cutActionIcon);
 		toolbar.add(cut = new EventRedirector(action));
 
 		// Remove
-		URL removeUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"delete.gif");
-		ImageIcon removeIcon = new ImageIcon(removeUrl);
+//		URL removeUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"delete.gif");
+//		ImageIcon removeIcon = new ImageIcon(removeUrl);
+		ImageIcon removeIcon=getImageIcon("delete.gif");
 		remove = new AbstractAction("", removeIcon) {
 			public void actionPerformed(ActionEvent e) {
 				if (!graph.isSelectionEmpty()) {
@@ -852,9 +881,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 		// To Front
 		toolbar.addSeparator();
-		URL toFrontUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"tofront.gif");
-		ImageIcon toFrontIcon = new ImageIcon(toFrontUrl);
+//		URL toFrontUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"tofront.gif");
+//		ImageIcon toFrontIcon = new ImageIcon(toFrontUrl);
+		ImageIcon toFrontIcon=getImageIcon("tofront.gif");
 		tofront = new AbstractAction("", toFrontIcon) {
 			public void actionPerformed(ActionEvent e) {
 				if (!graph.isSelectionEmpty())
@@ -865,9 +895,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		toolbar.add(tofront);
 
 		// To Back
-		URL toBackUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"toback.gif");
-		ImageIcon toBackIcon = new ImageIcon(toBackUrl);
+//		URL toBackUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"toback.gif");
+//		ImageIcon toBackIcon = new ImageIcon(toBackUrl);
+		ImageIcon toBackIcon=getImageIcon("toback.gif");
 		toback = new AbstractAction("", toBackIcon) {
 			public void actionPerformed(ActionEvent e) {
 				if (!graph.isSelectionEmpty())
@@ -879,27 +910,30 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 		// Zoom Std
 		toolbar.addSeparator();
-		URL zoomUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"zoom.gif");
-		ImageIcon zoomIcon = new ImageIcon(zoomUrl);
+//		URL zoomUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"zoom.gif");
+//		ImageIcon zoomIcon = new ImageIcon(zoomUrl);
+		ImageIcon zoomIcon=getImageIcon("zoom.gif");
 		toolbar.add(new AbstractAction("", zoomIcon) {
 			public void actionPerformed(ActionEvent e) {
 				graph.setScale(1.0);
 			}
 		});
 		// Zoom In
-		URL zoomInUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"zoomin.gif");
-		ImageIcon zoomInIcon = new ImageIcon(zoomInUrl);
+//		URL zoomInUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"zoomin.gif");
+//		ImageIcon zoomInIcon = new ImageIcon(zoomInUrl);
+		ImageIcon zoomInIcon=getImageIcon("zoomin.gif");
 		toolbar.add(new AbstractAction("", zoomInIcon) {
 			public void actionPerformed(ActionEvent e) {
 				graph.setScale(2 * graph.getScale());
 			}
 		});
 		// Zoom Out
-		URL zoomOutUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"zoomout.gif");
-		ImageIcon zoomOutIcon = new ImageIcon(zoomOutUrl);
+//		URL zoomOutUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"zoomout.gif");
+//		ImageIcon zoomOutIcon = new ImageIcon(zoomOutUrl);
+		ImageIcon zoomOutIcon=getImageIcon("zoomout.gif");
 		toolbar.add(new AbstractAction("", zoomOutIcon) {
 			public void actionPerformed(ActionEvent e) {
 				graph.setScale(graph.getScale() / 2);
@@ -908,9 +942,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 		// Group
 		toolbar.addSeparator();
-		URL groupUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"group.gif");
-		ImageIcon groupIcon = new ImageIcon(groupUrl);
+//		URL groupUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"group.gif");
+//		ImageIcon groupIcon = new ImageIcon(groupUrl);
+		ImageIcon groupIcon=getImageIcon("group.gif");
 		group = new AbstractAction("", groupIcon) {
 			public void actionPerformed(ActionEvent e) {
 				group(graph.getSelectionCells());
@@ -920,9 +955,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		toolbar.add(group);
 
 		// Ungroup
-		URL ungroupUrl = getClass().getClassLoader().getResource(
-				RESOURCE_BASE+"ungroup.gif");
-		ImageIcon ungroupIcon = new ImageIcon(ungroupUrl);
+//		URL ungroupUrl = getClass().getClassLoader().getResource(
+//				RESOURCE_BASE+"ungroup.gif");
+//		ImageIcon ungroupIcon = new ImageIcon(ungroupUrl);
+		ImageIcon ungroupIcon=getImageIcon("ungroup.gif");
 		ungroup = new AbstractAction("", ungroupIcon) {
 			public void actionPerformed(ActionEvent e) {
 				ungroup(graph.getSelectionCells());

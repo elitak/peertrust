@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.internal.filebuffers.ResourceFileBuffer;
 import org.eclipse.core.internal.runtime.Log;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
@@ -56,17 +57,23 @@ public class ResourcePolicyContentProvider
 		}
 		
 		
-		logger.info("getElemnts:"+inputElement+ " class="+inputElement.getClass());
+		logger.info("getElemnts:"+inputElement+ 
+					" class="+inputElement.getClass());
 		if(inputElement instanceof File)
 		{
 			File file=(File)inputElement;
 			if(file.isFile())
 			{
-				logger.warn("Cannot handle file["+file.toURI()+"]; directory expedted");
+				logger.warn("Cannot handle file["+file.toURI()+
+							"]; directory expedted");
 				return EMPTY_ARRAY;//new Object[0];
 			}
 			
-			PSResource res= PolicySystemRDFModel.getInstance().getResource(file.toString(),true);
+			PSResource res= 
+				PolicySystemRDFModel.getInstance().getResource(
+											file.toString(),
+											true,
+											new FileResourceSelector(file));
 			
 			Vector dirPolicies=res.getIsProtectedBy();
 			Vector filters = res.getHasFilter();

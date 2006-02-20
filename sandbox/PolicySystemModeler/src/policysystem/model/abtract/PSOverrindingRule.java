@@ -16,8 +16,8 @@ public interface PSOverrindingRule extends ModelObjectWrapper
 	public PSPolicy getHasOverridder();
 	public void setHasOverrider(PSPolicy policy);
 	
-	public boolean getIsInheritable();
-	public void setIsInheritable(boolean isInheritable);
+//	public boolean getIsInheritable();
+//	public void setIsInheritable(boolean isInheritable);
 	
 	public Object getModelObject();
 	

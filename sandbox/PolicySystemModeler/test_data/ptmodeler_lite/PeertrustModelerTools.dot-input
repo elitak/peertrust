@@ -1,0 +1,19 @@
+digraph "PeertrustModelerTools" {
+
+"Resource" [shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", label="{Resource|{hasFilter|Instance*|{Filter}}|{hasOverridingRule|Instance*|{OverridingRule}}|{isProtectedBy|Instance*|{Policy}}|{name|String*}|{hasParent|Instance*|{Resource}}}"]
+"KB"->"Resource" [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0"]
+"Resource"->"Filter" [style=dashed, label="hasFilter*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"Resource"->"OverridingRule" [style=dashed, label="hasOverridingRule*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"Resource"->"Policy" [style=dashed, label="isProtectedBy*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"Resource"->"Resource" [style=dashed, label="hasParent*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"Filter" [shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", label="{Filter|{hasCondition|String*}|{isProtectedBy|Instance*|{Policy}}}"]
+"KB"->"Filter" [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0"]
+"Filter"->"Policy" [style=dashed, label="isProtectedBy*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"OverridingRule" [shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", label="{OverridingRule|{hasOverridden|Instance*|{Policy}}|{hasOverrider|Instance*|{Policy}}|{name|String*}}"]
+"KB"->"OverridingRule" [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0"]
+"OverridingRule"->"Policy" [style=dashed, label="hasOverridden*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"OverridingRule"->"Policy" [style=dashed, label="hasOverrider*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0"]
+"Policy" [shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", label="{Policy|{hasValue|String*}|{name|String*}}"]
+"KB"->"Policy" [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0"]
+"KB" [shape=box, label="KB", color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0"]
+}

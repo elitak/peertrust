@@ -13,6 +13,10 @@ import org.apache.log4j.Logger;
 import org.peertrust.modeler.model.RDFModelManipulator;
 
 import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSFilter;
+import policysystem.model.abtract.PSOverrindingRule;
+import policysystem.model.abtract.PSPolicy;
+import policysystem.model.abtract.PSPolicySystem;
 import policysystem.model.abtract.PSResource;
 
 
@@ -29,7 +33,8 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class PolicySystemRDFModel
-				implements ProjectConfigChangeListener
+				implements 	ProjectConfigChangeListener,
+							PSPolicySystem
 {
 	static final public Vector EMPTY_VECTOR=new Vector(0);
 	static final public String POLICY_SYSTEM_RES="PolicySystem"; 
@@ -60,8 +65,15 @@ public class PolicySystemRDFModel
 	public static final String LNAME_CLASS_POLICY="Policy";
 	public static Resource CLASS_POLICY=null;
 	
+	////
 	public static final String LNAME_CLASS_OVERRIDDING_RULE="OverridingRule";
 	public static Resource CLASS_OVERRIDDING_RULE=null;
+	
+	public static final String LNAME_PROP_HAS_OVERRIDDER="hasOverridder";
+	static Property PROP_HAS_OVERRIDDER=null;
+	
+	public static final String LNAME_PROP_HAS_OVERRIDDEN="hasOverridder";
+	static Property PROP_HAS_OVERRIDDEN=null;
 	
 	public static final String LNAME_PROP_HAS_NAME="name";
 	static Property PROP_HAS_NAME=null;
@@ -77,6 +89,7 @@ public class PolicySystemRDFModel
 	
 	public static final String LNAME_PROP_IS_PROTECTED_BY="isProtectedBy";
 	static Property PROP_IS_PROTECTED_BY=null;
+	
 	public static final String LNAME_PROP_HAS_OVERRINDING_RULES="hasOverridingRule";
 	static Property PROP_HAS_OVERRIDING_RULES=null;
 	
@@ -140,11 +153,11 @@ public class PolicySystemRDFModel
 		iStream=new FileInputStream(rdfSchemaFile);
 		schema.read(iStream,"");
 		schema.write(System.out);
-		getProperties();
-		getResources();
+		createPropertyTypes();
+		createResourceTypes();
 		
 	}
-	synchronized public void getProperties()
+	synchronized public void createPropertyTypes()
 	{
 		PROP_HAS_NAME=schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_NAME);
 		PROP_HAS_MAPPING=
@@ -164,6 +177,10 @@ public class PolicySystemRDFModel
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_CONDITION);
 		PROP_HAS_IDENTITY=
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_IDENTITY);
+		PROP_HAS_OVERRIDDEN=
+			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_OVERRIDDEN);
+		PROP_HAS_OVERRIDDER=
+			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_OVERRIDDER);
 		
 		if(	PROP_HAS_CONDITION==null ||
 				PROP_HAS_FILTER==null ||	
@@ -171,6 +188,8 @@ public class PolicySystemRDFModel
 				PROP_HAS_MAPPING==null ||
 				PROP_HAS_NAME==null ||
 				PROP_HAS_OVERRIDING_RULES==null ||
+				PROP_HAS_OVERRIDDEN==null ||
+				PROP_HAS_OVERRIDDER==null ||
 				PROP_HAS_SUPER==null ||
 				PROP_HAS_VALUE==null )
 		{
@@ -182,7 +201,7 @@ public class PolicySystemRDFModel
 		return;
 	}
 	
-	synchronized public void getResources()
+	synchronized public void createResourceTypes()
 	{
 		CLASS_RESOURCE=schema.getResource(NS_KB_SCHEMA+LNAME_CLASS_RESOURCE);
 		CLASS_POLICY=schema.getResource(NS_KB_SCHEMA+LNAME_CLASS_POLICY);
@@ -197,6 +216,7 @@ public class PolicySystemRDFModel
 		{
 			logger.error("model error all model resource must be non null");
 		}
+		return;
 	}
 	
 	
@@ -353,6 +373,28 @@ public class PolicySystemRDFModel
 		return stm.getString();
 	}
 	
+	static final public ModelObjectWrapper getResourceProperty(
+									Resource resource, 
+									Property prop) 
+	{
+		if(	resource ==null || 
+				prop==null)
+		{
+			getInstance().logger.warn(
+					"param resource or prop is null: resource="+resource+
+					"prop="+prop);
+			return null;
+		}
+	
+		Statement stm=resource.getProperty(prop);
+		if(stm==null)
+		{
+			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			return null;
+		}
+		Resource res=(Resource)stm.getObject();
+		return getInstance().createModelObjectWrapper(res,null);
+	}
 	static final public Boolean getBooleanProperty(
 			Resource resource, 
 			Property prop) 
@@ -395,6 +437,31 @@ public class PolicySystemRDFModel
 			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
 			return;
 		}
+		stm.changeObject(objValue);
+		return;
+	}
+	
+	static final public void setResourceProperty(
+			Resource resource, 
+			Property prop,
+			Resource objValue) 
+	{
+		if(resource ==null || prop==null || objValue==null)
+		{
+			getInstance().logger.warn(
+					"params must not be null: res="+resource+
+					" prop:"+prop+ " objValue="+objValue);
+			return;
+		}
+		
+		Statement stm=resource.getProperty(prop);
+		if(stm==null)
+		{
+			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			stm=getInstance().rdfModel.createStatement(resource,prop,objValue);
+			return;
+		}
+		
 		stm.changeObject(objValue);
 		return;
 	}
@@ -486,6 +553,88 @@ public class PolicySystemRDFModel
 			}
 		}
 		
+		return policies;
+	}
+	
+	final public Vector getOverriddingRule(
+						ModelObjectWrapper modelObjectWrapper) 
+	{
+	
+		if(policySystemRDFModel==null)
+		{
+			logger.warn("model singeton not created yet");
+			return null;//new PSPolicy[]{};
+		}
+		
+		Selector ruleSel;
+		if(modelObjectWrapper !=null)
+		{//return resource overridding rules
+			Resource resource=
+				(Resource)modelObjectWrapper.getModelObject();
+			ruleSel=
+				new SimpleSelector(
+					resource,
+					RDF.type,//PROP_IS_PROTECTED_BY,
+					(Resource)null);
+			StmtIterator it=rdfModel.listStatements(ruleSel);
+			Vector resRules=new Vector();
+			Statement stm;
+			while(it.hasNext())
+			{
+				stm=it.nextStatement();
+				resRules.add(
+						createModelObjectWrapper(
+								(Resource)stm.getObject(),
+								modelObjectWrapper));
+			}
+			return resRules;
+		}
+		else
+		{
+			ruleSel=
+				new SimpleSelector(
+					(Resource)null,
+					RDF.type,//PROP_IS_PROTECTED_BY,
+					CLASS_OVERRIDDING_RULE);
+			StmtIterator it=rdfModel.listStatements(ruleSel);
+			Vector allRules=new Vector();
+			Statement stm;
+			while(it.hasNext())
+			{
+				stm=it.nextStatement();
+				allRules.add(
+						createModelObjectWrapper(
+								(Resource)stm.getSubject(),
+								modelObjectWrapper));
+			}
+			return allRules;
+		}
+
+	}
+	
+	final public Vector getPolicies() 
+	{
+	
+		if(policySystemRDFModel==null)
+		{
+			logger.warn("model singeton not created yet");
+			return null;//new PSPolicy[]{};
+		}
+	
+		Selector polSel=
+			new SimpleSelector(
+			null,
+			RDF.type,//PROP_IS_PROTECTED_BY,
+			CLASS_POLICY);
+		StmtIterator it=rdfModel.listStatements(polSel);
+		Vector policies=new Vector();
+		Statement stm;
+		while(it.hasNext())
+		{
+			stm=it.nextStatement();
+			policies.add(createModelObjectWrapper(stm.getSubject(),null));
+		}
+	
 		return policies;
 	}
 	
@@ -617,7 +766,8 @@ public class PolicySystemRDFModel
 		}		
 		else if(isSubClassOf(res,CLASS_OVERRIDDING_RULE))
 		{
-			throw new RuntimeException("overrinding rull not suported");
+			return new PSOverriddingRuleImpl(res,(PSResource)guarded);
+			//throw new RuntimeException("overrinding rull not suported");
 		}
 		else
 		{
@@ -644,7 +794,8 @@ public class PolicySystemRDFModel
 	
 	final public PSResource getResource(
 									String identity,  
-									boolean forceCreation) 
+									boolean forceCreation,
+									Selector selector) 
 	{
 		if(identity==null)
 		{
@@ -659,11 +810,16 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		
-		Selector psSel=
-			new SimpleSelector(
-				(Resource)null,
-				PROP_HAS_IDENTITY,
-				(String)identity);
+		Selector psSel=selector;
+		if(selector==null)
+		{
+			logger.warn("No selector provided using default selector");
+			psSel=
+				new SimpleSelector(
+						(Resource)null,
+						PROP_HAS_IDENTITY,
+						(String)identity);
+		}
 		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
 		
 		Statement stm;
@@ -672,6 +828,10 @@ public class PolicySystemRDFModel
 		{
 			stm=it.nextStatement();
 			res=stm.getSubject();
+		}
+		else
+		{
+			logger.warn("No Model entry found for:"+identity);
 		}
 		
 		if(it.hasNext())
@@ -684,11 +844,38 @@ public class PolicySystemRDFModel
 		if(res==null && forceCreation==true)
 		{
 			//res=policySystemRDFModel.rdfModel.cre
-			res=
-				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
+//			res=
+//				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
 			//res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
-			res.addProperty(PROP_HAS_NAME,identity);
-			res.addProperty(PROP_HAS_IDENTITY,identity);
+			String id=identity;
+			String root=
+				ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+			if(root==null)
+			{
+				logger.warn("root is null file resource creation skipped:"+
+							id);
+				return null;
+			}
+			if(!root.equals(id))
+			{//if not root get rel path
+				if(!id.startsWith(root))
+				{
+					logger.warn(
+							"resource not root schild: \n\tid  ="+id+" " +
+							"\n\troot="+root);
+					return null;
+				}
+				int start=root.length();
+				if(root.endsWith("/"))
+				{
+					start=start+1;
+				}
+				id=id.substring(start);
+			}
+			res=
+				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+id);
+			res.addProperty(RDFS.label,id);
+			res.addProperty(PROP_HAS_IDENTITY,id);
 			res.addProperty(RDF.type,CLASS_RESOURCE);
 		}
 		return new PSResourceImpl(res);
@@ -759,6 +946,94 @@ public class PolicySystemRDFModel
 		} catch (IOException e) {
 			getInstance().logger.error("Error while creating the model",e);//e.printStackTrace();
 		}
-	};
-	
+	}
+////////////////////////////////////////////////////////////////////////////////
+///////////////POLICY SYSTEM INTERFACE//////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+	public PSFilter createFilter(
+							String label, 
+							String[] conditions, 
+							PSPolicy[] policies) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public PSOverrindingRule createOverriddingRule(
+							String label, 
+							PSPolicy overridder, 
+							PSPolicy overridden) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public PSPolicy createPolicy(String label, String value) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public PSResource createResource(String label, String identity) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getDirectChilds(ModelObjectWrapper parent) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getDirectParents(ModelObjectWrapper child) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getFilters(PSResource resource) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getInheritedPolicies(PSResource resource) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getLocalPolicies(PSResource resource) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Vector getOverriddingRules(PSResource resource) 
+	{
+		return getOverriddingRule(resource);
+	}
+
+	public Vector getRoots(ModelObjectWrapper modelObjectWrapper) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public Vector getResources()
+	{
+		return null;
+	}
 }
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+

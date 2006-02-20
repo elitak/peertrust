@@ -71,7 +71,7 @@ public class ResourcePolicyView extends ViewPart
 		//hookDoubleClickAction();
 		contributeToActionBars();
 		getSite().getPage().addSelectionListener(
-				FileSystemView.ID,
+				PSResourceView.ID,
 				(ISelectionListener)this);
 	}
 

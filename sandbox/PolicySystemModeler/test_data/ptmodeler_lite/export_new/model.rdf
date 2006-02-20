@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY rdf_ 'http://protege.stanford.edu/rdf'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:rdf_="&rdf_;"
+	 xmlns:rdfs="&rdfs;">
+<rdf_:OverridingRule rdf:about="&rdf_;PeertrustModelerTools_Instance_10"
+	 rdfs:label="PeertrustModelerTools_Instance_10"/>
+<rdf_:OverridingRule rdf:about="&rdf_;PeertrustModelerTools_Instance_3"
+	 rdfs:label="PeertrustModelerTools_Instance_3"/>
+<rdf_:Policy rdf:about="&rdf_;PeertrustModelerTools_Instance_4"
+	 rdfs:label="PeertrustModelerTools_Instance_4"/>
+<rdf_:Resource rdf:about="&rdf_;PeertrustModelerTools_Instance_5"
+	 rdfs:label="PeertrustModelerTools_Instance_5"/>
+<rdf_:Resource rdf:about="&rdf_;PeertrustModelerTools_Instance_6"
+	 rdfs:label="PeertrustModelerTools_Instance_6"/>
+<rdf_:Policy rdf:about="&rdf_;PeertrustModelerTools_Instance_8"
+	 rdfs:label="PeertrustModelerTools_Instance_8"/>
+</rdf:RDF>

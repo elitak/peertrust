@@ -9,6 +9,9 @@ import java.util.Vector;
 
 public class ProjectConfig 
 {
+	static final public String ROOT_DIR="rootDir";
+	static final public String RDF_SCHEMA_FILE="rdfSchemaFile";
+	static final public String RDF_MODEL_FILE="rdfModelFile";
 	
 	static final private ProjectConfig instance=new ProjectConfig();
 	

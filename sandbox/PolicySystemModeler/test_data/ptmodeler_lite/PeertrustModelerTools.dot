@@ -1,0 +1,23 @@
+digraph PeertrustModelerTools {
+	node [label="\N"];
+	graph [bb="0,0,641,504"];
+	Resource [label="{Resource|{hasFilter|Instance*|{Filter}}|{hasOverridingRule|Instance*|{OverridingRule}}|{isProtectedBy|Instance*|{Policy}}|{name\
+|String*}|{hasParent|Instance*|{Resource}}}", shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", pos="286,344", rects="137,392,435,416 137,368,242,392 242,368,350,392 350,368,435,392 137,344,261,368 261,344,331,368 331,344,435,368 137,320,259,344 \
+259,320,356,344 356,320,435,344 137,296,281,320 281,296,435,320 137,272,238,296 238,272,337,296 337,272,434,296", width="4.14", height="2.00"];
+	KB [label=KB, shape=box, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", pos="479,486", width="0.75", height="0.50"];
+	Filter [label="{Filter|{hasCondition|String*}|{isProtectedBy|Instance*|{Policy}}}", shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", pos="108,172", rects="0,184,217,208 0,160,125,184 125,160,217,184 0,136,95,160 95,136,165,160 165,136,217,160", width="3.00", height="1.00"];
+	OverridingRule [label="{OverridingRule|{hasOverridden|Instance*|{Policy}}|{hasOverrider|Instance*|{Policy}}|{name|String*}}", shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", pos="467,172", rects="356,196,578,220 356,172,456,196 456,172,526,196 526,172,578,196 356,148,450,172 450,148,523,172 523,148,578,172 356,124,462,148 \
+462,124,578,148", width="3.08", height="1.33"];
+	Policy [label="{Policy|{hasValue|String*}|{name|String*}}", shape=record, color="0.0,0.0,0.0", fontcolor="0.0,0.0,0.0", pos="362,36", rects="299,48,425,72 299,24,367,48 367,24,425,48 299,0,357,24 357,0,425,24", width="1.75", height="1.00"];
+	KB -> Resource [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0", pos="s,454,468 446,462 429,449 406,432 384,416", lp="431,442"];
+	Resource -> Filter [label="hasFilter*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,138,208 199,272 193,266 186,260 180,254 168,242 156,228 145,216", lp="212,246"];
+	Resource -> OverridingRule [label="hasOverridingRule*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,417,220 362,272 378,257 395,241 410,227", lp="448,246"];
+	Resource -> Policy [label="isProtectedBy*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,303,72 259,272 247,227 240,170 261,124 269,106 281,91 295,79", lp="304,172"];
+	Resource -> Resource [label="hasParent*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,435,317 435,371 446,365 453,356 453,344 453,335 449,328 443,323", lp="484,344"];
+	KB -> Filter [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0", pos="s,452,485 442,484 358,480 159,465 117,416 68,358 83,261 97,208", lp="126,344"];
+	Filter -> Policy [label="isProtectedBy*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,299,46 120,136 127,120 137,101 152,90 174,73 237,58 289,48", lp="195,98"];
+	KB -> OverridingRule [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0", pos="s,495,468 501,460 511,448 520,431 525,416 543,354 538,334 525,272 521,254 513,236 503,220", lp="541,344"];
+	OverridingRule -> Policy [label="hasOverridden*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,425,70 460,124 457,112 452,100 445,90 442,85 438,80 433,76", lp="498,98"];
+	OverridingRule -> Policy [label="hasOverrider*", color="0.6666667,1.0,1.0", fontcolor="0.6666667,1.0,1.0", style=dashed, pos="e,353,72 372,124 367,118 363,113 359,106 355,99 353,91 353,82", lp="400,98"];
+	KB -> Policy [dir=back, label=io, color="0.0,1.0,1.0", fontcolor="0.0,1.0,1.0", pos="s,506,468 514,462 528,449 543,434 551,416 603,296 641,243 587,124 577,103 568,101 548,90 510,69 462,55 425,47", lp="617,246"];
+}

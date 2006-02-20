@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY a 'http://protege.stanford.edu/system#'>
+	 <!ENTITY rdf_ 'http://protege.stanford.edu/rdf'>
+	 <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:rdf_="&rdf_;"
+	 xmlns:a="&a;"
+	 xmlns:rdfs="&rdfs;">
+<rdf_:KB rdf:about="&rdf_;Filter"
+	 rdfs:label="Filter">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:KB>
+<rdfs:Class rdf:about="&rdf_;KB"
+	 rdfs:label="KB">
+	<rdfs:subClassOf rdf:resource="&rdfs;Class"/>
+</rdfs:Class>
+<rdf_:KB rdf:about="&rdf_;OverridingRule"
+	 rdfs:label="OverridingRule">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:KB>
+<rdf_:KB rdf:about="&rdf_;PeertrustModelerTools_Class_1"
+	 rdfs:label="PeertrustModelerTools_Class_1">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:KB>
+<rdf_:KB rdf:about="&rdf_;Policy"
+	 rdfs:label="Policy">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:KB>
+<rdf_:KB rdf:about="&rdf_;Resource"
+	 rdfs:label="Resource">
+	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_:KB>
+<rdf:Property rdf:about="&rdf_;hasCondition"
+	 rdfs:label="hasCondition">
+	<rdfs:domain rdf:resource="&rdf_;Filter"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;hasFilter"
+	 rdfs:label="hasFilter">
+	<rdfs:range rdf:resource="&rdf_;Filter"/>
+	<rdfs:domain rdf:resource="&rdf_;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;hasOverridden"
+	 rdfs:label="hasOverridden">
+	<rdfs:domain rdf:resource="&rdf_;OverridingRule"/>
+	<rdfs:range rdf:resource="&rdf_;Policy"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;hasOverrider"
+	 rdfs:label="hasOverrider">
+	<rdfs:domain rdf:resource="&rdf_;OverridingRule"/>
+	<rdfs:range rdf:resource="&rdf_;Policy"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;hasOverridingRule"
+	 rdfs:label="hasOverridingRule">
+	<rdfs:range rdf:resource="&rdf_;OverridingRule"/>
+	<rdfs:domain rdf:resource="&rdf_;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;hasValue"
+	 rdfs:label="hasValue">
+	<rdfs:domain rdf:resource="&rdf_;Policy"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;isInheritable"
+	 rdfs:label="isInheritable">
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;isProtectedBy"
+	 rdfs:label="isProtectedBy">
+	<rdfs:domain rdf:resource="&rdf_;Filter"/>
+	<rdfs:range rdf:resource="&rdf_;Policy"/>
+	<rdfs:domain rdf:resource="&rdf_;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;name"
+	 rdfs:label="name">
+	<rdfs:domain rdf:resource="&rdf_;OverridingRule"/>
+	<rdfs:domain rdf:resource="&rdf_;Policy"/>
+	<rdfs:domain rdf:resource="&rdf_;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+<rdf:Property rdf:about="&rdf_;subClassOf"
+	 rdfs:label="subClassOf">
+	<rdfs:domain rdf:resource="&rdf_;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Resource"/>
+</rdf:Property>
+<rdf:Property rdf:about="&a;_direct_subclasses"
+	 rdfs:label=":DIRECT-SUBCLASSES">
+	<rdfs:domain rdf:resource="&rdf_;PeertrustModelerTools_Class_1"/>
+</rdf:Property>
+</rdf:RDF>

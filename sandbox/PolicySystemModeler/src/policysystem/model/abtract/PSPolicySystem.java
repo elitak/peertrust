@@ -5,7 +5,7 @@ import java.util.Vector;
 public interface PSPolicySystem 
 {
 	
-	public Object getResources();
+	public Vector getResources();
 	
 	/**
 	 * Returns the Policies define at this Resource
