@@ -28,6 +28,8 @@ import org.eclipse.ui.views.navigator.ResourceNavigator;
 
 import policysystem.model.PolicySystemResTreeContentProvider;
 import policysystem.model.ProjectConfig;
+import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSOverrindingRule;
 
 public class PSResourceView extends ViewPart
 							implements ISelectionListener
@@ -60,7 +62,8 @@ public class PSResourceView extends ViewPart
 		
 	}
 
-	public void setFocus() {
+	public void setFocus() 
+	{
 		
 	}
 	
@@ -68,7 +71,8 @@ public class PSResourceView extends ViewPart
 	////////////////////SELCTION LISTENER//////////////////////////////
 	///////////////////////////////////////////////////////////////////
 
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+	public void selectionChanged(IWorkbenchPart part, ISelection selection) 
+	{
 		//part.getSite().getPage().getViewReferences()[0].
 		if(selection instanceof StructuredSelection)
 		{
@@ -79,8 +83,8 @@ public class PSResourceView extends ViewPart
 				if(el.equals(
 						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
 				{
-					String rootDir=
-						ProjectConfig.getInstance().getProperty("rootDir");
+//					String rootDir=
+//						ProjectConfig.getInstance().getProperty("rootDir");
 //					if(rootDir==null)
 //					{
 //						return;
@@ -117,9 +121,14 @@ public class PSResourceView extends ViewPart
         private static final Image IMG_FOLDER = PlatformUI.getWorkbench()
                 .getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
 
-        private static final Image IMG_FILE = PlatformUI.getWorkbench()
-                .getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
-
+        private static final Image IMG_FILE = 
+        		PlatformUI.getWorkbench()
+                		.getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
+        private static final Image IMG_MODEL_ELEMENT = 
+				        	PlatformUI.getWorkbench()
+				        		.getSharedImages().getImage(
+				        				ISharedImages.IMG_OBJ_ELEMENT);
+        
         public Image getImage(Object element) {
             if (element instanceof File) {
                 File curr = (File) element;
@@ -129,6 +138,10 @@ public class PSResourceView extends ViewPart
                     return IMG_FILE;
                 }
             }
+            else if(element instanceof ModelObjectWrapper)
+            {
+            	return IMG_MODEL_ELEMENT;
+            }
             return null;
         }
 
@@ -136,7 +149,14 @@ public class PSResourceView extends ViewPart
             if (element instanceof File) {
                 return ((File) element).getName();
             }
-            return super.getText(element);
+            else if(element instanceof PSOverrindingRule)
+            {
+            	return ((PSOverrindingRule)element).getLabel();
+            }
+            else
+            {
+            	return super.getText(element);
+            }
         }
     }
 

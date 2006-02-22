@@ -56,6 +56,7 @@ public class Perspective implements IPerspectiveFactory {
 		IFolderLayout leftBottom = 
 		layout.createFolder("leftbottom", IPageLayout.BOTTOM, 0.3f, "left");
 		leftBottom.addView(PSResourceView.ID);
+		
 		///Center
 		IFolderLayout centerBottom = 
 			layout.createFolder(

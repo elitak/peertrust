@@ -20,6 +20,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -46,6 +47,7 @@ public class ResourcePolicyView extends ViewPart
 	private TableViewer localPolicyView;
 	
 	private TableViewer inheritedPolcyView;
+	
 	
 	private Action addAction;
 	private Action removeAction;
@@ -75,7 +77,8 @@ public class ResourcePolicyView extends ViewPart
 				(ISelectionListener)this);
 	}
 
-	public void setFocus() {
+	public void setFocus() 
+	{
 		
 	}
 

@@ -39,7 +39,7 @@ public interface PSPolicySystem
 	 * @param modelObjectWrapper
 	 * @return
 	 */
-	public Vector getRoots(ModelObjectWrapper modelObjectWrapper);
+	public Vector getRoots(Class modelObjectWrapper);
 	
 	public Vector getDirectChilds(ModelObjectWrapper parent);
 	
@@ -63,5 +63,6 @@ public interface PSPolicySystem
 						PSPolicy overridder,
 						PSPolicy overridden);
 	
-
+	public void addPSModelChangeEventListener(PSModelChangeEventListener l);
+	public void removePSModelChangeEventListener(PSModelChangeEventListener l);
 }

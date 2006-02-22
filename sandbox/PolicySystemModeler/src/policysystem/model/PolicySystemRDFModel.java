@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.Vector;
@@ -14,6 +16,8 @@ import org.peertrust.modeler.model.RDFModelManipulator;
 
 import policysystem.model.abtract.ModelObjectWrapper;
 import policysystem.model.abtract.PSFilter;
+import policysystem.model.abtract.PSModelChangeEvent;
+import policysystem.model.abtract.PSModelChangeEventListener;
 import policysystem.model.abtract.PSOverrindingRule;
 import policysystem.model.abtract.PSPolicy;
 import policysystem.model.abtract.PSPolicySystem;
@@ -22,8 +26,10 @@ import policysystem.model.abtract.PSResource;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Selector;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
@@ -116,7 +122,8 @@ public class PolicySystemRDFModel
 	private Model schema = null;//ModelLoader.loadModel("file:data/rdfsDemoSchema.rdf");
 	private String rdfSchemaFile;
 	private Logger  logger;
-
+	private Vector modelChangeListeners;
+	
 	private PolicySystemRDFModel()
 	{
 		super();
@@ -955,8 +962,45 @@ public class PolicySystemRDFModel
 							String[] conditions, 
 							PSPolicy[] policies) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(label==null || conditions==null || policies==null)
+		{
+			logger.warn("args must not be null");
+			return null;
+		}
+		final int COND_LEN=conditions.length;
+		final int POL_LEN=policies.length;
+		if(COND_LEN<=0 || POL_LEN<=0)
+		{
+			logger.warn("conditions odr policies must not be empty");
+			return null;
+		}
+		
+		if(rdfModel==null || NS_KB_DATA==null)
+		{
+			logger.warn("rdfModel and NS_KB_DATA must not be null");
+			return null;
+		}
+		
+		Resource filter=rdfModel.createResource(NS_KB_DATA+label);
+		if(filter.getProperty(RDFS.label)!=null)
+		{
+			logger.warn("rule with this name already exists:"+label);
+			return null;
+		}
+		
+		filter.addProperty(RDFS.label,label);
+		for(int i=0;i<=COND_LEN;i++)
+		{
+			filter.addProperty(PROP_HAS_CONDITION,conditions[i]);
+		}
+		for(int i=0;i<=POL_LEN;i++)
+		{
+			filter.addProperty(PROP_IS_PROTECTED_BY,conditions[i]);
+		}
+		filter.addProperty(RDF.type,CLASS_FILTER);
+		firePSModelChangeEvent(null);
+		return new PSFilterImpl(filter);
+
 	}
 
 	public PSOverrindingRule createOverriddingRule(
@@ -964,50 +1008,214 @@ public class PolicySystemRDFModel
 							PSPolicy overridder, 
 							PSPolicy overridden) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(label==null || overridden==null || overridder==null)
+		{
+			logger.warn("args must not be null");
+			return null;
+		}
+		if(rdfModel==null || NS_KB_DATA==null)
+		{
+			logger.warn("rdfModel and NS_KB_DATA must not be null");
+			return null;
+		}
+		Resource orule=rdfModel.createResource(NS_KB_DATA+label);
+		if(orule.getProperty(RDFS.label)!=null)
+		{
+			logger.warn("rule with this name already exists:"+label);
+			return null;
+		}
+		
+		orule.addProperty(RDFS.label,label);
+		orule.addProperty(PROP_HAS_OVERRIDDEN,overridden.getModelObject());
+		orule.addProperty(PROP_HAS_OVERRIDDER,overridder.getModelObject());
+		orule.addProperty(RDF.type,CLASS_OVERRIDDING_RULE);
+		firePSModelChangeEvent(null);
+		return new PSOverriddingRuleImpl(orule,null);
 	}
 
 	public PSPolicy createPolicy(String label, String value) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		
+		if(label==null || value==null )
+		{
+			logger.warn("args must not be null");
+			return null;
+		}
+		if(rdfModel==null || NS_KB_DATA==null)
+		{
+			logger.warn("rdfModel and NS_KB_DATA must not be null");
+			return null;
+		}
+		Resource pol=rdfModel.createResource(NS_KB_DATA+label);
+		if(pol.getProperty(PROP_HAS_VALUE)!=null)
+		{
+			logger.warn("policy with this name already exists:"+label);
+			return null;
+		}
+		
+		pol.addProperty(PROP_HAS_VALUE,value);
+		pol.addProperty(RDFS.label,label);
+		pol.addProperty(RDF.type,CLASS_POLICY);
+		firePSModelChangeEvent(null);
+		return new PSPolicyImpl(pol,null);
 	}
 
 	public PSResource createResource(String label, String identity) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(label==null || identity==null )
+		{
+			logger.warn("args must not be null");
+			return null;
+		}
+		
+		if(rdfModel==null || NS_KB_DATA==null)
+		{
+			logger.warn("rdfModel and NS_KB_DATA must not be null");
+			return null;
+		}
+		
+		Resource res=rdfModel.createResource(NS_KB_DATA+identity);
+		if(res.getProperty(PROP_HAS_IDENTITY)!=null)
+		{
+			logger.warn("policy with this identity already exists:"+label);
+			return null;
+		}
+		
+		res.addProperty(RDFS.label,label);
+		res.addProperty(PROP_HAS_IDENTITY,identity);
+		res.addProperty(RDF.type,CLASS_RESOURCE);
+		firePSModelChangeEvent(null);
+		return new PSResourceImpl(res);
+		
 	}
 
 	public Vector getDirectChilds(ModelObjectWrapper parent) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(parent ==null)
+		{
+			return new Vector();
+		}
+		if(parent instanceof PSResource)
+		{
+			Resource res=(Resource)parent.getModelObject();
+			if(res==null)
+			{
+				return new Vector();
+			}
+			SimpleSelector sel=
+				new SimpleSelector(null,PROP_HAS_SUPER,res);
+			StmtIterator it=rdfModel.listStatements(sel);
+			Vector c=new Vector();
+			ModelObjectWrapper mow;
+			while(it.hasNext())
+			{
+				res=it.nextStatement().getSubject();
+				mow=createModelObjectWrapper(res,null);
+				c.add(mow);
+			}
+			return c;
+		}
+		else
+		{
+			logger.warn("No hierarchy for "+parent+ 
+						" class="+parent.getClass());
+			return new Vector();
+		}
 	}
 
 	public Vector getDirectParents(ModelObjectWrapper child) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(child ==null)
+		{
+			return new Vector();
+		}
+		if(child instanceof PSResource)
+		{
+			Resource res=(Resource)child.getModelObject();
+			if(res==null)
+			{
+				return new Vector();
+			}
+			SimpleSelector sel=
+				new SimpleSelector(res,PROP_HAS_SUPER,(Resource)null);
+			StmtIterator it=rdfModel.listStatements(sel);
+			Vector p=new Vector();
+			ModelObjectWrapper mow;
+			while(it.hasNext())
+			{
+				res=it.nextStatement().getSubject();
+				mow=createModelObjectWrapper(res,null);
+				p.add(mow);
+			}
+			return p;
+		}
+		else
+		{
+			logger.warn("No hierarchy for "+child+ 
+						" class="+child.getClass());
+			return new Vector();
+		}
+
 	}
 
 	public Vector getFilters(PSResource resource) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Resource res;
+		if(resource==null)
+		{//getting all filters
+			res=null;
+		}else{
+			res=(Resource)resource.getModelObject();
+			if(res==null)
+			{
+				logger.warn("wrapped resource is null returning empty vector");
+				return new Vector();
+			}
+		}
+		SimpleSelector sel=
+			new SimpleSelector(res,PROP_HAS_FILTER,(Resource)null);
+		StmtIterator it=rdfModel.listStatements(sel);
+		Vector f=new Vector();
+		ModelObjectWrapper mow;
+		while(it.hasNext())
+		{
+			res=(Resource)it.nextStatement().getObject();
+			mow=createModelObjectWrapper(res,null);
+			f.add(mow);
+		}
+		return f;		
 	}
 
 	public Vector getInheritedPolicies(PSResource resource) 
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Vector getLocalPolicies(PSResource resource) 
+	public Vector getLocalPolicies(PSResource psResource) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(psResource ==null)
+		{
+			logger.warn("param psResource must not be null");
+			return new Vector();
+		}
+		
+		Resource res=(Resource)psResource.getModelObject();
+		if(res==null)
+		{
+			logger.warn("wrapper resource is null, returning empty vector");
+			return new Vector();
+		}
+		
+		NodeIterator it=
+			rdfModel.listObjectsOfProperty(res,PROP_IS_PROTECTED_BY);
+		Resource pol;
+		Vector lPolicies= new Vector();
+		for(;it.hasNext();)
+		{
+			res=(Resource)it.nextNode();
+			lPolicies.add(createModelObjectWrapper(res,psResource));
+		}
+		return lPolicies;
 	}
 
 	public Vector getOverriddingRules(PSResource resource) 
@@ -1015,15 +1223,85 @@ public class PolicySystemRDFModel
 		return getOverriddingRule(resource);
 	}
 
-	public Vector getRoots(ModelObjectWrapper modelObjectWrapper) 
+	public Vector getRoots(Class modelObjectWrapperClass) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if(modelObjectWrapperClass==null)
+		{
+			logger.warn("wrapper class is null returning empty vector");
+			return new Vector();
+		}
+		Class[] iis=modelObjectWrapperClass.getInterfaces();
+		List iisList=Arrays.asList(iis);
+		if(iisList.contains(PSResource.class))
+		{
+//			SimpleSelector sel=
+//				new SimpleSelector(null,RDF.type,CLASS_RESOURCE);
+			ResIterator it=
+				rdfModel.listSubjectsWithProperty(RDF.type,CLASS_RESOURCE);
+			Vector roots= new Vector();
+			Resource res;
+			for(;it.hasNext();)
+			{
+				res=it.nextResource();
+				if(!res.hasProperty(PROP_HAS_SUPER))
+				{
+					roots.add( createModelObjectWrapper(res,null));
+				}
+			}
+			return roots;
+		}
+		else
+		{
+			logger.warn("no hierarchy element class:"+modelObjectWrapperClass+
+					"\n\treturning empty vector");
+			return new Vector();
+		}
 	}
 	public Vector getResources()
 	{
-		return null;
+		ResIterator it=
+			rdfModel.listSubjectsWithProperty(RDF.type,CLASS_RESOURCE);
+		Vector allRes= new Vector();
+		Resource res;
+		for(;it.hasNext();)
+		{
+			res=it.nextResource();
+			allRes.add( createModelObjectWrapper(res,null));
+		}
+		return allRes;
 	}
+
+	public void addPSModelChangeEventListener(PSModelChangeEventListener l) 
+	{
+		if(l==null)
+		{
+			logger.warn("model changed listener to add is null; skipping");
+			return;
+		}
+		modelChangeListeners.add(l);
+	}
+
+	public void removePSModelChangeEventListener(PSModelChangeEventListener l) 
+	{
+		if(l==null)
+		{
+			logger.warn("model changed listener to remove is null; skipping");
+			return;
+		}
+		modelChangeListeners.remove(l);
+	}
+	public void firePSModelChangeEvent(PSModelChangeEvent event) 
+	{
+		PSModelChangeEventListener l;
+		for(int i=modelChangeListeners.size(); i>=0;i--)
+		{
+			l=(PSModelChangeEventListener)modelChangeListeners.elementAt(i);
+			l.onPSModelChange(event);
+		}
+	}
+	
+	
+	
 }
 
 
