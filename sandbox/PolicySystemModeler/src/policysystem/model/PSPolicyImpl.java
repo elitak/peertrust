@@ -143,6 +143,26 @@ class PSPolicyImpl implements PSPolicy
 	public void setGuarded(ModelObjectWrapper guarded) 
 	{
 		this.guarded=guarded;		
+	}
+
+	public boolean equals(Object obj) 
+	{
+		if(obj==null)
+		{
+			return false;
+		}
+		else if(obj instanceof Resource)
+		{
+			return resource.equals(obj);
+		}
+		else if(obj instanceof PSPolicy)
+		{
+			return resource.equals(((PSPolicy)obj).getModelObject());
+		}
+		else
+		{
+			return super.equals(obj);
+		}
 	}	
 	
 	

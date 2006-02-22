@@ -45,6 +45,8 @@ public interface PSPolicySystem
 	
 	public Vector getDirectParents(ModelObjectWrapper child);
 	
+	public Vector getPathToAncestorRoots(ModelObjectWrapper node);
+	
 	public PSResource createResource(
 						String label,
 						String identity);

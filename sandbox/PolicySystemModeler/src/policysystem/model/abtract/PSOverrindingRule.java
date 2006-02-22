@@ -1,5 +1,7 @@
 package policysystem.model.abtract;
 
+import java.util.Collection;
+
 
 
 /**
@@ -20,5 +22,6 @@ public interface PSOverrindingRule extends ModelObjectWrapper
 //	public void setIsInheritable(boolean isInheritable);
 	
 	public Object getModelObject();
+	public void performOverridding(Collection policies);
 	
 }

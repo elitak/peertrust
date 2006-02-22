@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
@@ -1186,9 +1188,97 @@ public class PolicySystemRDFModel
 		return f;		
 	}
 
-	public Vector getInheritedPolicies(PSResource resource) 
+	public Vector getPathToAncestorRoots(ModelObjectWrapper node)
 	{
-		return null;
+		Vector curParent;
+		Vector paths=new Vector();
+		Vector completedPath=new Vector();
+		curParent=getDirectParents(node);
+		for(int i=curParent.size()-1;i>=0;i--)
+		{
+			Vector path=new Vector();
+			path.add(0,curParent.elementAt(i));
+			paths.add(path);
+		}
+		
+		for(;paths.size()>0;)
+		{
+			Vector path=(Vector)paths.remove(0);
+			PSResource psRes=(PSResource)path.get(0);
+			curParent=getDirectParents(psRes);
+			if(curParent.size()>0)
+			{
+				do
+				{
+					Vector xPath=new Vector(path);
+					xPath.add(0,psRes);
+					paths.add(xPath);
+				}while(curParent.size()>0);
+			}
+			else
+			{
+				completedPath.add(path);
+			}
+		}
+		return completedPath;
+	}
+	
+	private final Vector computePathPolicies(Vector path)
+	{
+		if(path==null)
+		{
+			return new Vector();
+		}
+		
+		final int MAX=path.size()-1;
+		if(MAX<0)
+		{
+			return new Vector();
+		}
+		
+		Vector policies= new Vector();
+		Vector oRules;
+		///add root policies
+		policies.addAll(
+				getLocalPolicies(
+						(PSResource)path.get(0)));
+		///follow path; add polcies and do overriding
+		PSResource curRes;
+		for(int i=1;i<=MAX;i++)
+		{
+			curRes=(PSResource)path.get(i);
+			oRules=getOverriddingRule(curRes);
+			for(Iterator it=oRules.iterator();it.hasNext();)
+			{
+				PSOverrindingRule rule=
+					(PSOverrindingRule)it.next();
+				rule.performOverridding(policies);
+			}
+			policies.addAll(getLocalPolicies(curRes));
+			
+		}
+		
+		return policies;
+	}
+	
+	public Vector getInheritedPolicies(PSResource psResource) 
+	{
+		if(psResource==null)
+		{
+			logger.warn("param psResurce must not be null");
+			return new Vector(); 
+		}
+		
+		Vector policies=new Vector();
+		Vector paths=getPathToAncestorRoots(psResource);
+		
+		for(int i=paths.size()-1;i>=0;i--)
+		{
+			Vector path=(Vector)paths.get(i);
+			policies.addAll(computePathPolicies(path));
+		}
+		
+		return policies;
 	}
 
 	public Vector getLocalPolicies(PSResource psResource) 

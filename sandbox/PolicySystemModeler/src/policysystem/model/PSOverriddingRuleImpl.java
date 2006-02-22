@@ -1,6 +1,8 @@
 package policysystem.model;
 
 
+import java.util.Collection;
+
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -85,6 +87,11 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 		this.overridder=psPolicy;
 	}
 
+	public void performOverridding(Collection psPolicies)
+	{
+		psPolicies.remove(overridden);
+		psPolicies.add(overridder);
+	}
 //	public boolean getIsInheritable() 
 //	{
 //		return false;

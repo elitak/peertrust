@@ -32,10 +32,18 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.PageLayout;
 import org.eclipse.ui.internal.layout.CellLayout;
+import org.eclipse.ui.part.IPage;
+import org.eclipse.ui.part.Page;
+import org.eclipse.ui.part.PageBook;
+import org.eclipse.ui.part.PageBookView;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.part.PageBook.PageBookLayout;
+
 
 import policysystem.ApplicationWorkbenchAdvisor;
+import policysystem.control.NewProjectDlgEditor;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.ResourcePolicyContentProvider;
 
@@ -48,11 +56,14 @@ public class ResourcePolicyView extends ViewPart
 	
 	private TableViewer inheritedPolcyView;
 	
+	private NewProjectDlgEditor pjtEd;
+	private Page blankPage;
+	PoliciesVisualization resPolViz;
 	
 	private Action addAction;
 	private Action removeAction;
 	private Logger logger;
-	
+	private PageBook pageBook;
 	public ResourcePolicyView() 
 	{
 		super();
@@ -61,20 +72,31 @@ public class ResourcePolicyView extends ViewPart
 
 	public void createPartControl(Composite parent) 
 	{
-		FillLayout layout=new FillLayout(SWT.VERTICAL);
-		parent.setLayout(layout);
+		Layout l;
+		pageBook= new PageBook(parent,SWT.NONE);
+		
 		localPolicyView= 
-			new TableViewer(parent,
+			new TableViewer(pageBook,
 							SWT.BORDER|SWT.FULL_SELECTION);
-		inheritedPolcyView= new TableViewer(parent);
+		inheritedPolcyView= new TableViewer(pageBook);
 		makeTable();
 		makeActions();
+		//localPolicyView.getControl()
 		//hookContextMenu();
 		//hookDoubleClickAction();
 		contributeToActionBars();
 		getSite().getPage().addSelectionListener(
 				PSResourceView.ID,
 				(ISelectionListener)this);
+		pjtEd=new NewProjectDlgEditor();
+		pjtEd.createControl(pageBook);
+		
+		resPolViz= new PoliciesVisualization();
+		resPolViz.createControl(pageBook);
+		
+		blankPage=createBlankViewPage();
+		blankPage.createControl(pageBook);
+		pageBook.showPage(blankPage.getControl());
 	}
 
 	public void setFocus() 
@@ -264,10 +286,12 @@ public class ResourcePolicyView extends ViewPart
 			}
 			
 			localPolicyView.setInput(selFile);
+			pageBook.showPage(localPolicyView.getControl());
 		}
 		else
 		{
 			logger.warn("Cannoet handle selection of this class:"+sel0.getClass());
+			pageBook.showPage(blankPage.getControl());
 		}
 		
 		return;
@@ -293,6 +317,31 @@ public class ResourcePolicyView extends ViewPart
 		mb.setMessage(message);
 		ret=mb.open();
 		return ret;
+	}
+////////////////////////////////////////////////////////////////////////////////
+//////////////////page book/////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+	public static final Page createBlankViewPage()
+	{
+		return new Page()
+		{
+			Composite c;
+			
+			public void createControl(Composite parent) 
+			{
+				c= new Composite(parent,SWT.NONE);
+			}
+
+			public Control getControl() 
+			{
+				return c;
+			}
+
+			public void setFocus() 
+			{	
+			}
+			
+		};
 	}
 	
 }
