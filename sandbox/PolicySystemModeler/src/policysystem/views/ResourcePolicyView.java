@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
@@ -46,6 +47,7 @@ import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.control.NewProjectDlgEditor;
 import policysystem.control.PSOverriddingRuleEditorPage;
 import policysystem.control.PSPolicyEditorPage;
+import policysystem.control.PSResourcePolicyEditorPage;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.ResourcePolicyContentProvider;
 import policysystem.model.abtract.PSOverrindingRule;
@@ -71,6 +73,7 @@ public class ResourcePolicyView extends ViewPart
 	private PageBook pageBook;
 	private PSHierarchyVisualizationPage vizPage;
 	private PSPolicyEditorPage policyEditorPage;
+	private PSResourcePolicyEditorPage resourcePolicyEditorPage;
 	public ResourcePolicyView() 
 	{
 		super();
@@ -116,8 +119,13 @@ public class ResourcePolicyView extends ViewPart
 		overriddingRuleEditorPage=
 			new PSOverriddingRuleEditorPage();
 		overriddingRuleEditorPage.createControl(pageBook);
-		pageBook.showPage(blankPage.getControl());
+		//pageBook.showPage(blankPage.getControl());
 		//pageBook.showPage(overriddingRuleEditorPage.getControl());
+		resourcePolicyEditorPage=
+			new PSResourcePolicyEditorPage();
+		resourcePolicyEditorPage.createControl(pageBook);
+		pageBook.showPage(resourcePolicyEditorPage.getControl());
+		
 	}
 
 	public void setFocus() 
@@ -323,8 +331,10 @@ public class ResourcePolicyView extends ViewPart
 				}
 			}
 			
-			localPolicyView.setInput(selFile);
-			pageBook.showPage(localPolicyView.getControl());
+//			localPolicyView.setInput(selFile);
+//			pageBook.showPage(localPolicyView.getControl());
+			resourcePolicyEditorPage.setInput(selFile);
+			pageBook.showPage(resourcePolicyEditorPage.getControl());
 		}
 		else
 		{

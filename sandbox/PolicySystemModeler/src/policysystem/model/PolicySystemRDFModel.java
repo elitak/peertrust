@@ -893,60 +893,7 @@ public class PolicySystemRDFModel
 		return new PSResourceImpl(res);
 	}
 	
-	
-//	static final public Resource getResource(
-//			String identity,  
-//			boolean forceCreation) 
-//{
-//if(identity==null)
-//{
-//getInstance().logger.warn(
-//"param resource identity must not be null");
-//return null;
-//}
-//
-//if(policySystemRDFModel==null)
-//{
-//getInstance().logger.warn("model instance not created");
-//return null;
-//}
-//
-//Selector psSel=
-//new SimpleSelector(
-//(Resource)null,
-//PROP_HAS_IDENTITY,
-//(String)identity);
-//StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
-//
-//Statement stm;
-//Resource res=null;
-//if(it.hasNext())
-//{
-//stm=it.nextStatement();
-//res=stm.getSubject();
-//}
-//
-//if(it.hasNext())
-//{
-//getInstance().logger.error(
-//"Model contents several resources with this identity:"+
-//identity);
-//}
-//
-//if(res==null && forceCreation==true)
-//{
-////res=policySystemRDFModel.rdfModel.cre
-//res=
-//policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
-////res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
-//res.addProperty(PROP_HAS_NAME,identity);
-//res.addProperty(PROP_HAS_IDENTITY,identity);
-//res.addProperty(RDF.type,CLASS_RESOURCE);
-//}
-//return res;
-//}
-
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 ////////////////////PROJECT CHANGED LISTENER/////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 	synchronized public void projectConfigChanged(ProjectConfig config) 
@@ -1200,22 +1147,22 @@ public class PolicySystemRDFModel
 		for(int i=curParent.size()-1;i>=0;i--)
 		{
 			Vector path=new Vector();
-			path.add(0,curParent.elementAt(i));
+			path.add(0,curParent.get(i));
 			paths.add(path);
 		}
 		logger.info("PATHS.SIZE:"+paths.size());
 		for(;paths.size()>0;)
 		{
 			Vector path=(Vector)paths.remove(0);
-			PSResource psRes=(PSResource)path.get(0);
-			curParent=getDirectParents(psRes);
+			ModelObjectWrapper mow=(ModelObjectWrapper)path.get(0);
+			curParent=getDirectParents(mow);
 			if(curParent.size()>0)
 			{
 				for(Iterator it=curParent.iterator();it.hasNext();)
 				{
 					Vector xPath=new Vector(path);
-					psRes=(PSResource)it.next();
-					xPath.add(0,psRes);
+					mow=(PSResource)it.next();
+					xPath.add(0,mow);
 					paths.add(xPath);
 				}
 			}
