@@ -55,7 +55,7 @@ class PSResourceImpl implements PSResource
 		
 		PolicySystemRDFModel.setStringProperty(
 								resource,
-								PolicySystemRDFModel.PROP_HAS_NAME,
+								RDFS.label,//PolicySystemRDFModel.PROP_HAS_NAME,
 								label);
 	}
 

@@ -77,14 +77,14 @@ public class PolicySystemRDFModel
 	public static final String LNAME_CLASS_OVERRIDDING_RULE="OverridingRule";
 	public static Resource CLASS_OVERRIDDING_RULE=null;
 	
-	public static final String LNAME_PROP_HAS_OVERRIDDER="hasOverridder";
+	public static final String LNAME_PROP_HAS_OVERRIDDER="hasOverrider";//TOFO correct in model
 	static Property PROP_HAS_OVERRIDDER=null;
 	
-	public static final String LNAME_PROP_HAS_OVERRIDDEN="hasOverridder";
+	public static final String LNAME_PROP_HAS_OVERRIDDEN="hasOverridden";
 	static Property PROP_HAS_OVERRIDDEN=null;
 	
 	public static final String LNAME_PROP_HAS_NAME="name";
-	static Property PROP_HAS_NAME=null;
+	private static Property PROP_HAS_NAME=null;
 	
 	public static final String LNAME_PROP_HAS_MAPPING="hasMapping";
 	static Property PROP_HAS_MAPPING=null;
@@ -313,7 +313,7 @@ public class PolicySystemRDFModel
 /////////////////////////////////////////////////////////////////////////////
 ///////////////////////UTIL FUNCS////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
-	static public HierarchyNodeCreationMechanism 
+	static final public HierarchyNodeCreationMechanism 
 		resourceHierarchyCreationMechanism=
 			new HierarchyNodeCreationMechanism(){
 
@@ -321,6 +321,7 @@ public class PolicySystemRDFModel
 											Model rdfModel, 
 											String nodeName) 
 				{
+					
 					if(rdfModel==null || nodeName==null || NS_KB_DATA==null)
 					{
 						return null;
@@ -627,7 +628,7 @@ public class PolicySystemRDFModel
 		if(policySystemRDFModel==null)
 		{
 			logger.warn("model singeton not created yet");
-			return null;//new PSPolicy[]{};
+			return new Vector();//new PSPolicy[]{};
 		}
 	
 		Selector polSel=
@@ -635,13 +636,15 @@ public class PolicySystemRDFModel
 			null,
 			RDF.type,//PROP_IS_PROTECTED_BY,
 			CLASS_POLICY);
-		StmtIterator it=rdfModel.listStatements(polSel);
+		//StmtIterator it=rdfModel.listStatements(polSel);
+		ResIterator it=rdfModel.listSubjectsWithProperty(RDF.type,CLASS_POLICY);
 		Vector policies=new Vector();
 		Statement stm;
 		while(it.hasNext())
 		{
-			stm=it.nextStatement();
-			policies.add(createModelObjectWrapper(stm.getSubject(),null));
+			//stm=it.nextStatement();
+			policies.add(
+					createModelObjectWrapper(it.nextResource(),null));
 		}
 	
 		return policies;
@@ -1145,7 +1148,7 @@ public class PolicySystemRDFModel
 			ModelObjectWrapper mow;
 			while(it.hasNext())
 			{
-				res=it.nextStatement().getSubject();
+				res=(Resource)it.nextStatement().getObject();
 				mow=createModelObjectWrapper(res,null);
 				p.add(mow);
 			}
@@ -1200,7 +1203,7 @@ public class PolicySystemRDFModel
 			path.add(0,curParent.elementAt(i));
 			paths.add(path);
 		}
-		
+		logger.info("PATHS.SIZE:"+paths.size());
 		for(;paths.size()>0;)
 		{
 			Vector path=(Vector)paths.remove(0);
@@ -1208,12 +1211,13 @@ public class PolicySystemRDFModel
 			curParent=getDirectParents(psRes);
 			if(curParent.size()>0)
 			{
-				do
+				for(Iterator it=curParent.iterator();it.hasNext();)
 				{
 					Vector xPath=new Vector(path);
+					psRes=(PSResource)it.next();
 					xPath.add(0,psRes);
 					paths.add(xPath);
-				}while(curParent.size()>0);
+				}
 			}
 			else
 			{
@@ -1271,7 +1275,7 @@ public class PolicySystemRDFModel
 		
 		Vector policies=new Vector();
 		Vector paths=getPathToAncestorRoots(psResource);
-		
+		logger.info("PATHS:"+paths);
 		for(int i=paths.size()-1;i>=0;i--)
 		{
 			Vector path=(Vector)paths.get(i);

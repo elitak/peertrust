@@ -12,7 +12,7 @@
 <rdf_s:OverridingRule rdf:about="&rdf_d;CourseAttendeeInteadOfStudent"
 	 rdfs:label="CourseAttendeeInteadOfStudent">
 	<rdf_s:hasOverridden rdf:resource="&rdf_d;GiveItToStudent"/>
-	<rdf_s:hasOverrider rdf:resource="&rdf_d;GiveItToGraduatesStudent"/>
+	<rdf_s:hasOverrider rdf:resource="&rdf_d;GiveItToGraduateStudent"/>
 </rdf_s:OverridingRule>
 
 <rdf_s:Filter rdf:about="&rdf_d;PdfFiles"
@@ -31,6 +31,11 @@
 <rdf_s:Policy rdf:about="&rdf_d;GiveItToStudent"
 	 rdf_s:hasValue="if(student) git it"
 	 rdfs:label="GiveItToStudent"/>
+
+<rdf_s:Policy rdf:about="&rdf_d;GiveItToGraduateStudent"
+         rdf_s:hasValue="if(student) git it"
+         rdfs:label="GiveItToGraduateStudent"/>
+
 
 <rdf_s:Policy rdf:about="&rdf_d;GiveItToCourseAttendee"
 	 rdf_s:hasValue="if(courseAttendee) give it"

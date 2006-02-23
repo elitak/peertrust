@@ -99,7 +99,7 @@ import policysystem.model.HierarchyNodeCreationMechanism;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.abtract.ModelObjectWrapper;
 
-public class PoliciesVisualization extends Page implements GraphSelectionListener,
+public class PSHierarchyVisualizationPage extends Page implements GraphSelectionListener,
 		KeyListener {
 
 	static final String RESOURCE_BASE="policysystem/jgraph_resources/";
@@ -159,7 +159,7 @@ public class PoliciesVisualization extends Page implements GraphSelectionListene
 	//
 
 	// Construct an Editor Panel
-	public PoliciesVisualization() 
+	public PSHierarchyVisualizationPage() 
 	{
 		
 		panel= new JPanel();

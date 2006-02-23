@@ -83,12 +83,12 @@ public class PSResourceView extends ViewPart
 				if(el.equals(
 						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
 				{
-//					String rootDir=
-//						ProjectConfig.getInstance().getProperty("rootDir");
-//					if(rootDir==null)
-//					{
-//						return;
-//					}
+					String rootDir=
+						ProjectConfig.getInstance().getProperty("rootDir");
+					if(rootDir==null)
+					{
+						return;
+					}
 					treeView.setInput(el);//new File(rootDir));
 				}
 				else if(el.equals(

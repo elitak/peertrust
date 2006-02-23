@@ -44,8 +44,12 @@ import org.eclipse.ui.part.PageBook.PageBookLayout;
 
 import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.control.NewProjectDlgEditor;
+import policysystem.control.PSOverriddingRuleEditorPage;
+import policysystem.control.PSPolicyEditorPage;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.ResourcePolicyContentProvider;
+import policysystem.model.abtract.PSOverrindingRule;
+import policysystem.model.abtract.PSPolicy;
 
 public class ResourcePolicyView extends ViewPart 
 				implements ISelectionListener
@@ -58,12 +62,15 @@ public class ResourcePolicyView extends ViewPart
 	
 	private NewProjectDlgEditor pjtEd;
 	private Page blankPage;
-	PoliciesVisualization resPolViz;
+	private PSHierarchyVisualizationPage resPolViz;
+	private PSOverriddingRuleEditorPage overriddingRuleEditorPage;
 	
 	private Action addAction;
 	private Action removeAction;
 	private Logger logger;
 	private PageBook pageBook;
+	private PSHierarchyVisualizationPage vizPage;
+	private PSPolicyEditorPage policyEditorPage;
 	public ResourcePolicyView() 
 	{
 		super();
@@ -88,15 +95,29 @@ public class ResourcePolicyView extends ViewPart
 		getSite().getPage().addSelectionListener(
 				PSResourceView.ID,
 				(ISelectionListener)this);
+		getSite().getPage().addSelectionListener(
+				PolicySystemView.ID,
+				(ISelectionListener)this);
 		pjtEd=new NewProjectDlgEditor();
 		pjtEd.createControl(pageBook);
 		
-		resPolViz= new PoliciesVisualization();
+		resPolViz= new PSHierarchyVisualizationPage();
 		resPolViz.createControl(pageBook);
+		
+		vizPage= new PSHierarchyVisualizationPage();
+		vizPage.createControl(pageBook);
 		
 		blankPage=createBlankViewPage();
 		blankPage.createControl(pageBook);
+		
+		policyEditorPage= new PSPolicyEditorPage();
+		policyEditorPage.createControl(pageBook);
+		
+		overriddingRuleEditorPage=
+			new PSOverriddingRuleEditorPage();
+		overriddingRuleEditorPage.createControl(pageBook);
 		pageBook.showPage(blankPage.getControl());
+		//pageBook.showPage(overriddingRuleEditorPage.getControl());
 	}
 
 	public void setFocus() 
@@ -249,15 +270,16 @@ public class ResourcePolicyView extends ViewPart
 	 */
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) 
 	{
-		logger.info("Selection part="+part + " " +
-					"selection="+selection +
-					" selectionclass:"+((StructuredSelection)selection).getFirstElement().getClass());
+		
 		if(selection==null)
 		{
 			logger.warn("param selection is null");
 			return;
 		}
-		
+		logger.info("Selection changed:"+
+				"\n\tpart="+part +
+				"\n\tselection="+selection +
+				"\n\tselectionclass:"+((StructuredSelection)selection).getFirstElement());
 		Object sel0=((StructuredSelection)selection).getFirstElement();
 		
 		if(selection==null)
@@ -266,7 +288,23 @@ public class ResourcePolicyView extends ViewPart
 			return;
 		}
 		
-		if(sel0 instanceof File)
+		if(part instanceof PolicySystemView)
+		{
+			pageBook.showPage(blankPage.getControl());
+		}
+		else if(sel0 instanceof PSPolicy)
+		{
+			pageBook.showPage(policyEditorPage.getControl());
+			policyEditorPage.setPsPolicy(
+					(PSPolicy)sel0);
+		}
+		else if(sel0 instanceof PSOverrindingRule)
+		{
+			pageBook.showPage(overriddingRuleEditorPage.getControl());
+			overriddingRuleEditorPage.setOverrindingRule(
+					(PSOverrindingRule)sel0);
+		}
+		else if(sel0 instanceof File)
 		{
 			File selFile= (File)sel0;
 			if(selFile.isFile())
@@ -275,7 +313,7 @@ public class ResourcePolicyView extends ViewPart
 					"You have selected a file not a directory.\n"+
 					"Do you want show the parent directory",
 					part.getSite().getShell());
-				if(decision==SWT.OK)
+				if(decision==SWT.YES)
 				{
 					selFile=selFile.getParentFile();
 				}

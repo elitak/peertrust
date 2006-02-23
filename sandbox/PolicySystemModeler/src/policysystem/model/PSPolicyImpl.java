@@ -91,7 +91,7 @@ class PSPolicyImpl implements PSPolicy
 		
 		PolicySystemRDFModel.setStringProperty(
 						resource,
-						PolicySystemRDFModel.PROP_HAS_NAME,
+						RDFS.label,//PolicySystemRDFModel.PROP_HAS_NAME,
 						label);
 		return;
 	}

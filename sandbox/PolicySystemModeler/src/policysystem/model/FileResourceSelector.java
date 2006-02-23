@@ -12,7 +12,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 
-class FileResourceSelector extends SimpleSelector
+public class FileResourceSelector extends SimpleSelector
 {
 	/**
 	 * 

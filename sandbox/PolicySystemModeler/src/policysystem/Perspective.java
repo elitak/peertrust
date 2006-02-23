@@ -67,7 +67,7 @@ public class Perspective implements IPerspectiveFactory {
 		IFolderLayout centerTopLeft = 
 			layout.createFolder(
 					"centerTopLeft", IPageLayout.TOP, 0.8f, "centerBottom");
-		centerTopLeft.addView(PolicySystemGraphView.ID);
+		//centerTopLeft.addView(PolicySystemGraphView.ID);
 		centerTopLeft.addView(ResourcePolicyView.ID);
 		IFolderLayout centerTopRight = 
 			layout.createFolder(
