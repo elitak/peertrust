@@ -8,13 +8,19 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -30,24 +36,34 @@ public class PSResourcePolicyEditorPage extends Page {
 	private ToolBar toolBar;
 	private ToolBarManager toolBarMng;
 	private Logger logger=Logger.getLogger(PSResourcePolicyEditorPage.class);
+	
 	public void createControl(Composite parent) 
 	{
 		
-		composite=new Composite(parent,SWT.FILL);
+		composite=new Composite(parent,SWT.NONE);
 		composite.setLayout(new FormLayout());
-		toolBar=new ToolBar(composite,SWT.NONE);
-		GridData gridData=new GridData(GridData.FILL_HORIZONTAL);
 		
-		toolBar.setLayoutData(gridData);
-		localPolicyView= new TableViewer(composite);
-		makeTable();
-		localPolicyView.getControl().setLayoutData(
-				new GridData(GridData.HORIZONTAL_ALIGN_CENTER,
-							GridData.VERTICAL_ALIGN_END,
-							true,
-							true));
-		toolBarMng= new ToolBarManager(toolBar);
-		makeActions();
+		Composite top= new Composite(composite,SWT.NONE);
+		Composite tableComposite= new Composite(composite,SWT.NONE);
+		final int HEIGHT=30;
+		
+
+		
+		FormData tFD=new FormData();
+		tFD.top=new FormAttachment(0,HEIGHT+5);//0,7);//,10,SWT.BOTTOM);
+		tFD.left= new FormAttachment(0);
+		tFD.right= new FormAttachment(100);
+		tFD.bottom= new FormAttachment(100);
+		tableComposite.setLayoutData(tFD);
+		
+		FormData formData= new FormData();
+		formData.top= new FormAttachment(0,0);
+		formData.left= new FormAttachment(0,0);
+		formData.right= new FormAttachment(100);
+		formData.height= HEIGHT;//new FormAttachment(5);
+		
+		localPolicyView=makeTable(tableComposite);
+		toolBar=makeActions(top);
 	}
 
 	public Control getControl() 
@@ -71,18 +87,29 @@ public class PSResourcePolicyEditorPage extends Page {
 		localPolicyView.setInput(input);
 	}
 
-	private void makeTable()
+	private TableViewer makeTable(Composite parent)
 	{
+		///layout
+		parent.setLayout(new GridLayout());
+		////make table
+		TableViewer tv= 
+			new TableViewer(parent,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);		
+		GridData gData= 
+			new GridData(
+					GridData.FILL_BOTH);
+		tv.getControl().setLayoutData(gData);
+		
+		//data
 		ResourcePolicyContentProvider provider=
 				new ResourcePolicyContentProvider();
-		localPolicyView.setContentProvider(provider);
-		localPolicyView.setLabelProvider(provider);
+		tv.setContentProvider(provider);
+		tv.setLabelProvider(provider);
 		TableLayout layout= new TableLayout();
 		layout.addColumnData(new ColumnWeightData(33,true));
 		layout.addColumnData(new ColumnWeightData(33,true));
 		layout.addColumnData(new ColumnWeightData(34,true));
 		
-		Table table=localPolicyView.getTable();
+		Table table=tv.getTable();
 		table.setLayout(layout);
 		TableColumn nameC=
 				new TableColumn(
@@ -107,10 +134,16 @@ public class PSResourcePolicyEditorPage extends Page {
 		
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);		
-		localPolicyView.setInput(PolicySystemRDFModel.LNAME_PROP_HAS_NAME);
+	
+		tv.setInput(PolicySystemRDFModel.LNAME_PROP_HAS_NAME);
+		return tv;
 	}
 	
-	private void makeActions() {
+	private ToolBar makeActions(Composite parent) 
+	{
+		///manager
+		toolBarMng= new ToolBarManager(toolBar);
+		///
 		Action addAction = new Action() {
 			public void run() {
 			}
@@ -119,16 +152,24 @@ public class PSResourcePolicyEditorPage extends Page {
 		addAction.setToolTipText("Action 1 tooltip");
 		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		toolBarMng.add(addAction);
 		
 		Action removeAction = new Action() {
 			public void run() {
 				
 			}
 		};
+		
 		removeAction.setText("Action 2");
 		removeAction.setToolTipText("Action 2 tooltip");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-
+		toolBarMng.add(removeAction);
+		
+		parent.setLayout(new GridLayout());
+		GridData gd= new GridData(GridData.FILL_BOTH);
+		ToolBar tb= toolBarMng.createControl(parent);
+		tb.setLayoutData(gd);
+		return tb;
 	}
 }

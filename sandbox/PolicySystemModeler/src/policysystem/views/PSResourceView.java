@@ -4,28 +4,37 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.ViewSite;
-import org.eclipse.ui.internal.Workbench;
-import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.eclipse.ui.internal.part.SiteComposite;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.part.WorkbenchPart;
-import org.eclipse.ui.views.navigator.ResourceNavigator;
 
+
+import policysystem.ApplicationWorkbenchAdvisor;
+import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.PolicySystemResTreeContentProvider;
 import policysystem.model.ProjectConfig;
 import policysystem.model.abtract.ModelObjectWrapper;
@@ -38,6 +47,10 @@ public class PSResourceView extends ViewPart
 	private ITreeContentProvider contentProvider;
 	private TreeViewer treeView;
 	private Logger logger;
+	private Composite composite;
+	private ToolBarManager toolbarManager;
+	private Action addAction;
+	private Action removeAction;
 	
 	public PSResourceView()
 	{
@@ -46,7 +59,7 @@ public class PSResourceView extends ViewPart
 	
 	public void createPartControl(Composite parent) 
 	{
-		
+		/////
 		treeView= new TreeViewer(parent);
 		contentProvider= new PSResourceViewContentProvider(true);
 		treeView.setContentProvider(contentProvider);
@@ -56,15 +69,90 @@ public class PSResourceView extends ViewPart
 		getSite().getPage().addSelectionListener(
 				PolicySystemView.ID,
 				(ISelectionListener)this);
+		parent.setLayout(new GridLayout());
+		treeView.getControl().setLayoutData(
+				new GridData(GridData.FILL_BOTH));
 		
+		///toolbar
+		makeToolBarActions();
+		System.out.println("PARENT="+parent.getClass());
 		//PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView();
 		//Workbench.getInstance().getElementFactory();
-		
+		//MenuBarCreator creator= new MenuBarCreator();
+		MenuBarCreator.createMenubar(
+				//getViewSite().getPart(),
+				this.getViewSite(),
+				(IDoubleClickListener)null,
+				new Action[]{addAction,removeAction},
+				treeView,
+				treeView.getControl(),
+				treeView,
+				"");
 	}
 
 	public void setFocus() 
 	{
 		
+	}
+	
+	private void makeToolBarActions() 
+	{
+		;
+		///
+		addAction = new Action() {
+			public void run() {
+			}
+		};
+		addAction.setText("create");
+		addAction.setToolTipText("create");
+		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+		
+		
+		removeAction = new Action() {
+			public void run() {
+				
+			}
+		};
+		
+		removeAction.setText("remove");
+		removeAction.setToolTipText("remove");
+		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+	}
+	
+	private ToolBar makeToolBar(Composite parent) 
+	{
+		///manager
+		toolbarManager= new ToolBarManager();
+		///
+		addAction = new Action() {
+			public void run() {
+			}
+		};
+		addAction.setText("create");
+		addAction.setToolTipText("create");
+		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+		toolbarManager.add(addAction);
+		
+		removeAction = new Action() {
+			public void run() {
+				
+			}
+		};
+		
+		removeAction.setText("remove");
+		removeAction.setToolTipText("remove");
+		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+		toolbarManager.add(removeAction);
+		
+		parent.setLayout(new GridLayout());
+		GridData gd= new GridData(GridData.FILL_BOTH);
+		ToolBar tb= toolbarManager.createControl(parent);
+		tb.setLayoutData(gd);
+		return tb;
 	}
 	
 	///////////////////////////////////////////////////////////////////
@@ -90,20 +178,35 @@ public class PSResourceView extends ViewPart
 						return;
 					}
 					treeView.setInput(el);//new File(rootDir));
+					addAction.setEnabled(false);
+					removeAction.setEnabled(false);
 				}
 				else if(el.equals(
 						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
 				{
 					treeView.setInput(el);
+					addAction.setEnabled(true);
+					removeAction.setEnabled(true);
 				}
 				else if(el.equals(
 						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
 				{
 					treeView.setInput(el);
+					addAction.setEnabled(true);
+					removeAction.setEnabled(true);
+				}
+				else if(el.equals(
+						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
+				{
+					treeView.setInput(el);
+					addAction.setEnabled(true);
+					removeAction.setEnabled(true);
 				}
 				else
 				{
 					treeView.setInput(null);
+					addAction.setEnabled(false);
+					removeAction.setEnabled(false);
 				}
 			}
 			
@@ -159,7 +262,5 @@ public class PSResourceView extends ViewPart
             }
         }
     }
-
-    
     
 }

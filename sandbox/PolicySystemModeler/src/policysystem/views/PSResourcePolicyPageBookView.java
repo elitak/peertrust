@@ -45,6 +45,8 @@ import org.eclipse.ui.part.PageBookView;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.part.PageBook.PageBookLayout;
 
+import org.eclipse.ui.views.contentoutline.ContentOutline;
+
 
 import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.control.NewProjectDlgEditor;
@@ -59,7 +61,7 @@ import policysystem.model.abtract.PSFilter;
 import policysystem.model.abtract.PSOverrindingRule;
 import policysystem.model.abtract.PSPolicy;
 
-public class ResourcePolicyView extends ViewPart 
+public class PSResourcePolicyPageBookView extends PageBookView 
 				implements ISelectionListener
 {
 	static final public String ID="policysystem.ResourcePolicyView";
@@ -82,10 +84,10 @@ public class ResourcePolicyView extends ViewPart
 	private PSResourcePolicyEditorPage resourcePolicyEditorPage;
 	private PSFilterEditorPage filterEditorPage;
 	
-	public ResourcePolicyView() 
+	public PSResourcePolicyPageBookView() 
 	{
 		super();
-		logger=Logger.getLogger(ResourcePolicyView.class);
+		logger=Logger.getLogger(PSResourcePolicyPageBookView.class);
 	}
 
 	public void createPartControl(Composite parent) 
@@ -420,6 +422,38 @@ public class ResourcePolicyView extends ViewPart
 			
 		};
 	}
+//////////////////////////////////////////////////////////////////////////////
+	
+	protected IPage createDefaultPage(PageBook book) {
+		return createBlankViewPage();
+	}
+
+	protected PageRec doCreatePage(IWorkbenchPart part) 
+	{
+		IPage page=null;
+		ContentOutline co;
+		
+		PageRec rec=new PageRec(part,page);
+		return rec;
+	}
+
+	protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	protected IWorkbenchPart getBootstrapPart() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected boolean isImportant(IWorkbenchPart part) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+///////////////////////////////////////////////////////////////////////////
+	
 	
 }
 

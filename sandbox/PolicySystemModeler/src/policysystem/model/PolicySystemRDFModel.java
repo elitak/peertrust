@@ -1124,16 +1124,31 @@ public class PolicySystemRDFModel
 				return new Vector();
 			}
 		}
-		SimpleSelector sel=
-			new SimpleSelector(res,PROP_HAS_FILTER,(Resource)null);
-		StmtIterator it=rdfModel.listStatements(sel);
+		
 		Vector f=new Vector();
-		ModelObjectWrapper mow;
-		while(it.hasNext())
+		if(res==null)
 		{
-			res=(Resource)it.nextStatement().getObject();
-			mow=createModelObjectWrapper(res,null);
-			f.add(mow);
+			ResIterator rIt= 
+				rdfModel.listSubjectsWithProperty(RDF.type,CLASS_FILTER);
+			ModelObjectWrapper mow;
+			while(rIt.hasNext())
+			{
+				res=rIt.nextResource();
+				mow=createModelObjectWrapper(res,null);
+				f.add(mow);
+			}
+		}
+		else
+		{
+			NodeIterator nIt= 
+				rdfModel.listObjectsOfProperty(res,PROP_HAS_FILTER);
+			ModelObjectWrapper mow;
+			while(nIt.hasNext())
+			{
+				res=(Resource)nIt.nextNode();
+				mow=createModelObjectWrapper(res,resource);
+				f.add(mow);
+			}
 		}
 		return f;		
 	}

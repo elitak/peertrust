@@ -76,6 +76,14 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         		
         		return oRules.toArray();
         	}
+        	else if(
+        			((String)parentElement).equals(
+        				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
+        	{
+        		Vector oRules=modelImpl.getFilters(null);
+        		
+        		return oRules.toArray();
+        	}
         	else
         	{
         			

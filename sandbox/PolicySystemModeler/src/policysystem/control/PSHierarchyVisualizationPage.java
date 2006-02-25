@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  
  */
-package policysystem.views;
+package policysystem.control;
 
 
 import java.awt.BorderLayout;
@@ -98,6 +98,7 @@ import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.model.HierarchyNodeCreationMechanism;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.views.GraphSelectionProvider;
 
 public class PSHierarchyVisualizationPage extends Page implements GraphSelectionListener,
 		KeyListener {

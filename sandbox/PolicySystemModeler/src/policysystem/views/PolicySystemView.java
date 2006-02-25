@@ -49,6 +49,7 @@ public class PolicySystemView extends ViewPart
 	static final public String POLICY_SYSTEM_RES_ASSERTIONS="Assertions";
 	static final public String POLICY_SYSTEM_RES_CONFLICT_RESOLUTION=
 											"Inheritance Conflict Resolition";
+	static final public String POLICY_SYSTEM_FILTERS="Filters";
 	
 	
 	private TreeViewer viewer;
@@ -89,14 +90,16 @@ public class PolicySystemView extends ViewPart
 	/**
 	 * The constructor.
 	 */
-	public PolicySystemView() {
+	public PolicySystemView() 
+	{
 	}
 
 	/**
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
 	 */
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent) 
+	{
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
 		//viewer.setContentProvider(new ViewContentProvider());
@@ -213,7 +216,9 @@ public class PolicySystemView extends ViewPart
 		};
 	}
 
-	private void hookDoubleClickAction() {
+	private void hookDoubleClickAction() 
+	{
+		
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				doubleClickAction.run();
