@@ -584,7 +584,7 @@ public class PolicySystemRDFModel
 			ruleSel=
 				new SimpleSelector(
 					resource,
-					RDF.type,//PROP_IS_PROTECTED_BY,
+					PROP_HAS_OVERRIDING_RULES,//RDF.type,//PROP_IS_PROTECTED_BY,
 					(Resource)null);
 			StmtIterator it=rdfModel.listStatements(ruleSel);
 			Vector resRules=new Vector();
@@ -822,6 +822,8 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		
+		
+		
 		Selector psSel=selector;
 		if(selector==null)
 		{
@@ -844,11 +846,12 @@ public class PolicySystemRDFModel
 		else
 		{
 			logger.warn("No Model entry found for:"+identity);
+			return null;
 		}
 		
 		if(it.hasNext())
 		{
-			logger.error(
+			logger.warn(
 					"Model contents several resources with this identity:"+
 					identity);
 		}
@@ -1189,8 +1192,9 @@ public class PolicySystemRDFModel
 		return completedPath;
 	}
 	
-	private final Vector computePathPolicies(Vector path)
+	public final Vector computePathPolicies(Vector path)
 	{
+		logger.info("getting policies for path:"+path);
 		if(path==null)
 		{
 			return new Vector();
@@ -1204,10 +1208,12 @@ public class PolicySystemRDFModel
 		
 		Vector policies= new Vector();
 		Vector oRules;
+		Vector lPolicies;
 		///add root policies
 		policies.addAll(
 				getLocalPolicies(
 						(PSResource)path.get(0)));
+		logger.info("Policy at 0:"+policies);
 		///follow path; add polcies and do overriding
 		PSResource curRes;
 		for(int i=1;i<=MAX;i++)
@@ -1220,7 +1226,9 @@ public class PolicySystemRDFModel
 					(PSOverrindingRule)it.next();
 				rule.performOverridding(policies);
 			}
-			policies.addAll(getLocalPolicies(curRes));
+			lPolicies=getLocalPolicies(curRes);
+			logger.info("Policy at "+i+" for "+curRes+" "+lPolicies);
+			policies.addAll(lPolicies);
 			
 		}
 		
@@ -1241,6 +1249,7 @@ public class PolicySystemRDFModel
 		for(int i=paths.size()-1;i>=0;i--)
 		{
 			Vector path=(Vector)paths.get(i);
+			
 			policies.addAll(computePathPolicies(path));
 		}
 		
@@ -1261,7 +1270,7 @@ public class PolicySystemRDFModel
 			logger.warn("wrapper resource is null, returning empty vector");
 			return new Vector();
 		}
-		
+		logger.info("Getting Policies for Resource:"+res);
 		NodeIterator it=
 			rdfModel.listObjectsOfProperty(res,PROP_IS_PROTECTED_BY);
 		Resource pol;

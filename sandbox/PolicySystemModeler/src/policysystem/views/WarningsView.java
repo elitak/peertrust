@@ -1,6 +1,7 @@
 package policysystem.views;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -18,6 +19,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import policysystem.model.FileResourceSelector;
 import policysystem.model.PolicySystemRDFModel;
+import policysystem.model.ProjectConfig;
 import policysystem.model.abtract.PSResource;
 
 public class WarningsView 	extends ViewPart 
@@ -69,6 +71,15 @@ public class WarningsView 	extends ViewPart
 															(PSResource)inputElement);
 					return pols.toArray();
 				}
+				else if(inputElement instanceof Vector)
+				{
+					PolicySystemRDFModel rdfModel=
+									PolicySystemRDFModel.getInstance();
+					Vector pols=
+						rdfModel.computePathPolicies(
+										(Vector)inputElement);
+					return pols.toArray();
+				}
 				else
 				{
 					return new Object[0];
@@ -114,14 +125,56 @@ public class WarningsView 	extends ViewPart
 		{
 			if(sel instanceof File)
 			{
-				File file=(File)sel;
-							
-				PSResource res= 
-					PolicySystemRDFModel.getInstance().getResource(
-												file.toString(),
-												true,
-												new FileResourceSelector(file));
-				listViewer.setInput(res);
+				
+				try {
+					File file=(File)sel;
+					String root=
+						ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+					if(root==null)
+					{
+						return;
+					}
+					PolicySystemRDFModel rdfModel=
+						PolicySystemRDFModel.getInstance();
+					File rootFile=new File(root);
+					root=rootFile.getAbsolutePath();					
+					File parentFile=file;
+					logger.info("parentFile:"+parentFile+
+								"\n....root:"+rootFile);
+					Vector path=new Vector();
+					PSResource pRes=null,tmpRes;
+					while(parentFile.getAbsolutePath().startsWith(root))
+					{
+						logger.info("parentFile:"+parentFile+
+									"\nroot+++++:"+rootFile);
+						parentFile=parentFile.getParentFile();
+						
+						tmpRes= 
+							rdfModel.getResource(
+										parentFile.toString(),
+										true,
+										new FileResourceSelector(parentFile));
+						if(pRes!=null)
+						{
+							if(tmpRes!=null)
+							{
+								tmpRes.addHasSuper(pRes);
+							}
+						}
+							pRes=tmpRes;
+							path.add(0,pRes);
+						
+					}
+					logger.info("Pathhh:"+path);
+					PSResource res=
+						rdfModel.getResource(
+								file.toString(),
+								true,
+								new FileResourceSelector(file));
+					listViewer.setInput(path);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			else
 			{
