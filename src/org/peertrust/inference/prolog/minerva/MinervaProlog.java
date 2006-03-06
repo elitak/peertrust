@@ -17,7 +17,7 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.inference;
+package org.peertrust.inference.prolog.minerva;
 
 import java.io.IOException;
 import java.util.Enumeration ;
@@ -26,6 +26,9 @@ import java.util.Vector ;
 import java.applet.Applet;
 import com.ifcomputer.minerva.*;
 
+import org.peertrust.inference.InferenceEngine;
+import org.peertrust.inference.LogicAnswer;
+import org.peertrust.inference.LogicQuery;
 import org.peertrust.inference.PrologTools ;
 
 import java.util.StringTokenizer;
@@ -43,11 +46,11 @@ import org.peertrust.net.Peer;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.13 2006/01/25 16:07:45 dolmedilla Exp $
+ * $Id: MinervaProlog.java,v 1.1 2006/03/06 12:48:00 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2006/01/25 16:07:45 $
+ * Last changed: $Date: 2006/03/06 12:48:00 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -80,7 +83,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.13 2006/01/25 16:07:45 dolmedilla Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.1 2006/03/06 12:48:00 dolmedilla Exp $");
 	}
 		
 	public void setApplet (Applet applet)

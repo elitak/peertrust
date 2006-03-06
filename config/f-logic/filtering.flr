@@ -1,0 +1,78 @@
+
+?- flLoad tools >> tools.
+
+?- flLoad metaTools >> metaTools.
+?- flLoad dataStructures >> dataStructures.
+
+?- flLoad policy >> policy.
+
+element(?Body,?Body) :-
+        var(?Body),
+        !.
+element(?Body,?Body) :-
+        ?Body \= ','(?_,?_).
+element(','(?B1,?B2),?B) :-
+        element(?B1,?B);element(?B2,?B).
+
+extractPredsFromBody(?Body,[]) :-
+	var(?Body),!.
+extractPredsFromBody(?Body,[?Body]) :-
+	?Body \= ','(?_,?_).
+extractPredsFromBody(','(?B1,?B2),?Body) :-
+	extractPredsFromBody(?B1,?Body1),
+	extractPredsFromBody(?B2,?Body2),
+	setAdd(?Body1,?Body2,?Body)@dataStructures.
+
+// relevant
+relevant(?Atom,?Policy,?Module) :-
+	isTerm(?Atom)@metaTools,
+	%log_extra([?Atom, ' is a term'])@tools,!,
+	term2predicate(?Atom,?Atom2,?Module)@metaTools,
+	relevant(?Atom2,?Policy,?Module).
+
+relevant(?Atom,?Policy,?_Module) :-
+	//isPredicate(?Atom)@metaTools,
+	%log_extra(['Facts: ', ?Atom, ' is a predicate'])@tools,
+	?Atom,
+	?Policy = ?Atom.
+
+relevant(?Atom,?Policy,?Module) :-
+	//isPredicate(?Atom)@metaTools,
+	%log_extra(['Rules: ', ?Atom, ' is a predicate'])@tools,
+	clause{?Atom,?Body},
+	( ?Policy = (?Atom :- ?Body)
+    ;
+	element(?Body,?BodyPredicate),
+	relevant(?BodyPredicate,?Policy,?Module)
+    ).
+
+//	term2predicate(?Term,?Policy,?Module),
+//	?Term:rule.
+
+/* relPol(?Atom,?RelevantPolicy,?PolicyModule,?NegModule) :-
+	findall(?L,(relevant(?Atom,?L,?PolicyModule))@ _@,?Policy),
+	setAdd(?Policy,[],?RelevantPolicy)@dataStructures.
+*/
+
+relPol(?Atom,?PolicyModule,?NegModule) :-
+	relevant(?Atom,?L,?PolicyModule),
+	changeModule(?L,?NegModule).
+
+changeModule(?L,?NegModule) :-
+	isRule(?L)@metaTools,
+	%log_debug(['Changing module of rule ', ?L, ' to ', ?NegModule]),
+	changeRuleModule(?L,?NewRule,?NegModule)@metaTools,
+	%log_debug(['Inserting rule ', ?NewRule, ' in ', ?NegModule]),
+	insertrule{?NewRule}.
+
+changeModule(?L,?NegModule) :-
+	isFact(?L)@metaTools,
+	%log_debug(['Changing module of fact ', ?L, ' to ', ?NegModule]),
+	changeModule(?L,?NewFact,?NegModule)@metaTools,
+	%log_debug(['Inserting fact ', ?NewFact, ' in ', ?NegModule]),
+	insert{?NewFact}.
+
+// to-do
+/* prettyPrint([?H|?T]) :-
+	?H = (?Head :- ?Body),
+   %log_info([?Head, ' <- ', ?Body]).*/

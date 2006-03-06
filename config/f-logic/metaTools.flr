@@ -1,0 +1,281 @@
+// metaTools module
+
+?- not(flLoadedModule(tools)),flLoad tools >> tools.
+
+isPredicate(?Predicate) :-
+	nonvar(?Predicate),
+	p2h{?Predicate,?Predicate},
+	?Predicate ~ ?_P @ ?_M.
+
+isTerm(?Term) :-
+	nonvar(?Term),
+	not(isPredicate(?Term)).
+
+isNormalPredicate(?Pred) :-
+	isNormalPredicate(?Pred,?_Mod),
+	not(isScalarMolecule(?Pred)),
+	not(isVectorMolecule(?Pred)).
+
+isNormalPredicate(?Pred,?Mod) :-
+	?Pred ~ ?_Predicate @ ?Mod.
+
+isScalarMolecule(?Molecula) :-
+	isScalarMolecule(?Molecula,?_Mod).
+isScalarMolecule(?Molecula,?Mod) :-
+	?Molecula ~ ?_Obj [?_Method -> ?_Value] @ ?Mod.
+
+isVectorMolecule(?Molecula) :-
+	isVectorMolecula(?Molecula,?_Mod).
+
+isVectorMolecule(?Molecula,?Mod) :-
+	?Molecula ~ ?_Obj [?_Method => ?_Value] @ ?Mod.
+
+isRule(?R) :-
+	?R = ${?_H :- ?_B}.
+
+decomposeRule(?R,?Head,?Body) :-
+	?R = ${?Head :- ?Body}.
+
+isFact(?F) :-
+	not(isRule(?F)).
+
+// max (Number1, Number2, Maximum)
+max(?N1,?N2,?N1) :-
+	?N1 >= ?N2,!.
+max(?_N1,?_N2,?_N2) :- true.
+
+getArity(?Predicate,?Arity) :-
+	isPredicate(?Predicate),
+	functor(?Predicate,?_Functor,?N)@prolog(),
+	?Ar is ?N - 2,
+	max(?Ar,0,?Arity).
+
+getArity(?Term,?Arity) :-
+	isTerm(?Term),
+	functor(?Term,?_Functor,?N)@prolog(),
+	?Ar is ?N - 1,
+	max(?Ar,0,?Arity).
+
+term2predicate(','(?Term1,?Term2),','(?Pred1,?Pred2),?Module) :-
+	!,
+	term2predicate(?Term1,?Pred1,?Module),
+	term2predicate(?Term2,?Pred2,?Module).
+
+// term -> predicate
+term2predicate(?Term,?Predicate,?Module) :-
+	nonvar(?Term),
+	%log_extra(['Converting ',?Term, ' into a predicate with module ', ?Module])@tools,
+	?Predicate @ ?Module ~ ?Term @ ?Module,
+	%log_extra([?Term,' -> ',?Predicate])@tools.
+
+term2predicate(?Term,?Predicate) :-
+	nonvar(?Term),
+	term2predicate(?Term,?Predicate,_@).
+
+// predicate -> term
+
+term2predicate(?Term,?Predicate,?Module) :-
+	nonvar(?Predicate),
+	%log_extra(['Converting ',?Predicate, ' @ ', ?Module, ' into a term'])@tools,
+	(
+	    isNormalPredicate(?Predicate,?Module)
+	;
+	isScalarMolecule(?Predicate,?Module)
+    ;
+	isVectorMolecule(?Predicate,?Module)
+    ),
+	term2predicate(?Term,?Predicate),
+	%log_extra([?Predicate, ' -> ', ?Term])@tools.
+
+term2predicate(?Term,?Predicate) :-
+	nonvar(?Predicate),
+	getArity(?Predicate,?Arity),
+	convertPredicate2Term(?Predicate,?Arity,?Term).
+
+convertPredicate2Term(?Predicate,0,?Pred()) :-
+	?Predicate @ ?Module ~ ?Pred() @?Module.
+
+convertPredicate2Term(?Predicate,1,?Pred(?Arg)) :-
+	?Predicate @ ?Module ~ ?Pred(?Arg) @ ?Module.
+
+convertPredicate2Term(?Predicate,2,?Pred(?Arg1,?Arg2)) :-
+	?Predicate @ ?Module ~ ?Pred(?Arg1,?Arg2) @?Module.
+
+// it doesn't return the whole molecule but only ?Object
+convertPredicate2Term(?Predicate,2,(?Object [ ?Method -> ?Value])) :-
+	?Predicate @ ?Module ~ ?Object [ ?Method -> ?Value] @ ?Module.
+
+// it doesn't return the whole molecule but only ?Object
+convertPredicate2Term(?Predicate,2,(?Object [ ?Method => ?Value])) :-
+	?Predicate @ ?Module ~ ?Object [ ?Method => ?Value] @ ?Module.
+
+convertPredicate2Term(?Predicate,3,?Pred(?Arg1,?Arg2,?Arg3)) :-
+	?Predicate @ ?Module ~ ?Pred(?Arg1,?Arg2,?Arg3) @?Module.
+
+changeModule(','(?Pred1,?Pred2),','(?NewPred1,?NewPred2),?NewMod) :-
+	changeModule(?Pred1,?NewPred1,?NewMod),
+	changeModule(?Pred2,?NewPred2,?NewMod).
+changeModule(?Pred,?NewPred,?NewMod) :-
+	?Pred \= ','(?_,?_),
+	isPredicate(?Pred),
+	changeModule2(?Pred,?NewPred,?NewMod).
+
+changeModule2(?Pred,?NewPred,?NewMod) :-
+	isNormalPredicate(?Pred),
+	term2predicate(?Term,?Pred),
+	term2predicate(?Term,?NewPred,?NewMod).
+
+changeModule2(?Pred,?NewPred,?NewMod) :-
+	?Pred ~ ?Object [ ?Method -> ?Value] @ ?_Mod,
+	?NewPred ~ ?Object [ ?Method -> ?Value] @ ?NewMod.
+
+changeModule2(?Pred,?NewPred,?NewMod) :-
+	?Pred ~ ?Object [ ?Method => ?Value] @ ?_Mod,
+	?NewPred ~ ?Object [ ?Method => ?Value] @ ?NewMod.
+	
+changeRuleModule(?Rule,?NewRule,?NewMod) :-
+	isRule(?Rule),
+	decomposeRule(?Rule,?Head,?Body),
+	changeModule(?Head,?NewHead,?NewMod),
+	changeModule(?Body,?NewBody,?NewMod),
+	?NewRule = ${?NewHead :- ?NewBody}.
+
+/*
+insertInModule(?R,?Mod) :-
+	isRule(?R),
+	insertrule{(?R)@?Mod}.
+insertInModule(?F,?Mod) :-
+	isFact(?F),
+	insert{(?F)@?Mod}.
+*/
+
+list2predicate([],[]) :- !.
+list2predicate([?H|?T],[?H|?PredT]) :-
+	isPredicate(?H),!,
+	list2predicate(?T,?PredT).
+list2predicate([?H|?T],[?PredH|?PredT]) :-
+	//isTerm(?H),!,
+	term2predicate(?H,?PredH),
+	list2predicate(?T,?PredT).
+
+// meta printing
+
+%write(?Term) :-
+	write(?Term)@prolog().
+
+// print
+
+%print(?Var) :-
+	var(?Var),!,
+	%write(?Var).
+
+%print(','(?Pred1,?Pred2)) :-
+	!,
+	%write('('),
+	%print(?Pred1),
+	%write(','),
+	%print(?Pred2),
+	%write(')').
+
+%print(?Rule) :-
+	isRule(?Rule), !,
+	decomposeRule(?Rule,?Head,?Body),
+	%print(?Head),
+	write(' :- '),
+	%print(?Body).
+
+%print(?Term) :-
+	isTerm(?Term),
+	getArity(?Term,?Ar),
+	%printTerm(?Term,?Ar).
+
+%print(?Pred) :-
+	isNormalPredicate(?Pred),
+	getArity(?Pred,?Ar),
+	%printPred(?Pred,?Ar).
+
+%print(?Molec) :-
+	isScalarMolecule(?Molec),
+	?Molec ~ ?Obj [?Method -> ?Value] @ ?Mod,
+	%printMolecule(?Obj,?Method,'->',?Value,?Mod).
+	
+%print(?Molec) :-
+	isVectorMolecule(?Molec),
+	?Molec ~ ?Obj [?Method => ?Value] @ ?Mod,
+	%printMolecule(?Obj,?Method,'=>',?Value,?Mod).
+
+// printTerm
+%printTerm(?Term,0) :-
+	%write(?Term).
+%printTerm(?Term,1) :-
+	?Term = ?F(?Arg),
+	%write(?F),
+	%write('('),
+	%print(?Arg),
+	%write(')').
+%printTerm(?Term,2) :-
+	?Term = ?F(?Arg1,?Arg2),
+	%write(?F),
+	%write('('),
+	%print(?Arg1),
+	%write(','),
+	%print(?Arg2),
+	%write(')').
+
+%printTerm(?Term,3) :-
+	?Term = ?F(?Arg1,?Arg2,?Arg3),
+	%write(?F),
+	%write('('),
+	%print(?Arg1),
+	%write(','),
+	%print(?Arg2),
+	%write(','),
+	%print(?Arg3),
+	%write(')').
+
+// printPred
+%printPred(?Pred,0) :-
+	%write(?Pred).
+%printPred(?Pred,1) :-
+	?Pred ~ ?P (?Arg) @ ?Mod,
+	%write(?P),
+	%write('('),
+	%print(?Arg),
+	%write(') @ '),
+	%print(?Mod).
+
+%printPred(?Pred,2) :-
+	?Pred ~ ?P (?Arg1,?Arg2) @ ?Mod,
+	%write(?P),
+	%write('('),
+	%print(?Arg1),
+	%write(','),
+	%print(?Arg2),
+	%write(') @ '),
+	%print(?Mod).
+
+%printPred(?Pred,3) :-
+	?Pred ~ ?P (?Arg1,?Arg2,?Arg3) @ ?Mod,
+	%write(?P),
+	%write('('),
+	%print(?Arg1),
+	%write(','),
+	%print(?Arg2),
+	%write(','),
+	%print(?Arg3),
+	%write(') @ '),
+	%print(?Mod).
+
+// printMolecule
+
+%printMolecule(?Obj,?Method,?Symbol,?Value,?Mod) :-
+	%print(?Obj),
+	%write('['),
+	%print(?Method),
+	%write(' '),
+	%write(?Symbol),
+	%write(' '),
+	%print(?Value),
+	%write('] @ '),
+	%print(?Mod).
+	

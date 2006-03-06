@@ -22,16 +22,17 @@ package org.peertrust.inference;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.inference.prolog.minerva.MinervaProlog;
 
 /**
  * <p>
  * Tools to work with prolog
  * </p><p>
- * $Id: PrologTools.java,v 1.1 2005/08/06 07:59:50 dolmedilla Exp $
+ * $Id: PrologTools.java,v 1.2 2006/03/06 12:47:57 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/06 07:59:50 $
+ * Last changed: $Date: 2006/03/06 12:47:57 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

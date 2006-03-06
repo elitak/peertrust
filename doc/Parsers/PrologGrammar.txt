@@ -1,0 +1,75 @@
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "%" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+   < UNARYOP: "\\+" >
+}
+
+TOKEN : /* OPERATORS */
+{
+    < CUT :  "!" >
+  | < ADDOP:  "+" | "-" >
+  | < MULOP:  "*" | "/" | "mod" >
+  | < RELOP:  "=" | "is" | "==" | "!=" | ">" | "<" | ">=" | "<=" >
+}
+
+TOKEN : /* numeric constants */
+{
+        < NUMBER:  (<DIGIT>)+ >
+  |     < #DIGIT: ["0" - "9"] >
+  |     < CHAR_LITERAL:  "'" (~["'","\\","\n","\r"])*   "'" >
+}
+
+TOKEN : /* Function names */
+{
+        < VAR:      ( (<HICASE> |  "_" )  ( <ANYCHAR> )* ) >
+  |     < ATOM:     ( <LOCASE>) ( <ANYCHAR> )*  >
+  
+  |     < #ANYCHAR: ( <LOCASE> | <HICASE> | <DIGIT> | "_" ) > 
+  |     < #LOCASE: ["a"-"z"] > 
+  |     < #HICASE: ["A"-"Z"] > 
+} 
+
+
+Program :- (Clause)+ <EOF>
+Clause :- Pred [ ":-" Goals "."
+
+Primitives :- (Primitive)+ <EOF>
+Primitive :- Goal [ ":=" <NUMBER> | ":-" Goals ] "."
+
+Goals :- Goal ( "," Goal)*
+
+Pred :- (<ATOM> | <ADDOP> | <MULOP> | <RELOP> | <UNARYOP> ) [ "(" ArgList ")" ]
+	| <CHAR_LITERAL> [ "(" ArgList ")" ]
+
+ArgList :- Arg ( "," Arg)*
+
+Goal :- "(" GoalList [ "->" GoalList ] [ ";" GoalList] ")"
+	| Arg
+	| "!"
+
+GoalList :- Goal ("," Goal)*
+
+Arg :- Sum ( <RELOP> Sum )*
+
+Sum :- Factor ( <ADDOP> Factor)*
+
+Factor :- Operand ( <MULOP> Operand )*
+
+Operand :- Pred | <VAR> | <NUMBER> | List 
+
+List :- "[" [ ListElems ] "]"
+
+ListElems :- ArgList [ "|" Arg ]

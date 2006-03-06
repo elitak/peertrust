@@ -21,15 +21,15 @@ package test.org.peertrust.meta;
 
 import java.util.Vector;
 
-import org.peertrust.inference.MinervaProlog;
+import org.peertrust.inference.prolog.minerva.MinervaProlog;
 import org.peertrust.meta.Tree;
 
 import junit.framework.*;
 
 /**
- * $Id: TreeTest.java,v 1.3 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: TreeTest.java,v 1.4 2006/03/06 12:48:00 dolmedilla Exp $
  * Date: 05-Dec-2003
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2006/03/06 12:48:00 $
  * by $Author: dolmedilla $
  * @author olmedilla
  */

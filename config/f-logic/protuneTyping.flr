@@ -1,0 +1,28 @@
+
+
+ruleType1::rule.
+ruleType2::rule.
+
+allow(download(?_Resource)):ruleType1.
+
+allow(download(?Resource)) :- public(?Resource),valid(?Resource).
+%public(pdfFile).
+valid(pdfFile).
+
+valid(pdfFile):rule.
+
+element(?Body,?Body) :-
+        var(?Body),
+        !.
+element(?Body,?Body) :-
+        ?Body \= ','(?_,?_).
+element(','(?B1,?B2),?B) :-
+        element(?B1,?B);element(?B2,?B).
+
+//policy [
+//         explanation => string,
+//	 ontology    => String,
+//	 predicate   => String,
+//	 sensitivity => String,
+//	 type        => String
+//].

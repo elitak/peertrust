@@ -1,0 +1,81 @@
+
+decision::predicate.
+abbreviation::predicate.
+constraint::predicate.
+state_predicate::predicate.
+provisional_predicate::predicate.
+
+predicate[ type *=> predicate ].
+
+decision::predicate [ type => symbol ].
+
+allow(browse(index)) :- true.
+
+allow(download(?Resource)) :-
+	public(?Resource).
+
+allow(download(?Resource)) :- 
+	authenticated(?User),
+	has_subscription(?User,?Subscription),
+	available_for(?Resource,?Subscription).
+
+allow(download(?Resource)) :-
+	authenticated(?User),
+	paid(?User,?Resource).
+
+allow(comment(?X)) :-
+	logged(comment(?X)).
+
+authenticated(?User) :-
+	id(?Credential),
+	?Credential.name = ?User,
+	?Credential.public_key = ?K,
+	challenge(?K).
+
+authenticated(?User) :-
+	declaration([ username=?User, password=?P ]),
+	passwd(?User,?P).
+
+authenticated(?_User) :-
+	execute('http://lol.com/register.php').
+
+id(?Cred) :-
+	valid_credential(?Cred),
+	?Cred.type = ?T,
+	?Cred.issuer = ?CA,
+	isa(?T,id),
+	trusted_for(?CA,?T).
+
+isa(?T,?T).
+isa(ssn,id).
+isa(passport,id).
+isa(driving_license,id).
+
+paid(?_Usr,?Resource) :-
+	price(?Resource,?Price),
+	fastpay(?Resource,?Price).
+paid(?_Usr,?Resource) :-
+	price(?Resource,?Price),
+	credit_card_payment(?Resource,?Price).
+
+fastpay(?Resource,?Price) :-
+	valid_credential(?FPC),
+	?FPC.type = fastpay,
+	declaration([ pin=?XXXX ]),
+	charged(?Resource,?Price,?FPC,?XXXX).
+
+credit_card_payment(?Resource,?Price) :-
+	valid_credential(?CC),
+	?CC.type = credit_card,
+	?CC.owner = ?Usr,
+	authenticated(?Usr),
+	charged(?Resource,?Price,?CC,na).
+
+valid_credential(?C) :-
+	credential(?C),
+	?C.issuer = ?CA,
+	public_key(?CA,?K),
+	verify_signature(?C,?K).
+
+// METAPOLICIES
+

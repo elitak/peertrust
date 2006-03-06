@@ -1,0 +1,80 @@
+
+load :- consult('basics.P'),consult('tools.P'),consult('interpreter.P'),asserta(peerName(alice)),asserta(debug_extra).
+
+start_test (X,R) :-
+	log_extra(['Test ',X]),
+	test(X,R),
+	log_extra(R),
+	solution(X,R),
+	log_extra(['Test ',X,' SUCCESSFUL']).
+start_test2 (X,R) :-
+	log_extra(['Test ',X]),
+	test(X,R),
+	log_extra(R).
+
+
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+% example(access(url)).
+
+% access(Url) $ Requester :- validClient(Requester,Url).
+rule('$'(access(Url), Requester),[],[validClient(Requester,Url)]).
+
+rule(validClient(alice,result1), [],[]).
+rule(validClient(alice,result2), [],[]).
+
+test('1a',Result) :-
+	processTree(tree(validClient(alice,result1),[query(validClient(alice,result1),no)],user),Result).
+solution('1a',[resultTree(validClient(alice,result1),[],['@'(rule(validClient(alice,result1),[],[]),alice)],[],nil,nil)]).
+
+test('1b',Result) :-
+	processTree(tree(validClient(alice,X),[query(validClient(alice,X),no)],user),Result).
+solution('1b',[resultTree(validClient(alice,result1),[],['@'(rule(validClient(alice,result1),[],[]),alice)],[],nil,nil),resultTree(validClient(alice,result2),[],['@'(rule(validClient(alice,result2),[],[]),alice)],[],nil,nil)]).
+
+test('1c',Result) :-
+	processTree(tree(access(Url),[query(access(Url),no)],alice),Result).
+solution('1c',[resultTree(access(result1),[],['@'(rule('$'(access(result1),alice),[],[validClient(alice,result1)]),alice),'@'(rule(validClient(alice,result1),[],[]),alice)],[],nil,nil),resultTree(access(result2),[],['@'(rule('$'(access(result2),alice),[],[validClient(alice,result2)]),alice),'@'(rule(validClient(alice,result2),[],[]),alice)],[],nil,nil)]).
+		      
+% ---------------------------------------
+% query, rules and facts for example 7
+
+% alice has an employee ID
+
+% employee(alice,microsoft) @ microsoft signedBy microsoft
+signed(rule('@'(employee(alice, microsoft), microsoft), [], []),
+            microsoft, signature(microsoft)).
+
+% ---------------------------------------
+% Semantic Web paper example
+
+% drivingLicense(alice) @ caState signedBy caState
+signed(rule('@'(drivingLicense(alice), caState), [], []),
+            caState, signature(caState)).
+
+% policeOfficer(alice) @ caStatePolice $ Requester:-
+%          bbbMember(Requester) @ bbb @ Requester
+%          signedBy caStatePolice
+signed(rule('@'(policeOfficer(alice), caStatePolice), [], []),
+            caStatePolice, signature(caStatePolice)).
+policy('$'('@'(policeOfficer(alice), caStatepolice), Requester),
+            ['@'('@'(bbbMember(Requester), bbb), Requester)]).
+
+
+%---------------------------------------
+% Pharmaceutical example
+
+%isPharmacy(alice)@fda :-
+%          isPharmacy(alice)@massBP
+%          signedBy fda
+signed( rule( '@'(isPharmacy(alice),fda), [], [] ), fda, signature( fda ) ).
+policy( '@'(isPharmacy(X),fda), ['@'(isPharmacy(X),massBP)] ).
+
+% isPharmacy(alice)@massBP $ Requester :-
+%          isPharmaceuticalCo(Requester)@fda@Requester
+%          signedBy massBP
+signed( rule( '$'('@'(isPharmacy(alice),massBP),_Requester), [], [] ), massBP, signature( massBP ) ).
+
+policy( '$'('@'(isPharmacy(alice),massBP),Requester), ['@'('@'(isPharmaceuticalCo(Requester),fda),Requester)] ).
+

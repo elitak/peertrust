@@ -1,0 +1,4 @@
+
+?- flLoad tools >> tools.
+
+test(?X) :- isTerm(?X)@tools.

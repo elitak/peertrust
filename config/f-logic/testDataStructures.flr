@@ -1,0 +1,36 @@
+
+?- flLoad dataStructures >> dataStructures.
+
+wrongSet([a,b,c,a,g]).
+wrongSet([ (a(?X) :- b(?X)), (c :- n), (s(?Z) :- r(?Z),g(?Z)), (a(?G) :- b(?G)), (d :- t(?_U))]).
+
+goodSet([a,b,c,d,e]).
+goodSet([ (a(?X) :- b(?X)), (c :- n), (s(?Z) :- r(?Z),g(?Z)), (a(?G) :- c(?G)), (d :- t(?_U))]).
+
+totalWrongSets(?N) :-
+	findall(?X,wrongSet(?X)@ _@,?L),
+        length(?L,?N)@prolog(basics).
+
+totalGoodSets(?N) :-
+	findall(?X,goodSet(?X)@ _@,?L),
+        length(?L,?N)@prolog(basics).
+
+totalSets(?N) :-
+	totalWrongSets(?N1),
+	totalGoodSets(?N2),
+	?N is ?N1 + ?N2.
+
+testA(?X) :- wrongSet(?X),not(isSet(?X)@dataStructures).
+testA(?X) :- goodSet(?X),isSet(?X)@dataStructures.
+
+// testing the isSet predicate
+test1 :- test1(?_N,?_L).
+test1(?N,?L) :- totalSets(?N),findall(?X, (testA(?X)@ _@),?L),length(?L,?N)@prolog(basics).
+
+// testing the setUnion predicate
+test2 :- test2(?_X,?_Y,?_Z).
+test2(?X,?Y,?Z) :- goodSet(?X),goodSet(?Y),setUnion(?X,?Y,?Z)@dataStructures,isSet(?Z)@dataStructures.
+
+// testing the setAdd predicate
+test3 :- test3(?_X,?_Y,?_Z).
+test3(?X,?Y,?Z) :- wrongSet(?X),goodSet(?Y),setAdd(?X,?Y,?Z)@dataStructures,isSet(?Z)@dataStructures.

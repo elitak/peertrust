@@ -1,0 +1,35 @@
+
+isList([]).
+isList([?_H|?_T]).
+
+// SETS
+
+isSet([]).
+isSet([?H|?T]) :-
+	not(setMember(?H,?T)),
+	isSet(?T).
+
+setMember(?Elem,[?Elem|?_T]).
+setMember(?Elem,[?_H|?T]) :-
+	setMember(?Elem,?T).
+
+// adding elements
+setAdd(?Elem,?Set,?Set) :-
+	not(isList(?Elem)),
+	setMember(?Elem,?Set),!.
+setAdd(?Elem,?Set,[?Elem|?Set]) :-
+	not(isList(?Elem)).
+
+// adding lists of elements
+setAdd([],?Set,?Set) :- !.
+setAdd([?H|?T],?Set,?NewSet) :-
+	setAdd(?H,?Set,?Set2),
+	setAdd(?T,?Set2,?NewSet).
+
+setUnion(?Set1,[],?Set1).
+setUnion(?Set1,[?H|?T],?NewSet) :-
+	setMember(?H,?Set1),!,
+	setUnion(?Set1,?T,?NewSet).
+setUnion(?Set1,[?H|?T],[?H|?NewSet]) :-
+	setUnion(?Set1,?T,?NewSet).
+

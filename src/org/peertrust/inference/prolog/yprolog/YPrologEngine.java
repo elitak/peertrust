@@ -1,6 +1,26 @@
+/**
+ * Copyright 2004
+ * 
+ * This file is part of Peertrust.
+ * 
+ * Peertrust is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Peertrust is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Peertrust; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 package org.peertrust.inference.prolog.yprolog;
 
 import java.applet.Applet;
+import java.io.File;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -15,6 +35,19 @@ import org.peertrust.meta.Proof;
 import org.peertrust.meta.Tree;
 import org.peertrust.net.Peer;
 
+/**
+ * <p>
+ * 
+ * </p><p>
+ * $Id: YPrologEngine.java,v 1.2 2006/03/06 12:47:54 dolmedilla Exp $
+ * <br/>
+ * Date: 19-Jan-2006
+ * <br/>
+ * Last changed: $Date: 2006/03/06 12:47:54 $
+ * by $Author: dolmedilla $
+ * </p>
+ * @author Daniel Olmedilla
+ */
 public class YPrologEngine implements InferenceEngine {
 
 	private static Logger log = Logger.getLogger(YPrologEngine.class);
@@ -34,7 +67,7 @@ public class YPrologEngine implements InferenceEngine {
 	public YPrologEngine ()
 	{
 		super() ;
-		log.debug("$Id: YPrologEngine.java,v 1.1 2006/01/25 16:07:45 dolmedilla Exp $");
+		log.debug("$Id: YPrologEngine.java,v 1.2 2006/03/06 12:47:54 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -62,7 +95,7 @@ public class YPrologEngine implements InferenceEngine {
 				log.debug("File " + tmp + " loaded") ;
 			}
 		}
-		if (_rdfFiles == null)
+		if (_rdfFiles != null)
 			log.warn("PeerTrust using YProlog does not yet support RDF files") ;
 	}
 
@@ -231,6 +264,9 @@ public class YPrologEngine implements InferenceEngine {
 	}
 	
 	public void consultFile(String fileName) throws InferenceEngineException {
+		File f = new File (fileName) ;
+		if (! f.exists())
+			throw new InferenceEngineException("File " + fileName + " does not exist in " + System.getProperty("user.dir")) ;
 		_engine.consultFile(fileName) ;
 	}
 

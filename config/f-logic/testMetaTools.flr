@@ -1,0 +1,37 @@
+
+?- flLoad metaTools >> metaTools.
+
+terms(allow(arg1)).
+terms(allow(arg1,arg2)).
+terms(allow(arg1,arg2,arg3)).
+
+predicates(${allow}).
+predicates(${allow()}).
+predicates(${allow(arg1)}).
+predicates(${allow(arg1,arg2)}).
+predicates(${allow(arg1,arg2,arg3)}).
+
+totalTerms(?N) :-
+	findall(?X,terms(?X)@ _@,?L),
+	length(?L,?N)@prolog(basics).
+
+totalPredicates(?N) :-
+	findall(?X,predicates(?X)@ _@,?L),
+	length(?L,?N)@prolog(basics).
+
+total(?N) :-
+	totalTerms(?N1),
+	totalPredicates(?N2),
+	?N is ?N1 + ?N2.
+
+test1(?X) :- terms(?X),isTerm(?X)@metaTools.
+test1(?X) :- predicates(?X), isPredicate(?X)@metaTools.
+
+test2(?X) :- terms(?X),(term2predicate(?X,?Y),isPredicate(?Y))@metaTools.
+test2(?X) :- predicates(?X), (term2predicate(?Y,?X),isTerm(?Y))@metaTools.
+
+test3(?X) :- terms(?X),(term2predicate(?X,?Y,mod1),isPredicate(?Y))@metaTools,?Y ~ ?_Z @ mod1.
+test3(?X) :- predicates(?X), (term2predicate(?Y,?X,_@),isTerm(?Y))@metaTools.
+
+test :- test(?_N,?_L).
+test(?N,?L) :- total(?N),findall(?X, (test1(?X)@ _@,test2(?X)@ _@),?L),length(?L,?N)@prolog(basics).

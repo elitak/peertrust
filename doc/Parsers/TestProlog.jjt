@@ -1,0 +1,238 @@
+/**
+ * JavaCC file
+ */
+ 
+options {
+	JDK_VERSION = "1.5";
+	STATIC = false ;
+	LOOKAHEAD = 2 ;
+	NODE_SCOPE_HOOK = true;
+	DEBUG_PARSER = true ;
+	DEBUG_LOOKAHEAD = true ;
+	DEBUG_TOKEN_MANAGER = true ;
+}
+
+PARSER_BEGIN(PrologParser)
+
+package org.peertrust.inference.prolog.parser; 
+
+import java.io.* ;
+
+public class PrologParser
+{
+	public static void main(String args[]) throws ParseException, TokenMgrError
+	{
+		PrologParser parser = new PrologParser(System.in);
+		SimpleNode node = parser.parseGoal() ;
+		node.dump("") ;
+	}
+	
+	public static SimpleNode parseGoal(String goal) throws ParseException
+	{
+		StringReader sr = new StringReader( goal );
+		Reader r = new BufferedReader( sr );
+		PrologParser parser = new PrologParser ( r );	
+		return parser.parseGoal() ;
+	}
+	
+	void jjtreeOpenNodeScope( Node node )
+	{
+//		((SimpleNode)node).first_token = getToken(1);
+	}
+	
+	void jjtreeCloseNodeScope( Node node )
+	{
+//		((SimpleNode)node).last_token = getToken(0);
+	}
+}
+
+PARSER_END(PrologParser)
+
+SKIP: {" " | "\t" | "\n" | "\r" | "\r\n" }
+
+// General Prolog Tokens
+TOKEN: {
+	
+	< LOWERLETTER: ["a"-"z"] >
+|	< UPPERLETTER: ["A"-"Z"] >
+|	< DIGIT: ["0"-"9"] >
+
+|	< EXTRACHARACTER: "$" | "@" >
+
+|	< SEP: ":-" | "<-" >
+|	< UNARYOP: "\\+" >
+|	< BINARYOP: "+" | "-" | "*" | "/" | "is" >
+
+}
+
+// S :- Goal <EOF>
+SimpleNode parseGoal():
+{}
+{
+	Goal() <EOF>
+	{ return jjtThis; }
+}
+
+// Goal :- [SEP] Literal
+void Goal():
+{}
+{
+	[ <SEP> ] Literal()
+}
+
+// Literal :- [UNARYOP] Atom
+void Literal():
+{}
+{
+	[ <UNARYOP> ] Atom()
+}
+
+// Atom :- Predicate() | Predicate "(" TermList ")"
+void Atom():
+{}
+{
+	Predicate() [ "(" TermList() ")" ]
+}
+
+// TermList :- Term [TermList]
+void TermList():
+{}
+{
+	Term() [ "," TermList() ]	
+}
+
+// ArgList :- Argument | Argument "," ArgList
+// Term :- Variable | Constant | CompoundTerm | List
+void Term():
+{}
+{
+	Variable() | Constant() | CompoundTerm() | List()
+}
+
+// CompoundTerm :- Functor "(" [TermList] ")"
+void CompoundTerm():
+{}
+{
+	Functor() "(" [ TermList() ] ")"
+}
+
+// List :- "[" [TermList] "]"
+void List():
+{}
+{
+	"[" [ TermList() ] "]"
+}
+
+
+// ELEMENTS
+
+// Letter :- (LOWERLETTER | UPPERLETTER)
+void Letter():
+{}
+{
+	( <LOWERLETTER> | <UPPERLETTER> )
+}
+
+// Letters :- (LOWERLETTER | UPPERLETTER)+
+void Letters():
+{}
+{
+	( Letter() )+	
+}
+
+// Character :- Letter | DIGIT | "_"
+void Character():
+{}
+{
+	Letter() | <DIGIT> | "_"	
+}
+
+// Characters :- (Character)+
+void Characters():
+{}
+{
+	( Character() )+
+}
+
+// Digits :- (Digit)+
+void Digits():
+{}
+{
+	( <DIGIT> )+	
+}
+
+// Number :- Digits | Digits "." Digits // | Digits "." | "." Digits
+void Number():
+{}
+{
+	Digits() | Digits() "." Digits() // | Digits() "." | "." Digits()
+}
+
+// Constant: LOWERLETTER CHARACTERS | "'" CHARACTERS "'" | "\"" CHARACTERS "\""
+void Constant():
+{}
+{
+	<LOWERLETTER> |	<LOWERLETTER> Characters() | "'" Characters() "'" | "\"" Characters() "\""
+}
+
+// Variable :- ( UPPERLETTER | "_" ) Characters
+void Variable():
+{}
+{
+	( <UPPERLETTER> | "_" ) | ( <UPPERLETTER> | "_" ) Characters()
+}
+
+// Functor :- LOWERLETTER (Letters)? [ (DIGITS)? [ (Letters)? ] ]
+void Functor():
+{}
+{
+	<LOWERLETTER> 
+	|
+	<LOWERLETTER> Letters() 
+	|
+	<LOWERLETTER> Letters() Digits()
+	|
+	<LOWERLETTER> Letters() Digits()Letters()
+	|
+	<EXTRACHARACTER>
+}
+
+// Predicate := Functor
+void Predicate():
+{}
+{
+	Functor()
+}
+
+/*
+Program ::= Clause* Query*
+Clause ::= Head [ :- Body ] .
+Head ::= Atom [ ( Term [,Term]* ) ] 
+Body ::= G [, G]*
+G ::= Atom [ ( [ Arg | Term ]* ) ] 
+Term ::= Arg | Atom [ ( Term ) ] 
+Query ::= ?- Body .
+*/
+
+/*
+|	< GOAL :- <SEP> <LITERAL> | <LITERAL> >
+
+|	< PROGRAM :- <CLAUSELIST> >
+|	< STATEMENTLIST :- <STATEMENT> | <STATEMENT> "." <STATEMENTLIST> >
+|	< STATEMENT :- <RULE> | <FACT> >
+|	< RULE :- <HEAD> <SEP> <BODY> >
+|	< FACT :- <LITERAL> >
+|	< HEAD :- <LITERAL> >
+|	< BODY :- <LITERAL> | <EXPRESSION> | [<LITERAL> | <EXPRESSION>] "," <BODY> >
+|	< LITERAL :- <FUNCTOR> "(" <ARGLIST> ")" >
+|	< EXPRESSION :- <LITERAL> <BINARYOP> <LITERAL> | <UNARYOP> <LITERAL> >
+|	< ARGLIST :- @ | <ARG> | <ARG> "," <ARG> >
+|	< ARG :- <PREDICATE> | <TERM> | <VARIABLE> >
+|	< TERM :- <NUMBER> | <SYMBOL> | <QUOTE> | <LIST> >
+|	< SYMBOL :- <LOWERLETTER> [<LETTER>,<DIGITS>,"_"]* >
+|	< VARIABLE :- [<UPPERLETTER>,"_"] [<LETTER>,<DIGITS>,"_"]* >
+|	< NUMBER: <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> >
+*/
+
+
+

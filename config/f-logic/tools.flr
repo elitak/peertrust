@@ -1,0 +1,111 @@
+
+element(?Body,?Body) :-
+        var(?Body),
+        !.
+element(?Body,?Body) :-
+        ?Body \= ','(?_,?_).
+element(','(?B1,?B2),?B) :-
+        element(?B1,?B);element(?B2,?B).
+
+
+debug_extra.
+
+set_debug_on :- insert{debug_on}.
+
+set_debug_extra :- insert{debug_extra}.
+// tools module
+
+?- not(flLoadedModule(metaTools)),flLoad metaTools >> metaTools.
+
+/*
+init :- 
+    retractall(writId(_)),
+    asserta(writId(0)).
+
+writeId(?NewId) :-
+     retract(writId(?Id)),
+     ?NewId is ?Id+1,
+     asserta(writId(?NewId)).
+*/
+
+// log_info
+
+%log_info(?List) :-
+	%writelist(?List).
+
+// log_debug
+
+%log_debug(?List) :-
+	( debug_on ; debug_extra ),!,
+	%writelist(?List).
+%log_debug(?_List) :- true.
+
+// log_extra
+
+%log_extra(?List) :-
+	debug_extra,!,
+	%writelist(?List).
+%log_extra(?_List):- true.
+
+// log_error
+%log_error(?List) :-
+	%writelist(['Error: '|?List]).
+
+%write(?L) :-
+	write(?L)@prolog().
+
+%writelist(?N, ?List) :-
+//    writeId(?Id),
+//    numBlanks(?Id, ?L),
+//    writeblank(?L),
+//    write(?Id),
+//    write(' '), %% or tab(1)
+	%writeblank(?N),
+	%writelist(?List).
+
+// writelist(?List)
+
+%writelist([]) :-
+	nl@prolog().
+%writelist([?First | ?Rest]) :-
+	%print(?First)@metaTools,
+//	write(' - ')@prolog(),
+//	write(?Rest)@prolog(),
+//	nl@prolog(),
+	%writelist(?Rest).
+
+/*
+numBlanks(?Id,4) :-
+    ?Id < 10,!.
+numBlanks(?Id,3) :-
+    ?Id < 100,!.
+numBlanks(?Id,2) :-
+    ?Id < 1000,!.
+numBlanks(?_Id,1).
+*/
+
+%writecommalist(?N, ?L) :-
+//    writeId(?Id),
+//    numBlanks(?Id,?X),
+//    writeblank(?X),
+//    write(?Id),
+//    write(' '),
+	%writeblank(?N),
+	%writecommalist(?L).
+
+%writecommalist([?Single]) :-
+	!,
+	%print(?Single)@metaTools,
+	nl@prolog().
+%writecommalist([]) :-
+	nl@prolog().
+%writecommalist([?First, ?Second | ?Rest]) :-
+	%print(?First)@metaTools,
+	write(', ')@prolog(),
+	%writecommalist([?Second | ?Rest]).
+
+%writeblank(0) :- !.
+%writeblank(?N) :-
+	write(' ')@prolog(),
+	?N1 is ?N - 1,
+	%writeblank(?N1).

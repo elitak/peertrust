@@ -1,0 +1,29 @@
+abc() @ s $ f.
+abc()$f.
+abc()@s.
+abc()@s@www@2$f.
+p:(X,Z,a,T, [1,2,3], d) <- .
+p([1,[f, [r], 6],3]) <- .
+p([1,[f, f, 6],3]) signedBy[dfd] f()@34, g()$df, h() | d([d]), f().
+h() <- signedBy[someBody] sg() | sb(54).
+head(X).
+head(Y)  @ i  $r .
+head(Z)  @ I  $R <-.
+head(X) <-  lb(), h(Y),  n(),      s(Y, [1,2,3]).
+h()@I$R<-g(), g2(a, [b, c])|  d(f, e).
+h(x) signedBy[123].
+h(x)  <- signedBy[321].
+h(z)  <- signedBy[3] body()  @i$r.
+h(Z)  <- signedBy[s] sG()  @i$r |sB().
+h(Z_S)  <- signedBy[s_d_w] sG()  @i$r |sB().
+h()<-lb(12, fg) signedBy[someBody] sg() | sb(54)  .
+h()<-lb(12, fg) | signedBy[someBody] sg() | sb(54)  .
+p(X,Z,a,T)<-z(X,Z,a), s(Y,[1,2,3]) signedBy [t] f(X, T) | g(X, Z, T).
+validClient(alice).
+validClient(alice) @ issuer $ req.
+discountEnroll(Course, Requester) $ Requester <- eligibleForDiscount(Requester, Course).
+h() @I $R <- g(), g2(a, [b, c]) | d(f, e).
+h(x) signedBy[123].
+h(Z) <- signedBy[s] sG() @i $r | sB().
+h() <- lb(12, fg) signedBy[someBody] sg() | sb(54).
+p(X,Z,a,T) <- z(X,Z,a), s(Y,[1,2,3]) signedBy [t] f(X, T) | g(X, Z, T).

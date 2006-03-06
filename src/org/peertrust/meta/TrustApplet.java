@@ -28,6 +28,7 @@ import javax.swing.*;
 import org.apache.log4j.Logger;
 import org.peertrust.*;
 import org.peertrust.inference.*;
+import org.peertrust.inference.prolog.minerva.MinervaProlog;
 import org.peertrust.net.*;
 import org.peertrust.strategy.*;
 
@@ -37,11 +38,11 @@ import net.jxta.edutella.util.Configurator ;
  * <p>
  * 
  * </p><p>
- * $Id: TrustApplet.java,v 1.4 2005/05/22 17:56:49 dolmedilla Exp $
+ * $Id: TrustApplet.java,v 1.5 2006/03/06 12:47:59 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:49 $
+ * Last changed: $Date: 2006/03/06 12:47:59 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 

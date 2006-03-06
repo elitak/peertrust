@@ -17,43 +17,43 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.peertrust.inference.prolog.parser;
+package test.org.peertrust;
 
-import org.apache.log4j.Logger;
+import junit.framework.TestSuite;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PrologTerm.java,v 1.2 2006/03/06 12:47:57 dolmedilla Exp $
+ * $Id: AllTests.java,v 1.1 2006/03/06 12:47:56 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/03/06 12:47:57 $
+ * Last changed: $Date: 2006/03/06 12:47:56 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
  */
-public abstract class PrologTerm {
+public class AllTests extends TestSuite {
+	// this has to be the path to the local source directory
+	public static String baseUrl = "file:./src/";
 
-	private static Logger log = Logger.getLogger(PrologTerm.class);
-	
-	String _text ;
-	
-	public PrologTerm (String text)
-	{
-		super() ;
-		log.debug("$Id: PrologTerm.java,v 1.2 2006/03/06 12:47:57 dolmedilla Exp $");
-		_text = text ;
+	public AllTests(){
+		super();
+		init();
 	}
-	
-	public String getText()
-	{
-		return _text ;
+
+	public AllTests(String name) {
+		super(name);
+		init();
 	}
-	
-	public String toString()
-	{
-		return _text ;
+
+	public void init() {
+		addTest(new test.org.peertrust.inference.prolog.yprolog.AllTests());
+	}
+
+	public static void main(String args[]) {
+		junit.textui.TestRunner.run(new AllTests("All PeerTrust Tests"));
 	}
 }
+

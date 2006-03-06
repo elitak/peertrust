@@ -71,8 +71,10 @@
 	Event Listener
 	====================================================================== -->
 	<pt:EventListener rdf:about="#PTEventListener">
-		<pt:javaClass>org.peertrust.tnviz.app.TNVizListener</pt:javaClass>
+		<pt:javaClass>org.peertrust.event.SimplePeer</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/>
+		<!-- <pt:javaClass>org.peertrust.tnviz.app.TNVizListener</pt:javaClass>
+		<pt:eventDispatcher rdf:resource="#PTEventDispatcher"/> -->
 	</pt:EventListener>
 	
 	<!-- ======================================================================

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Protune/PeerTrust Editor Plug-in
+Bundle-SymbolicName: de.l3s.ppt; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: de.l3s.ppt.rcp.PptPlugin
+Bundle-Vendor: Bogdan Vlasenko for KBS
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.console
+Eclipse-AutoStart: true

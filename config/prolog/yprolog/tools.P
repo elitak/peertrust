@@ -1,0 +1,148 @@
+% :- dynamic(debug_on/0).
+% :- dynamic(debug_extra/0).
+
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+% :- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+% :- op(601, yfx, $).
+
+% ---------------------------------------
+
+init :- 
+    retractall(writId/1),
+    asserta(writId(0)).
+
+writeId(NewId) :-
+     retract(writId(Id)),
+     NewId is Id+1,
+     asserta(writId(NewId)).
+
+%:- dynamic(markSignal/0).
+%mark :- \+(markSignal),!,asserta(markSignal).
+%mark.
+%checkMark :- \+(markSignal).
+%demark :- retractall(markSignal).
+
+% :- dynamic(markSignal/1).
+mark(X) :- \+(markSignal(X)),!,asserta(markSignal(X)).
+mark(_).
+checkMark(X) :- \+(markSignal(X)).
+demark(X) :- retractall(markSignal/1).
+
+write_peer_KBs([]).
+write_peer_KBs([Peer | Peers]) :-
+    writelist([Peer, ' KB: ']),
+    write_rules(Peer),
+    write_signed_rules(Peer),
+    write_peer_KBs(Peers).
+
+write_rules(Peer) :-
+    rule(Goal, Guard, Body),
+    peerName(Peer),
+    writelist(2, [Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    fail.
+write_rules(_).
+
+write_signed_rules(_) :-
+    signed(rule(Goal, Guard, Body), _, Credential),
+    writelist([Goal, ' <-']),
+    write_guard(Guard),
+    write_body(Body),
+    write_credential(Credential),
+    fail.
+write_signed_rules(_).
+
+write_guard([]) :- !.
+write_guard(Guard) :-
+    write('    policy:     '),
+    writecommalist(Guard).
+write_body([]) :- !.
+write_body(Body) :-
+    write('    body:       '),
+    writecommalist(Body).
+write_credential(Credential) :-
+    write('    credential: '),
+    writecommalist(Credential).
+
+%% writelist_debug(List)
+
+%writelist_debug(List) :-
+%    debug_on,
+%    writelist(List),!.
+%writelist_debug(_).
+
+%% log_info == writelist
+
+log_info(List) :-
+    writelist(List).
+
+%% log_debug == writelist_debug
+
+log_debug(List) :-
+	( debug_on ; debug_extra ),!,
+	writelist(List).
+log_debug(_List).
+
+%% log_extra == writelist_
+
+log_extra(List) :-
+	debug_extra,!,
+	writelist(List).
+log_extra(_List).
+
+log_error(List) :-
+    writelist(['Error: '|List]).
+
+writelist(N, List) :-
+    writeId(Id),
+    numBlanks(Id, L),
+    writeblank(L),
+    write(Id),
+    write(' '), %% or tab(1)
+    writeblank(N),
+    writelist(List).
+
+%% writelist(List)
+
+writelist([]) :-
+    nl.
+writelist([First | Rest]) :-
+    write(First),
+    writelist(Rest).
+
+numBlanks(Id,4) :-
+    Id < 10,!.
+numBlanks(Id,3) :-
+    Id < 100,!.
+numBlanks(Id,2) :-
+    Id < 1000,!.
+numBlanks(_,1).
+
+writecommalist(N, L) :-
+    writeId(Id),
+    numBlanks(Id, X),
+    writeblank(X),
+    write(Id),
+    write(' '),
+    writeblank(N),
+    writecommalist(L).
+writecommalist([Single]) :-
+    !, write(Single),
+    nl.
+writecommalist([]) :-
+    nl.
+writecommalist([First, Second | Rest]) :-
+    write(First),
+    write(', '),
+    writecommalist([Second | Rest]).
+
+writeblank(0) :- !.
+writeblank(N) :-
+    write(' '),
+    N1 is N - 1,
+    writeblank(N1).

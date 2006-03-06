@@ -1,0 +1,361 @@
+
+% only for XSB prolog
+% :- [basics].
+
+% general functions needed
+% ---------------------------------------
+% :- dynamic(prevId/1).
+% :- dynamic(writId/1).
+
+% :- dynamic(signed/3).
+% :- dynamic(policy/2).
+% :- dynamic(internal/3).
+% :- dynamic(rule/3).
+% :- dynamic(peerName/1).
+
+% :- dynamic(runningpeer/2).
+% :- dynamic(maxdepth/1).
+
+% :- include('tools.min').
+
+% load the properties of the current peer
+% :- include('local_properties.min').
+
+% begin meta meta interpreter
+% ---------------------------------------
+
+% tree(Id, Goal, Subqueries, Proof, Status, (Requester,QueryId)) -> Status = ready, waiting or failed
+%         Ready: it is in the queue and it has not been processed yet
+%	  Waiting: it has been processed but it is waiting from an answer from other peer
+%	  Failed: it is in the queue but the query has failed in another peer
+% query(Query, Internal) -> Internal = yes, no
+     
+% we use two special infix operators
+% infix operator definition for @ (remote predicate call)
+% :- op(600, yfx, @).
+
+% infix operator definition for $ (operator to express calling peer)
+%:- op(601, xfy, $).
+% :- op(601, yfx, $).
+
+%%% --------------
+%%% EVALUATION
+%%% --------------
+
+% META-INTERPRETER
+
+% processTree(Goal,ResultList)
+% processTree(tree(
+processTree(tree(_Goal,_Resolvent,_Requester),[]) :-
+	\+(peerName(_Peer)),!,
+	log_error(['PeerName is not set']).
+
+% -- Version with findall - Results returned together
+%processTree(tree(Goal,Resolvent,Requester),Results) :-
+%	log_info(['Starting evaluation']),
+%	findall(resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator),
+%		evaluate(tree(Goal,Resolvent,Requester),resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator)),
+%		Results),
+%	log_info(['Evaluation finished']).
+
+% -- Version without findall - Results returned separately
+processTree(tree(Goal,Resolvent,Requester),Results) :-
+	log_info(['Starting evaluation']),
+	evaluate(tree(Goal,Resolvent,Requester),resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator)),
+	log_info(['Evaluation finished']).
+
+evaluate(tree(Goal,[],_Requester),resultTree(Goal,[],[],[],nil,nil)) :- !,
+	log_debug(['No more queries to evaluate']).
+
+evaluate(tree(Goal,Resolvent,Requester),resultTree(Goal,FinalResolvent,FinalProof,FinalTrace,FinalRemoteGoal,FinalDelegator)) :-
+	selectQuery(Query,Resolvent,RestResolvent),
+	log_debug(['Evaluating ',Query]),
+	evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)),
+	log_debug(['Query ', Query,' evaluated. NewQueries: ', NewQueries]),
+	append(NewQueries,RestResolvent,NewResolvent),
+%	( ( Delegator == nil, \+(NewQueries == []) )
+	( ( Delegator == nil )
+	->
+	    log_debug(['Delegator = nil']),
+	    log_extra(['New call to evaluate with ',tree(Goal,NewResolvent,Requester)]),
+	    evaluate(tree(Goal,NewResolvent,Requester),resultTree(Goal,FinalResolvent,NewProof,NewTrace,FinalRemoteGoal,FinalDelegator))
+	;
+	    log_debug(['Delegator not nil']),
+	    FinalResolvent = NewResolvent, NewProof = Proof, NewTrace = Trace, FinalRemoteGoal = RemoteGoal, FinalDelegator = Delegator
+	),
+	append(Proof,NewProof,FinalProof),
+	append(Trace,NewTrace,FinalTrace).
+
+% selectQuery(SelectedQuery,Resolvent,NewResolvent)
+selectQuery(Query,[Query|Rest], Rest).
+
+% addQueries
+addQueries(Guard,Body,Internal,NewListQueries) :-
+     append(Guard,Body,NewList),
+     createQueries(NewList,Internal,NewListQueries).
+
+% createQueries
+createQueries([],_,[]).
+createQueries([H|T],Internal,[query(H,Internal)|Rest]) :-
+     createQueries(T,Internal,Rest).
+
+addQueryStrategy(Query,QueryList,NewQueryList) :-
+     append(Query,QueryList,NewQueryList).
+
+% createProof(NewFact,InternalRule,Proof)
+% If it is an internal rule, it is not added to the proof
+createProof(_,yes,[]).
+% Otherwise, we add it to the proof with the peer where it was proven
+createProof(NewFact,no,['@'(NewFact, Peer)]) :-
+     peerName(Peer), !.
+
+createTrace(_NewFact,_InternalRule,[]).
+%createTrace(NewFact,InternalRule,Trace) :-
+%	createProof(NewFact,InternalRule,Trace).
+
+%
+% begin meta interpreter
+% ---------------------------------------
+
+%evaluateQuery(tree(Goal,[],_Requester),resultTree(Goal,[],[],[],_RemoteGoal,_Delegator)).
+
+% simplify 'Goal @ Issuer @ Issuer' to 'Goal @ Issuer'
+evaluateQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)) :-
+	log_extra(['Can ',SubGoal,' be simplified?']),
+	SubGoal == '@'('@'(G, Issuer), Issuer),
+	!,
+	log_debug(['Simplifying ',SubGoal]),
+	evaluateQuery(tree(Goal,query('@'(G, Issuer),Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)).
+
+evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,nil,nil)) :-
+	log_extra(['Start local evaluation of ',Query]),
+	demark(Query),
+	localQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace)),
+	log_debug(['Local answer found']),
+	mark(Query).
+
+evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)) :-
+	log_extra(['Checking for remote evaluation of ',Query]),
+	checkMark(Query),
+	log_extra(['Start remote evaluation of ',Query]),
+	remoteQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)),
+	log_debug(['Remote query required']).
+
+% evaluate Prolog constraints directly
+localQuery(tree(Goal,query(constraint(SubGoal),Internal),_Requester),resultTree(Goal,[],Proof,Trace)) :-
+	!,
+%	( (ground(SubGoal) )
+%	( (var(SubGoal) )
+%	->
+%	    log_error(['Constraint ', SubGoal,' is not grounded']),
+%	    fail
+%	;
+%	    (
+	      log_debug(['Calling ',SubGoal]),
+	      call(SubGoal),
+	      log_debug(['Call to ',SubGoal,' successful']),
+	      createProof(constraint(SubGoal),Internal,Proof),
+	      createTrace(constraint(SubGoal),Internal,Trace).
+
+%	    )
+%	).
+
+% if we have a single Goal, we search for rules with Goal in their
+% head, and then evaluate their guard and body literals
+localQuery(tree(Goal,query(SubGoal,Internal),_Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_debug(['Checking for rule for query: ',SubGoal]),
+	rule(SubGoal, Guard, Body),
+	peerName(Peer),
+	log_debug([Peer, ' is using rule: ', SubGoal, ' if ', Body, ' protected by ', Guard]),
+	createProof(rule(SubGoal,Guard,Body),Internal,Proof),
+	createTrace(rule(SubGoal,Guard,Body),Internal,Trace),
+	addQueries(Guard,Body,Internal,NewQueries).
+
+% internal rules can be used in the context of an internal computation
+% just like ordinary rules, but we will not include them in the proof
+
+localQuery(tree(Goal,query(SubGoal,Internal),_Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_debug(['Checking for internal rule for query: ',SubGoal]),
+	internal(SubGoal,Guard,Body),
+	peerName(Peer),
+	log_debug([Peer, ' is using internal rule: ', SubGoal, ' if ', Body, ' protected by ', Guard]),
+	createProof(rule(SubGoal,hidden,hidden),Internal,Proof),
+	createTrace(rule(SubGoal,hidden,hidden),Internal,Trace),
+	addQueries(Guard,Body,yes,NewQueries).
+
+localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	(SubGoal = '@'(_, Issuer) ; SubGoal = '$'('@'(_ , Issuer), _)),
+	log_debug(['Checking for signed rule for query: ', SubGoal]),
+	signed(rule(SubGoal, Guard, Body), Issuer, Credential),
+	log_extra(['Signed rule found']),
+	peerName(Peer),
+	log_debug([Peer, ' is using signed rule: ', SubGoal, ' if ', Body, ' protected by ', Guard, ' signed by ',Issuer]),
+	% check if there is a policy for the current signed rule
+	log_debug(['Checking for policy for query: ', SubGoal]),
+	checkPolicy(SubGoal, ExtraGuards, Requester), !,
+	log_debug([Peer, ' is using protecting policy: ', SubGoal, ' if ', ExtraGuards]),
+	addQueries(Guard,Body,Internal,NewListQueries),
+	addQueries(ExtraGuards,[],Internal,NewListQueries2),
+	append(NewListQueries2,NewListQueries,NewQueries),
+	createProof(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Proof1),
+	createTrace(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Trace1),
+	( (ExtraGuards == [])
+	->
+	    Proof = Proof1,
+	    Trace = Trace1
+	;
+	    createProof(policy(SubGoal,ExtraGuards),Internal,Proof2),
+	    append(Proof1,Proof2,Proof),
+	    createTrace(policy(SubGoal,ExtraGuards),Internal,Trace2),
+	    append(Trace1,Trace2,Trace)	
+	).
+
+% expand Query with requester
+localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)) :-
+	log_extra(['Can ',SubGoal,' have $ added?']),
+	\+(SubGoal = '$'(_,  _)),
+	log_debug(['Adding the $ to ',SubGoal]),
+	localQuery(tree(Goal,query('$'(SubGoal, Requester),Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace)).
+
+checkPolicy(Goal,ExtraGuards,_Requester) :-
+	policy(Goal,ExtraGuards),!.
+checkPolicy(Goal,ExtraGuards,Requester) :-
+	\+(Goal = '$'(_, _)),
+	policy('$'(Goal, Requester), ExtraGuards),!.
+checkPolicy(_Goal,[],_Requester).
+
+% we do not allow direct access from external peers to internal
+% predicates, which we store as special 'internal' rules
+internal(Goal) :-
+    internal(Goal, _, _).
+internal([Goal | _]) :-
+    internal(Goal, _, _).
+internal([_ | Rest]) :-
+    internal(Rest).
+
+% we try to call the remote peer, but only if we do not find a signed
+% rule (i.e. we can use signed rules as a cache)
+
+% we will not use this rule if Goal itself is a 
+% 'Goal @ Peer' structure
+remoteQuery(tree(Goal,query(SubGoal,_Internal),_Requester),resultTree(Goal,[],[],[],G,Issuer)) :-
+	log_debug(['Checking for remote rule query: ', SubGoal]),
+%	( SubGoal = G @ Issuer ; SubGoal = G @ Issuer $ _),
+	SubGoal = '@'(G, Issuer),
+	peerName(Peer),
+	\+(Peer = Issuer),
+%	\+(SubGoal = _ @ _),
+%	\+(signed(rule(Goal @ Issuer, _, _), _, _)),
+	log_debug([Peer, ' is delegating query ', G, ' to ', Issuer]).
+
+%%% --------------
+%%% UNIFICATION
+%%% --------------
+
+unification(old(Goal,CurrentQuery,RestQueries),ResolvedQuery,new(Goal,RestQueries)) :-
+    log_debug(['Unificando ', CurrentQuery, ' with ', ResolvedQuery, ' - Goal: ', Goal]),
+    CurrentQuery = ResolvedQuery.
+
+
+%%% --------------
+%%% VERIFICATION
+%%% --------------
+
+% :- dynamic(proof/1).
+
+% validateProof(Goal, Proof)
+validateProof(Goal,Peer,Proof) :-
+	removeProof,
+	log_debug(['Proof cleaned']),
+	insertProof(Proof),
+	log_debug(['Proof asserted']),
+	peerName(Requester),
+	validate([Goal],Peer,Requester).
+
+removeProof :-
+	retractall(proof(_)).
+
+insertProof([]).
+insertProof([F|R]) :-
+	asserta(proof(F)),
+	insertProof(R).
+
+validate([],_Peer,_Requester).
+
+validate([Goal|GoalTail],Peer,Requester) :-
+	log_debug(['Validating goal ', Goal,' at ',Peer,' from ',Requester]),
+	validateGoal(Goal,Peer,Requester),
+	validate(GoalTail,Peer,Requester).
+
+% predicate that checks that the statement is said by who can state it
+checkAuthenticity('@'(_Goal, Peer),Peer) :- !.
+% and the versions with $
+checkAuthenticity('$'('@'(_Goal, Peer), _Requester),Peer) :- !.
+
+checkAuthenticity(Goal,_Peer) :-
+	\+(Goal = '@'(_, _)),
+	\+(Goal = '$'('@'(_, _), _)).
+
+% checking for internal rules
+validateGoal(Goal,Peer,Requester) :-
+	checkAuthenticity(Goal,Peer),
+	log_extra(['Checking for internal rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof('@'(rule(Goal,hidden,hidden),Peer)),
+	log_debug(['Found an internal proof for ',Goal,' at ',Peer,' from ',Requester]).
+
+% checking for rules
+validateGoal(Goal,Peer,Requester) :-
+	checkAuthenticity(Goal,Peer),
+	log_extra(['Checking for rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof('@'(rule(Goal,Guard,Body),Peer)),
+	log_debug(['Found a proof rule for ',Goal,' at ',Peer,' from ',Requester]),
+	append(Guard,Body,NewGoal),
+	validate(NewGoal,Peer,Requester).
+
+% checking for signed rules
+validateGoal(Goal,Peer,Requester) :-
+	( (Goal = '@'(SubGoal, Issuer)) ; (Goal = '$'('@'(SubGoal, Issuer), Requester)) ),
+	log_extra(['Checking for signed rule ',Goal,' at ',Peer,' from ',Requester]),
+	proof('@'(signed(rule(Goal,Guard,Body),Issuer,_Signature),_Peer)),
+	log_debug(['Found a signed proof for ',Goal,' at ',Peer,' from ',Requester]),
+	validatePolicy(Goal,Peer,Requester),
+	append(Guard,Body,NewGoal),
+	validate(NewGoal,Peer,Requester).
+
+% checking for delegation rules
+validateGoal('@'(Goal,Peer1),Peer2,Requester) :-
+	log_extra(['Checking for delegation rule ',Goal,' at ',Peer1,' from ',Requester]),
+	validateGoal(Goal,Peer1,Peer2).	
+
+% extending with requester
+validateGoal(Goal,Peer,Requester) :-
+	\+(Goal = '$'(_, _)),
+	log_debug(['Extending ',Goal,' with requester ',Requester]),
+	validateGoal('$'(Goal, Requester),Peer,Requester).
+
+validatePolicy(Goal,Peer,Requester) :-
+	( (Goal = '@'(SubGoal, Issuer)) ; (Goal = '$'('@'(SubGoal, Issuer), Requester)) ),
+	log_extra(['Checking for protecting policy ',Goal,' at ',Peer,' from ',Requester]),
+	proof('@'(policy(Goal,ExtraGuards),Peer)),!,
+	log_debug(['Found a protecting policy proof for ',Goal,' at ',Peer]),	
+	validate(ExtraGuards,Peer,Requester).
+validatePolicy(_Goal,_Peer,_Requester).
+
+				%checkPolicy(Goal@Issuer,Peer) :-
+%	\+(proof(policy(Goal@Issuer,_)@Peer)).
+
+%% --------------------------
+
+printResultTree(_) :- init,fail.
+printResultTree(X) :-
+	printResultSubTree(X).
+
+printResultSubTree([]).
+printResultSubTree([resultTree(Goal,SubQueries,Proof,Trace,RemoteGoal,Delegator)|Rest]) :-
+	writelist(2,[Goal]),
+	writelist(5,SubQueries),
+	writelist(5,Proof),
+	writelist(5,Trace),
+	writelist(5,[RemoteGoal]),
+	writelist(5,[Delegator]),nl,
+	printResultSubTree(Rest).

@@ -18,13 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package test.org.peertrust.inference;
+package test.org.peertrust.inference.prolog.minerva;
 
 import org.apache.log4j.Logger;
 import org.peertrust.config.PTConfigurator;
 import org.peertrust.config.Vocabulary;
 import org.peertrust.exception.ConfigurationException;
-import org.peertrust.inference.MinervaProlog;
+import org.peertrust.inference.prolog.minerva.MinervaProlog;
 import org.peertrust.inference.prolog.parser.PrologList;
 
 import test.org.peertrust.config.Vocabulary4Tests;
@@ -34,10 +34,10 @@ import com.ifcomputer.minerva.MinervaTerm;
 import junit.framework.*;
 
 /**
- * $Id: MinervaPrologTest.java,v 1.2 2006/01/25 16:07:45 dolmedilla Exp $
+ * $Id: MinervaPrologTest.java,v 1.1 2006/03/06 12:47:59 dolmedilla Exp $
  * @author olmedilla
  * @date 05-Dec-2003
- * Last changed  $Date: 2006/01/25 16:07:45 $
+ * Last changed  $Date: 2006/03/06 12:47:59 $
  * by $Author: dolmedilla $
  * @description
  */

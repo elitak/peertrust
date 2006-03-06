@@ -22,11 +22,9 @@ package test.org.peertrust.inference.prolog.yprolog;
 
 
 import org.apache.log4j.Logger;
+import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
-import org.peertrust.inference.prolog.parser.PrologTools;
-import org.peertrust.inference.prolog.parser.PrologTerm;
-import org.peertrust.inference.prolog.yprolog.ParseException;
-import org.peertrust.inference.prolog.yprolog.TokenMgrError;
+import org.peertrust.inference.InferenceEngine;
 import org.peertrust.inference.prolog.yprolog.YPrologEngine;
 
 import junit.framework.*;
@@ -35,11 +33,11 @@ import junit.framework.*;
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngineTest.java,v 1.1 2006/01/25 16:07:46 dolmedilla Exp $
+ * $Id: YPrologEngineTest.java,v 1.2 2006/03/06 12:47:57 dolmedilla Exp $
  * <br/>
  * Date: 21-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/01/25 16:07:46 $
+ * Last changed: $Date: 2006/03/06 12:47:57 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -47,9 +45,14 @@ import junit.framework.*;
 public class YPrologEngineTest extends TestCase {
 	private static Logger log = Logger.getLogger(YPrologEngineTest.class);
 	
-	private final String TEST_FILE = "YPrologEngineTest.P" ;
+	private InferenceEngine engine ;
+	//final String baseUrl = AllTests.baseUrl + "test/org/peertrust/inference/prolog/yprolog/";
+	final String baseUrl = "./config/prolog/yprolog/";
 	
-	private YPrologEngine engine ;
+	private final String BASICS_FILE = baseUrl + "basics.P" ;
+	private final String INTERPRETER_FILE = baseUrl + "interpreter.P" ;
+	private final String TOOLS_FILE = baseUrl + "tools.P" ;
+	private final String TEST_FILE = baseUrl + "test.P" ;
 	
 	public YPrologEngineTest ( String name ) {
 		super( name ) ;
@@ -59,16 +62,26 @@ public class YPrologEngineTest extends TestCase {
 		return new TestSuite( YPrologEngineTest.class );
 	}
 
-	public void setUp() {
+	public void setUp() throws ConfigurationException {
+		initPeerTrust() ;
+	}
+
+	public void initPeerTrust() throws ConfigurationException
+	{
 		engine = new YPrologEngine() ;
+		engine.init() ;
+		
 		try {
+			engine.consultFile(BASICS_FILE) ;
+			engine.consultFile(INTERPRETER_FILE) ;
+			engine.consultFile(TOOLS_FILE) ;
 			engine.consultFile(TEST_FILE) ;
 		} catch (InferenceEngineException e) {
 			log.error(e.getMessage()) ;
 		}
 	}
 
-	public void testQuery1() throws InferenceEngineException
+	public void testQuery1() throws InferenceEngineException, ConfigurationException
 	{
 		String s = "append(X,Y,[a,b,c(U)])" ;
 		
@@ -76,7 +89,16 @@ public class YPrologEngineTest extends TestCase {
 		
 		assertTrue(res) ;
 	}
-
+	
+	public void testPeerTrustQuery1() throws InferenceEngineException, ConfigurationException
+	{
+		String s = "append(X,Y,[a,b,c(U)])" ;
+		
+		boolean res = engine.execute(s) ;
+		
+		assertTrue(res) ;
+	}
+	
 	public static void main( String[] args ) {
 		try {
 			junit.textui.TestRunner.run( suite() );
