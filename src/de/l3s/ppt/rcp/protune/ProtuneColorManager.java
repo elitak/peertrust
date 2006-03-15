@@ -32,7 +32,7 @@ public class ProtuneColorManager {
 		Color defaultColor = new Color(Display.getCurrent(), 0, 0, 0);
 		Color constantColor = new Color(Display.getCurrent(), 63, 95, 191); 
 		Color variableColor = new Color(Display.getCurrent(), 0, 0, 192);
-		Color idColor = new Color(Display.getCurrent(), 255, 0, 0);
+		Color idColor = new Color(Display.getCurrent(), 127, 127, 127);
 		Color reservedWordColor = new Color(Display.getCurrent(), 127, 0, 85);
 		Color commentColor = new Color(Display.getCurrent(), 63, 127, 95);
 		Color errorColor = new Color(Display.getCurrent(), 255, 0, 0);

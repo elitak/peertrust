@@ -35,6 +35,8 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 	private TextAttribute metaReservedWordTA;
 	private TextAttribute commentTA;
 	private TextAttribute errorTA;
+	private static long timeOfLastUpdate = 0;
+	private static final long MINIMAL_UPDATE_TIME = 2000;
 	public ProtuneRepairer(ProtuneColorManager colorManager) {
 		defaultTA = colorManager.getTextAttribute(ProtuneColorManager.DEFAULT_COLOR);
 		constantTA = colorManager.getTextAttribute(ProtuneColorManager.CONSTANT_COLOR);
@@ -60,99 +62,107 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 	 */
 	public void createPresentation(TextPresentation presentation, ITypedRegion region) {
 		logger.info("createPresentation() : ENTER");
-		String toParse = iDocument.get().substring(region.getOffset(), region.getOffset() + region.getLength());
-		logger.debug("createPresentation() : toParse : " + toParse);
-		parsedEntries = new ArrayList();
-		try {
-			ProtuneParser parser = ProtuneParser.createParser(toParse, 0);
-			parsedEntries = parser.parse();
-		} catch (Exception e) {
-			logger.error("createPresentation() : exception thrown by parser : " + e.toString());
-		}
-		logger.info("createPresentation() : entries.size() : " + parsedEntries.size());
-		for (int i = 0; i < parsedEntries.size(); i++) {
-			Object obj = parsedEntries.get(i);
-			if (obj instanceof Integer) {
-				logger.info("createPresentation() : Integer entry, offset : " + ((Integer)obj).intValue());
-			} else if (obj instanceof Rule) {
-				logger.info("createPresentation() : Rule entry, offset : " + ((Rule)obj).offsetInInput);
-			} else {
-				logger.info("createPresentation() : Rule entry, offset : " + ((Directive)obj).offsetInInput);
+//		if (System.currentTimeMillis() - timeOfLastUpdate >= MINIMAL_UPDATE_TIME) {
+			String toParse = iDocument.get().substring(region.getOffset(), region.getOffset() + region.getLength());
+			logger.debug("createPresentation() : toParse : " + toParse);
+			parsedEntries = new ArrayList();
+			try {
+				ProtuneParser parser = ProtuneParser.createParser(toParse, 0);
+				parsedEntries = parser.parse();
+			} catch (Exception e) {
+				logger.error("createPresentation() : exception thrown by parser : " + e.toString());
 			}
-		}
-		ArrayList styleRanges = new ArrayList();
-		ArrayList knownIds = new ArrayList();
-		int previousOffset = -1;
-		int totalLength = toParse.length();
-		int rangeOffset;
-		int offset;
-		int length;
-		// adding default style range
-		addRange(styleRanges, 0, totalLength, defaultTA, totalLength);
-		for (int i = 0; i < parsedEntries.size(); i++) {
-			rangeOffset = previousOffset + 1;
-			Object obj = parsedEntries.get(i);
-			if (obj instanceof Integer) {
-				offset = ((Integer)obj).intValue();
-				length = offset - previousOffset;
-				addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
-			} else if (obj instanceof Rule) {
-				Rule rule = (Rule)obj;
-				offset = rule.offsetInInput;
-				if (!rule.isMetaRule()) {
-					if (rule.hasId()) {
-						if (knownIds.contains(rule.getId().getStr())) {
-							// duplicated id, marking the rule as a damaged part
-							length = offset - previousOffset;
-							addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
+			logger.info("createPresentation() : entries.size() : " + parsedEntries.size());
+			for (int i = 0; i < parsedEntries.size(); i++) {
+				Object obj = parsedEntries.get(i);
+				if (obj instanceof Integer) {
+					logger.info("createPresentation() : Integer entry, offset : " + ((Integer)obj).intValue());
+				} else if (obj instanceof Rule) {
+					logger.info("createPresentation() : Rule entry, offset : " + ((Rule)obj).offsetInInput);
+				} else {
+					logger.info("createPresentation() : Rule entry, offset : " + ((Directive)obj).offsetInInput);
+				}
+			}
+			ArrayList styleRanges = new ArrayList();
+			ArrayList knownIds = new ArrayList();
+			ArrayList knownHeadLiterals = new ArrayList();
+			int previousOffset = -1;
+			int totalLength = toParse.length();
+			int rangeOffset;
+			int offset;
+			int length;
+			// adding default style range
+			addRange(styleRanges, 0, totalLength, defaultTA, totalLength);
+			for (int i = 0; i < parsedEntries.size(); i++) {
+				rangeOffset = previousOffset + 1;
+				Object obj = parsedEntries.get(i);
+				if (obj instanceof Integer) {
+					offset = ((Integer)obj).intValue();
+					length = offset - previousOffset;
+					addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
+				} else if (obj instanceof Rule) {
+					Rule rule = (Rule)obj;
+					offset = rule.offsetInInput;
+					if (!rule.isMetaRule()) {
+						if (rule.hasId()) {
+							if (knownIds.contains(rule.getId().getStr())) {
+								// duplicated id, marking the rule as a damaged part
+								length = offset - previousOffset;
+								addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
+							} else {
+								knownIds.add(rule.getId().getStr());
+								decorateRule(styleRanges, rule, totalLength, rangeOffset);
+								knownHeadLiterals.add(rule.getHead().getImage());
+							}
 						} else {
-							knownIds.add(rule.getId().getStr());
-							decorateRule(styleRanges, rule, totalLength);
+							decorateRule(styleRanges, rule, totalLength, rangeOffset);
+							knownHeadLiterals.add(rule.getHead().getImage());
 						}
 					} else {
-						decorateRule(styleRanges, rule, totalLength);
+						if (knownHeadLiterals.contains(rule.getMetaHead().getLiteral().getImage())) {
+							decorateRule(styleRanges, rule, totalLength, rangeOffset);
+						} else if (knownIds.contains(rule.getMetaHead().getLiteral().getImage())) {
+							decorateRule(styleRanges, rule, totalLength, rangeOffset);
+						} else {
+							// meta rule must have the same id or the same
+							// literal in head as some rule above,
+							// otherwise it is marked as a damaged part
+							length = offset - previousOffset;
+							addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
+						}
 					}
 				} else {
-					if (!rule.hasId()) {
-						//meta rule must have id, otherwise it is marked as a damaged part
-						length = offset - previousOffset;
-						addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
-					} else {
-						if (knownIds.contains(rule.getId().getStr())) {
-							decorateRule(styleRanges, rule, totalLength);
-						} else {
-							//unknown id of the meta rule must, marking meta rule as a damaged part
-							length = offset - previousOffset;
-							addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
-						}
-					}
+					Directive directive = (Directive)obj;
+					offset = directive.offsetInInput;
+					decorateDirective(styleRanges, directive, totalLength);
 				}
-			} else {
-				Directive directive = (Directive)obj;
-				offset = directive.offsetInInput;
-				decorateDirective(styleRanges, directive, totalLength);
+				previousOffset = offset;
 			}
-			previousOffset = offset;
-		}
-		StyleRange[] temp = new StyleRange[styleRanges.size()];
-		for (int i = 0; i < styleRanges.size(); i++) {
-			temp[i] = (StyleRange)styleRanges.get(i);
-		}
-		logger.info("createPresentation() : number of style ranges : " + temp.length);
-		try {
-			presentation.replaceStyleRanges(temp);
-		} catch (Exception e) {
-			logger.error("createPresentation() : exception thrown when replacing style ranges : " + e.toString());
-		}
+			StyleRange[] temp = new StyleRange[styleRanges.size()];
+			for (int i = 0; i < styleRanges.size(); i++) {
+				temp[i] = (StyleRange)styleRanges.get(i);
+			}
+			logger.info("createPresentation() : number of style ranges : " + temp.length);
+			try {
+				presentation.replaceStyleRanges(temp);
+			} catch (Exception e) {
+				logger.error("createPresentation() : exception thrown when replacing style ranges : " + e.toString());
+			}
+//		} else {
+//			logger.info("createPresentation() : user is typing, changes to document are ignored");
+//		}
+//		timeOfLastUpdate = System.currentTimeMillis();
 		logger.info("createPresentation() : EXIT");
 	}
-	protected void decorateRule(ArrayList styleRanges, Rule rule, int totalLength) {
+	protected void decorateRule(ArrayList styleRanges, Rule rule, int totalLength, int beginOffset) {
 		if (rule.isMetaRule()) {
-			// meta rule must have id, otherwise it is marked as damaged part above
-			addRange(styleRanges, rule.getId().getBeginOffset(), 
-					rule.offsetInInput - rule.getId().getBeginOffset() + 1, metaDefaultTA, totalLength);
-			addRange(styleRanges, rule.getId().getBeginOffset(), 
-					rule.getId().getStr().length(), metaIdTA, totalLength);
+			// meta rules are italic
+			addRange(styleRanges, beginOffset, 
+					rule.offsetInInput - beginOffset + 1, metaDefaultTA, totalLength);
+			if (rule.hasId()) {
+				addRange(styleRanges, rule.getId().getBeginOffset(), 
+						rule.getId().getStr().length(), metaIdTA, totalLength);
+			}
 			MetaLiteral head = rule.getMetaHead();
 			Literal literal = head.getLiteral();
 			decorateLiteral(styleRanges, literal, totalLength, true);
@@ -264,7 +274,6 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 	 */
 	public IRegion getDamageRegion(ITypedRegion partition, DocumentEvent event,
 			boolean documentPartitioningChanged) {
-		// todo
 		return new Region(0, iDocument.getLength());
 	}
 	protected void addRange(ArrayList styleRanges, int offset, int length, TextAttribute attr, int totalLength) {

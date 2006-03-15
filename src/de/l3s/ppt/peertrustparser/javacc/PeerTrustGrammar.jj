@@ -1,0 +1,599 @@
+options 
+{
+  STATIC = false;
+  FORCE_LA_CHECK = true;
+}
+
+PARSER_BEGIN( PeerTrustParser )
+
+package de.l3s.ppt.peertrustparser.javacc;
+
+import java.util.ArrayList;
+import java.io.IOException;
+import de.l3s.ppt.peertrustparser.*;
+import de.l3s.ppt.log.Logger;
+
+public class PeerTrustParser {
+  private String str;
+  private static Logger logger = new Logger(PeerTrustParser.class);
+  private int commonOffset = 0;
+  public static final int TABS_SIZE = 8;
+
+  public static PeerTrustParser createParser( String str, int commonOffset ) 
+  throws IOException
+  {
+    logger.debug("createParser() : ENTER");
+    logger.debug("createParser() : string to parse = " + str);
+    logger.debug("createParser() : commonOffset = " + commonOffset);
+    java.io.StringReader sr = new java.io.StringReader( str );
+    java.io.Reader r = new java.io.BufferedReader( sr );
+    PeerTrustParser peerTrustParser = new PeerTrustParser( r );
+    peerTrustParser.str  = str;
+    peerTrustParser.commonOffset = commonOffset;
+    logger.debug("createParser() : EXIT");
+    return peerTrustParser;
+  }
+
+  public ArrayList parse()
+  throws ParseException, IOException
+  {
+    logger.info("parse() : ENTER");
+    ArrayList entries = new ArrayList();
+
+    try {
+      entries = Input(entries);
+      logger.debug("parse() : input has been parsed in a single run");
+    } catch( ParseException e ) {
+      logger.debug("parse() : ParseException was thrown, exception was: " + e.toString());
+      try {
+        entries = skipDamagedPartAndParseAhead(entries);
+      } catch (Exception ex) {
+        logger.error("parse() : exception was thrown by skipDamagedPartAndParseAhead(), exception was: " + ex.toString());
+        logger.error("parse() : marking unparsed tail as damaged part");
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("parse() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("parse() : adding an entry");
+      }
+    } catch( TokenMgrError ex ) {
+      logger.debug("parse() : TokenMgrError was thrown, exception was: " + ex.toString());
+      try {
+        entries = skipDamagedPartAndParseAhead(entries);
+      } catch (Exception e) {
+        logger.error("parse() : exception was thrown by skipDamagedPartAndParseAhead(), exception was: " + e.toString());
+        logger.error("parse() : marking unparsed tail as damaged part");
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("parse() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("parse() : adding an entry");
+      }
+    }
+    logger.info("parse() : number of parsed entries = " + entries.size());
+    logger.info("parse() : EXIT");
+    return entries;
+  }
+
+  private int calculateOffset(int line, int column) {
+    int offset = 0;
+    for (int i = 0; i < line - 1; i++) {
+      offset = str.indexOf('\n', offset) + 1;
+      if (offset == 0) {
+        logger.error("calculateOffset() : can not calculate offset for: line; column: " + line + "; " + column);
+        offset = -1;
+        break;
+      }
+    }
+    if (offset != -1) {
+      if (str.charAt(offset) == '\r') {
+        offset++;
+      }
+      for (int columnNumber = 0; columnNumber < column - 1; columnNumber++) {
+        if (str.charAt(offset) == '\t') {
+          columnNumber += TABS_SIZE - (columnNumber - (int) (columnNumber / TABS_SIZE) * TABS_SIZE) - 1;
+        }
+        offset++;
+      }
+      //does not work with tabs:
+      //offset += column - 1;
+      offset += commonOffset;
+    }
+    return offset;
+  }
+
+  private ArrayList skipDamagedPartAndParseAhead(ArrayList parsedEntries)
+    throws ParseException, IOException {
+
+    logger.debug("skipDamagedPartAndParseAhead() : ENTER");
+    ArrayList entries = (ArrayList)parsedEntries.clone();
+
+    int offset = 0;
+    if (entries == null) {
+      entries = new ArrayList();
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : entries size on enter: " + entries.size());
+    if (entries.size() != 0) {
+      if (entries.get(entries.size() - 1) instanceof Rule) {
+        offset = ((Rule)entries.get(entries.size() - 1)).offsetInInput;
+      } else {
+        offset = ((Integer)entries.get(entries.size() - 1)).intValue();
+      }
+      offset++;
+      offset -= commonOffset;
+      if (offset < str.length() && str.charAt(offset) == '\r') {
+        offset++;
+      }
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : offset on enter: " + offset);
+
+    boolean done = false;
+    int dotOffset = str.indexOf(Constants.DOT, offset);
+    int delimiterOffset = str.indexOf('\n', offset);
+
+    logger.debug("skipDamagedPartAndParseAhead() : dotOffset: " + dotOffset);
+    logger.debug("skipDamagedPartAndParseAhead() : delimiterOffset: " + delimiterOffset);
+
+    if (dotOffset == -1 && delimiterOffset == -1) {
+      if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+        entries.remove(entries.size() - 1);
+        logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+      }
+      entries.add(new Integer(str.length() - 1 + commonOffset));
+      logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+      done = true;
+      logger.debug("skipDamagedPartAndParseAhead() : done: " + done);
+    } else {
+      if (dotOffset == -1 && delimiterOffset != -1) {
+        offset = delimiterOffset + 1;
+        if (offset < str.length() && str.charAt(offset) == '\r') {
+          offset++;
+        }
+      }
+      if (dotOffset != -1 && delimiterOffset == -1) {
+        offset = dotOffset + Constants.DOT.length();
+      }
+      if (dotOffset != -1 && delimiterOffset != -1) {
+        if (dotOffset < delimiterOffset) {
+          offset = dotOffset + Constants.DOT.length();
+        } else {
+          offset = delimiterOffset + 1;
+          if (offset < str.length() && str.charAt(offset) == '\r') {
+            offset++;
+          }
+        }
+      }
+      logger.debug("skipDamagedPartAndParseAhead() : offset: " + offset);
+      logger.debug("skipDamagedPartAndParseAhead() : done: " + done);
+      if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+        entries.remove(entries.size() - 1);
+        logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+      }
+      entries.add(new Integer(offset - 1 + commonOffset));
+      logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+    }
+    if (!done) {
+      ArrayList tail = new ArrayList();
+      if (offset < str.length()) {
+        logger.debug("skipDamagedPartAndParseAhead() : creating new parser to parse the tail");
+        PeerTrustParser parser = PeerTrustParser.createParser(str.substring(offset), offset + commonOffset);
+        tail = parser.parse();
+        logger.debug("skipDamagedPartAndParseAhead() : tail size: " + tail.size());
+        if (entries.size() != 0 
+           && entries.get(entries.size() - 1) instanceof Integer 
+           && tail.size() != 0 
+           && tail.get(0) instanceof Integer) {
+         entries.remove(entries.size() - 1);
+         logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+        }
+        for (int i = 0; i < tail.size(); i++) {
+          logger.debug("skipDamagedPartAndParseAhead() : adding tail element to the entries");
+          Object obj = tail.get(i);
+          entries.add(obj);
+        }
+      } else {
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+      }
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : entries size on exit: " + entries.size());
+    logger.debug("skipDamagedPartAndParseAhead() : EXIT");
+    return entries;
+  }
+}
+
+
+PARSER_END( PeerTrustParser )
+
+ArrayList Input( ArrayList entries ) :
+{
+  Rule rule = null;
+}
+{
+  ( 
+    rule = Rule()
+    {entries.add(rule);}
+  )* <EOF>
+  {return entries;}
+}
+
+Rule Rule() :
+{
+  ExtendedLiteral head = null;
+  Rule rule = null;
+  boolean hasRuleSeparator = false;
+  RuleBody body = null;
+  ArrayList temp = null;
+  Token t = null;
+  int endOffset;
+}
+{
+  head = ExtendedLiteral()
+  (
+    (
+      temp = SignedByElement()
+      {
+        if (temp.size() == 3) {
+          body = new RuleBody(null, (StringDescription)temp.get(0), (StringDescription)temp.get(1), (Guards)temp.get(2));
+        } else {
+          body = new RuleBody(null, (StringDescription)temp.get(0), (StringDescription)temp.get(1), null);
+        }
+      }
+    )
+    |
+    ( 
+      <RULE_SEPARATOR> 
+      ( 
+        body = RuleBody()
+      )?
+      {hasRuleSeparator = true;}
+    )
+  )?
+  t = <DOT>
+  {
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    rule = new Rule(head, hasRuleSeparator, body, endOffset);
+    return rule;
+  }
+}
+
+ArrayList SignedByElement() :
+{
+  StringDescription signedBy = null;
+  Guards body = null;
+  ArrayList list = new ArrayList();
+  Token t = null;
+}
+{
+  t = <SIGNED_BY>
+  {
+    list.add(new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn), 
+                                   false));
+  }
+  <OPENING_SQUARE_BRACKET>
+  signedBy = StringExtended()
+  {list.add(signedBy);}
+  <CLOSING_SQUARE_BRACKET>
+  (
+    body = Guards()
+    {list.add(body);}
+  )?
+  {
+    return list;
+  }
+}
+
+StringDescription StringExtended() :
+{
+  StringBuffer buff = new StringBuffer();
+  char c;
+  Token t;
+  int beginOffset, endOffset;
+  boolean isConstant = false;
+}
+{
+  (
+    (
+      ( 
+        ( t=<DIGIT> ) 
+      | ( t=<LOWER_CASE> ) 
+      )
+      { 
+        isConstant = true;
+        c = (char)t.image.charAt(0);
+        buff.append(c);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+    )
+    |
+    (
+     ( 
+       ( t=<UPPER_CASE> ) 
+     | ( t=<UNDERSCORE> ) 
+     )
+     { 
+       c = (char)t.image.charAt(0);
+       buff.append(c);
+       beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+     }
+    )
+  )
+  (
+    ( 
+      ( t=<DIGIT> ) 
+    | ( t=<LOWER_CASE> ) 
+    | ( t=<UPPER_CASE> ) 
+    | ( t=<UNDERSCORE> ) 
+    )
+    { 
+      if (t.specialToken != null) {
+        throw new ParseException("whitespace(s) in a string");
+      }
+      c = (char)t.image.charAt(0);
+      buff.append(c);
+    }
+  )*
+  {
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(buff.toString(), beginOffset, endOffset, isConstant));
+  }
+}
+
+ExtendedLiteral ExtendedLiteral() :
+{
+  ExtendedLiteral extLiteral = null;
+  Literal literal = null;
+  Issuer issuer = null;
+  Requester requester = null;
+}
+{
+  literal = Literal()
+  (
+    <ISSUER_CHAR>
+    issuer = Issuer()
+  )?
+  (
+    <REQUESTER_CHAR>
+    requester = Requester()
+  )?
+  {
+    extLiteral = new ExtendedLiteral(literal, issuer, requester);
+    return extLiteral;
+  }
+}
+
+RuleBody RuleBody() :
+{
+  StringDescription signedBy = null;
+  StringDescription commandWord = null;
+  Guards body = null;
+  Guards policy = null;
+  boolean verticalSlash = false;
+  ArrayList beforeSignedBy = null;
+  ArrayList temp = null;
+  boolean simpleRule = true;
+}
+{
+  (
+    (
+      temp = SignedByElement()
+      {
+        commandWord = (StringDescription)temp.get(0);
+        signedBy = (StringDescription)temp.get(1);
+        if (temp.size() == 3) {
+          body = (Guards)temp.get(2);
+        }
+        simpleRule = false;
+      }
+    )
+    |
+    (
+      beforeSignedBy = ExtendedLiterals()
+      (
+        (
+          temp = SignedByElement()
+          {
+            commandWord = (StringDescription)temp.get(0);
+            signedBy = (StringDescription)temp.get(1);
+            if (temp.size() == 3) {
+              body = (Guards)temp.get(2);
+            }
+            policy = new Guards(beforeSignedBy, null, false);
+            simpleRule = false;
+          }
+        )
+        |
+        (
+          <VERTICAL_SLASH>
+          (
+            (
+              temp = ExtendedLiterals()
+              {
+                body = new Guards(beforeSignedBy, temp, true);
+                simpleRule = false;
+              }
+            )
+            |
+            (
+              temp = SignedByElement()
+              {
+                commandWord = (StringDescription)temp.get(0);
+                signedBy = (StringDescription)temp.get(1);
+                if (temp.size() == 3) {
+                  body = (Guards)temp.get(2);
+                }
+                policy = new Guards(beforeSignedBy, null, true);
+                simpleRule = false;
+              }
+            )
+          )
+        )
+      )?
+    )
+  )
+  {
+    if (simpleRule) {
+      body = new Guards(beforeSignedBy, null, false);
+    }
+    return new RuleBody(policy, commandWord, signedBy, body);
+  }
+}
+
+ArrayList ExtendedLiterals() :
+{
+  ArrayList list = new ArrayList();
+  ExtendedLiteral extLiteral = null;
+}
+{
+  extLiteral = ExtendedLiteral()
+  {list.add(extLiteral);}
+  (
+    <COMMA>
+    extLiteral = ExtendedLiteral()
+    {list.add(extLiteral);}
+  )*
+  {return list;}
+}
+
+Guards Guards() :
+{
+  ArrayList beforeSlash = null;
+  ArrayList afterSlash = null;
+  boolean hasVerticalSlash = false;
+}
+{
+  beforeSlash = ExtendedLiterals()
+  (  
+    <VERTICAL_SLASH>
+    {hasVerticalSlash = true;}
+    (
+      afterSlash = ExtendedLiterals()
+    )?
+  )?
+  {return new Guards(beforeSlash, afterSlash, true);}
+}
+
+Literal Literal() :
+{
+  StringDescription predicate = null;
+  Literal literal = null;
+  ArrayList arguments = null;
+}
+{
+  predicate = StringExtended()
+  <OPENING_BRACKET>
+    ( arguments = Arguments() )?
+  <CLOSING_BRACKET>
+  {
+    literal = new Literal(predicate, arguments);
+    return literal;
+  }
+}
+
+ArrayList Arguments() :
+{
+  ArrayList arguments = new ArrayList();
+  ArrayList internalArguments = null;
+  StringDescription str = null;
+}
+{
+  (
+    ( 
+      str = StringExtended() 
+      {arguments.add(str);}
+    )
+    |
+    ( <OPENING_SQUARE_BRACKET>
+        internalArguments = Arguments()
+      <CLOSING_SQUARE_BRACKET>
+      {arguments.add(internalArguments);}
+    )
+  )
+  (
+    <COMMA>
+    (
+      ( 
+        str = StringExtended() 
+        {arguments.add(str);}
+      )
+      |
+      ( 
+        <OPENING_SQUARE_BRACKET>
+        internalArguments = Arguments()
+        <CLOSING_SQUARE_BRACKET>
+        {arguments.add(internalArguments);}
+      )
+    )
+  )*
+  {return arguments;}
+}
+
+Issuer Issuer() :
+{
+  StringDescription primaryIssuer = null;
+  Issuer additionalIssuer = null, issuer = null;
+}
+{
+  primaryIssuer = StringExtended()
+  (
+    <ISSUER_CHAR>
+    additionalIssuer = Issuer()
+  )?
+  {
+    issuer = new Issuer(primaryIssuer, additionalIssuer);
+    return issuer;
+  }
+}
+
+Requester Requester() :
+{
+  StringDescription primaryRequester = null;
+  Requester additionalRequester = null, requester = null;
+}
+{
+  primaryRequester = StringExtended()
+  (
+    <REQUESTER_CHAR>
+    additionalRequester = Requester()
+  )?
+  {
+    requester = new Requester(primaryRequester, additionalRequester);
+    return requester;
+  }
+}
+
+SPECIAL_TOKEN :
+{
+    " "
+  | "\t"
+  | "\n"
+  | "\r"
+}
+
+TOKEN :
+{
+    <DIGIT : ["0"-"9"]>
+  | <SIGNED_BY : "signedBy">
+  | <LOWER_CASE : ["a"-"z"]>
+  | <UPPER_CASE : ["A"-"Z"]>
+  | <UNDERSCORE : "_">
+  | <ISSUER_CHAR : "@">
+  | <REQUESTER_CHAR : "$">
+  | <OPENING_BRACKET : "(">
+  | <CLOSING_BRACKET : ")">
+  | <OPENING_SQUARE_BRACKET : "[">
+  | <CLOSING_SQUARE_BRACKET : "]">
+  | <RULE_SEPARATOR : "<-">
+  | <COMMA : ",">
+  | <VERTICAL_SLASH : "|">
+  | <DOT : ".">
+  | <ANY_CHARACTER : ~[]>
+}

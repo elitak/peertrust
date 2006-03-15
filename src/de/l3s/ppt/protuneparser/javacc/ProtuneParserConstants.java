@@ -17,17 +17,16 @@ public interface ProtuneParserConstants {
   int NEG_SYMBOL = 15;
   int RULE_SEPARATOR = 16;
   int COMMA = 17;
-  int ID_SEPARATOR = 18;
-  int SEMICOLON = 19;
-  int DOT = 20;
-  int OPERATOR = 21;
-  int EQUAL = 22;
-  int START_SINGLE_QUOTE = 23;
-  int START_DOUBLE_QUOTE = 24;
-  int ANY_CHARACTER = 25;
-  int END_SINGLE_QUOTE = 26;
-  int END_DOUBLE_QUOTE = 27;
-  int ANY_CHAR = 28;
+  int SEMICOLON = 18;
+  int DOT = 19;
+  int OPERATOR = 20;
+  int EQUAL = 21;
+  int START_SINGLE_QUOTE = 22;
+  int START_DOUBLE_QUOTE = 23;
+  int ANY_CHARACTER = 24;
+  int END_SINGLE_QUOTE = 25;
+  int END_DOUBLE_QUOTE = 26;
+  int ANY_CHAR = 27;
 
   int DEFAULT = 0;
   int IN_SINGLE_QUOTE = 1;
@@ -52,7 +51,6 @@ public interface ProtuneParserConstants {
     "<NEG_SYMBOL>",
     "<RULE_SEPARATOR>",
     "\",\"",
-    "<ID_SEPARATOR>",
     "\":\"",
     "\".\"",
     "<OPERATOR>",

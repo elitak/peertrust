@@ -4,7 +4,7 @@ public class Constants {
 	public static final String SINGLE_QUOTE = "'";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String INCLUDE = "include";
-	public static final String DECLARATION = "include";
+	public static final String DECLARATION = "declaration";
 	public static final String OPENING_BRACKET = "(";
 	public static final String CLOSING_BRACKET = ")";
 	public static final String OPENING_SQUARE_BRACKET = "[";

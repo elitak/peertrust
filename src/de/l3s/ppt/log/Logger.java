@@ -16,8 +16,8 @@ public class Logger {
 	private static MessageConsoleStream fatalConsoleStream = null;
 	private Class className;
 	// todo: read these variables from settings (from plugin.xml?)
-	private static boolean debugLevel = true;
-	private static boolean infoLevel = true;
+	private static boolean debugLevel = false;
+	private static boolean infoLevel = false;
 	private static boolean warningLevel = true;
 	private static boolean errorLevel = true;
 	private static boolean fatalLevel = true;

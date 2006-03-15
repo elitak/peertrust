@@ -1,0 +1,881 @@
+options 
+{
+  STATIC = false;
+  FORCE_LA_CHECK = true;
+}
+
+PARSER_BEGIN( ProtuneParser )
+
+package de.l3s.ppt.protuneparser.javacc;
+
+import java.util.ArrayList;
+import de.l3s.ppt.protuneparser.*;
+import de.l3s.ppt.log.Logger;
+import java.io.IOException;
+
+public class ProtuneParser {
+  private String str;
+  private int commonOffset = 0;
+  private static Logger logger = new Logger(ProtuneParser.class);
+  public static final int TABS_SIZE = 8;
+
+  public static ProtuneParser createParser( String str, int commonOffset ) 
+  throws IOException
+  {
+    logger.debug("createParser() : ENTER");
+    logger.debug("createParser() : string to parse = " + str);
+    logger.debug("createParser() : commonOffset = " + commonOffset);
+    java.io.StringReader sr = new java.io.StringReader( str );
+    java.io.Reader r = new java.io.BufferedReader( sr );
+    ProtuneParser protuneParser = new ProtuneParser( r );
+    protuneParser.str  = str;
+    protuneParser.commonOffset = commonOffset;
+    logger.debug("createParser() : EXIT");
+    return protuneParser;
+  }
+
+  public ArrayList parse()
+  throws ParseException, IOException
+  {
+    logger.info("parse() : ENTER");
+    ArrayList entries = new ArrayList();
+
+    try {
+      entries = Input(entries);
+      logger.debug("parse() : input has been parsed in a single run");
+    } catch( ParseException e ) {
+      logger.debug("parse() : ParseException was thrown, exception was: " + e.toString());
+      try {
+        entries = skipDamagedPartAndParseAhead(entries);
+      } catch (Exception ex) {
+        logger.error("parse() : exception was thrown by skipDamagedPartAndParseAhead(), exception was: " + ex.toString());
+        logger.error("parse() : marking unparsed tail as damaged part");
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("parse() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("parse() : adding an entry");
+      }
+    } catch( TokenMgrError ex ) {
+      logger.debug("parse() : TokenMgrError was thrown, exception was: " + ex.toString());
+      try {
+        entries = skipDamagedPartAndParseAhead(entries);
+      } catch (Exception e) {
+        logger.error("parse() : exception was thrown by skipDamagedPartAndParseAhead(), exception was: " + e.toString());
+        logger.error("parse() : marking unparsed tail as damaged part");
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("parse() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("parse() : adding an entry");
+      }
+    }
+    logger.info("parse() : number of parsed entries = " + entries.size());
+    logger.info("parse() : EXIT");
+    return entries;
+  }
+
+  private int calculateOffset(int line, int column) {
+    int offset = 0;
+    for (int i = 0; i < line - 1; i++) {
+      offset = str.indexOf('\n', offset) + 1;
+      if (offset == 0) {
+        logger.error("calculateOffset() : can not calculate offset for: line; column: " + line + "; " + column);
+        offset = -1;
+        break;
+      }
+    }
+    if (offset != -1) {
+      if (str.charAt(offset) == '\r') {
+        offset++;
+      }
+      for (int columnNumber = 0; columnNumber < column - 1; columnNumber++) {
+        if (str.charAt(offset) == '\t') {
+          columnNumber += TABS_SIZE - (columnNumber - (int) (columnNumber / TABS_SIZE) * TABS_SIZE) - 1;
+        }
+        offset++;
+      }
+      //does not work with tabs:
+      //offset += column - 1;
+      offset += commonOffset;
+    }
+    return offset;
+  }
+
+  private ArrayList skipDamagedPartAndParseAhead(ArrayList parsedEntries)
+    throws ParseException, IOException {
+
+    logger.debug("skipDamagedPartAndParseAhead() : ENTER");
+    ArrayList entries = (ArrayList)parsedEntries.clone();
+
+    int offset = 0;
+    if (entries == null) {
+      entries = new ArrayList();
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : entries size on enter: " + entries.size());
+    if (entries.size() != 0) {
+      if (entries.get(entries.size() - 1) instanceof Rule) {
+        offset = ((Rule)entries.get(entries.size() - 1)).offsetInInput;
+      } else if (entries.get(entries.size() - 1) instanceof Directive) {
+        offset = ((Directive)entries.get(entries.size() - 1)).offsetInInput;
+      } else {
+        offset = ((Integer)entries.get(entries.size() - 1)).intValue();
+      }
+      offset++;
+      offset -= commonOffset;
+      if (offset < str.length() && str.charAt(offset) == '\r') {
+        offset++;
+      }
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : offset on enter: " + offset);
+
+    boolean done = false;
+    int dotOffset = str.indexOf(Constants.DOT, offset);
+    int delimiterOffset = str.indexOf('\n', offset);
+
+    logger.debug("skipDamagedPartAndParseAhead() : dotOffset: " + dotOffset);
+    logger.debug("skipDamagedPartAndParseAhead() : delimiterOffset: " + delimiterOffset);
+
+    if (dotOffset == -1 && delimiterOffset == -1) {
+      if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+        entries.remove(entries.size() - 1);
+        logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+      }
+      entries.add(new Integer(str.length() - 1 + commonOffset));
+      logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+      done = true;
+      logger.debug("skipDamagedPartAndParseAhead() : done: " + done);
+    } else {
+      if (dotOffset == -1 && delimiterOffset != -1) {
+        offset = delimiterOffset + 1;
+        if (offset < str.length() && str.charAt(offset) == '\r') {
+          offset++;
+        }
+      }
+      if (dotOffset != -1 && delimiterOffset == -1) {
+        offset = dotOffset + Constants.DOT.length();
+      }
+      if (dotOffset != -1 && delimiterOffset != -1) {
+        if (dotOffset < delimiterOffset) {
+          offset = dotOffset + Constants.DOT.length();
+        } else {
+          offset = delimiterOffset + 1;
+          if (offset < str.length() && str.charAt(offset) == '\r') {
+            offset++;
+          }
+        }
+      }
+      logger.debug("skipDamagedPartAndParseAhead() : offset: " + offset);
+      logger.debug("skipDamagedPartAndParseAhead() : done: " + done);
+      if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+        entries.remove(entries.size() - 1);
+        logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+      }
+      entries.add(new Integer(offset - 1 + commonOffset));
+      logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+    }
+    if (!done) {
+      ArrayList tail = new ArrayList();
+      if (offset < str.length()) {
+        logger.debug("skipDamagedPartAndParseAhead() : creating new parser to parse the tail");
+        ProtuneParser parser = ProtuneParser.createParser(str.substring(offset), offset + commonOffset);
+        tail = parser.parse();
+        logger.debug("skipDamagedPartAndParseAhead() : tail size: " + tail.size());
+        if (entries.size() != 0 
+           && entries.get(entries.size() - 1) instanceof Integer 
+           && tail.size() != 0 
+           && tail.get(0) instanceof Integer) {
+         entries.remove(entries.size() - 1);
+         logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+        }
+        for (int i = 0; i < tail.size(); i++) {
+          logger.debug("skipDamagedPartAndParseAhead() : adding tail element to the entries");
+          Object obj = tail.get(i);
+          entries.add(obj);
+        }
+      } else {
+        if (entries.size() != 0 && entries.get(entries.size() - 1) instanceof Integer) {
+          entries.remove(entries.size() - 1);
+          logger.debug("skipDamagedPartAndParseAhead() : removing last entry");
+        }
+        entries.add(new Integer(str.length() - 1 + commonOffset));
+        logger.debug("skipDamagedPartAndParseAhead() : adding an entry");
+      }
+    }
+    logger.debug("skipDamagedPartAndParseAhead() : entries size on exit: " + entries.size());
+    logger.debug("skipDamagedPartAndParseAhead() : EXIT");
+    return entries;
+  }
+}
+
+
+PARSER_END( ProtuneParser )
+
+ArrayList Input( ArrayList entries ) :
+{
+  Directive directive = null;
+  Rule rule = null;
+}
+{
+  ( 
+    directive = Directive()
+    {entries.add(directive);}
+  )* 
+  ( 
+    rule = Rule()
+    {entries.add(rule);}
+  )* 
+  <EOF>
+  {return entries;}
+}
+
+Directive Directive() :
+{
+  StringDescription str = null;
+  StringDescription commandWord = null;
+  Token t = null;
+}
+{
+  t = <INCLUDE>
+  {
+    commandWord = new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn));
+  }
+  str = StringQuoted()
+  {return new Directive(commandWord, str);}
+}
+
+Rule Rule() :
+{
+  StringDescription id = null;
+  StringDescription negSymbolHead = null;
+  Literal literalHead = null;
+  MetaLiteral metaLiteralHead = null;
+  ArrayList list = new ArrayList();
+  boolean isMetaHead = false;
+  boolean hasId = false;
+  StringDescription attribute = null;
+  Term value = null;
+  StringDescription ruleSep = null;
+  StringDescription variable = null;
+  Object obj = null;
+  Token t = null;
+  int offset;
+}
+{
+  (
+    LOOKAHEAD( Term() <OPERATOR> )
+    (
+      literalHead = Literal()
+    )
+    |
+    (
+      (
+        <OPENING_SQUARE_BRACKET>
+        id = Constant()
+        <CLOSING_SQUARE_BRACKET>
+        {hasId = true;}
+      )?
+      (
+        negSymbolHead = NegSymbol()
+      )?
+      literalHead = Literal()
+    )
+  )
+  (
+    LOOKAHEAD( <DOT> Constant() <SEMICOLON> )
+    (
+      <DOT>
+      attribute = Constant()
+      <SEMICOLON>
+      value = Term()
+      {
+        if (hasId) {
+          throw new ParseException("Metarules are not allowed to have ids");
+        }
+        metaLiteralHead = new MetaLiteral(negSymbolHead, literalHead, attribute, value);
+        isMetaHead = true;
+      }
+    )
+  )?
+  (
+    ruleSep = RuleSeparator()
+    obj = LiteralOrMetaLiteralOrComplexTerm()
+    {list.add(obj);}
+    (
+      <COMMA>
+      obj = LiteralOrMetaLiteralOrComplexTerm()
+      {list.add(obj);}
+    )*
+  )?
+  t = <DOT>
+  {
+    offset = calculateOffset(t.endLine, t.endColumn);
+    if (isMetaHead) {
+      // meta rule parsed
+      return new Rule(id, metaLiteralHead, ruleSep, list, offset);
+    } else {
+      // normal rule parsed
+      return new Rule(id, negSymbolHead, literalHead, ruleSep, list, offset);
+    }
+  }
+}
+
+Object LiteralOrMetaLiteralOrComplexTerm() :
+{
+  StringDescription negSymbol = null;
+  Object obj = null;
+  Term value = null;
+  StringDescription attribute = null;
+  boolean isMetaLiteral = false;
+  StringDescription variable = null;
+  Literal literal = null;
+}
+{
+  (
+    LOOKAHEAD( (NegSymbol())? Literal() )
+    (
+      (
+        negSymbol = NegSymbol()
+        {isMetaLiteral = true;}
+      )?
+      literal = Literal()
+      (
+        LOOKAHEAD( <DOT> Constant() <SEMICOLON> )
+        (
+          <DOT>
+          attribute = Constant()
+          <SEMICOLON>
+          value = Term()
+          {isMetaLiteral = true;}
+        )
+      )?
+      {
+        if (isMetaLiteral) {
+          obj = new MetaLiteral(negSymbol, literal, attribute, value);
+        } else {
+          obj = literal;
+        }
+      }
+    )
+    |
+    (
+      (
+        variable = Variable()
+        <DOT>
+        attribute = Constant()
+        <SEMICOLON>
+        value = Term()
+        {obj = new ComplexTerm(variable, attribute, value);}
+      )
+    )
+  )
+  {return obj;}
+}
+
+StringDescription StringConstant() :
+{
+  StringBuffer buff = new StringBuffer();
+  char c;
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  t = <LOWER_CASE>
+  {
+    buff.append((char)t.image.charAt(0));
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+  }
+  (
+   ( 
+     ( t=<DIGIT> ) 
+   | ( t=<LOWER_CASE> ) 
+   | ( t=<UPPER_CASE> ) 
+   | ( t=<UNDERSCORE> ) 
+   )
+   { 
+     if (t.specialToken != null) {
+       throw new ParseException("whitespace(s) in a string");
+     }
+     c = (char)t.image.charAt(0);
+     buff.append(c);
+   }
+  )*
+  {
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(buff.toString(), beginOffset, endOffset));
+  }
+}
+
+StringDescription StringDigit() :
+{
+  StringBuffer buff = new StringBuffer();
+  char c;
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  t = <DIGIT>
+  {
+    buff.append((char)t.image.charAt(0));
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+  }
+  (
+   ( 
+     ( t=<DIGIT> ) 
+   | ( t=<LOWER_CASE> ) 
+   | ( t=<UPPER_CASE> ) 
+   | ( t=<UNDERSCORE> ) 
+   )
+   { 
+     if (t.specialToken != null) {
+       throw new ParseException("whitespace(s) in a string");
+     }
+     c = (char)t.image.charAt(0);
+     buff.append(c);
+   }
+  )*
+  {
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(buff.toString(), beginOffset, endOffset));
+  }
+}
+
+StringDescription Variable() :
+{
+  StringBuffer buff = new StringBuffer();
+  char c;
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  ( (t = <UPPER_CASE>) | (t = <UNDERSCORE>) )
+  {
+    buff.append((char)t.image.charAt(0));
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+  }
+  (
+   ( 
+     ( t=<DIGIT> ) 
+   | ( t=<LOWER_CASE> ) 
+   | ( t=<UPPER_CASE> ) 
+   | ( t=<UNDERSCORE> ) 
+   )
+   { 
+     if (t.specialToken != null) {
+       throw new ParseException("whitespace(s) in a string");
+     }
+     c = (char)t.image.charAt(0);
+     buff.append(c);
+   }
+  )*
+  {
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(buff.toString(), beginOffset, endOffset));
+  }
+}
+
+VariableBinding VariableBinding() :
+{
+  StringDescription variable = null;
+  StringDescription constant = null;
+}
+{
+  (
+    (
+      variable = Variable()
+      <EQUAL>
+      constant = Constant()
+    )
+    |
+    (
+      constant = Constant()
+      <EQUAL>
+      variable = Variable()
+    )
+  )
+  {return new VariableBinding(variable, constant);}
+}
+
+StringDescription Operator() :
+{
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  t = <OPERATOR>
+  {
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(t.image, beginOffset, endOffset));
+  }
+}
+
+StringDescription NegSymbol() :
+{
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  t = <NEG_SYMBOL>
+  {
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(t.image, beginOffset, endOffset));
+  }
+}
+
+StringDescription RuleSeparator() :
+{
+  Token t = null;
+  int beginOffset, endOffset;
+}
+{
+  t = <RULE_SEPARATOR>
+  {
+    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(t.image, beginOffset, endOffset));
+  }
+}
+
+ArrayList VariableBindingList() :
+{
+  ArrayList list = new ArrayList();
+  VariableBinding binding = null;
+}
+{
+  binding = VariableBinding()
+  {list.add(binding);}
+  (
+    <COMMA>
+    binding = VariableBinding()
+    {list.add(binding);}
+  )*
+  {return list;}
+}
+
+StringDescription Constant() :
+{
+  StringDescription str = null;
+}
+{
+  (
+    (
+      str = StringDigit()
+    )
+    |
+    (
+      str = StringQuoted()
+    )
+    |
+    (
+      str = StringConstant()
+    )
+  )
+  {return str;}
+}
+
+StringDescription StringQuoted() :
+{
+  StringBuffer buff = new StringBuffer();
+  Token t;
+  int beginOffset, endOffset;
+}
+{
+  (
+    (
+      t = <START_SINGLE_QUOTE>
+      {
+        buff.append((char)t.image.charAt(0));
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_SINGLE_QUOTE>
+      {
+        buff.append((char)t.image.charAt(0));
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+      }
+    )
+    |
+    (
+      t = <START_DOUBLE_QUOTE>
+      {
+        buff.append((char)t.image.charAt(0));
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_DOUBLE_QUOTE>
+      {
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+        buff.append((char)t.image.charAt(0));
+      }
+    )
+  )
+  {return new StringDescription(buff.toString(), beginOffset, endOffset);}
+}
+
+Literal Literal() :
+{
+  Literal literal = null;
+  ArrayList list = null;
+  StringDescription str = null;
+  boolean isVariable = false;
+  Term termBefore = null;
+  Term termAfter = null;
+  StringDescription operator = null;
+  Arguments arguments = null;
+  Token t = null;
+  StringDescription commandWord = null;
+}
+{
+  (
+    (
+      (
+        t = <DECLARATION>
+        {
+          commandWord = new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn));
+        }
+        <OPENING_BRACKET>
+        <OPENING_SQUARE_BRACKET>
+        list = VariableBindingList()
+        {literal = new Literal(commandWord, list);}
+        <CLOSING_SQUARE_BRACKET>
+        <CLOSING_BRACKET>
+      )
+      |
+      (
+        str = StringConstant()
+        (
+          (
+            operator = Operator()
+            termAfter = Term()
+            {literal = new Literal(new Term(false, str), operator, termAfter);}
+          )
+          |
+          (
+            arguments = Arguments()
+            {literal = new Literal(str, arguments);}
+          )
+        )
+      )
+    )
+    |
+    (
+      // ignore warning messsage about choice conflict here:
+      termBefore = Term()
+      operator = Operator()
+      termAfter = Term()
+      {literal = new Literal(termBefore, operator, termAfter);}
+    )
+  )
+  {return literal;}
+}
+
+Term Term() :
+{
+  ArrayList list = new ArrayList();
+  Term term = null;
+  StringDescription str = null;
+}
+{
+  (
+    (
+      <OPENING_SQUARE_BRACKET>
+      (
+        term = Term()
+        {list.add(term);}
+        (
+          <COMMA>
+          term = Term()
+          {list.add(term);}
+        )*
+      )?
+      <CLOSING_SQUARE_BRACKET>
+      {term = new Term(list);}
+    )
+    |
+    (
+      str = Variable()
+      {term = new Term(true, str);}
+    )
+    |
+    (
+      str = Constant()
+      {term = new Term(false, str);}
+    )
+  )
+  {return term;}
+}
+
+ComplexTerm ComplexTerm() :
+{
+  StringDescription variable = null;
+  StringDescription attribute = null;
+  Term value = null;
+}
+{
+  variable = Variable()
+  <DOT>
+  attribute = Constant()
+  <SEMICOLON>
+  value = Term()
+  {return new ComplexTerm(variable, attribute, value);}
+}
+
+Argument Argument() :
+{
+  Token t = null;
+  StringDescription str = null;
+  StringDescription function = null;
+  Term term = null;
+  ArrayList list = new ArrayList();
+  Arguments arguments = null;
+  Argument argument = null;
+  boolean isVariable = false;
+}
+{
+  (
+    (
+      str = StringConstant()
+      (
+        (
+          <SEMICOLON>
+          function = StringConstant()
+          <OPENING_BRACKET>
+          term = Term()
+          <CLOSING_BRACKET>
+          {argument = new Argument(str, function, term);}
+        )
+        |
+        (
+          arguments = Arguments()
+          {argument = new Argument(str, arguments);}
+        )
+      )
+    )
+    |
+    (
+      (
+        (
+          str = StringQuoted()
+        )
+        |
+        (
+          str = Variable()
+          {isVariable = true;}
+        )
+        |
+        (
+          str = StringDigit()
+        )
+      )
+      {argument = new Argument(new Term(isVariable, str));}
+    )
+    |
+    (
+      <OPENING_SQUARE_BRACKET>
+      term = Term()
+      {list.add(term);}
+      (
+        <COMMA>
+        term = Term()
+        {list.add(term);}
+      )*
+      <CLOSING_SQUARE_BRACKET>
+      {argument = new Argument(new Term(list));}
+    )
+  )
+  {return argument;}
+}
+
+Arguments Arguments() :
+{
+  ArrayList list = new ArrayList();
+  Argument argument = null;
+  boolean exists = false;
+}
+{
+  (
+    <OPENING_BRACKET>
+    (
+      argument = Argument()
+      {list.add(argument);}
+      (
+        <COMMA>
+        argument = Argument()
+        {list.add(argument);}
+      )*
+    )?
+    <CLOSING_BRACKET>
+    {exists = true;}
+  )?
+  {
+    if (exists) {
+      return new Arguments(list);
+    } else {
+      return new Arguments();
+    }
+  }
+}
+
+SPECIAL_TOKEN :
+{
+    " "
+  | "\t"
+  | "\n"
+  | "\r"
+}
+
+TOKEN :
+{
+    <DIGIT : ["0"-"9"]>
+  | <INCLUDE : "include">
+  | <DECLARATION : "declaration">
+  | <LOWER_CASE : ["a"-"z"]>
+  | <UPPER_CASE : ["A"-"Z"]>
+  | <UNDERSCORE : "_">
+  | <OPENING_BRACKET : "(">
+  | <CLOSING_BRACKET : ")">
+  | <OPENING_SQUARE_BRACKET : "[">
+  | <CLOSING_SQUARE_BRACKET : "]">
+  | <NEG_SYMBOL : "not" | "\\=">
+  | <RULE_SEPARATOR : "<-" | ":-">
+  | <COMMA : ",">
+  | <SEMICOLON : ":">
+  | <DOT : ".">
+  | <OPERATOR : "<=" | ">=" | "!=" | "<" | ">" | "==">
+  | <EQUAL : "=">
+  | <START_SINGLE_QUOTE : "'"> : IN_SINGLE_QUOTE 
+  | <START_DOUBLE_QUOTE : "\""> : IN_DOUBLE_QUOTE 
+  | <ANY_CHARACTER : ~[]>
+}
+
+<IN_SINGLE_QUOTE>
+TOKEN : 
+{
+    <END_SINGLE_QUOTE: "'"> : DEFAULT 
+}
+
+<IN_DOUBLE_QUOTE>
+TOKEN : 
+{
+    <END_DOUBLE_QUOTE: "\""> : DEFAULT 
+}
+
+<IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE>
+TOKEN :
+{
+    <ANY_CHAR : ~[]> 
+}

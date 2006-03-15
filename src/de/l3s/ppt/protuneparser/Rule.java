@@ -7,7 +7,7 @@ public class Rule{
 	private boolean hasId = false;
 	private boolean hasNegSymbol = false;
 	private StringDescription id = null;
-	private StringDescription idSeparator = null;
+	//private StringDescription idSeparator = null;
 	private StringDescription negSymbol = null;
 	private StringDescription ruleSep = null;
 	private Literal head = null;
@@ -15,12 +15,12 @@ public class Rule{
 	private ArrayList body = null;
 	public int offsetInInput = -1;
 
-	public Rule( StringDescription id, StringDescription idSeparator, StringDescription negSymbol,
+	public Rule( StringDescription id, StringDescription negSymbol,
 			Literal head, StringDescription ruleSep, ArrayList body, int offset) {
 		if (id != null) {
 			hasId = true;
 			this.id = id;
-			this.idSeparator = idSeparator;
+			//this.idSeparator = idSeparator;
 		}
 		if (negSymbol != null) {
 			hasNegSymbol = true;
@@ -35,13 +35,13 @@ public class Rule{
 		}
 		this.offsetInInput = offset;
 	}
-	public Rule( StringDescription id, StringDescription idSeparator, MetaLiteral head, 
+	public Rule( StringDescription id, MetaLiteral head, 
 			StringDescription ruleSep, ArrayList body, int offset) {
 		isMetaRule = true;
 		if (id != null) {
 			hasId = true;
 			this.id = id;
-			this.idSeparator = idSeparator;
+			//this.idSeparator = idSeparator;
 		}
 		this.metaHead = head;
 		this.ruleSep = ruleSep;
@@ -55,8 +55,10 @@ public class Rule{
 	public String getImage() {
 		StringBuffer buff = new StringBuffer();
 		if (hasId) {
+			buff.append(Constants.OPENING_SQUARE_BRACKET);
 			buff.append(id.getStr());
-			buff.append(idSeparator.getStr());
+			buff.append(Constants.CLOSING_SQUARE_BRACKET);
+			//buff.append(idSeparator.getStr());
 		}
 		if (hasNegSymbol) {
 			buff.append(negSymbol.getStr());
@@ -94,9 +96,9 @@ public class Rule{
 	public StringDescription getId() {
 		return id;
 	}
-	public StringDescription getIdSeparator() {
-		return idSeparator;
-	}
+//	public StringDescription getIdSeparator() {
+//		return idSeparator;
+//	}
 	public boolean hasNegSymbol() {
 		return hasNegSymbol;
 	}

@@ -413,14 +413,12 @@ protected SimpleCharStream input_stream;
 private final int[] jjrounds = new int[3];
 private final int[] jjstateSet = new int[6];
 protected char curChar;
-public PeerTrustParserTokenManager(SimpleCharStream stream)
-{
+public PeerTrustParserTokenManager(SimpleCharStream stream){
    if (SimpleCharStream.staticFlag)
       throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
    input_stream = stream;
 }
-public PeerTrustParserTokenManager(SimpleCharStream stream, int lexState)
-{
+public PeerTrustParserTokenManager(SimpleCharStream stream, int lexState){
    this(stream);
    SwitchTo(lexState);
 }
