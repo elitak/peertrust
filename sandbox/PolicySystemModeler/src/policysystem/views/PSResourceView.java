@@ -162,55 +162,60 @@ public class PSResourceView extends ViewPart
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) 
 	{
 		//part.getSite().getPage().getViewReferences()[0].
-		if(selection instanceof StructuredSelection)
-		{
-			Object el=
-				((StructuredSelection)selection).getFirstElement();
-			if(el instanceof String)
+		try {
+			if(selection instanceof StructuredSelection)
 			{
-				if(el.equals(
-						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+				Object el=
+					((StructuredSelection)selection).getFirstElement();
+				if(el instanceof String)
 				{
-					String rootDir=
-						ProjectConfig.getInstance().getProperty("rootDir");
-					if(rootDir==null)
+					if(el.equals(
+							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
 					{
-						return;
+						String rootDir=
+							ProjectConfig.getInstance().getProperty("rootDir");
+						if(rootDir==null)
+						{
+							return;
+						}
+						treeView.setInput(el);//new File(rootDir));
+						addAction.setEnabled(false);
+						removeAction.setEnabled(false);
 					}
-					treeView.setInput(el);//new File(rootDir));
-					addAction.setEnabled(false);
-					removeAction.setEnabled(false);
+					else if(el.equals(
+							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
+					{
+						treeView.setInput(el);
+						addAction.setEnabled(true);
+						removeAction.setEnabled(true);
+					}
+					else if(el.equals(
+							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
+					{
+						treeView.setInput(el);
+						addAction.setEnabled(true);
+						removeAction.setEnabled(true);
+					}
+					else if(el.equals(
+							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
+					{
+						treeView.setInput(el);
+						addAction.setEnabled(true);
+						removeAction.setEnabled(true);
+					}
+					else
+					{
+						treeView.setInput(null);
+						addAction.setEnabled(false);
+						removeAction.setEnabled(false);
+					}
 				}
-				else if(el.equals(
-						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
-				{
-					treeView.setInput(el);
-					addAction.setEnabled(true);
-					removeAction.setEnabled(true);
-				}
-				else if(el.equals(
-						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
-				{
-					treeView.setInput(el);
-					addAction.setEnabled(true);
-					removeAction.setEnabled(true);
-				}
-				else if(el.equals(
-						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
-				{
-					treeView.setInput(el);
-					addAction.setEnabled(true);
-					removeAction.setEnabled(true);
-				}
-				else
-				{
-					treeView.setInput(null);
-					addAction.setEnabled(false);
-					removeAction.setEnabled(false);
-				}
+				
+				//System.out.println("dadadadad:"+el);
 			}
-			
-			//System.out.println("dadadadad:"+el);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

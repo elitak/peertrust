@@ -314,61 +314,69 @@ public class ResourcePolicyView extends ViewPart
 				"\n\tselectionclass:"+((StructuredSelection)selection).getFirstElement());
 		Object sel0=((StructuredSelection)selection).getFirstElement();
 		
-		if(selection==null)
-		{
-			logger.warn("selection first element is null");
-			return;
-		}
-		
-		if(part instanceof PolicySystemView)
-		{
-			pageBook.showPage(blankPage.getControl());
-		}
-		else if(sel0 instanceof PSPolicy)
-		{
-			pageBook.showPage(policyEditorPage.getControl());
-			policyEditorPage.setPsPolicy(
-					(PSPolicy)sel0);
-		}
-		else if(sel0 instanceof PSOverrindingRule)
-		{
-			pageBook.showPage(overriddingRuleEditorPage.getControl());
-			overriddingRuleEditorPage.setOverrindingRule(
-					(PSOverrindingRule)sel0);
-		}
-		else if(sel0 instanceof PSFilter)
-		{
-			pageBook.showPage(filterEditorPage.getControl());
-			filterEditorPage.setPSFilter((PSFilter)sel0);
-		}
-		else if(sel0 instanceof File)
-		{
-			File selFile= (File)sel0;
-			if(selFile.isFile())
+		try {
+			if(selection==null)
 			{
-				int decision=askYesNoQuestion(
-					"You have selected a file not a directory.\n"+
-					"Do you want show the parent directory",
-					part.getSite().getShell());
-				if(decision==SWT.YES)
-				{
-					selFile=selFile.getParentFile();
-				}
-				else
-				{
-					return;
-				}
+				logger.warn("selection first element is null");
+				return;
 			}
 			
+			if(part instanceof PolicySystemView)
+			{
+				pageBook.showPage(blankPage.getControl());
+			}
+			else if(sel0 instanceof PSPolicy)
+			{			
+					
+					if(policyEditorPage!=null)
+					{
+						pageBook.showPage(policyEditorPage.getControl());
+						policyEditorPage.setPsPolicy(
+								(PSPolicy)sel0);
+					}
+			}
+			else if(sel0 instanceof PSOverrindingRule)
+			{
+				pageBook.showPage(overriddingRuleEditorPage.getControl());
+				overriddingRuleEditorPage.setOverrindingRule(
+						(PSOverrindingRule)sel0);
+			}
+			else if(sel0 instanceof PSFilter)
+			{
+				pageBook.showPage(filterEditorPage.getControl());
+				filterEditorPage.setPSFilter((PSFilter)sel0);
+			}
+			else if(sel0 instanceof File)
+			{
+				File selFile= (File)sel0;
+				if(selFile.isFile())
+				{
+					int decision=askYesNoQuestion(
+						"You have selected a file not a directory.\n"+
+						"Do you want show the parent directory",
+						part.getSite().getShell());
+					if(decision==SWT.YES)
+					{
+						selFile=selFile.getParentFile();
+					}
+					else
+					{
+						return;
+					}
+				}
+				
 //			localPolicyView.setInput(selFile);
 //			pageBook.showPage(localPolicyView.getControl());
-			resourcePolicyEditorPage.setInput(selFile);
-			pageBook.showPage(resourcePolicyEditorPage.getControl());
-		}
-		else
-		{
-			logger.warn("Cannoet handle selection of this class:"+sel0.getClass());
-			pageBook.showPage(blankPage.getControl());
+				resourcePolicyEditorPage.setInput(selFile);
+				pageBook.showPage(resourcePolicyEditorPage.getControl());
+			}
+			else
+			{
+				//logger.warn("Cannoet handle selection of this class:"+sel0.getClass());
+				pageBook.showPage(blankPage.getControl());
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
 		}
 		
 		return;

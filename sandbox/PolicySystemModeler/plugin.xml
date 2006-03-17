@@ -89,8 +89,8 @@
          id="policysystemID"
          point="org.eclipse.core.runtime.products">
       <product
-      		name="policysystem.Product"
-            application="policysystem.Application"/>
+      		name="Editor.EditorApplication"
+            application="Editor.EditorApplication"/>
    </extension>
 
 </plugin>

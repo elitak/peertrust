@@ -1,4 +1,4 @@
-/**
+	/**
  * 
  */
 package policysystem.model;
@@ -61,47 +61,51 @@ public class ResourcePolicyContentProvider
 					" class="+inputElement.getClass());
 		if(inputElement instanceof File)
 		{
-			File file=(File)inputElement;
-			if(file.isFile())
-			{
-				logger.warn("Cannot handle file["+file.toURI()+
-							"]; directory expedted");
-				return EMPTY_ARRAY;//new Object[0];
-			}
-			
-			PSResource res= 
-				PolicySystemRDFModel.getInstance().getResource(
-											file.toString(),
-											true,
-											new FileResourceSelector(file));
-			
-			Vector dirPolicies=res.getIsProtectedBy();
-			Vector filters = res.getHasFilter();
-			Vector allPolicies= new Vector();
-			
-			if(dirPolicies!=null)
-			{
-				allPolicies.addAll(dirPolicies);
-			}
-			
-			if(filters!=null)
-			{
-					Iterator it=filters.iterator();
-					PSFilter filter;
-					
-					for(;it.hasNext();)
-					{
-						filter=(PSFilter)it.next();
-						allPolicies.addAll(filter.getIsprotectedBy());
-					}
-			}
-			if(allPolicies.size()>0)
-			{
-				return allPolicies.toArray();
-			}
-			else
-			{
-				logger.info("no policy found for:"+inputElement);
+			try {
+				File file=(File)inputElement;
+				if(file.isFile())
+				{
+					logger.warn("Cannot handle file["+file.toURI()+
+								"]; directory expedted");
+					return EMPTY_ARRAY;//new Object[0];
+				}
+				
+				PSResource res= 
+					PolicySystemRDFModel.getInstance().getResource(
+												file.toString(),
+												true,
+												new FileResourceSelector(file));
+				
+				Vector dirPolicies=res.getIsProtectedBy();
+				Vector filters = res.getHasFilter();
+				Vector allPolicies= new Vector();
+				
+				if(dirPolicies!=null)
+				{
+					allPolicies.addAll(dirPolicies);
+				}
+				
+				if(filters!=null)
+				{
+						Iterator it=filters.iterator();
+						PSFilter filter;
+						
+						for(;it.hasNext();)
+						{
+							filter=(PSFilter)it.next();
+							allPolicies.addAll(filter.getIsprotectedBy());
+						}
+				}
+				if(allPolicies.size()>0)
+				{
+					return allPolicies.toArray();
+				}
+				else
+				{
+					logger.info("no policy found for:"+inputElement);
+					return EMPTY_ARRAY;
+				}
+			} catch (RuntimeException e) {
 				return EMPTY_ARRAY;
 			}
 			
