@@ -34,6 +34,8 @@ import org.eclipse.ui.part.ViewPart;
 
 
 import policysystem.ApplicationWorkbenchAdvisor;
+import policysystem.control.ChooserWizardPage;
+import policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.PolicySystemResTreeContentProvider;
 import policysystem.model.ProjectConfig;
@@ -42,6 +44,7 @@ import policysystem.model.abtract.PSModelChangeEvent;
 import policysystem.model.abtract.PSModelChangeEventListener;
 import policysystem.model.abtract.PSOverrindingRule;
 import policysystem.model.abtract.PSPolicy;
+import policysystem.model.abtract.PSResource;
 
 public class PSResourceView extends ViewPart
 							implements 	ISelectionListener,
@@ -55,6 +58,7 @@ public class PSResourceView extends ViewPart
 	private ToolBarManager toolbarManager;
 	private Action addAction;
 	private Action removeAction;
+	private Action protectAction;
 	
 	public PSResourceView()
 	{
@@ -87,7 +91,7 @@ public class PSResourceView extends ViewPart
 				//getViewSite().getPart(),
 				this.getViewSite(),
 				(IDoubleClickListener)null,
-				new Action[]{addAction,removeAction},
+				new Action[]{addAction,removeAction,protectAction},
 				treeView,
 				treeView.getControl(),
 				treeView,
@@ -125,44 +129,67 @@ public class PSResourceView extends ViewPart
 		removeAction.setToolTipText("remove");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+		
+		protectAction = new Action() {
+			public void run() {
+				protectActionRun();
+			}
+		};
+		
+		protectAction.setText("P");
+		protectAction.setToolTipText("Protect");
 	}
 	
-	private ToolBar makeToolBar(Composite parent) 
+	
+//	private ToolBar makeToolBar(Composite parent) 
+//	{
+//		
+//	}
+	
+	//////////////////////////////////////////////////////////////////
+	private void protectActionRun()
 	{
-		///manager
-		toolbarManager= new ToolBarManager();
-		///
-		addAction = new Action() {
-			public void run() {
-				addActionRun();
-				System.out.println("blablablablablabblablabala");
+		Object input=treeView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else if(input instanceof String)
+		{
+			try {
+				if(((String)input).equals(
+						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+				{
+					StructuredSelection structSel=
+						(StructuredSelection)treeView.getSelection();
+					Object sel0=structSel.getFirstElement();
+					if(sel0 instanceof File)
+					{
+						PSResource psRes=
+							PolicySystemRDFModel.getInstance().getResource(
+									((File)sel0).getCanonicalPath(),true,null);
+						PSPolicy pol=
+							ChooserWizardPage.choosePlicy(
+									treeView.getControl().getShell());
+						if(pol!=null)
+						{
+							psRes.addIsProtectedBy(pol);
+						}
+					}
+					else
+					{
+						System.out.println("Type:"+sel0.getClass());
+					}
+					
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
 			}
-		};
-		addAction.setText("create");
-		addAction.setToolTipText("create");
-		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
-		
-		toolbarManager.add(addAction);
-		
-		removeAction = new Action() {
-			public void run() {
-	
-			}
-		};
-		
-		removeAction.setText("remove");
-		removeAction.setToolTipText("remove");
-		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
-		toolbarManager.add(removeAction);
-		
-		parent.setLayout(new GridLayout());
-		GridData gd= new GridData(GridData.FILL_BOTH);
-		ToolBar tb= toolbarManager.createControl(parent);
-		tb.setLayoutData(gd);
-		return tb;
+		}
 	}
+	
 	//////////////////////////////////////////////////////////////////
 	private void addActionRun()
 	{

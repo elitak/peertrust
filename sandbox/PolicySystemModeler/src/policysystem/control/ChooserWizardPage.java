@@ -4,17 +4,22 @@
 package policysystem.control;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
 
+import policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.abtract.ModelObjectWrapper;
 import policysystem.model.abtract.PSPolicy;
 import policysystem.model.abtract.PSResource;
 
-class ChooserWizardPage extends WizardPage
+public class ChooserWizardPage extends WizardPage
 	{
 		/**
 		 * 
@@ -85,6 +90,39 @@ class ChooserWizardPage extends WizardPage
 		public String getName() {
 		
 			return super.getName();
+		}
+		
+		public static PSPolicy choosePlicy(Shell  shell)
+		{
+			//DialogPage p;
+			final PSPolicy selPol[]={null};
+			Wizard wiz=new Wizard()
+			{
+				private Object selected;
+				public boolean performFinish() 
+				{
+					selPol[0]=
+						(PSPolicy)((ChooserWizardPage)this.getPages()[0]).getSelected();
+					return true;
+				}
+			};
+			 
+			ChooserWizardPage page=
+				new ChooserWizardPage("Choose Policy",PSPolicy.class);
+			wiz.addPage(page);
+			WizardDialog dlg=
+				new WizardDialog(
+						shell,
+						wiz);
+			
+			int resp=dlg.open();
+			PSPolicy sel=
+				selPol[0];//(PSPolicy)page.getSelected();
+			if(sel==null)
+			{
+				return null;
+			}
+			return sel;
 		}
 				
 	}

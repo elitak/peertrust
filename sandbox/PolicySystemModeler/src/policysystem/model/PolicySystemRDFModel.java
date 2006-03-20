@@ -293,6 +293,11 @@ public class PolicySystemRDFModel
 		return policySystemRDFModel;
 	}
 	
+	public void clearRDFModel()
+	{
+		rdfModel.removeAll();
+	}
+	
 	static public void main(String[] args) throws IOException{
 //		//String rdfPath="/home/pat_dev/Ontologies/policies/policy_system.rdf";
 //		String rdfPath="/home/pat_dev/Ontologies/ptmodeler/export/PeertrustModelerTools.rdf";
@@ -849,11 +854,11 @@ public class PolicySystemRDFModel
 			stm=it.nextStatement();
 			res=stm.getSubject();
 		}
-		else
-		{
-			logger.warn("No Model entry found for:"+identity);
-			return null;
-		}
+//		else
+//		{
+//			logger.warn("No Model entry found for:"+identity);
+//			return null;
+//		}
 		
 		if(it.hasNext())
 		{

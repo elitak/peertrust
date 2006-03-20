@@ -46,6 +46,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewFileResourceWizard;
 import policysystem.control.CreateNewProjectPage;
 import policysystem.control.NewProjectDlg;
 
+import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.ProjectConfig;
 import policysystem.model.abtract.PSPolicy;
 import policysystem.views.PolicySystemView;
@@ -70,6 +71,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	    //menu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 	    menu.add(new OpenAction());
 	    menu.add(new NewAction());
+	    menu.add(new SaveAction());
 	    //menu.add(ActionFactory.QUIT.create(window));
 	    //menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_END));
 	    return menu;
@@ -78,7 +80,44 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     
     
     
-    
+    ////////////////////////////////////////////////////////////////////////
+    class SaveAction extends Action {
+  	  /**
+  	   * OpenAction constructor
+  	   */
+  	  public SaveAction() {
+  	    super("&Save", //"&Open...@Ctrl+O", 
+  	    		PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+      	    			ISharedImages.IMG_TOOL_UP));
+  	    
+  	    ImageDescriptor id=
+  	    	PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+  	    			ISharedImages.IMG_OBJ_FOLDER);
+  	    setDisabledImageDescriptor(id);
+  	    
+  	    setToolTipText("Save");
+  	  }
+
+  	  /**
+  	   * Opens an existing file
+  	   */
+  	  public void run() {
+  	    try {
+			// Use the file dialog
+			 ProjectConfig pConfig= ProjectConfig.getInstance();
+			String rdfModelFile=  pConfig.getProperty(ProjectConfig.RDF_MODEL_FILE);
+			File saveTmp= new File(rdfModelFile+".tmp");
+			
+			saveTmp.createNewFile();
+			PolicySystemRDFModel.getInstance().saveTo(saveTmp.getCanonicalPath());
+			File old= new File(rdfModelFile);
+			old.renameTo(new File(rdfModelFile+".old"));
+			saveTmp.renameTo(new File(rdfModelFile));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+  	  }
+  	}//end save action
     
     ////////////////////////////////////////////////////////////////////////
     
@@ -116,6 +155,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			String fileName = dlg.open();
 			System.out.println("fileNammmmmme:"+fileName);
 			if (fileName != null) {
+				PolicySystemRDFModel.getInstance().clearRDFModel();
 				ProjectConfig.getInstance().setProjectFile(fileName);				
 			}
     	  }
@@ -146,7 +186,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
   		IWorkbench wb=PlatformUI.getWorkbench();
   		Shell shell=
   			wb.getActiveWorkbenchWindow().getShell();
-  		try {
+  		try 
+  		{
+  			PolicySystemRDFModel.getInstance().clearRDFModel();
 			CreateNewProjectWizard wiz= new CreateNewProjectWizard();
 			
 			CreateNewProjectPage npp= new CreateNewProjectPage("New Project");

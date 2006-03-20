@@ -41,7 +41,7 @@ public class PSOverriddingRuleEditorPage extends Page
 	private Button setButton;
 	static private Logger logger= Logger.getLogger(PSOverriddingRuleEditorPage.class);
 	private PSPolicy selectedOverridden=null;
-	private PSPolicy selectedOverridder;
+	private PSPolicy selectedOverridder=null;
 	
 	public void createControl(Composite parent) 
 	{
@@ -157,10 +157,21 @@ public class PSOverriddingRuleEditorPage extends Page
 		{
 			return;
 		}
-//		PolicySystemRDFModel.getInstance().getOverriddingRules()
-//		psPolicy.setLabel(newLabel);
-//		System.out.println("daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//		psPolicy.setHasValue(newValue);
+		
+		if(selectedOverridden!=null)
+		{
+			overrindingRule.setHasOverriden(selectedOverridden);
+		}
+		
+		if(selectedOverridder!=null)
+		{
+			overrindingRule.setHasOverrider(selectedOverridder);
+		}
+		String ruleLabel=labelFieldEditor.getStringValue();
+		if(ruleLabel!=null || !"".equals(ruleLabel))
+		{
+			overrindingRule.setLabel(ruleLabel);
+		}
 	}
 	
 	private FieldValueProvider createOverridenProvider()
@@ -250,9 +261,13 @@ public class PSOverriddingRuleEditorPage extends Page
 		return pv;
 	}
 	
-	class ChooserWizard extends Wizard
+	public class ChooserWizard extends Wizard
 	{
 		private Object selected;
+		public ChooserWizard()
+		{
+			
+		}
 		public boolean performFinish() 
 		{
 			selected=((ChooserWizardPage)
