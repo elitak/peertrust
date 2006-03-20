@@ -139,6 +139,7 @@ public class PSResourcePolicyPageBookView extends PageBookView
 		filterEditorPage.createControl(pageBook);
 		
 		pageBook.showPage(resourcePolicyEditorPage.getControl());
+		//pageBook.showPage(pjtEd.getControl());
 		////
 		PageBookView pbv;
 		Viewer v;
@@ -238,6 +239,7 @@ public class PSResourcePolicyPageBookView extends PageBookView
 	private void makeActions() {
 		addAction = new Action() {
 			public void run() {
+				
 				//showMessage("Action 1 executed");
 //				try {
 //					PolicySystemRDFModel psRDFModel=
@@ -256,7 +258,8 @@ public class PSResourcePolicyPageBookView extends PageBookView
 		
 		removeAction = new Action() {
 			public void run() {
-				showMessage("Action 2 executed");
+				//showMessage("Action 2 executed");
+				
 			}
 		};
 		removeAction.setText("Action 2");

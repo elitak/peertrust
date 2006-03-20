@@ -35,11 +35,14 @@ public class PSOverriddingRuleEditorPage extends Page
 	private Composite parent;
 	private Composite top;
 	private PSOverrindingRule overrindingRule;
-	private StringButtonFieldEditor labelFieldEditor;
+	private StringFieldEditor labelFieldEditor;
 	private StringButtonFieldEditor overridderFieldEditor;
 	private StringButtonFieldEditor overriddenFieldEditor;
 	private Button setButton;
-	Logger logger= Logger.getLogger(PSOverriddingRuleEditorPage.class);
+	static private Logger logger= Logger.getLogger(PSOverriddingRuleEditorPage.class);
+	private PSPolicy selectedOverridden=null;
+	private PSPolicy selectedOverridder;
+	
 	public void createControl(Composite parent) 
 	{
 		System.out.println("SSSSSSSSSSSSSSSSSSSS:"+parent.getShell());
@@ -57,7 +60,9 @@ public class PSOverriddingRuleEditorPage extends Page
 		Composite panel=
 			top;//new Group(top);//new Composite(top,SWT.NONE);
 		
-		labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
+		//labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
+		labelFieldEditor= new StringFieldEditor("labelFieldEditor","Label",panel);
+		headerdd= new Label(top,SWT.NONE);
 //		
 //			new StringButtonFieldEditor(
 //					"labelFieldEditor","Label",panel);
@@ -72,7 +77,17 @@ public class PSOverriddingRuleEditorPage extends Page
 		overriddenFieldEditor=
 			new StringButtonFieldEditor(
 					"overriddenFieldEditor","overridden",panel);
-		overriddenFieldEditor.setFieldValueProvider(createOverridenProvoder());
+		overriddenFieldEditor.setFieldValueProvider(createOverridenProvider());
+		
+		headerdd= new Label(top,SWT.NONE);
+		setButton= new Button(top,SWT.NONE);
+		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		setButton.setText("set");
+		setButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {	
+				saveEdit();
+			}
+		});
 		
 		///
 		
@@ -102,12 +117,25 @@ public class PSOverriddingRuleEditorPage extends Page
 
 	public void setOverrindingRule(PSOverrindingRule overrindingRule) 
 	{
+		if(overrindingRule==null)
+		{
+			return;
+		}
 		try {
 			this.overrindingRule = overrindingRule;
-			overriddenFieldEditor.setStringValue(
-					overrindingRule.getHasOverridden().getLabel());
-			overridderFieldEditor.setStringValue(
-					overrindingRule.getHasOverridder().getLabel());
+			PSPolicy psPol=overrindingRule.getHasOverridden();
+			if(psPol!=null)
+			{
+				overriddenFieldEditor.setStringValue(psPol.getLabel());	
+			}
+			
+			psPol=overrindingRule.getHasOverridder();
+			if(psPol!=null)
+			{
+				overridderFieldEditor.setStringValue(psPol.getLabel());
+			}
+			
+			labelFieldEditor.setStringValue(overrindingRule.getLabel());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -135,7 +163,7 @@ public class PSOverriddingRuleEditorPage extends Page
 //		psPolicy.setHasValue(newValue);
 	}
 	
-	private FieldValueProvider createOverridenProvoder()
+	private FieldValueProvider createOverridenProvider()
 	{
 		FieldValueProvider pv=
 			new FieldValueProvider()
@@ -163,7 +191,9 @@ public class PSOverriddingRuleEditorPage extends Page
 							logger.warn("nothing selected returning null");
 							return null;
 						}
-						overrindingRule.setHasOverriden(sel);
+						//overrindingRule.setHasOverriden(sel);
+						selectedOverridden=sel;
+						
 						String label=sel.getLabel();
 						logger.info("Selected:"+sel);
 						return label;
@@ -205,7 +235,8 @@ public class PSOverriddingRuleEditorPage extends Page
 							logger.warn("nothing selected returning null");
 							return null;
 						}
-						overrindingRule.setHasOverrider(sel);
+						//overrindingRule.setHasOverrider(sel);
+						selectedOverridder=sel;
 						String label=sel.getLabel();
 						logger.info("Selected:"+sel);
 						return label;

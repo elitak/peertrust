@@ -1,7 +1,13 @@
 package policysystem;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Properties;
 
@@ -27,6 +33,8 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	private static PolicysystemPlugin plugin;
 	
 	private static final String LOG_PROPERTIES_FILE = "logger.properties";
+	private static final String RDFS_FILE="/model/schema.rdfs";
+	private static final String RDF_FILE="/model/empty.rdf";
 	
 	private PluginLogManager logManager;
 	/**
@@ -179,4 +187,62 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 		        }
 		     );
 	}
+	
+	public boolean askQuestion(final String message)
+	{
+
+		
+		Shell shell=plugin.getWorkbench().getDisplay().getActiveShell();
+		return MessageDialog.openConfirm(shell,"Message",message);
+		
+	}
+	
+	public void showException(String message, Throwable th)
+	{
+		StringWriter sw= new StringWriter();
+		PrintWriter pw= new PrintWriter(sw);
+		pw.print(message);
+		pw.print("\n=======================================\n");
+		th.printStackTrace(pw);
+		this.showMessage(sw.getBuffer().toString());
+	}
+	
+	public void copyModelfilesTo(File rdfschemaFile,File rdfModelFile)
+	{
+		try {
+			//copy schema
+			URL schemaURL= this.getBundle().getEntry(RDFS_FILE);
+			InputStream iStream=schemaURL.openStream();
+			FileOutputStream fOut= 
+				new FileOutputStream(rdfschemaFile);
+			BufferedInputStream i;
+			byte bytes[]= new byte[512];
+			int read=-1;
+			while((read=iStream.read(bytes,0,512))!=-1)
+			{
+				fOut.write(bytes,0,read);
+			}
+		} catch (Exception e) {
+			showException("Exception while Copying rdfs schema",e);
+		}
+		
+		try {
+			//copy schema
+			URL modelURL= this.getBundle().getEntry(RDF_FILE);
+			InputStream iStream=modelURL.openStream();
+			FileOutputStream fOut= 
+				new FileOutputStream(rdfModelFile);
+			BufferedInputStream i;
+			byte bytes[]= new byte[512];
+			int read=-1;
+			while((read=iStream.read(bytes,0,512))!=-1)
+			{
+				fOut.write(bytes,0,read);
+			}
+		} catch (Exception e) {
+			showException("Exception while Copying rdf model file",e);
+		}
+	}
+	
+	
 }

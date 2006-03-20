@@ -38,6 +38,7 @@ class ChooserWizardPage extends WizardPage
 		{
 			try {
 				list= new List(parent,SWT.FILL);
+				setControl(list);
 				if(type.equals(PSPolicy.class))
 				{
 					modelObjects =

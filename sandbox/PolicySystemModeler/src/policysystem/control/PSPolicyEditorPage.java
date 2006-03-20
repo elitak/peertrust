@@ -37,8 +37,10 @@ public class PSPolicyEditorPage extends Page
 			new StringFieldEditor("labelFieldEditor","Label",top);
 		valueFieldEditor=
 			new StringFieldEditor("valueFieldEditor","Value",top);
+		headerdd= new Label(top,SWT.NONE);
 		setButton= new Button(top,SWT.NONE);
-		setButton.setText("comit");
+		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		setButton.setText("set");
 		setButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {	
 				saveEdit();

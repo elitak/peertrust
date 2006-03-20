@@ -1,17 +1,22 @@
 package policysystem.model;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
 import java.util.Vector;
+
+import policysystem.PolicysystemPlugin;
 
 public class ProjectConfig 
 {
 	static final public String ROOT_DIR="rootDir";
 	static final public String RDF_SCHEMA_FILE="rdfSchemaFile";
 	static final public String RDF_MODEL_FILE="rdfModelFile";
+	
 	
 	static final private ProjectConfig instance=new ProjectConfig();
 	
@@ -98,5 +103,30 @@ public class ProjectConfig
 		properties.storeToXML(os, comment);
 	}
 	
+	public void createNewProjectConfigFile(
+						String projectName,
+						File destFolder,
+						File rootDir)
+	{
+		try {
+			//File destFolder=configFile.getParentFile();
+			File rdfsFile= new File(destFolder,projectName+".rdfs");
+			File rdfFile= new File(destFolder,projectName+".rdf");
+			projectFile= (new File(destFolder,projectName+".conf")).getAbsolutePath();
+			
+			PolicysystemPlugin.getDefault().copyModelfilesTo(rdfsFile,rdfFile);
+			
+			properties.setProperty(ROOT_DIR,rootDir.getCanonicalPath());
+			properties.setProperty(RDF_MODEL_FILE,rdfFile.getCanonicalPath());
+			properties.setProperty(RDF_SCHEMA_FILE,rdfsFile.getCanonicalPath());
+			FileOutputStream outStream= new FileOutputStream(projectFile);
+			
+			store(outStream,"Policy System Project");
+			fireProjectConfigChange();
+		} catch (Exception e) {
+			PolicysystemPlugin.getDefault().showException(
+					"Error while creating new Pjt",e);
+		}
+	}
 	
 }

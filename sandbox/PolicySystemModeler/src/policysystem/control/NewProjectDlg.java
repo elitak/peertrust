@@ -76,22 +76,23 @@ public class NewProjectDlg extends Dialog{
 	}
 	
 	public void show(){
-//		shell = new Shell(this.getParent(), SWT.DIALOG_TRIM| SWT.APPLICATION_MODAL);
-//		shell.setText("Edit");
-//		shell.setBounds(this.getDialogBounds(300,300));
-//		shell.setLayout(new FillLayout());
-//		
-//		this.initData();
-//		//new Button(shell,SWT.PUSH).setText("Go");
-//		this.initWidgets();
-//		
-//		shell.pack();
-//		shell.open(); 
-//		Display display = this.getParent().getDisplay(); 
-//		while (!shell.isDisposed()) { 
-//			if (!display.readAndDispatch()) 
-//			display.sleep(); 
-//		}
+		shell = new Shell(this.getParent(), SWT.DIALOG_TRIM| SWT.APPLICATION_MODAL);
+		shell.setText("Edit");
+		shell.setBounds(this.getDialogBounds(300,300));
+		//shell.setLayout(new FillLayout());
+		shell.setLayout(new GridLayout());
+		
+		this.initData();
+		//new Button(shell,SWT.PUSH).setText("Go");
+		this.initWidgets();
+		
+		shell.pack();
+		shell.open(); 
+		Display display = this.getParent().getDisplay(); 
+		while (!shell.isDisposed()) { 
+			if (!display.readAndDispatch()) 
+			display.sleep(); 
+		}
 		
 	}
 	

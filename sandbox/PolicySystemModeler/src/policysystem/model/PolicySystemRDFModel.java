@@ -133,7 +133,7 @@ public class PolicySystemRDFModel
 		schema=ModelFactory.createDefaultModel();
 		ProjectConfig.getInstance().addProjectConfigChangeListener(this);
 		logger=Logger.getLogger(PolicySystemRDFModel.class);
-		
+		modelChangeListeners= new Vector();
 	}
 	
 	private void createPolicySystemRDFModel() 
@@ -448,6 +448,7 @@ public class PolicySystemRDFModel
 			return;
 		}
 		stm.changeObject(objValue);
+		getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -469,10 +470,12 @@ public class PolicySystemRDFModel
 		{
 			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
 			stm=getInstance().rdfModel.createStatement(resource,prop,objValue);
+			getInstance().firePSModelChangeEvent(null);
 			return;
 		}
 		
 		stm.changeObject(objValue);
+		getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -496,6 +499,7 @@ public class PolicySystemRDFModel
 			return;
 		}
 		stm.changeObject(objValue);
+		getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -711,6 +715,7 @@ public class PolicySystemRDFModel
 		if(stm!=null)
 		{
 			rdfModel.add(stm);
+			firePSModelChangeEvent(null);
 		}
 		return;
 	}
@@ -742,6 +747,7 @@ public class PolicySystemRDFModel
 		if(stm!=null)
 		{
 			rdfModel.add(stm);
+			firePSModelChangeEvent(null);
 		}
 		return;
 	}
@@ -924,11 +930,11 @@ public class PolicySystemRDFModel
 		}
 		final int COND_LEN=conditions.length;
 		final int POL_LEN=policies.length;
-		if(COND_LEN<=0 || POL_LEN<=0)
-		{
-			logger.warn("conditions odr policies must not be empty");
-			return null;
-		}
+//		if(COND_LEN<=0 || POL_LEN<=0)
+//		{
+//			logger.warn("conditions odr policies must not be empty");
+//			return null;
+//		}
 		
 		if(rdfModel==null || NS_KB_DATA==null)
 		{
@@ -944,11 +950,11 @@ public class PolicySystemRDFModel
 		}
 		
 		filter.addProperty(RDFS.label,label);
-		for(int i=0;i<=COND_LEN;i++)
+		for(int i=0;i<COND_LEN;i++)
 		{
 			filter.addProperty(PROP_HAS_CONDITION,conditions[i]);
 		}
-		for(int i=0;i<=POL_LEN;i++)
+		for(int i=0;i<POL_LEN;i++)
 		{
 			filter.addProperty(PROP_IS_PROTECTED_BY,conditions[i]);
 		}
@@ -963,7 +969,7 @@ public class PolicySystemRDFModel
 							PSPolicy overridder, 
 							PSPolicy overridden) 
 	{
-		if(label==null || overridden==null || overridder==null)
+		if(label==null /*|| overridden==null || overridder==null*/)
 		{
 			logger.warn("args must not be null");
 			return null;
@@ -981,9 +987,16 @@ public class PolicySystemRDFModel
 		}
 		
 		orule.addProperty(RDFS.label,label);
-		orule.addProperty(PROP_HAS_OVERRIDDEN,overridden.getModelObject());
-		orule.addProperty(PROP_HAS_OVERRIDDER,overridder.getModelObject());
 		orule.addProperty(RDF.type,CLASS_OVERRIDDING_RULE);
+		
+		if(overridden!=null)
+		{
+			orule.addProperty(PROP_HAS_OVERRIDDEN,overridden.getModelObject());
+		}
+		if(overridder!=null)
+		{
+			orule.addProperty(PROP_HAS_OVERRIDDER,overridder.getModelObject());
+		}
 		firePSModelChangeEvent(null);
 		return new PSOverriddingRuleImpl(orule,null);
 	}
@@ -1002,6 +1015,7 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		Resource pol=rdfModel.createResource(NS_KB_DATA+label);
+		
 		if(pol.getProperty(PROP_HAS_VALUE)!=null)
 		{
 			logger.warn("policy with this name already exists:"+label);
@@ -1012,7 +1026,9 @@ public class PolicySystemRDFModel
 		pol.addProperty(RDFS.label,label);
 		pol.addProperty(RDF.type,CLASS_POLICY);
 		firePSModelChangeEvent(null);
-		return new PSPolicyImpl(pol,null);
+		PSPolicyImpl pp=new PSPolicyImpl(pol,null);
+		logger.info("resource created:"+pp);
+		return pp;
 	}
 
 	public PSResource createResource(String label, String identity) 
@@ -1358,9 +1374,10 @@ public class PolicySystemRDFModel
 	public void firePSModelChangeEvent(PSModelChangeEvent event) 
 	{
 		PSModelChangeEventListener l;
-		for(int i=modelChangeListeners.size(); i>=0;i--)
+		for(Iterator it=modelChangeListeners.iterator(); 
+			it.hasNext();)
 		{
-			l=(PSModelChangeEventListener)modelChangeListeners.elementAt(i);
+			l=(PSModelChangeEventListener)it.next();
 			l.onPSModelChange(event);
 		}
 	}

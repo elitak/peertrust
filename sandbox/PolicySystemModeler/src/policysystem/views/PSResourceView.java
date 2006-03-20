@@ -38,10 +38,14 @@ import policysystem.model.PolicySystemRDFModel;
 import policysystem.model.PolicySystemResTreeContentProvider;
 import policysystem.model.ProjectConfig;
 import policysystem.model.abtract.ModelObjectWrapper;
+import policysystem.model.abtract.PSModelChangeEvent;
+import policysystem.model.abtract.PSModelChangeEventListener;
 import policysystem.model.abtract.PSOverrindingRule;
+import policysystem.model.abtract.PSPolicy;
 
 public class PSResourceView extends ViewPart
-							implements ISelectionListener
+							implements 	ISelectionListener,
+										PSModelChangeEventListener
 {
 	static final public String ID="FileSystemView";
 	private ITreeContentProvider contentProvider;
@@ -88,6 +92,7 @@ public class PSResourceView extends ViewPart
 				treeView.getControl(),
 				treeView,
 				"");
+		PolicySystemRDFModel.getInstance().addPSModelChangeEventListener(this);
 	}
 
 	public void setFocus() 
@@ -101,6 +106,7 @@ public class PSResourceView extends ViewPart
 		///
 		addAction = new Action() {
 			public void run() {
+				addActionRun();
 			}
 		};
 		addAction.setText("create");
@@ -128,17 +134,20 @@ public class PSResourceView extends ViewPart
 		///
 		addAction = new Action() {
 			public void run() {
+				addActionRun();
+				System.out.println("blablablablablabblablabala");
 			}
 		};
 		addAction.setText("create");
 		addAction.setToolTipText("create");
 		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+		
 		toolbarManager.add(addAction);
 		
 		removeAction = new Action() {
 			public void run() {
-				
+	
 			}
 		};
 		
@@ -154,6 +163,66 @@ public class PSResourceView extends ViewPart
 		tb.setLayoutData(gd);
 		return tb;
 	}
+	//////////////////////////////////////////////////////////////////
+	private void addActionRun()
+	{
+		Object input=treeView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else if(input instanceof String)
+		{
+			if(((String)input).equals(
+					PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
+			{
+				try {
+					long time=System.currentTimeMillis();
+					PolicySystemRDFModel.getInstance().createPolicy(
+																"label"+time,
+																"value"+time);
+					treeView.refresh();
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
+			}
+			else if(((String)input).equals(
+					PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
+			{
+				try {
+					long time=System.currentTimeMillis();
+					PolicySystemRDFModel.getInstance().createFilter(
+														"label"+time,
+														new String[]{"value"+time},
+														new PSPolicy[]{});
+					treeView.refresh();
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
+			}
+			else if(((String)input).equals(
+					PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
+			{
+				try {
+					long time=System.currentTimeMillis();
+					PolicySystemRDFModel.getInstance().createOverriddingRule(
+														"label"+time,
+														(PSPolicy)null,
+														(PSPolicy)null);
+					treeView.refresh();
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
+			}
+			else
+			{
+				logger.info("Unsuppoerted:"+input);
+				return;
+			}
+		}
+	}
+	
 	
 	///////////////////////////////////////////////////////////////////
 	////////////////////SELCTION LISTENER//////////////////////////////
@@ -267,5 +336,10 @@ public class PSResourceView extends ViewPart
             }
         }
     }
+
+	public void onPSModelChange(PSModelChangeEvent event) 
+	{
+		treeView.refresh();
+	}
     
 }
