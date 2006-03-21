@@ -86,11 +86,11 @@
             name="policysystem.editor1"/>
    </extension>
    <extension
-         id="policysystemID"
+         id="policysystemID" 
          point="org.eclipse.core.runtime.products">
       <product
-      		name="Editor.EditorApplication"
-            application="Editor.EditorApplication"/>
+            application="policysystem.application"
+            name="Policy System Modeler"/>
    </extension>
 
 </plugin>
