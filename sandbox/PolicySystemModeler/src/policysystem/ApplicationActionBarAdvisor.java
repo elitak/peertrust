@@ -3,6 +3,7 @@ package policysystem;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,10 +22,14 @@ import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.ICoolBarManager;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.ToolBarContributionItem;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -71,12 +76,29 @@ import policysystem.model.abtract.PSPolicy;
 import policysystem.views.PolicySystemView;
 
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
-
+	private Action openAction;
+	private Action newAction;
+	private Action saveAction; 
+	RecentlyOpenContributionItem recentlyOpenedCI;
+	
     public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
         super(configurer);
+        
     }
 
-    protected void makeActions(IWorkbenchWindow window) {
+    protected void makeActions(IWorkbenchWindow window) 
+    {
+    	openAction= new OpenAction();
+    	register(openAction);
+    	
+    	newAction= new NewAction();
+    	register(newAction);
+    	
+    	saveAction= new SaveAction();
+    	register(saveAction);
+    	
+    	recentlyOpenedCI= new RecentlyOpenContributionItem();
+    	    	
     }
 
     protected void fillMenuBar(IMenuManager menuBar) {
@@ -86,19 +108,32 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     	
     }
     
-    private MenuManager createFileMenu(IWorkbenchWindow window) {
+    
+    
+    protected void fillCoolBar(ICoolBarManager coolBar) {
+		//super.fillCoolBar(coolBar);
+    	IToolBarManager toolbar = 
+    		new ToolBarManager(SWT.FLAT | SWT.RIGHT);
+        coolBar.add(
+        	new ToolBarContributionItem(toolbar, "FileToolbar"));  
+        
+		toolbar.add(openAction);//new OpenAction());
+		toolbar.add(newAction);//new NewAction());
+		toolbar.add(saveAction);
+		
+	}
+
+	private MenuManager createFileMenu(IWorkbenchWindow window) {
 	    MenuManager menuMng = 
 	    	new MenuManager("File");//, IWorkbenchActionConstants.M_FILE);
 	    //menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_START));
 	    //menu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-	    menuMng.add(new OpenAction());
-	    menuMng.add(new NewAction());
-	    menuMng.add(new SaveAction());
-	    IContributionItem ci;
-	    MenuItem mi;
-	    menuMng.add(new RecentlyOpenContributionItem());
-	    //menu.add(ActionFactory.QUIT.create(window));
-	    //menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_END));
+	    menuMng.add(openAction);//new OpenAction());
+	    menuMng.add(newAction);//new NewAction());
+	    menuMng.add(saveAction);//new SaveAction());
+	    //IContributionItem ci;
+	    //MenuItem mi;
+	    menuMng.add(recentlyOpenedCI);//new RecentlyOpenContributionItem());
 	    return menuMng;
     }
     
@@ -106,8 +141,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     
     
     ////////////////////////////////////////////////////////////////////////
-    class SaveAction extends Action {
-  	  /**
+    class SaveAction extends Action 
+    {
+    	final static String DEFAULT_ID="SaveAction";
+    	
+    	/**
   	   * OpenAction constructor
   	   */
   	  public SaveAction() {
@@ -121,6 +159,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
   	    setDisabledImageDescriptor(id);
   	    
   	    setToolTipText("Save");
+  	    super.setId(DEFAULT_ID);
   	  }
 
   	  /**
@@ -147,11 +186,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     ////////////////////////////////////////////////////////////////////////
     
     class OpenAction extends Action {
+    	final static String DEFAULT_ID="OpenAction";
     	  /**
     	   * OpenAction constructor
     	   */
-    	  public OpenAction() {
-    	    super("&Open", //"&Open...@Ctrl+O", 
+    	  public OpenAction() 
+    	  {
+    	   	  super("&Open", //"&Open...@Ctrl+O", 
 //    	    		ImageDescriptor.createFromFile(
 //    	    				OpenAction.class, "/images/open.gif")
     	    		PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
@@ -165,6 +206,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     	    setDisabledImageDescriptor(id);
     	    
     	    setToolTipText("Open");
+    	    setId(DEFAULT_ID);
     	  }
 
     	  /**
@@ -178,7 +220,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     	    FileDialog dlg = 
     	    	new FileDialog(shell,SWT.OPEN);
 			String fileName = dlg.open();
-			System.out.println("fileNammmmmme:"+fileName);
 			if (fileName != null) {
 				PolicySystemRDFModel.getInstance().clearRDFModel();
 				ProjectConfig.getInstance().setProjectFile(fileName);				
@@ -186,7 +227,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     	  }
     	}//end open action
     
-    class NewAction extends Action {
+    class NewAction extends Action 
+    {
+    	static final String DEFAULT_ID="NewAction";
   	  /**
   	   * OpenAction constructor
   	   */
@@ -201,6 +244,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
   	    			ISharedImages.IMG_TOOL_NEW_WIZARD_DISABLED);
   	    setDisabledImageDescriptor(id);  	    
   	    setToolTipText("New");
+  	    setId(DEFAULT_ID);
   	  }
 
   	  /**
@@ -321,7 +365,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     							SelectionListener
     {
     	private final String KEYS[]= {"1","2","3","4"};
-    	MenuItem mi;
+    	private final String DEFAULT_IDS[]=
+    						{	"RECENTLY_OPENED_0",
+    							"RECENTLY_OPENED_1",
+    							"RECENTLY_OPENED_2",
+    							"RECENTLY_OPENED_3"}; 
+    	//MenuItem mi;
     	public static final String DEFAULT_ID="RECENTY_OPEN_PJT";
     	
     	public static final String STORE_FILE_NAME="recently_opened.prop";
@@ -355,7 +404,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			menuItems[0].setText("1:");
 			menuItems[0].setEnabled(false);
 			menuItems[0].addSelectionListener(this);
-			
+			//menuItems[0].getMenu().
 			menuItems[1]= new MenuItem(menu,SWT.NONE);
 			menuItems[1].setText("2:");
 			menuItems[1].setEnabled(false);
@@ -373,7 +422,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			
 			loadRecentlyOpened();
 			ProjectConfig.getInstance().addProjectConfigChangeListener(this);
-			
+			doFillList();
 		}
 
 		protected Control createControl(Composite parent) 
@@ -507,6 +556,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				}
 			}
 			doFillList();
+			try {
+				recentlyOpened.store(
+						new FileOutputStream(storeURL.getPath()),
+						"Recently opened Project Files");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 	
