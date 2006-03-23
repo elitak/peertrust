@@ -6,8 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
+
+import org.apache.log4j.Logger;
 
 import policysystem.PolicysystemPlugin;
 
@@ -23,6 +26,9 @@ public class ProjectConfig
 	private String projectFile;
 	private Vector projectConfigChangeListeners= new Vector();
 	private Properties properties=new Properties();
+	
+	private static Logger logger= 
+					Logger.getLogger(ProjectConfig.class);
 	
 	private ProjectConfig()
 	{
@@ -62,7 +68,7 @@ public class ProjectConfig
 		{
 			return;
 		}
-		System.out.println("adding:"+l);
+		logger.info("Adding Listener:"+l);
 		projectConfigChangeListeners.add(l);
 	}
 		
@@ -78,11 +84,11 @@ public class ProjectConfig
 	
 	synchronized public void fireProjectConfigChange()
 	{
-		for(int i=projectConfigChangeListeners.size()-1;i>=0;i--)
+		for(Iterator i=projectConfigChangeListeners.iterator();
+			i.hasNext();)
 		{
 			ProjectConfigChangeListener l=
-				(ProjectConfigChangeListener)
-					projectConfigChangeListeners.get(i);
+				(ProjectConfigChangeListener)i.next();
 			l.projectConfigChanged(this);
 		}
 	}
