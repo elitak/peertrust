@@ -15,10 +15,11 @@ public class Application implements IPlatformRunnable {
 	public Object run(Object args) throws Exception {
 		Display display = PlatformUI.createDisplay();
 		try {
+			System.out.println("display:"+display);
 			int returnCode = 
 				PlatformUI.createAndRunWorkbench(
-									display, 
-									new ApplicationWorkbenchAdvisor());
+							display, 
+							new ApplicationWorkbenchAdvisor());
 		
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IPlatformRunnable.EXIT_RESTART;

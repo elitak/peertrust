@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.ide,
  org.eclipse.core.resources,
- org.eclipse.ui.views
+ org.eclipse.ui.views,
+ com.tools.logging
 Eclipse-AutoStart: true
 Bundle-ClassPath: bin/,
  lib/jgraph_5.7.jar,

@@ -27,6 +27,7 @@ import policysystem.model.abtract.PSResource;
 
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelChangedListener;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -125,6 +126,7 @@ public class PolicySystemRDFModel
 	private String rdfSchemaFile;
 	private Logger  logger;
 	private Vector modelChangeListeners;
+	private ModelEventAdapter modelEventAdapter;
 	
 	private PolicySystemRDFModel()
 	{
@@ -134,6 +136,8 @@ public class PolicySystemRDFModel
 		ProjectConfig.getInstance().addProjectConfigChangeListener(this);
 		logger=Logger.getLogger(PolicySystemRDFModel.class);
 		modelChangeListeners= new Vector();
+		modelEventAdapter= new ModelEventAdapter(this);
+		
 	}
 	
 	private void createPolicySystemRDFModel() 
@@ -237,17 +241,18 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		
-		return policySystemRDFModel.rdfModel;
+		return rdfModel;
 	}
 
 
-	static public Model getSchema() {
+	public Model getSchema() {
 		if(policySystemRDFModel==null)
 		{
 			return null;
 		}
 		
-		return policySystemRDFModel.schema;
+		System.out.println("policySystemRDFModel.schema:"+policySystemRDFModel.schema);
+		return schema;
 		//return schema;
 	}
 
@@ -453,7 +458,7 @@ public class PolicySystemRDFModel
 			return;
 		}
 		stm.changeObject(objValue);
-		getInstance().firePSModelChangeEvent(null);
+		//getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -475,12 +480,12 @@ public class PolicySystemRDFModel
 		{
 			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
 			stm=getInstance().rdfModel.createStatement(resource,prop,objValue);
-			getInstance().firePSModelChangeEvent(null);
+			//getInstance().firePSModelChangeEvent(null);
 			return;
 		}
 		
 		stm.changeObject(objValue);
-		getInstance().firePSModelChangeEvent(null);
+		//getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -504,7 +509,7 @@ public class PolicySystemRDFModel
 			return;
 		}
 		stm.changeObject(objValue);
-		getInstance().firePSModelChangeEvent(null);
+		//getInstance().firePSModelChangeEvent(null);
 		return;
 	}
 	
@@ -752,7 +757,7 @@ public class PolicySystemRDFModel
 		if(stm!=null)
 		{
 			rdfModel.add(stm);
-			firePSModelChangeEvent(null);
+			//firePSModelChangeEvent(null);
 		}
 		return;
 	}
@@ -964,7 +969,7 @@ public class PolicySystemRDFModel
 			filter.addProperty(PROP_IS_PROTECTED_BY,conditions[i]);
 		}
 		filter.addProperty(RDF.type,CLASS_FILTER);
-		firePSModelChangeEvent(null);
+		//firePSModelChangeEvent(null);
 		return new PSFilterImpl(filter);
 
 	}
@@ -1002,7 +1007,7 @@ public class PolicySystemRDFModel
 		{
 			orule.addProperty(PROP_HAS_OVERRIDDER,overridder.getModelObject());
 		}
-		firePSModelChangeEvent(null);
+		//firePSModelChangeEvent(null);
 		return new PSOverriddingRuleImpl(orule,null);
 	}
 
@@ -1030,7 +1035,7 @@ public class PolicySystemRDFModel
 		pol.addProperty(PROP_HAS_VALUE,value);
 		pol.addProperty(RDFS.label,label);
 		pol.addProperty(RDF.type,CLASS_POLICY);
-		firePSModelChangeEvent(null);
+		//firePSModelChangeEvent(null);
 		PSPolicyImpl pp=new PSPolicyImpl(pol,null);
 		logger.info("resource created:"+pp);
 		return pp;
@@ -1060,7 +1065,7 @@ public class PolicySystemRDFModel
 		res.addProperty(RDFS.label,label);
 		res.addProperty(PROP_HAS_IDENTITY,identity);
 		res.addProperty(RDF.type,CLASS_RESOURCE);
-		firePSModelChangeEvent(null);
+		//firePSModelChangeEvent(null);
 		return new PSResourceImpl(res);
 		
 	}
@@ -1388,7 +1393,74 @@ public class PolicySystemRDFModel
 	}
 	
 	
-	
+	class ModelEventAdapter implements ModelChangedListener
+	{
+		private PolicySystemRDFModel psModel;
+		
+		public ModelEventAdapter(	
+						PolicySystemRDFModel psModel
+									)
+		{
+			this.psModel=psModel;
+			psModel.getRdfModel().register(this);
+		}
+		
+		public void addedStatement(Statement arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void addedStatements(List arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void addedStatements(Model arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void addedStatements(Statement[] arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void addedStatements(StmtIterator arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void notifyEvent(Model arg0, Object arg1) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void removedStatement(Statement arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void removedStatements(List arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void removedStatements(Model arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void removedStatements(Statement[] arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+
+		public void removedStatements(StmtIterator arg0) 
+		{
+			firePSModelChangeEvent(null);
+		}
+		
+	}
 }
 
 

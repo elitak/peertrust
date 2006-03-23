@@ -2,6 +2,8 @@ package policysystem;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,17 +13,22 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
+import com.tools.logging.LoggingPlugin;
 import com.tools.logging.PluginLogManager;
 
 /**
@@ -32,7 +39,8 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	//The shared instance.
 	private static PolicysystemPlugin plugin;
 	
-	private static final String LOG_PROPERTIES_FILE = "logger.properties";
+	private static final String LOG_PROPERTIES_FILE = 
+										"logger.properties";
 	private static final String RDFS_FILE="/model/schema.rdfs";
 	private static final String RDF_FILE="/model/empty.rdf";
 	
@@ -47,12 +55,14 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext context) throws Exception 
+	{
 		super.start(context);
-		try {
+		try 
+		{
 			configure();
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
@@ -87,19 +97,56 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 		return AbstractUIPlugin.imageDescriptorFromPlugin("policysystem", path);
 	}
 	
+	private void configure()
+	{
+		File configFile = new File(
+				Platform.getInstanceLocation().getURL().getPath(),
+				LOG_PROPERTIES_FILE);;
+		
+		// Configure logging		
+		if (configFile.exists() == false)
+		{
+//			log.info("File " + System.getProperty("user.dir") + File.separator + 
+//					logConfig + " does not exist") ;
+			BasicConfigurator.configure();
+//			log.info("Log4j configured based on BasicConfigurator") ;
+		}
+		else
+		{
+			try {
+				Properties props = new Properties();
+				FileInputStream iStream= 
+					new FileInputStream(configFile);
+				props.load(iStream);
+				PropertyConfigurator.configure(props) ;
+				//log.info("Log4j configured based on file \"" + logConfig + "\"") ;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	/**
 	 * To configure the logger
 	 *
 	 */
-	private void configure() {
+	private void configure_old() 
+	{
 	      
 		  try {
-		  	URL url = getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
+			  File logFile= 
+					new File(
+							Platform.getInstanceLocation().getURL().getPath(),
+							LOG_PROPERTIES_FILE);
+			  
+		  	URL url = logFile.toURL();//getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
 		  	if(url==null)
 		  	{
 		  		return;
 		  	}
 		  	
+		  	System.out.println("logFile:"+url);
 		   	InputStream propertiesInputStream = url.openStream();
 		    if (propertiesInputStream != null) {
 		    	Properties props = new Properties();
@@ -107,22 +154,29 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 				propertiesInputStream.close();
 				if(props.size()>0)
 				{
-					this.logManager = new PluginLogManager(this, props);
+					System.out.println(
+							"props:"+props+
+							" Loginplugin:"+
+							LoggingPlugin.getDefault());
+					
+					this.logManager = 
+						new PluginLogManager(this, props);
 					this.logManager.hookPlugin(
-					 this.getDefault().getBundle().getSymbolicName(),
-					 this.getDefault().getLog());
+							 getBundle().getSymbolicName(),
+							 getLog());
 				}
 		   	}	
 		  } 
 		  catch (Exception e) {
-		  	String message = "Error while initializing log properties." + 
-		  	                 e.getMessage();
-			IStatus status = new Status(IStatus.ERROR,
-					getDefault().getBundle().getSymbolicName(),
-					IStatus.ERROR, message, e);
-			getLog().log(status);
-		  	throw new RuntimeException(
-		  	     "Error while initializing log properties.",e);
+			  e.printStackTrace();
+//		  	String message = "Error while initializing log properties." + 
+//		  	                 e.getMessage();
+//			IStatus status = new Status(IStatus.ERROR,
+//					getDefault().getBundle().getSymbolicName(),
+//					IStatus.ERROR, message, e);
+//			getLog().log(status);
+//		  	throw new RuntimeException(
+//		  	     "Error while initializing log properties.",e);
 		  }         
 	}
 	
