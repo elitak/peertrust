@@ -31,20 +31,20 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ViewSite;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.control.ChooserWizardPage;
+import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
 import policysystem.ApplicationWorkbenchAdvisor;
-import policysystem.control.ChooserWizardPage;
-import policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.PolicySystemResTreeContentProvider;
-import policysystem.model.ProjectConfig;
-import policysystem.model.abtract.ModelObjectWrapper;
-import policysystem.model.abtract.PSModelChangeEvent;
-import policysystem.model.abtract.PSModelChangeEventListener;
-import policysystem.model.abtract.PSOverrindingRule;
-import policysystem.model.abtract.PSPolicy;
-import policysystem.model.abtract.PSResource;
 
 public class PSResourceView extends ViewPart
 							implements 	ISelectionListener,

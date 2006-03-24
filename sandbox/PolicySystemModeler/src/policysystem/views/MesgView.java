@@ -68,11 +68,11 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 
 
 import policysystem.PolicysystemPlugin;
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.ResourcePolicyContentProvider;
 
 public class MesgView extends ViewPart 
 {

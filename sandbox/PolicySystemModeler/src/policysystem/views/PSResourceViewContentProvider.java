@@ -7,10 +7,10 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
 
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.PolicySystemResTreeContentProvider;
-import policysystem.model.ProjectConfig;
 
 /**
  * Content provider for java.io.File objects.

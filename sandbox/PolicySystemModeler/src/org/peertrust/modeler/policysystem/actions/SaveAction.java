@@ -9,11 +9,11 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
 
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.ProjectConfig;
-import policysystem.model.abtract.PSModelChangeEvent;
-import policysystem.model.abtract.PSModelChangeEventListener;
 
 /**
  * The workbench action to save the current policy system project

@@ -11,9 +11,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
 
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.ProjectConfig;
 
 public class OpenAction extends Action {
     	final static String DEFAULT_ID="OpenAction";

@@ -18,11 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  
  */
-package policysystem.views;
+package org.peertrust.modeler.policysystem.control;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -55,10 +57,18 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.plaf.IconUIResource;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.Workbench;
+import org.eclipse.ui.part.Page;
 import org.jgraph.JGraph;
 import org.jgraph.event.GraphModelEvent;
 import org.jgraph.event.GraphModelListener;
@@ -88,8 +98,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 import policysystem.ApplicationWorkbenchAdvisor;
+import policysystem.views.GraphSelectionProvider;
 
-public class GraphEditor extends JPanel implements GraphSelectionListener,
+public class PSHierarchyVisualizationPage extends Page implements GraphSelectionListener,
 		KeyListener {
 
 	static final String RESOURCE_BASE="policysystem/jgraph_resources/";
@@ -108,6 +119,9 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 	// Status Bar
 	protected EdStatusBar statusBar;
+	
+	private Composite composite;
+	private JPanel panel;
 
 	private PolicySystemRDFModel psRDFModel;
 	private HierarchyNodeCreationMechanism hierarchyNodeCreationMechanism;
@@ -119,26 +133,26 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 
 	// Main Method
 	public static void main(String[] args) {
-		// Construct Frame
-		JFrame frame = new JFrame("GraphEd");
-		// Set Close Operation to Exit
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// Add an Editor Panel
-		frame.getContentPane().add(new GraphEditor());
-		// Fetch URL to Icon Resource
-		URL jgraphUrl = GraphEditor.class.getClassLoader().getResource(
-				RESOURCE_BASE+"jgraph.gif");
-		// If Valid URL
-		if (jgraphUrl != null) { 
-			// Load Icon
-			ImageIcon jgraphIcon = new ImageIcon(jgraphUrl);
-			// Use in Window
-			frame.setIconImage(jgraphIcon.getImage());
-		}
-		// Set Default Size
-		frame.setSize(520, 390);
-		// Show Frame
-		frame.setVisible(true);
+//		// Construct Frame
+//		JFrame frame = new JFrame("GraphEd");
+//		// Set Close Operation to Exit
+//		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		// Add an Editor Panel
+//		frame.getContentPane().add(new PoliciesVisualization());
+//		// Fetch URL to Icon Resource
+//		URL jgraphUrl = PoliciesVisualization.class.getClassLoader().getResource(
+//				RESOURCE_BASE+"jgraph.gif");
+//		// If Valid URL
+//		if (jgraphUrl != null) { 
+//			// Load Icon
+//			ImageIcon jgraphIcon = new ImageIcon(jgraphUrl);
+//			// Use in Window
+//			frame.setIconImage(jgraphIcon.getImage());
+//		}
+//		// Set Default Size
+//		frame.setSize(520, 390);
+//		// Show Frame
+//		frame.setVisible(true);
 	}
 
 	//
@@ -146,9 +160,10 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	//
 
 	// Construct an Editor Panel
-	public GraphEditor() {
+	public PSHierarchyVisualizationPage() 
+	{
 		
-		//String rdfFilePath=PlatformUI.getWorkbench().InstanceLocation().gets;
+		panel= new JPanel();
 		psRDFModel=
 				PolicySystemRDFModel.getInstance();
 		
@@ -178,14 +193,12 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	}
 
 	// Hook for subclassers
-	protected void populateContentPane() {
-		// Use Border Layout
-		/*getContentPane().*/setLayout(new BorderLayout());
-		// Add a ToolBar
-		/*getContentPane().*/add(createToolBar(), BorderLayout.NORTH);
-		// Add the Graph as Center Component
-		/*getContentPane().*/add(new JScrollPane(graph), BorderLayout.CENTER);
-		/*getContentPane().*/add(createStatusBar(), BorderLayout.SOUTH);
+	protected void populateContentPane() 
+	{
+		panel.setLayout(new BorderLayout());
+		panel.add(createToolBar(), BorderLayout.NORTH);
+		panel.add(new JScrollPane(graph), BorderLayout.CENTER);
+		panel.add(createStatusBar(), BorderLayout.SOUTH);
 	}
 
 	// Hook for subclassers
@@ -1079,11 +1092,13 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		/**
 		 * Graph Model change event
 		 */
-		public void graphChanged(GraphModelEvent e) {
+		public void graphChanged(GraphModelEvent e) 
+		{
 			updateHeapStatus();
 		}
 
-		protected void updateHeapStatus() {
+		protected void updateHeapStatus() 
+		{
 			Runtime runtime = Runtime.getRuntime();
 			int freeMemory = (int) (runtime.freeMemory() / 1024);
 			int totalMemory = (int) (runtime.totalMemory() / 1024);
@@ -1096,7 +1111,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		/**
 		 * @return Returns the leftSideStatus.
 		 */
-		public JLabel getLeftSideStatus() {
+		public JLabel getLeftSideStatus() 
+		{
 			return leftSideStatus;
 		}
 
@@ -1104,14 +1120,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		 * @param leftSideStatus
 		 *            The leftSideStatus to set.
 		 */
-		public void setLeftSideStatus(JLabel leftSideStatus) {
+		public void setLeftSideStatus(JLabel leftSideStatus) 
+		{
 			this.leftSideStatus = leftSideStatus;
 		}
 
 		/**
 		 * @return Returns the rightSideStatus.
 		 */
-		public JLabel getRightSideStatus() {
+		public JLabel getRightSideStatus() 
+		{
 			return rightSideStatus;
 		}
 
@@ -1119,7 +1137,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		 * @param rightSideStatus
 		 *            The rightSideStatus to set.
 		 */
-		public void setRightSideStatus(JLabel rightSideStatus) {
+		public void setRightSideStatus(JLabel rightSideStatus) 
+		{
 			this.rightSideStatus = rightSideStatus;
 		}
 	}
@@ -1127,7 +1146,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	/**
 	 * @return Returns the copy.
 	 */
-	public Action getCopy() {
+	public Action getCopy() 
+	{
 		return copy;
 	}
 
@@ -1135,14 +1155,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param copy
 	 *            The copy to set.
 	 */
-	public void setCopy(Action copy) {
+	public void setCopy(Action copy) 
+	{
 		this.copy = copy;
 	}
 
 	/**
 	 * @return Returns the cut.
 	 */
-	public Action getCut() {
+	public Action getCut() 
+	{
 		return cut;
 	}
 
@@ -1150,14 +1172,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param cut
 	 *            The cut to set.
 	 */
-	public void setCut(Action cut) {
+	public void setCut(Action cut) 
+	{
 		this.cut = cut;
 	}
 
 	/**
 	 * @return Returns the paste.
 	 */
-	public Action getPaste() {
+	public Action getPaste() 
+	{
 		return paste;
 	}
 
@@ -1165,14 +1189,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param paste
 	 *            The paste to set.
 	 */
-	public void setPaste(Action paste) {
+	public void setPaste(Action paste) 
+	{
 		this.paste = paste;
 	}
 
 	/**
 	 * @return Returns the toback.
 	 */
-	public Action getToback() {
+	public Action getToback() 
+	{
 		return toback;
 	}
 
@@ -1180,14 +1206,16 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param toback
 	 *            The toback to set.
 	 */
-	public void setToback(Action toback) {
+	public void setToback(Action toback) 
+	{
 		this.toback = toback;
 	}
 
 	/**
 	 * @return Returns the tofront.
 	 */
-	public Action getTofront() {
+	public Action getTofront() 
+	{
 		return tofront;
 	}
 
@@ -1195,7 +1223,8 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param tofront
 	 *            The tofront to set.
 	 */
-	public void setTofront(Action tofront) {
+	public void setTofront(Action tofront) 
+	{
 		this.tofront = tofront;
 	}
 
@@ -1210,7 +1239,31 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 	 * @param remove
 	 *            The remove to set.
 	 */
-	public void setRemove(Action remove) {
+	public void setRemove(Action remove) 
+	{
 		this.remove = remove;
 	}
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////page////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+	public void createControl(Composite parent) 
+	{
+		composite= new Composite(parent,SWT.EMBEDDED);
+		composite.setLayout(new FillLayout());	
+		Frame frame=SWT_AWT.new_Frame(composite);
+		frame.add(panel);
+	}
+
+	public Control getControl() 
+	{
+		return composite;
+	}
+
+	public void setFocus() 
+	{
+		
+	}
+	
+	
+	
 }

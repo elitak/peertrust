@@ -16,11 +16,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 
 import policysystem.ApplicationWorkbenchAdvisor;
 import policysystem.Perspective;
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.PolicySystemResTreeContentProvider;
 
 
 /**

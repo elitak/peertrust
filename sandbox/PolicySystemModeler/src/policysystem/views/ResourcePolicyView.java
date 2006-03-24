@@ -44,20 +44,20 @@ import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.part.PageBook.PageBookLayout;
+import org.peertrust.modeler.policysystem.control.NewProjectDlgEditor;
+import org.peertrust.modeler.policysystem.control.PSFilterEditorPage;
+import org.peertrust.modeler.policysystem.control.PSHierarchyVisualizationPage;
+import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage;
+import org.peertrust.modeler.policysystem.control.PSPolicyEditorPage;
+import org.peertrust.modeler.policysystem.control.PSResourcePolicyEditorPage;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
 import policysystem.ApplicationWorkbenchAdvisor;
-import policysystem.control.NewProjectDlgEditor;
-import policysystem.control.PSFilterEditorPage;
-import policysystem.control.PSHierarchyVisualizationPage;
-import policysystem.control.PSOverriddingRuleEditorPage;
-import policysystem.control.PSPolicyEditorPage;
-import policysystem.control.PSResourcePolicyEditorPage;
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.ResourcePolicyContentProvider;
-import policysystem.model.abtract.PSFilter;
-import policysystem.model.abtract.PSOverrindingRule;
-import policysystem.model.abtract.PSPolicy;
 
 public class ResourcePolicyView extends ViewPart 
 				implements ISelectionListener

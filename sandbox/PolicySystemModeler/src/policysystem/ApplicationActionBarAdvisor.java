@@ -46,11 +46,11 @@ import org.peertrust.modeler.policysystem.actions.NewAction;
 import org.peertrust.modeler.policysystem.actions.OpenAction;
 import org.peertrust.modeler.policysystem.actions.RecentlyOpenContributionItem;
 import org.peertrust.modeler.policysystem.actions.SaveAction;
+import org.peertrust.modeler.policysystem.control.NewProjectDlg;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
-import policysystem.control.NewProjectDlg;
 
-import policysystem.model.abtract.PSPolicy;
 import policysystem.views.PolicySystemView;
 
 /**

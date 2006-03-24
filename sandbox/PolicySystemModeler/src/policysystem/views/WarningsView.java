@@ -16,11 +16,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.model.FileResourceSelector;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
-import policysystem.model.FileResourceSelector;
-import policysystem.model.PolicySystemRDFModel;
-import policysystem.model.ProjectConfig;
-import policysystem.model.abtract.PSResource;
 
 public class WarningsView 	extends ViewPart 
 							implements ISelectionListener

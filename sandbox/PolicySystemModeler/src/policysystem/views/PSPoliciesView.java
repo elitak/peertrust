@@ -10,8 +10,8 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 
-import policysystem.model.PolicySystemRDFModel;
 
 /**
  * @author congo

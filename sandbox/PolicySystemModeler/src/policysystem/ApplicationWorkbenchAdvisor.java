@@ -8,8 +8,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 
-import policysystem.model.PolicySystemRDFModel;
 
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public static String rdfFileName;

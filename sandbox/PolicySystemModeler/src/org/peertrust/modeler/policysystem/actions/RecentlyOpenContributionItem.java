@@ -17,9 +17,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.ProjectConfigChangeListener;
 
-import policysystem.model.ProjectConfig;
-import policysystem.model.ProjectConfigChangeListener;
 
 /**
      * This Class provides a Menu Item that hold the 4 most recently
@@ -233,7 +233,7 @@ public class RecentlyOpenContributionItem
 
 	
 		/**
-		 * @see policysystem.model.ProjectConfigChangeListener#projectConfigChanged(policysystem.model.ProjectConfig)
+		 * @see org.peertrust.modeler.policysystem.model.ProjectConfigChangeListener#projectConfigChanged(org.peertrust.modeler.policysystem.model.ProjectConfig)
 		 */
 		public void projectConfigChanged(ProjectConfig config) 
 		{

@@ -10,9 +10,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+import org.peertrust.modeler.policysystem.control.CreateNewProjectPage;
+import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 
-import policysystem.control.CreateNewProjectPage;
-import policysystem.model.PolicySystemRDFModel;
 
 /**
  * Theworkbench action to create a new policy system project
