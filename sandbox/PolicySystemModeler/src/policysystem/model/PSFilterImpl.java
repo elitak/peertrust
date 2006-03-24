@@ -3,6 +3,7 @@
  */
 package policysystem.model;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -20,8 +21,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  */
 public class PSFilterImpl implements PSFilter 
 {
-	Resource filter;
-	Logger logger;
+	private Resource filter;
+	private static Logger logger;
 	
 	
 	public PSFilterImpl(Resource filter) {
@@ -55,9 +56,12 @@ public class PSFilterImpl implements PSFilter
 		}
 		if(filter==null)
 		{
-			logger.warn("Filter is null cannot add condition:"+condition);
+			logger.warn(
+					"Filter is null cannot add condition:"+
+					condition);
 			return;
 		}
+		logger.info("adding condition:"+condition);
 		PolicySystemRDFModel.getInstance().addMultipleStringProperty(
 				filter,
 				PolicySystemRDFModel.PROP_HAS_CONDITION,
@@ -153,5 +157,31 @@ public class PSFilterImpl implements PSFilter
 	public String toString()
 	{
 		return "filter:"+getLabel();
+	}
+
+	public void removeCondition(String condition) {
+		if(condition==null)
+		{
+			return;
+		}
+		
+		PolicySystemRDFModel psModel=
+			PolicySystemRDFModel.getInstance();
+		
+		psModel.removeStringProperty(
+				filter,
+				PolicySystemRDFModel.PROP_HAS_CONDITION,
+				condition);
+		return ;
+	}
+
+	public void removeAllConditions() 
+	{
+		Vector oldCond=
+			getHasCondition();
+		for(Iterator it=oldCond.iterator();it.hasNext();)
+		{
+			removeCondition((String)it.next());
+		}
 	}
 }

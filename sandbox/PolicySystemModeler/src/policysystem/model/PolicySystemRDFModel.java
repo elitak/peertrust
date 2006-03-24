@@ -26,6 +26,7 @@ import policysystem.model.abtract.PSPolicySystem;
 import policysystem.model.abtract.PSResource;
 
 
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelChangedListener;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -571,8 +572,13 @@ public class PolicySystemRDFModel
 								modelObjectWrapper);
 				policies.add(wrappee);
 			}
+			else if(object.isLiteral())
+			{
+				policies.add(((Literal)object).getValue());
+			}
 			else
 			{
+				
 				policies.add(object);
 			}
 		}
@@ -726,6 +732,50 @@ public class PolicySystemRDFModel
 		{
 			rdfModel.add(stm);
 			firePSModelChangeEvent(null);
+		}
+		return;
+	}
+	
+	final public void removeStringProperty(
+			Resource subject, 
+			Property prop,
+			String object) 
+	{
+		if(	subject ==null || 
+			prop==null || 
+			object==null)
+		{
+			logger.warn("params subject prop objects must all not be null");
+			return;
+		}
+	
+		if(policySystemRDFModel==null)
+		{
+			logger.warn("Model singleton not created");
+			return;
+		}
+	
+		try 
+		{
+//			Statement stm=
+//				rdfModel.createStatement(
+//									subject,
+//									prop,
+//									object);
+			StmtIterator it=
+				rdfModel.listStatements(subject,prop,object);
+			Statement stm;
+			while(it.hasNext())
+			{
+				stm=it.nextStatement();
+				rdfModel.remove(stm);
+				logger.info("removing:"+stm);
+			}
+			
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
 		}
 		return;
 	}

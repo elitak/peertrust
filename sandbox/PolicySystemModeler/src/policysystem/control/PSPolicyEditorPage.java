@@ -86,8 +86,11 @@ public class PSPolicyEditorPage extends Page
 		{
 			return;
 		}
-		psPolicy.setLabel(newLabel);
-		System.out.println("daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		psPolicy.setHasValue(newValue);
+		try {
+			psPolicy.setLabel(newLabel);
+			psPolicy.setHasValue(newValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

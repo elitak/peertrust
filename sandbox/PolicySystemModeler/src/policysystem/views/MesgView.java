@@ -252,9 +252,9 @@ public class MesgView extends ViewPart
 			JComboBox combo= 
 				new JComboBox(levels);
 			combo.setAction(comboAction);
-			Dimension cDim=combo.getPreferredSize();
-			System.out.println("Dim:"+cDim);
-			cDim.width=70;
+			//Dimension cDim=combo.getPreferredSize();
+			//System.out.println("Dim:"+cDim);
+			//cDim.width=70;
 			//cDim.height=24;
 			//combo.setSize(cDim);
 			//combo.setMaximumSize(cDim);

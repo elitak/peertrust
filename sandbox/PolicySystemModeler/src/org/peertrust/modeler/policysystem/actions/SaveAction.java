@@ -72,6 +72,7 @@ public class SaveAction
 		File old= new File(rdfModelFile);
 		old.renameTo(new File(rdfModelFile+".old"));
 		saveTmp.renameTo(new File(rdfModelFile));
+		setEnabled(false);
 	} 
     catch (Exception e) 
 	{
