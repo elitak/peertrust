@@ -90,20 +90,20 @@ import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphUndoManager;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
+import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.model.HierarchyNodeCreationMechanism;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.views.GraphSelectionProvider;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
-import policysystem.ApplicationWorkbenchAdvisor;
-import policysystem.views.GraphSelectionProvider;
 
 public class PSHierarchyVisualizationPage extends Page implements GraphSelectionListener,
 		KeyListener {
 
-	static final String RESOURCE_BASE="policysystem/jgraph_resources/";
+	static final String RESOURCE_BASE="org.peertrust.modeler.policysystem/jgraph_resources/";
 	// JGraph instance
 	protected JGraph graph;
 

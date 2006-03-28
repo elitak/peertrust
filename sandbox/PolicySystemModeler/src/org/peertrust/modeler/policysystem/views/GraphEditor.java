@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  
  */
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -80,6 +80,7 @@ import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.GraphUndoManager;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
+import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.model.HierarchyNodeCreationMechanism;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
@@ -87,12 +88,11 @@ import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
-import policysystem.ApplicationWorkbenchAdvisor;
 
 public class GraphEditor extends JPanel implements GraphSelectionListener,
 		KeyListener {
 
-	static final String RESOURCE_BASE="policysystem/jgraph_resources/";
+	static final String RESOURCE_BASE="org.peertrust.modeler.policysystem/jgraph_resources/";
 	// JGraph instance
 	protected JGraph graph;
 

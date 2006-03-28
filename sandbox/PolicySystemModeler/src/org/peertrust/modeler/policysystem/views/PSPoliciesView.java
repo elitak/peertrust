@@ -1,7 +1,7 @@
 /**
  * 
  */
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 
 import org.apache.log4j.Logger;
@@ -19,7 +19,7 @@ import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
  */
 public class PSPoliciesView extends ViewPart {
 
-	public static final String ID="policysystem.PSPolicyView";
+	public static final String ID="org.peertrust.modeler.policysystem.PSPolicyView";
 	private ListViewer listView;
 	private IStructuredContentProvider contentProvider;
 	private Logger logger= Logger.getLogger(PSPoliciesView.class);; 

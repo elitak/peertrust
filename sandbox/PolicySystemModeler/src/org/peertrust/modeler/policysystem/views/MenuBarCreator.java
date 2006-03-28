@@ -1,7 +1,7 @@
 /**
  * 
  */
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;

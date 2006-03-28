@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
 import java.io.FileFilter;

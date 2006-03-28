@@ -53,7 +53,7 @@ public class PSFilterEditorPage extends Page
 				"                                            ");
 		headerdd= new Label(com,SWT.NONE);
 		PSModelWrapperListEditor le=
-			new PSModelWrapperListEditor("namele","",com);
+			new PSModelWrapperListEditor("namele","",com,PSPolicy.class);
 		headerdd= new Label(top,SWT.NONE);
 		setButton= new Button(top,SWT.NONE);
 		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

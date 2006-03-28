@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
 
@@ -44,6 +44,7 @@ import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.part.PageBook.PageBookLayout;
+import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.control.NewProjectDlgEditor;
 import org.peertrust.modeler.policysystem.control.PSFilterEditorPage;
 import org.peertrust.modeler.policysystem.control.PSHierarchyVisualizationPage;
@@ -57,12 +58,11 @@ import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
-import policysystem.ApplicationWorkbenchAdvisor;
 
 public class ResourcePolicyView extends ViewPart 
 				implements ISelectionListener
 {
-	static final public String ID="policysystem.ResourcePolicyView";
+	static final public String ID="org.peertrust.modeler.policysystem.ResourcePolicyView";
 	
 	private TableViewer localPolicyView;
 	

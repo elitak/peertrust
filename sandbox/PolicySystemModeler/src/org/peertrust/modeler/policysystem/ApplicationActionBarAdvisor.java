@@ -1,4 +1,4 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 
 
@@ -48,10 +48,10 @@ import org.peertrust.modeler.policysystem.actions.RecentlyOpenContributionItem;
 import org.peertrust.modeler.policysystem.actions.SaveAction;
 import org.peertrust.modeler.policysystem.control.NewProjectDlg;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.views.PolicySystemView;
 
 
 
-import policysystem.views.PolicySystemView;
 
 /**
  * The Actionbar Advisor for the policy System modeller application

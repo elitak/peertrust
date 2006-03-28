@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 public class WarningsView 	extends ViewPart 
 							implements ISelectionListener
 {
-	static final public String ID="policysystem.WarningsView";
+	static final public String ID="org.peertrust.modeler.policysystem.WarningsView";
 	ContentViewer view;
 	ListViewer listViewer;
 	IStructuredContentProvider contentProvider;

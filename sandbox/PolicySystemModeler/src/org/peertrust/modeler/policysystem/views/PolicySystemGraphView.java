@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 
 import java.awt.Frame;
@@ -16,8 +16,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
+import org.peertrust.modeler.policysystem.views.GraphEditor;
 
-import policysystem.views.GraphEditor;
 
 
 /**
@@ -41,7 +41,7 @@ import policysystem.views.GraphEditor;
 public class PolicySystemGraphView 	extends ViewPart
 									implements ISelectionListener
 {
-	static final public String ID="policysystem.views.PolicySystemGraphView";
+	static final public String ID="org.peertrust.modeler.policysystem.views.PolicySystemGraphView";
 	private TableViewer viewer;
 	private Action action1;
 	private Action action2;

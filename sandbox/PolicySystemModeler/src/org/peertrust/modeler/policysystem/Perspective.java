@@ -1,15 +1,15 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.peertrust.modeler.policysystem.views.MesgView;
+import org.peertrust.modeler.policysystem.views.PSResourceView;
+import org.peertrust.modeler.policysystem.views.PolicySystemGraphView;
+import org.peertrust.modeler.policysystem.views.PolicySystemView;
+import org.peertrust.modeler.policysystem.views.ResourcePolicyView;
+import org.peertrust.modeler.policysystem.views.WarningsView;
 
-import policysystem.views.PSResourceView;
-import policysystem.views.MesgView;
-import policysystem.views.PolicySystemGraphView;
-import policysystem.views.PolicySystemView;
-import policysystem.views.ResourcePolicyView;
-import policysystem.views.WarningsView;
 
 public class Perspective implements IPerspectiveFactory {
 

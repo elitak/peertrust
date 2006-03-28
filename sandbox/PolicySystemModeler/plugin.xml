@@ -7,7 +7,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="policysystem.Application">
+               class="org.peertrust.modeler.policysystem.Application">
          </run>
       </application>
    </extension>
@@ -15,8 +15,8 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="Policysystem Perspective"
-            class="policysystem.Perspective"
-            id="policysystem.perspective">
+            class="org.peertrust.modeler.policysystem.Perspective"
+            id="org.peertrust.modeler.policysystem.perspective">
       </perspective>
    </extension>
    <extension
@@ -26,35 +26,35 @@
             name="policy system view"/>
       <view
             category="policysystem"
-            class="policysystem.views.PolicySystemView"
+            class="org.peertrust.modeler.policysystem.views.PolicySystemView"
             icon="icons/sample.gif"
-            id="policysystem.views.PolicySystemView"
+            id="org.peertrust.modeler.policysystem.views.PolicySystemView"
             name="PolicySystemView"/>
       <category
             id="policy system view"
             name="policy system view"/>
       <view
             category="policy system view"
-            class="policysystem.views.PolicySystemGraphView"
+            class="org.peertrust.modeler.policysystem.views.PolicySystemGraphView"
             icon="icons/sample.gif"
-            id="policysystem.views.PolicySystemGraphView"
+            id="org.peertrust.modeler.policysystem.views.PolicySystemGraphView"
             name="Policy System Graph View"/>
       <view
-            class="policysystem.views.MesgView"
-            id="policysystem.MesgView"
+            class="org.peertrust.modeler.policysystem.views.MesgView"
+            id="org.peertrust.modeler.policysystem.MesgView"
             name="policysystem.MesgView"/>
       <view
-            class="policysystem.views.WarningsView"
-            id="policysystem.WarningsView"
+            class="org.peertrust.modeler.policysystem.views.WarningsView"
+            id="org.peertrust.modeler.policysystem.WarningsView"
             name="policysystem.WarningsView"/>
       <view
-            class="policysystem.views.PSResourceView"
+            class="org.peertrust.modeler.policysystem.views.PSResourceView"
             id="FileSystemView"
             name="FileSystemView"/>
       <view
             allowMultiple="false"
-            class="policysystem.views.ResourcePolicyView"
-            id="policysystem.ResourcePolicyView"
+            class="org.peertrust.modeler.policysystem.views.ResourcePolicyView"
+            id="org.peertrust.modeler.policysystem.ResourcePolicyView"
             name="policysystem.ResourcePolicyView"/>
    </extension>
    <extension
@@ -80,7 +80,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="policysystem.editors.PSEditor"
+            class="org.peertrust.modeler.policysystem.editors.PSEditor"
             default="false"
             id="policysystem.editor1"
             name="policysystem.editor1"/>

@@ -8,8 +8,8 @@ import javax.swing.JFrame;
 
 import org.jgraph.example.GraphEd;
 import org.jgraph.graph.DefaultGraphCell;
+import org.peertrust.modeler.policysystem.views.GraphEditor;
 
-import policysystem.views.GraphEditor;
 
 public class HierarchyEditor extends GraphEditor {
 

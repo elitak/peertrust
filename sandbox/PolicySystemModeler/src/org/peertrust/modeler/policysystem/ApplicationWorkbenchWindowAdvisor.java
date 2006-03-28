@@ -1,4 +1,4 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.application.ActionBarAdvisor;

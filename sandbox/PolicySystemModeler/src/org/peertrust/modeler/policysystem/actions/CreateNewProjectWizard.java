@@ -6,10 +6,10 @@ package org.peertrust.modeler.policysystem.actions;
 import java.io.File;
 
 import org.eclipse.jface.wizard.Wizard;
+import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 import org.peertrust.modeler.policysystem.control.CreateNewProjectPage;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
 
-import policysystem.PolicysystemPlugin;
 
 /**
  * The Wizard for creating a new Project

@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
 
@@ -31,6 +31,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ViewSite;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.control.ChooserWizardPage;
 import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
@@ -44,7 +45,6 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
-import policysystem.ApplicationWorkbenchAdvisor;
 
 public class PSResourceView extends ViewPart
 							implements 	ISelectionListener,

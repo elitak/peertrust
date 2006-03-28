@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,11 +16,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
+import org.peertrust.modeler.policysystem.Perspective;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 
-import policysystem.ApplicationWorkbenchAdvisor;
-import policysystem.Perspective;
 
 
 /**
@@ -43,7 +43,7 @@ import policysystem.Perspective;
 
 public class PolicySystemView extends ViewPart 
 {
-	static final public String ID="policysystem.views.PolicySystemView";
+	static final public String ID="org.peertrust.modeler.policysystem.views.PolicySystemView";
 	static final public String POLICY_SYSTEM_RES_POLICIES="Policies";
 	static final public String POLICY_SYSTEM_RES_RESOURCES="Resources";
 	static final public String POLICY_SYSTEM_RES_ASSERTIONS="Assertions";

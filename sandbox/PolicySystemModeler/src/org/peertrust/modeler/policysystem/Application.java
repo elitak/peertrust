@@ -1,4 +1,4 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 import org.eclipse.core.runtime.IPlatformRunnable;
 import org.eclipse.swt.widgets.Display;

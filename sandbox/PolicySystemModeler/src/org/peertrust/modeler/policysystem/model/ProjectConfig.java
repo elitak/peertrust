@@ -11,8 +11,8 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 
-import policysystem.PolicysystemPlugin;
 
 public class ProjectConfig 
 {

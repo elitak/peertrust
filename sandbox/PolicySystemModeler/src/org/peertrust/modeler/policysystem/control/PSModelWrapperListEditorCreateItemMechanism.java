@@ -2,6 +2,8 @@ package org.peertrust.modeler.policysystem.control;
 
 import java.util.Hashtable;
 
+import org.eclipse.swt.widgets.Shell;
+
 /**
  * Specifies the interface to implement to provide a
  * mechanism to create a model object wrapper for the
@@ -13,7 +15,15 @@ import java.util.Hashtable;
  */
 public interface PSModelWrapperListEditorCreateItemMechanism 
 {
-	public String create(Hashtable modelWrapperStore);
+	/**
+	 * To create a list elements
+	 * @param listEditor
+	 * @param modelObjectType
+	 * @return
+	 */
+	public String create(
+				PSModelWrapperListEditor listEditor,
+				Class modelObjectType);
 	
 
 }

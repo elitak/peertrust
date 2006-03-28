@@ -74,7 +74,7 @@ import org.jgraph.graph.PortView;
 public class GraphEd extends JApplet implements GraphSelectionListener,
 		KeyListener {
 
-	static final String RESOURCE_BASE="policysystem/resources/";
+	static final String RESOURCE_BASE="org.peertrust.modeler.policysystem/resources/";
 	// JGraph instance
 	protected JGraph graph;
 

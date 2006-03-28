@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -40,11 +40,11 @@ import org.eclipse.swt.widgets.*;
  * <p>
  * This view is used to show the tree structure. This class contains methods to manipulate the tree.
  * </p><p>
- * $Id: CredentialEditorView.java,v 1.1 2006/02/14 16:10:28 token77 Exp $
+ * $Id: CredentialEditorView.java,v 1.1 2006/03/28 20:54:58 token77 Exp $
  * <br/>
  * Date: 2005/08/04
  * <br/>
- * Last changed: $Date: 2006/02/14 16:10:28 $
+ * Last changed: $Date: 2006/03/28 20:54:58 $
  * by $Author: token77 $
  * </p>
  * @author Emre Cakar - Cem Dogan

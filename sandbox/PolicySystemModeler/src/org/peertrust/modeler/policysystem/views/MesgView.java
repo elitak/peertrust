@@ -1,4 +1,4 @@
-package policysystem.views;
+package org.peertrust.modeler.policysystem.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -68,17 +68,17 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 
 
-import policysystem.PolicysystemPlugin;
 
 public class MesgView extends ViewPart 
 {
 	
 	
-	static final public String ID="policysystem.MesgView";	
+	static final public String ID="org.peertrust.modeler.policysystem.MesgView";	
 	
 	private LogTableAppender logAppender;
 	

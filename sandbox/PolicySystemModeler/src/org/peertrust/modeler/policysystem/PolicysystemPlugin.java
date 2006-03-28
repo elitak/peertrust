@@ -1,4 +1,4 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -94,7 +94,7 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		PolicysystemPlugin.getDefault().getWorkbench();
-		return AbstractUIPlugin.imageDescriptorFromPlugin("policysystem", path);
+		return AbstractUIPlugin.imageDescriptorFromPlugin("org.peertrust.modeler.policysystem", path);
 	}
 	
 	private void configure()

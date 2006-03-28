@@ -1,4 +1,4 @@
-package policysystem;
+package org.peertrust.modeler.policysystem;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.Platform;
@@ -14,7 +14,7 @@ import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public static String rdfFileName;
 	
-	private static final String PERSPECTIVE_ID = "policysystem.perspective";
+	private static final String PERSPECTIVE_ID = "org.peertrust.modeler.policysystem.perspective";
 	
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) 
     {

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Policysystem Plug-in
 Bundle-SymbolicName: policysystem; singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Activator: policysystem.PolicysystemPlugin
+Bundle-Activator: org.peertrust.modeler.policysystem.PolicysystemPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -231,8 +231,8 @@ Export-Package: EDU.oswego.cs.dl.util.concurrent,
  org.xml.sax,
  org.xml.sax.ext,
  org.xml.sax.helpers,
- policysystem,
+ org.peertrust.modeler.policysystem,
  org.peertrust.modeler.policysystem.control,
  org.peertrust.modeler.policysystem.model,
  org.peertrust.modeler.policysystem.model.abtract,
- policysystem.views
+ org.peertrust.modeler.policysystem.views
