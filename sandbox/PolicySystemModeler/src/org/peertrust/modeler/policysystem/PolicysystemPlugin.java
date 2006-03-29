@@ -28,8 +28,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
-import com.tools.logging.LoggingPlugin;
-import com.tools.logging.PluginLogManager;
+//import com.tools.logging.LoggingPlugin;
+//import com.tools.logging.PluginLogManager;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -44,7 +44,7 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	private static final String RDFS_FILE="/model/schema.rdfs";
 	private static final String RDF_FILE="/model/empty.rdf";
 	
-	private PluginLogManager logManager;
+	//private PluginLogManager logManager;
 	/**
 	 * The constructor.
 	 */
@@ -71,10 +71,10 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
-		if (this.logManager != null) {
-			this.logManager.shutdown();
-			this.logManager = null;
-		}
+//		if (this.logManager != null) {
+//			this.logManager.shutdown();
+//			this.logManager = null;
+//		}
 		plugin = null;
 	}
 
@@ -127,107 +127,107 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 			}
 		}
 	}
-	/**
-	 * To configure the logger
-	 *
-	 */
-	private void configure_old() 
-	{
-	      
-		  try {
-			  File logFile= 
-					new File(
-							Platform.getInstanceLocation().getURL().getPath(),
-							LOG_PROPERTIES_FILE);
-			  
-		  	URL url = logFile.toURL();//getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
-		  	if(url==null)
-		  	{
-		  		return;
-		  	}
-		  	
-		  	System.out.println("logFile:"+url);
-		   	InputStream propertiesInputStream = url.openStream();
-		    if (propertiesInputStream != null) {
-		    	Properties props = new Properties();
-		    	props.load(propertiesInputStream);
-				propertiesInputStream.close();
-				if(props.size()>0)
-				{
-					System.out.println(
-							"props:"+props+
-							" Loginplugin:"+
-							LoggingPlugin.getDefault());
-					
-					this.logManager = 
-						new PluginLogManager(this, props);
-					this.logManager.hookPlugin(
-							 getBundle().getSymbolicName(),
-							 getLog());
-				}
-		   	}	
-		  } 
-		  catch (Exception e) {
-			  e.printStackTrace();
+//	/**
+//	 * To configure the logger
+//	 *
+//	 */
+//	private void configure_old() 
+//	{
+//	      
+//		  try {
+//			  File logFile= 
+//					new File(
+//							Platform.getInstanceLocation().getURL().getPath(),
+//							LOG_PROPERTIES_FILE);
+//			  
+//		  	URL url = logFile.toURL();//getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
+//		  	if(url==null)
+//		  	{
+//		  		return;
+//		  	}
+//		  	
+//		  	System.out.println("logFile:"+url);
+//		   	InputStream propertiesInputStream = url.openStream();
+//		    if (propertiesInputStream != null) {
+//		    	Properties props = new Properties();
+//		    	props.load(propertiesInputStream);
+//				propertiesInputStream.close();
+//				if(props.size()>0)
+//				{
+//					System.out.println(
+//							"props:"+props+
+//							" Loginplugin:"+
+//							LoggingPlugin.getDefault());
+//					
+//					this.logManager = 
+//						new PluginLogManager(this, props);
+//					this.logManager.hookPlugin(
+//							 getBundle().getSymbolicName(),
+//							 getLog());
+//				}
+//		   	}	
+//		  } 
+//		  catch (Exception e) {
+//			  e.printStackTrace();
+////		  	String message = "Error while initializing log properties." + 
+////		  	                 e.getMessage();
+////			IStatus status = new Status(IStatus.ERROR,
+////					getDefault().getBundle().getSymbolicName(),
+////					IStatus.ERROR, message, e);
+////			getLog().log(status);
+////		  	throw new RuntimeException(
+////		  	     "Error while initializing log properties.",e);
+//		  }         
+//	}//end configure_old
+	
+//	private void configureLogger(String pathConfigfile) 
+//	{
+//		if(pathConfigfile==null)
+//		{
+//			return;
+//		}		
+//		File configFile= new File(pathConfigfile);
+//		if(!configFile.exists())
+//		{
+//			return;
+//		}
+//		
+//		if(logManager!=null)
+//		{
+//			this.logManager.shutdown();
+//			this.logManager = null;
+//		}
+//		try {
+//			  
+//		  	URL url = getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
+//		  	if(url==null)
+//		  	{
+//		  		return;
+//		  	}
+//		  	
+//		   	InputStream propertiesInputStream = url.openStream();
+//		    if (propertiesInputStream != null) {
+//		    	Properties props = new Properties();
+//		    	props.load(propertiesInputStream);
+//				propertiesInputStream.close();
+//				this.logManager = new PluginLogManager(this, props);
+//				this.logManager.hookPlugin(
+//				 this.getDefault().getBundle().getSymbolicName(),
+//				 this.getDefault().getLog()); 
+//		   	}	
+//		 } 
+//		 catch (Exception e) 
+//		 {
 //		  	String message = "Error while initializing log properties." + 
-//		  	                 e.getMessage();
+//		                 e.getMessage();
 //			IStatus status = new Status(IStatus.ERROR,
 //					getDefault().getBundle().getSymbolicName(),
 //					IStatus.ERROR, message, e);
 //			getLog().log(status);
-//		  	throw new RuntimeException(
-//		  	     "Error while initializing log properties.",e);
-		  }         
-	}
-	
-	private void configureLogger(String pathConfigfile) 
-	{
-		if(pathConfigfile==null)
-		{
-			return;
-		}		
-		File configFile= new File(pathConfigfile);
-		if(!configFile.exists())
-		{
-			return;
-		}
-		
-		if(logManager!=null)
-		{
-			this.logManager.shutdown();
-			this.logManager = null;
-		}
-		try {
-			  
-		  	URL url = getBundle().getEntry("/" + LOG_PROPERTIES_FILE);
-		  	if(url==null)
-		  	{
-		  		return;
-		  	}
-		  	
-		   	InputStream propertiesInputStream = url.openStream();
-		    if (propertiesInputStream != null) {
-		    	Properties props = new Properties();
-		    	props.load(propertiesInputStream);
-				propertiesInputStream.close();
-				this.logManager = new PluginLogManager(this, props);
-				this.logManager.hookPlugin(
-				 this.getDefault().getBundle().getSymbolicName(),
-				 this.getDefault().getLog()); 
-		   	}	
-		 } 
-		 catch (Exception e) 
-		 {
-		  	String message = "Error while initializing log properties." + 
-		                 e.getMessage();
-			IStatus status = new Status(IStatus.ERROR,
-					getDefault().getBundle().getSymbolicName(),
-					IStatus.ERROR, message, e);
-			getLog().log(status);
-			throw new RuntimeException(
-			     "Error while initializing log properties.",e);
-		  }         
-		}
+//			throw new RuntimeException(
+//			     "Error while initializing log properties.",e);
+//		  }         
+//		}//end configureLogger
 	
 	public void showMessage(final String message)
 	{

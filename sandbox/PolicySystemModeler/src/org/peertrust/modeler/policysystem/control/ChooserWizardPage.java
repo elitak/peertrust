@@ -3,6 +3,12 @@
  */
 package org.peertrust.modeler.policysystem.control;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -27,11 +33,36 @@ public class ChooserWizardPage extends WizardPage
 		 * 
 		 */
 		//private final PSOverriddingRuleEditorPage page;
+		/**
+		 * The type of model oject to show in the list.
+		 * E.g. PSPolicy
+		 */
 		private Class type;
+		
+		/**
+		 * The list control used to show the model objects
+		 */
 		private List list;
-		private Object[] modelObjects;
+		
+		/**
+		 * An array of model objects to show in in the list
+		 */
+		private Hashtable modelObjectTable;
+		
+		/**
+		 *The name resp. label of the model objects 
+		 */
 		private String[] names;
+		
+		private java.util.List namesToIgnore;
+		/**
+		 * Logger for this class
+		 */
 		private static Logger logger=Logger.getLogger(ChooserWizardPage.class);
+		
+		/**
+		 * Flag
+		 */
 		private boolean allowMultipleSelection=false;
 		
 		/**
@@ -43,14 +74,24 @@ public class ChooserWizardPage extends WizardPage
 		 * @param allowMultipleSelection -- passed true if multiple selection is
 		 * 			to be carried is allow
 		 */
-		protected ChooserWizardPage(
+		public ChooserWizardPage(
 						String pageName,
 						Class type,
-						boolean allowMultipleSelection) 
+						boolean allowMultipleSelection,
+						String[] namesToIgnore) 
 		{
 			super(pageName);
 			this.type=type;
 			this.allowMultipleSelection=allowMultipleSelection;
+			if(namesToIgnore!=null)
+			{
+				if(namesToIgnore.length!=0)
+				{
+					this.namesToIgnore= Arrays.asList(namesToIgnore);
+					//System.arraycopy(namesToIgnore,0,this.namesToIgnore,0,namesToIgnore.length);
+				}
+				
+			}
 		}
 
 		
@@ -61,7 +102,7 @@ public class ChooserWizardPage extends WizardPage
 		 * @param type -- the type of the objects to choose from 
 		 * 			e.g. <code>PSPolicy.class</code>
 		 */
-		protected ChooserWizardPage(
+		public ChooserWizardPage(
 						String pageName,
 						Class type) 
 		{
@@ -84,28 +125,56 @@ public class ChooserWizardPage extends WizardPage
 					list= new List(parent,SWT.FILL);
 				}
 				setControl(list);
+				Vector modelObjects;
 				if(type.equals(PSPolicy.class))
 				{
 					modelObjects =
-						PolicySystemRDFModel.getInstance().getPolicies().toArray();
+						PolicySystemRDFModel.getInstance().getPolicies();
 				}
 				else if(type.equals(PSResource.class))
 				{
 					modelObjects=
-						PolicySystemRDFModel.getInstance().getResources().toArray();
+						PolicySystemRDFModel.getInstance().getResources();
 				}
 				else
 				{
-					modelObjects=new Object[0];
+					modelObjects=new Vector(0);
 				}
 				
 				logger.info("Policies:"+modelObjects);
-				names= new String[modelObjects.length];
-				for(int i=modelObjects.length-1;i>=0;i--)
+				
+				//ArrayList al= new ArrayList(16);
+				modelObjectTable= new Hashtable();
+				String name;
+				ModelObjectWrapper modelObj;
+				
+				for(Iterator i=modelObjects.iterator();i.hasNext();)
 				{
-					names[i]=((ModelObjectWrapper)modelObjects[i]).getLabel();
+					modelObj=(ModelObjectWrapper)i.next();
+					name=modelObj.getLabel();
+					modelObjectTable.put(name,modelObj);
+					if(namesToIgnore!=null)
+					{
+						if(!namesToIgnore.contains(name))
+						{
+							list.add(name);
+						}
+					}
+					else
+					{
+						//al.add(name);
+						list.add(name);
+					}
+						
 				}
-				list.setItems(names);
+				
+//				names= new String[al.size()];
+//				System.out.println("al.size:"+al.size()+ " al:"+al);
+//				if(names.length>0)
+//				{
+//					al.toArray(names);
+//				}
+//				list.setItems(names);
 				list.setSize(parent.getClientArea().width,
 							parent.getClientArea().width);
 				super.setControl(list);
@@ -123,8 +192,9 @@ public class ChooserWizardPage extends WizardPage
 		 */
 		public Object getSelected()
 		{
-			int[] selIndices=list.getSelectionIndices();
-			if(selIndices.length<=0)
+			String[] selItems=list.getSelection();
+			//System.out.println("sel:"+selIndices);
+			if(selItems.length<=0)
 			{
 				return null;
 			}
@@ -132,15 +202,18 @@ public class ChooserWizardPage extends WizardPage
 			{
 				if(allowMultipleSelection==false)
 				{
-					return modelObjects[selIndices[0]];
+					return modelObjectTable.get(selItems[0]);//modelObjects[selIndices[0]];
 				}
 				else
 				{
-					Object[] selections= new Object[selIndices.length];
-					for(int i=0;i<selIndices.length;i++)
+					Object[] selections= new Object[selItems.length];
+					for(int i=0;i<selItems.length;i++)
 					{
-						selections[i]=modelObjects[selIndices[i]];
+						selections[i]=modelObjectTable.get(selItems[i]);
 					}
+					System.out.println(
+							"sel:"+Arrays.asList(selItems)+
+							"\nmodelObjects:"+modelObjectTable);
 					return selections;
 				}
 			}
@@ -154,6 +227,26 @@ public class ChooserWizardPage extends WizardPage
 			return super.getName();
 		}
 		
+		
+		
+		/**
+		 * @return
+		 */
+		public java.util.List getNamesToIgnore() 
+		{
+			return namesToIgnore;
+		}
+
+
+		/**
+		 * @param namesToIgnore
+		 */
+		public void setNamesToIgnore(java.util.List namesToIgnore) 
+		{
+			this.namesToIgnore = namesToIgnore;
+		}
+
+
 		/**
 		 * A utility methode that kan be used to choose a single policy
 		 * currently in the model.
@@ -193,7 +286,7 @@ public class ChooserWizardPage extends WizardPage
 			return sel;
 		}
 		
-		public static PSPolicy[] choosePlicies(Shell  shell)
+		public static PSPolicy[] choosePlicies(Shell  shell, String[] itemsToIgnore)
 		{
 			//DialogPage p;
 			//final PSPolicy selPol[]=null;
@@ -210,7 +303,11 @@ public class ChooserWizardPage extends WizardPage
 			};
 			 
 			ChooserWizardPage page=
-				new ChooserWizardPage("Choose Policy",PSPolicy.class,true);
+				new ChooserWizardPage(
+							"Choose Policy",
+							PSPolicy.class,
+							true,
+							itemsToIgnore);
 			wiz.addPage(page);
 			WizardDialog dlg=
 				new WizardDialog(
@@ -225,7 +322,8 @@ public class ChooserWizardPage extends WizardPage
 		
 		public static ModelObjectWrapper[] chooseModelObjects(
 										Shell  shell, 
-										Class modelObjectTypes)
+										Class modelObjectTypes,
+										String[] itemsToIgnore)
 		{
 			if(shell==null || modelObjectTypes==null)
 			{
@@ -248,7 +346,11 @@ public class ChooserWizardPage extends WizardPage
 			};
 			 
 			ChooserWizardPage page=
-				new ChooserWizardPage("Choose Policy",modelObjectTypes,true);
+				new ChooserWizardPage(
+							"Choose Policy",
+							modelObjectTypes,
+							true,
+							itemsToIgnore);
 			wiz.addPage(page);
 			WizardDialog dlg=
 				new WizardDialog(
@@ -281,5 +383,7 @@ public class ChooserWizardPage extends WizardPage
 				return null;
 			}
 		}
+		
+		
 				
 	}

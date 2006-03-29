@@ -5,11 +5,21 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.eclipse.jface.preference.ListEditor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 
 
@@ -35,18 +45,20 @@ public class PSModelWrapperListEditor extends ListEditor
 	/**
 	 * The mechanism used to create new List Items
 	 */
-	private PSModelWrapperListEditorCreateItemMechanism createItemMechanism;
+	private ModelObjectSelectionMechanism createItemMechanism;
 	
 	private Class modelObjectType ;
 	
 	
 	private Composite parent;
 	
+	private ListElementDelMonitor listElementDelMonitor; 
+	
 	/**
 	 * Deafult creator
 	 *
 	 */
-	public PSModelWrapperListEditor() 
+	private PSModelWrapperListEditor() 
 	{
 		super();
 		super.adjustForNumColumns(20);
@@ -71,7 +83,7 @@ public class PSModelWrapperListEditor extends ListEditor
 		createItemMechanism= 
 			makePSPolicyCreateItemMechanism();
 		this.parent=parent;
-		
+		listElementDelMonitor=makeItemDeleteMonitor();
 	}
 
 	/**
@@ -122,6 +134,11 @@ public class PSModelWrapperListEditor extends ListEditor
 	
 	
 	
+	/**
+	 * Adds the passed model objects in the list editor
+	 * @param modelItems -- an array containing the model 
+	 * 			object wrappers
+	 */
 	protected void addList(ModelObjectWrapper[] modelItems) 
 	{
 		if(modelItems==null)
@@ -141,16 +158,12 @@ public class PSModelWrapperListEditor extends ListEditor
 					modelItemTable.put(currentLabel,modelItems[i]);
 					list.add(currentLabel);
 				}
+				else
+				{
+					System.out.println("currentLabel in List:"+currentLabel);
+				}
 				
 			}		
-//			list.removeAll();
-//			ModelObjectWrapper mow;
-//			for(	Iterator it=modelItemTable.values().iterator();
-//					it.hasNext();
-//					)
-//			{
-//				mow.hashCode()
-//			}
 			return;
 		}
 	}
@@ -165,8 +178,14 @@ public class PSModelWrapperListEditor extends ListEditor
 			{
 				return null;
 			}
+			List list=getListControl(parent);
 			
-			return createItemMechanism.create(this,modelObjectType);
+			String[] itemsToIgnore=null;
+			if(list!=null)
+			{
+				itemsToIgnore=list.getItems();
+			}
+			return createItemMechanism.select(this,modelObjectType,itemsToIgnore);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -186,21 +205,42 @@ public class PSModelWrapperListEditor extends ListEditor
 		return stringList.split(SEPARATOR);
 	}
 
-	public static PSModelWrapperListEditorCreateItemMechanism 
-										makePSPolicyCreateItemMechanism()
+	
+	/**
+	 * Utility method to make a ListElementDelMonitor 
+	 * to monitor for list element delation  
+	 * @return the created ListElementMonitor
+	 */
+	private ListElementDelMonitor makeItemDeleteMonitor()
 	{
-		return new PSModelWrapperListEditorCreateItemMechanism()
+		ListElementDelMonitor mon=
+			new ListElementDelMonitor(this,modelItemTable);
+		return mon;
+	}
+	
+	/**
+	 * make ModelObjectSelectionMechanism used to create
+	 * new list items
+	 * @return a ModelObjectSelectionMechanism
+	 */
+	public static ModelObjectSelectionMechanism 
+						makePSPolicyCreateItemMechanism()
+	{
+		return new ModelObjectSelectionMechanism()
 		{ 
-
-			public String create(	PSModelWrapperListEditor listEditor,
-									Class modelObjectType) 
+			
+			public String select(	
+						PSModelWrapperListEditor listEditor,
+						Class modelObjectType,
+						String[] itemsToIgnore) 
 			{
 				
 				ModelObjectWrapper[] policies= 
 					//ChooserWizardPage.choosePlicies(listEditor.getShell());
 					ChooserWizardPage.chooseModelObjects(
 								listEditor.getShell(),
-								PSPolicy.class);;
+								modelObjectType,//PSPolicy.class,
+								itemsToIgnore);
 				if(policies==null)
 				{
 					return null;
@@ -211,13 +251,7 @@ public class PSModelWrapperListEditor extends ListEditor
 				}
 				else
 				{
-//					PSPolicy policy;
-//					for(int i=0;i<policies.length;i++)
-//					{
-//						policy=policies[i];
-//						modelWrapperStore.put(policy.getLabel(),policy);
-//						
-//					}
+
 					listEditor.addList(policies);
 					return null;
 					
@@ -225,8 +259,129 @@ public class PSModelWrapperListEditor extends ListEditor
 				
 			}
 
-		
+					
 		};
 		
+	}
+	
+	/**
+	 * Class to monitior for list element deletion.
+	 * And perform this deletion in the model element table
+	 * @author pat_dev
+	 *
+	 */
+	class ListElementDelMonitor implements 	SelectionListener,
+											Listener
+	{
+		/**
+		 * A array containing the lastly selected items
+		 */
+		private String[] oldSelection;
+		
+		/**
+		 * The list control that hold the items
+		 */
+		private List list;
+		
+		/**
+		 * The model item table whose labels are shown in the list
+		 */
+		private Hashtable modelItemTable;
+		
+		
+		/**
+		 * Create a ListElementDelMonitor to monitor the provided list
+		 * and update the associated modlItemTable
+		 * @param list -- the list control to monitro for items delection
+		 * @param modelItemTable -- the associated model items, whose labels
+		 * 			are shown in the list 
+		 */
+		public ListElementDelMonitor(PSModelWrapperListEditor listEditor, Hashtable modelItemTable)
+		{
+			if(	listEditor==null || 
+				modelItemTable==null)
+			{
+				return;
+			}
+			else
+			{
+				String rmText=JFaceResources.getString("ListEditor.remove");
+				Composite composite=
+					listEditor.getButtonBoxControl(listEditor.parent);
+				Control[] children=composite.getChildren();
+				for(int i=0; i<children.length;i++)
+				{
+					if(children[i] instanceof Button)
+					{
+						if( ((Button)children[i]).getText().equals(rmText))
+						{
+							((Button)children[i]).addListener(
+												SWT.Deactivate,
+												this);
+						}
+					}
+				}
+				this.list=listEditor.getListControl(listEditor.parent);
+				this.modelItemTable=modelItemTable;
+				list.addSelectionListener(this);
+				//list.addListener(SWT.Modify,this);
+				//list.addListener(SWT.Selection,this);
+			}
+		}
+		
+		
+		/**
+		 * Update the model item table by removing the deleted list items
+		 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+		 */
+		public void widgetSelected(SelectionEvent e) 
+		{
+			checkDelete();
+		}
+
+		/**
+		 * Update the model item table by removing the deleted list items
+		 * @see org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
+		 */
+		public void widgetDefaultSelected(SelectionEvent e) 
+		{
+			widgetSelected(e);
+		}
+
+
+		/**
+		 * Update the model item table by removing the deleted list items
+		 * @see org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets.Event)
+		 */
+		public void handleEvent(Event event) 
+		{
+			checkDelete();
+		}
+		
+		
+		/**
+		 * Utility method to update the model item table by removing 
+		 * the deleted list items
+		 */
+		private void checkDelete()
+		{
+			String[] currentSelection=
+				list.getSelection();
+			if(oldSelection==null)
+			{
+				oldSelection=currentSelection;
+			}
+			else
+			{
+				for(int i=0; i<oldSelection.length;i++)
+				{
+					if(list.indexOf(oldSelection[i])<0)
+					{
+						modelItemTable.remove(oldSelection[i]);
+					}
+				}
+				oldSelection=currentSelection;
+			}
+		}
 	}
 }

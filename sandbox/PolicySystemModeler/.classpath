@@ -15,6 +15,5 @@
 	<classpathentry kind="lib" path="lib/jena_2_3/concurrent.jar"/>
 	<classpathentry kind="lib" path="lib/jena_2_3/icu4j_3_4.jar"/>
 	<classpathentry kind="lib" path="lib/jena_2_3/jakarta-oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/logging_plugin_1.0.0/logging.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
