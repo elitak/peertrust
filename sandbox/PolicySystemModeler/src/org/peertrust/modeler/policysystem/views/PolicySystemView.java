@@ -20,6 +20,8 @@ import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.Perspective;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
+import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.ProjectConfigChangeListener;
 
 
 
@@ -112,7 +114,20 @@ public class PolicySystemView extends ViewPart
 		hookDoubleClickAction();
 		contributeToActionBars();
 		getSite().setSelectionProvider(viewer);
-	
+		viewer.getTree().setEnabled(false);
+		ProjectConfigChangeListener pcl= new ProjectConfigChangeListener()
+		{
+
+			public void projectConfigChanged(ProjectConfig config) 
+			{
+				if(config.getProjectFile()!=null)
+				{
+					viewer.getTree().setEnabled(true);
+				}
+			}
+			
+		};
+		ProjectConfig.getInstance().addProjectConfigChangeListener(pcl);
 //		getSite().getPage().addSelectionListener(
 //				PolicySystemGraphView.ID,
 //				(ISelectionListener)this);

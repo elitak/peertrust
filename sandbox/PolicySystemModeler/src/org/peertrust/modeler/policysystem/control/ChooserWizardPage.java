@@ -20,7 +20,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -136,6 +138,16 @@ public class ChooserWizardPage extends WizardPage
 					modelObjects=
 						PolicySystemRDFModel.getInstance().getResources();
 				}
+				else if(type.equals(PSOverrindingRule.class))
+				{
+					modelObjects=
+						PolicySystemRDFModel.getInstance().getOverriddingRules(null);
+				}
+				else if(type.equals(PSFilter.class))
+				{
+					modelObjects=
+						PolicySystemRDFModel.getInstance().getFilters(null);
+				}
 				else
 				{
 					modelObjects=new Vector(0);
@@ -146,12 +158,12 @@ public class ChooserWizardPage extends WizardPage
 				//ArrayList al= new ArrayList(16);
 				modelObjectTable= new Hashtable();
 				String name;
-				ModelObjectWrapper modelObj;
+				PSModelObject modelObj;
 				
 				for(Iterator i=modelObjects.iterator();i.hasNext();)
 				{
-					modelObj=(ModelObjectWrapper)i.next();
-					name=modelObj.getLabel();
+					modelObj=(PSModelObject)i.next();
+					name=modelObj.getLabel().getValue();
 					modelObjectTable.put(name,modelObj);
 					if(namesToIgnore!=null)
 					{
@@ -275,7 +287,9 @@ public class ChooserWizardPage extends WizardPage
 				new WizardDialog(
 						shell,
 						wiz);
-			
+			dlg.create();
+			dlg.setTitle("Select Policy");
+			dlg.setMessage("Select Policy");
 			int resp=dlg.open();
 			PSPolicy sel=
 				selPol[0];//(PSPolicy)page.getSelected();
@@ -313,14 +327,16 @@ public class ChooserWizardPage extends WizardPage
 				new WizardDialog(
 						shell,
 						wiz);
-			
+			dlg.create();
+			dlg.setTitle("Select Policies");
+			dlg.setMessage("Select Policies");
 			int resp=dlg.open();
 			System.out.println("selPol[0]:"+selPol[0]);
 			
 			return (PSPolicy[])selPol[0];
 		}
 		
-		public static ModelObjectWrapper[] chooseModelObjects(
+		public static PSModelObject[] chooseModelObjects(
 										Shell  shell, 
 										Class modelObjectTypes,
 										String[] itemsToIgnore)
@@ -347,7 +363,7 @@ public class ChooserWizardPage extends WizardPage
 			 
 			ChooserWizardPage page=
 				new ChooserWizardPage(
-							"Choose Policy",
+							"Select Model Object",
 							modelObjectTypes,
 							true,
 							itemsToIgnore);
@@ -356,24 +372,27 @@ public class ChooserWizardPage extends WizardPage
 				new WizardDialog(
 						shell,
 						wiz);
-			
+			dlg.create();
+			//dlg.setTitle(getWizardDlgTitle(modelObjectTypes,true));
+			dlg.setMessage(getWizardDlgTitle(modelObjectTypes,true));
+			dlg.getShell().setText(getWizardDlgTitle(modelObjectTypes,true));
 			int resp=dlg.open();
 			if(selPol[0]==null)
 			{
 				return null;
 			}
-			else if(selPol[0] instanceof ModelObjectWrapper)
+			else if(selPol[0] instanceof PSModelObject)
 			{
-				return new ModelObjectWrapper[]{(ModelObjectWrapper)selPol[0]};
+				return new PSModelObject[]{(PSModelObject)selPol[0]};
 			}
 			else if(selPol[0] instanceof Object[])
 			{
 				final int LEN= ((Object[])selPol[0]).length;
-				ModelObjectWrapper[] mows=
-					new ModelObjectWrapper[LEN];
+				PSModelObject[] mows=
+					new PSModelObject[LEN];
 				for(int i=0;i<LEN;i++)
 				{
-					mows[i]=(ModelObjectWrapper)((Object[])selPol[0])[0];
+					mows[i]=(PSModelObject)((Object[])selPol[0])[0];
 				}
 				return mows;
 			}
@@ -384,6 +403,56 @@ public class ChooserWizardPage extends WizardPage
 			}
 		}
 		
-		
+		private static final String getWizardDlgTitle(
+									Class modelObjectType,
+									boolean allowMultiSelection)
+		{
+			if(allowMultiSelection==true)
+			{
+				if(modelObjectType.equals(PSResource.class))
+				{
+					return "Select Resource";
+				}
+				else if(modelObjectType.equals(PSPolicy.class))
+				{
+					return "Select Policy";
+				}
+				else if(modelObjectType.equals(PSOverrindingRule.class))
+				{
+					return "Select Overridding rule";
+				}
+				else if(modelObjectType.equals(PSFilter.class))
+				{
+					return "Select Filter";
+				}
+				else
+				{
+					return "Select Model Object";
+				}
+			}
+			else
+			{
+				if(modelObjectType.equals(PSResource.class))
+				{
+					return "Select Resources";
+				}
+				else if(modelObjectType.equals(PSPolicy.class))
+				{
+					return "Select Policies";
+				}
+				else if(modelObjectType.equals(PSOverrindingRule.class))
+				{
+					return "Select Overridding rules";
+				}
+				else if(modelObjectType.equals(PSFilter.class))
+				{
+					return "Select Filters";
+				}
+				else
+				{
+					return "Select Model Objects";
+				}
+			}
+		}
 				
 	}

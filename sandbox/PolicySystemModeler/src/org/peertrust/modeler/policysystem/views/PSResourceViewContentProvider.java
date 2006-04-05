@@ -13,14 +13,44 @@ import org.peertrust.modeler.policysystem.model.ProjectConfig;
 
 
 /**
- * Content provider for java.io.File objects.
+ * Content provider for the FileSystem view.
+ * A customization for returning only directories 
+ * or directories and files can be made by the constuctor showFiles 
+ * Parameter  
+ * 
  */
 public class PSResourceViewContentProvider implements ITreeContentProvider 
 {
-    private  static final Object[] EMPTY = new Object[0];
+	/** empty array*/
+	private  static final Object[] EMPTY = new Object[0];
 
-    private FileFilter fileFilter;
-    private Logger logger;
+	/**
+	 * a boolean thats indicates whether to show only directories if 
+	 * false or true if file are also content elements
+	 */
+	private boolean showFiles;
+	
+	private Object root;
+	
+	/**
+	 * Filter used for showing excusively directory or not
+	 * it uses showFile member field to make the decision
+	 */
+    private FileFilter fileFilter=
+    	new FileFilter() 
+    	{
+	        public boolean accept(File file) {
+	            if (file.isFile() && showFiles == false)
+	                return false;
+	            return true;
+	        }
+    	};
+    
+    /**
+     * Logger for the PSResourceViewprovider class
+     */
+    private static Logger logger=
+    	Logger.getLogger(PSResourceViewContentProvider.class);;
 
     /**
      * Creates a new instance of the receiver.
@@ -28,8 +58,9 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
      * @param showFiles <code>true</code> files and folders are returned
      * 	by the receiver. <code>false</code> only folders are returned.
      */
-    public PSResourceViewContentProvider(final boolean showFiles) {
-       logger=Logger.getLogger(PSResourceViewContentProvider.class);
+    public PSResourceViewContentProvider(final boolean showFiles) 
+    {
+       
     	fileFilter = new FileFilter() {
             public boolean accept(File file) {
                 if (file.isFile() && showFiles == false)
@@ -39,16 +70,45 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         };
     }
 
+    /**
+     * @return 
+     * <ul>
+     * 	<li/>	an Empty array if parentElement is null
+     * 	<li/>	if parent element is a file returns
+     * 			<ul/> 
+     * 				<li/> its childrens if the file is a directory
+     * 				<li/> an empty array otherwise
+     * 			<ul/>
+     *  <li/> if it is a string (representing the model object class to show)
+     *  		<ul>
+     *  			<li/> for POLICY_SYSTEM_RES_RESOURCES returns the root directory 
+     *  			<li/> for <code>POLICY_SYSTEM_RES_POLICIES</code> returns all policies
+     *  			<li/>for <code>POLICY_SYSTEM_RES_OVERRIDDING_RULES</code> returns all overriding rules
+     *  			<li/>for <code>POLICY_SYSTEM_RES_FILTERS</code> return the all filters
+     *  			<li/>otherwise returns an empty array 
+     *  		</ul>	 
+     * 	<li/>	
+     * 	</ul>		
+     * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
+     */
     public Object[] getChildren(Object parentElement) 
     {
     	if(parentElement==null)
     	{
     		return EMPTY;
     	}
-        if (parentElement instanceof File) {
+        
+    	if (parentElement instanceof File) 
+        {
+    		
             File[] children = ((File) parentElement).listFiles(fileFilter);
-            if (children != null) {
+            if (children != null) 
+            {// a directory
                 return children;
+            }
+            else
+            {
+            	return EMPTY;
             }
         }
         else if (parentElement instanceof String) 
@@ -86,7 +146,8 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         	}
         	else
         	{
-        			
+        		logger.warn("unknown string key for a model object class:"+parentElement);
+        		return EMPTY;
         	}
         }
         logger.warn(
@@ -96,29 +157,54 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         return EMPTY;
     }
 
+    /**
+     * Only file element can have parent in the content model
+     * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
+     */
     public Object getParent(Object element) {
         if (element instanceof File) {
             return ((File) element).getParentFile();
         }
-        return null;
+        else
+        {
+        	return root;//null;
+        }
     }
-
-    public boolean hasChildren(Object element) {
+    
+    
+    /**
+     * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
+     */
+    public boolean hasChildren(Object element) 
+    {
         return getChildren(element).length > 0;
     }
 
-    public Object[] getElements(Object element) {
+    /**
+     * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
+     */
+    public Object[] getElements(Object element) 
+    {
+    	root=element;
         return getChildren(element);
     }
 
-    public void dispose() {
+    /**
+     * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+     */
+    public void dispose() 
+    {
+    	//nothing
     }
 
+    /**
+     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+     */
     public void inputChanged(
     						Viewer viewer, 
     						Object oldInput, 
     						Object newInput) 
     {
-    	
+    	//nothing
     }
 }

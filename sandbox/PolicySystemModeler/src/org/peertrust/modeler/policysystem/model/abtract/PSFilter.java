@@ -3,7 +3,8 @@ package org.peertrust.modeler.policysystem.model.abtract;
 import java.util.Vector;
 
 
-public interface PSFilter extends ModelObjectWrapper {
+public interface PSFilter extends PSModelObject 
+{
 
 	public Vector getHasCondition();
 	public void addHasCondition(String condition);
@@ -13,5 +14,5 @@ public interface PSFilter extends ModelObjectWrapper {
 	
 	public Vector getIsprotectedBy();
 	public void addIsProtectedBy(PSPolicy policy) ;
-	public String getLabel();
+	//public String getLabel();
 }

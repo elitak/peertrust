@@ -1,9 +1,12 @@
 package org.peertrust.modeler.policysystem.control;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Vector;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -16,7 +19,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
@@ -47,12 +50,24 @@ public class PSModelWrapperListEditor extends ListEditor
 	 */
 	private ModelObjectSelectionMechanism createItemMechanism;
 	
+	/**
+	 * The type of the model object list to create
+	 */
 	private Class modelObjectType ;
 	
 	
+	/**
+	 * The parent compiosite; used to get the list
+	 */
 	private Composite parent;
 	
+	/**
+	 * Use to monitor for list element deletion
+	 */
 	private ListElementDelMonitor listElementDelMonitor; 
+	
+	private static final Logger logger=
+		Logger.getLogger(PSModelWrapperListEditor.class);
 	
 	/**
 	 * Deafult creator
@@ -111,7 +126,7 @@ public class PSModelWrapperListEditor extends ListEditor
 	 * @param modelItems -- an array ob model object wrappers
 	 * @return a string representing the model wrapper list
 	 */
-	protected String createList(ModelObjectWrapper[] modelItems) 
+	protected String createList(PSModelObject[] modelItems) 
 	{
 		if(modelItems==null)
 		{
@@ -123,7 +138,7 @@ public class PSModelWrapperListEditor extends ListEditor
 			String currentLabel;
 			for(int i=0; i<modelItems.length;i++)
 			{
-				currentLabel= modelItems[i].getLabel();
+				currentLabel= modelItems[i].getLabel().getValue();
 				modelItemTable.put(currentLabel,modelItems[i]);
 				stringItems[i]=currentLabel;
 				
@@ -133,26 +148,37 @@ public class PSModelWrapperListEditor extends ListEditor
 	}
 	
 	
+	/**
+	 * Remove all model objects
+	 */
+	public void clear()
+	{
+		modelItemTable.clear();
+		List list=super.getListControl(parent);
+		list.removeAll();
+	}
 	
 	/**
 	 * Adds the passed model objects in the list editor
 	 * @param modelItems -- an array containing the model 
 	 * 			object wrappers
 	 */
-	protected void addList(ModelObjectWrapper[] modelItems) 
+	protected void addList(PSModelObject[] modelItems) 
 	{
+		logger.info("adding to list modeilItems:"+modelItems);
 		if(modelItems==null)
 		{
+			logger.warn("modeilItems is null");
 			return;
 		}
 		else
 		{
 			List list=super.getListControl(parent);
-			String stringItems[]= new String[modelItems.length];
+			//String stringItems[]= new String[modelItems.length];
 			String currentLabel;
 			for(int i=0; i<modelItems.length;i++)
 			{
-				currentLabel= modelItems[i].getLabel();
+				currentLabel= modelItems[i].getLabel().getValue();
 				if(!modelItemTable.containsKey(currentLabel))
 				{
 					modelItemTable.put(currentLabel,modelItems[i]);
@@ -160,10 +186,11 @@ public class PSModelWrapperListEditor extends ListEditor
 				}
 				else
 				{
-					System.out.println("currentLabel in List:"+currentLabel);
+					logger.warn("currentLabel in List:"+currentLabel);
 				}
 				
-			}		
+			}
+			logger.info("Current list items:"+list.getItemCount());
 			return;
 		}
 	}
@@ -204,7 +231,28 @@ public class PSModelWrapperListEditor extends ListEditor
 		}
 		return stringList.split(SEPARATOR);
 	}
-
+	
+	public Vector getListModelObject()
+	{
+		Vector vect= new Vector();
+		List list=getListControl(parent);
+		int max=list.getItemCount();
+		String item;
+		for(int i=0; i<max;i++)
+		{
+			item=list.getItem(i);
+			if(item!=null)
+			{
+				Object obj=modelItemTable.get(item);
+				if(obj!=null)
+				{
+					vect.add(obj);
+				}
+			}
+		}
+			
+		return vect;
+	}
 	
 	/**
 	 * Utility method to make a ListElementDelMonitor 
@@ -235,7 +283,7 @@ public class PSModelWrapperListEditor extends ListEditor
 						String[] itemsToIgnore) 
 			{
 				
-				ModelObjectWrapper[] policies= 
+				PSModelObject[] policies= 
 					//ChooserWizardPage.choosePlicies(listEditor.getShell());
 					ChooserWizardPage.chooseModelObjects(
 								listEditor.getShell(),

@@ -162,15 +162,20 @@ public class WarningsView 	extends ViewPart
 							}
 						}
 							pRes=tmpRes;
-							path.add(0,pRes);
+							if(pRes!=null)
+							{
+								path.add(0,pRes);
+							}
 						
 					}
 					logger.info("Pathhh:"+path);
+					
 					PSResource res=
 						rdfModel.getResource(
 								file.toString(),
 								true,
 								new FileResourceSelector(file));
+					path.addElement(res);
 					listViewer.setInput(path);
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -15,7 +15,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.model.RDFModelManipulator;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
@@ -328,7 +328,7 @@ public class PolicySystemRDFModel
 		resourceHierarchyCreationMechanism=
 			new HierarchyNodeCreationMechanism(){
 
-				public ModelObjectWrapper createNode(
+				public PSModelObject createNode(
 											Model rdfModel, 
 											String nodeName) 
 				{
@@ -345,7 +345,7 @@ public class PolicySystemRDFModel
 					return psRes;
 				}
 
-				public ModelObjectWrapper createLink(
+				public PSModelObject createLink(
 									Model rdfModel, 
 									Resource startResource, 
 									Resource targetResource) {
@@ -394,7 +394,7 @@ public class PolicySystemRDFModel
 		return stm.getString();
 	}
 	
-	static final public ModelObjectWrapper getResourceProperty(
+	static final public PSModelObject getResourceProperty(
 									Resource resource, 
 									Property prop) 
 	{
@@ -463,14 +463,14 @@ public class PolicySystemRDFModel
 		return;
 	}
 	
-	static final public void setResourceProperty(
+	public void setResourceProperty(
 			Resource resource, 
 			Property prop,
 			Resource objValue) 
 	{
 		if(resource ==null || prop==null || objValue==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"params must not be null: res="+resource+
 					" prop:"+prop+ " objValue="+objValue);
 			return;
@@ -479,8 +479,9 @@ public class PolicySystemRDFModel
 		Statement stm=resource.getProperty(prop);
 		if(stm==null)
 		{
-			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
-			stm=getInstance().rdfModel.createStatement(resource,prop,objValue);
+			logger.info("no statement ["+resource+"; "+prop+";?]");
+			stm=rdfModel.createStatement(resource,prop,objValue);
+			rdfModel.add(stm);
 			//getInstance().firePSModelChangeEvent(null);
 			return;
 		}
@@ -515,7 +516,7 @@ public class PolicySystemRDFModel
 	}
 	
 	final public Vector getMultipleProperty(
-								ModelObjectWrapper modelObjectWrapper, 
+								PSModelObject modelObjectWrapper, 
 								Property prop) 
 	{
 		if(modelObjectWrapper ==null || prop==null)
@@ -587,7 +588,7 @@ public class PolicySystemRDFModel
 	}
 	
 	final public Vector getOverriddingRule(
-						ModelObjectWrapper modelObjectWrapper) 
+						PSModelObject modelObjectWrapper) 
 	{
 	
 		if(policySystemRDFModel==null)
@@ -826,9 +827,9 @@ public class PolicySystemRDFModel
 			policySystemRDFModel.rdfModel.contains(res,RDF.type,cls);
 	}
 	
-	final public ModelObjectWrapper createModelObjectWrapper(
+	final public PSModelObject createModelObjectWrapper(
 												Resource res,
-												ModelObjectWrapper guarded)
+												PSModelObject guarded)
 	{
 		if(isSubClassOf(res,CLASS_RESOURCE))
 		{
@@ -1120,7 +1121,7 @@ public class PolicySystemRDFModel
 		
 	}
 
-	public Vector getDirectChilds(ModelObjectWrapper parent) 
+	public Vector getDirectChilds(PSModelObject parent) 
 	{
 		if(parent ==null)
 		{
@@ -1137,7 +1138,7 @@ public class PolicySystemRDFModel
 				new SimpleSelector(null,PROP_HAS_SUPER,res);
 			StmtIterator it=rdfModel.listStatements(sel);
 			Vector c=new Vector();
-			ModelObjectWrapper mow;
+			PSModelObject mow;
 			while(it.hasNext())
 			{
 				res=it.nextStatement().getSubject();
@@ -1154,7 +1155,7 @@ public class PolicySystemRDFModel
 		}
 	}
 
-	public Vector getDirectParents(ModelObjectWrapper child) 
+	public Vector getDirectParents(PSModelObject child) 
 	{
 		if(child ==null)
 		{
@@ -1171,7 +1172,7 @@ public class PolicySystemRDFModel
 				new SimpleSelector(res,PROP_HAS_SUPER,(Resource)null);
 			StmtIterator it=rdfModel.listStatements(sel);
 			Vector p=new Vector();
-			ModelObjectWrapper mow;
+			PSModelObject mow;
 			while(it.hasNext())
 			{
 				res=(Resource)it.nextStatement().getObject();
@@ -1209,7 +1210,7 @@ public class PolicySystemRDFModel
 		{
 			ResIterator rIt= 
 				rdfModel.listSubjectsWithProperty(RDF.type,CLASS_FILTER);
-			ModelObjectWrapper mow;
+			PSModelObject mow;
 			while(rIt.hasNext())
 			{
 				res=rIt.nextResource();
@@ -1221,7 +1222,7 @@ public class PolicySystemRDFModel
 		{
 			NodeIterator nIt= 
 				rdfModel.listObjectsOfProperty(res,PROP_HAS_FILTER);
-			ModelObjectWrapper mow;
+			PSModelObject mow;
 			while(nIt.hasNext())
 			{
 				res=(Resource)nIt.nextNode();
@@ -1232,7 +1233,7 @@ public class PolicySystemRDFModel
 		return f;		
 	}
 
-	public Vector getPathToAncestorRoots(ModelObjectWrapper node)
+	public Vector getPathToAncestorRoots(PSModelObject node)
 	{
 		Vector curParent;
 		Vector paths=new Vector();
@@ -1248,7 +1249,7 @@ public class PolicySystemRDFModel
 		for(;paths.size()>0;)
 		{
 			Vector path=(Vector)paths.remove(0);
-			ModelObjectWrapper mow=(ModelObjectWrapper)path.get(0);
+			PSModelObject mow=(PSModelObject)path.get(0);
 			curParent=getDirectParents(mow);
 			if(curParent.size()>0)
 			{
@@ -1292,13 +1293,15 @@ public class PolicySystemRDFModel
 		logger.info("Policy at 0:"+policies);
 		///follow path; add polcies and do overriding
 		PSResource curRes;
+		PSOverrindingRule rule;
 		for(int i=1;i<=MAX;i++)
 		{
 			curRes=(PSResource)path.get(i);
 			oRules=getOverriddingRule(curRes);
 			for(Iterator it=oRules.iterator();it.hasNext();)
 			{
-				PSOverrindingRule rule=
+				//PSOverrindingRule rule=
+				rule=
 					(PSOverrindingRule)it.next();
 				rule.performOverridding(policies);
 			}
@@ -1308,6 +1311,13 @@ public class PolicySystemRDFModel
 			
 		}
 		
+//		///remove overridden
+//		oRules=((PSResource)path.lastElement()).getIsOverrindingRule();
+//		for(Iterator it=oRules.iterator();it.hasNext();)
+//		{
+//			rule=(PSOverrindingRule)it.next();
+//			rule.performOverridding(policies);
+//		}
 		return policies;
 	}
 	
@@ -1329,6 +1339,14 @@ public class PolicySystemRDFModel
 			policies.addAll(computePathPolicies(path));
 		}
 		
+		Vector localORules=psResource.getIsOverrindingRule();
+		logger.info("\n\tlocalOrules:"+localORules);
+		PSOverrindingRule oRule;
+		for(Iterator it=localORules.iterator();it.hasNext();)
+		{
+			oRule=(PSOverrindingRule)it.next();
+			oRule.performOverridding(policies);
+		}
 		return policies;
 	}
 

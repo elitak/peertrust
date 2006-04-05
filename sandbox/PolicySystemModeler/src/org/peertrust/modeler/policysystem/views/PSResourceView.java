@@ -1,6 +1,7 @@
 package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
@@ -23,6 +24,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.ISelectionListener;
@@ -37,7 +39,8 @@ import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.Ch
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
@@ -45,7 +48,13 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
-
+/**
+ * View part for showing details about the model object of a same class
+ * E.g. for showing Policies
+ * 
+ * @author Patrice Congo
+ *
+ */
 public class PSResourceView extends ViewPart
 							implements 	ISelectionListener,
 										PSModelChangeEventListener
@@ -53,22 +62,24 @@ public class PSResourceView extends ViewPart
 	static final public String ID="FileSystemView";
 	private ITreeContentProvider contentProvider;
 	private TreeViewer treeView;
-	private Logger logger;
+	static final private Logger logger=Logger.getLogger(PSResourceView.class);;
 	private Composite composite;
 	private ToolBarManager toolbarManager;
 	private Action addAction;
 	private Action removeAction;
 	private Action protectAction;
+	private Action addPRuleAction;
+	private Action addFilterAction;
 	
 	public PSResourceView()
 	{
-		logger=Logger.getLogger(PSResourceView.class);
 	}
 	
 	public void createPartControl(Composite parent) 
 	{
 		/////
 		treeView= new TreeViewer(parent);
+	
 		contentProvider= new PSResourceViewContentProvider(true);
 		treeView.setContentProvider(contentProvider);
 		treeView.setLabelProvider(new FileLabelProvider());
@@ -91,12 +102,16 @@ public class PSResourceView extends ViewPart
 				//getViewSite().getPart(),
 				this.getViewSite(),
 				(IDoubleClickListener)null,
-				new Action[]{addAction,removeAction,protectAction},
+				new Action[]{	addAction,removeAction,protectAction,
+								addPRuleAction,addFilterAction},
 				treeView,
 				treeView.getControl(),
 				treeView,
 				"");
-		PolicySystemRDFModel.getInstance().addPSModelChangeEventListener(this);
+		PolicySystemRDFModel rdfModel=
+						PolicySystemRDFModel.getInstance();
+		rdfModel.addPSModelChangeEventListener(this);
+		
 	}
 
 	public void setFocus() 
@@ -135,9 +150,30 @@ public class PSResourceView extends ViewPart
 				protectActionRun();
 			}
 		};
-		
 		protectAction.setText("P");
 		protectAction.setToolTipText("Protect");
+		
+		///add rule action
+		addFilterAction = new Action() {
+			public void run() {
+				addFilterActionRun();
+			}
+		};
+		
+		addFilterAction.setText("F");
+		addFilterAction.setToolTipText("Add Filter");
+		
+		///add rule action
+		addPRuleAction = new Action() {
+			public void run() {
+				addPRuleActionRun();
+			}
+		};
+		
+		addPRuleAction.setText("R");
+		addPRuleAction.setToolTipText("Add Ovverriddin Rule");
+		
+		
 	}
 	
 	
@@ -164,6 +200,11 @@ public class PSResourceView extends ViewPart
 					StructuredSelection structSel=
 						(StructuredSelection)treeView.getSelection();
 					Object sel0=structSel.getFirstElement();
+					if(sel0==null)
+					{
+						logger.warn("No selection");
+						return;
+					}
 					if(sel0 instanceof File)
 					{
 						PSResource psRes=
@@ -179,9 +220,145 @@ public class PSResourceView extends ViewPart
 					}
 					else
 					{
-						System.out.println("Type:"+sel0.getClass());
+						logger.warn("Type:"+sel0.getClass());
+						
 					}
 					
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+	
+	private void addFilterActionRun()
+	{
+		logger.info("Adding Filter");
+		Object input=treeView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else if(input instanceof String)
+		{
+			try {
+				if(((String)input).equals(
+						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+				{
+					StructuredSelection structSel=
+						(StructuredSelection)treeView.getSelection();
+					Object sel0=structSel.getFirstElement();
+					if(sel0==null)
+					{
+						logger.warn("Selection 0 is null");
+						return;
+					}
+					else if(sel0 instanceof File)
+					{
+						PSResource psRes=
+							PolicySystemRDFModel.getInstance().getResource(
+									((File)sel0).getCanonicalPath(),true,null);
+						Vector resFilters=psRes.getHasFilter();
+						String[] resFiltersNames=null;
+						logger.info("Resource filters:"+
+								"\n\tResource:"+psRes+
+								"\n\tFilters:"+resFilters);
+						if(resFilters!=null)
+						{
+							int size=resFilters.size();
+							resFiltersNames=new String[size];
+							PSFilter curFilter;
+							for(int i=0; i<size; i++)
+							{
+								curFilter=(PSFilter)resFilters.elementAt(i);
+								resFiltersNames[i]=curFilter.getLabel().getValue();
+							}
+						}
+						PSModelObject filters[]=
+								ChooserWizardPage.chooseModelObjects(
+											treeView.getControl().getShell(),
+											PSFilter.class,
+											resFiltersNames);
+						if(filters!=null)
+						{
+							psRes.addHasFilter((PSFilter)filters[0]);
+							logger.info("\n\tFilters:"+
+									psRes.getHasFilter()+
+									"\n\tResource:"+psRes);
+						}
+					}
+					else
+					{
+						logger.warn("Type:"+sel0.getClass());
+					}
+					
+				}
+				else 
+				{
+					logger.warn("Cannot add rule:"+input+
+								"\n current inputclass:"+input.getClass());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
+	
+	private void addPRuleActionRun()
+	{
+		logger.info("Adding ORule");
+		Object input=treeView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else if(input instanceof String)
+		{
+			try {
+				if(((String)input).equals(
+						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+				{
+					StructuredSelection structSel=
+						(StructuredSelection)treeView.getSelection();
+					Object sel0=structSel.getFirstElement();
+					if(sel0==null)
+					{
+						logger.warn("Selection 0 is null");
+						return;
+					}
+					else if(sel0 instanceof File)
+					{
+						PSResource psRes=
+							PolicySystemRDFModel.getInstance().getResource(
+									((File)sel0).getCanonicalPath(),true,null);
+						PSModelObject rules[]=
+								ChooserWizardPage.chooseModelObjects(
+											treeView.getControl().getShell(),
+											PSOverrindingRule.class,
+											null);
+						if(rules!=null)
+						{
+							psRes.addIsOverrindingRule(
+									(PSOverrindingRule)rules[0]);
+							logger.info("ORules:"+
+									psRes.getIsOverrindingRule()+
+									"\n\tResource:"+psRes);
+						}
+					}
+					else
+					{
+						logger.warn("Type:"+sel0.getClass());
+					}
+					
+				}
+				else 
+				{
+					logger.warn("Cannot add rule:"+input+
+								"\n current inputclass:"+input.getClass());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -209,7 +386,7 @@ public class PSResourceView extends ViewPart
 					PolicySystemRDFModel.getInstance().createPolicy(
 																"label"+time,
 																"value"+time);
-					treeView.refresh();
+					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();
 				}
@@ -223,7 +400,7 @@ public class PSResourceView extends ViewPart
 														"label"+time,
 														new String[]{"value"+time},
 														new PSPolicy[]{});
-					treeView.refresh();
+					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();
 				}
@@ -237,7 +414,7 @@ public class PSResourceView extends ViewPart
 														"label"+time,
 														(PSPolicy)null,
 														(PSPolicy)null);
-					treeView.refresh();
+					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();
 				}
@@ -342,7 +519,7 @@ public class PSResourceView extends ViewPart
                     return IMG_FILE;
                 }
             }
-            else if(element instanceof ModelObjectWrapper)
+            else if(element instanceof PSModelObject)
             {
             	return IMG_MODEL_ELEMENT;
             }
@@ -353,10 +530,14 @@ public class PSResourceView extends ViewPart
             if (element instanceof File) {
                 return ((File) element).getName();
             }
-            else if(element instanceof PSOverrindingRule)
+            else if(element instanceof PSModelObject)
             {
-            	return ((PSOverrindingRule)element).getLabel();
+            	return ((PSModelObject)element).getLabel().getValue();
             }
+//            else if(element instanceof PSOverrindingRule)
+//            {
+//            	return ((PSOverrindingRule)element).getLabel();
+//            }
             else
             {
             	return super.getText(element);
@@ -364,9 +545,19 @@ public class PSResourceView extends ViewPart
         }
     }
 
+	/* (non-Javadoc)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener#onPSModelChange(org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent)
+	 */
 	public void onPSModelChange(PSModelChangeEvent event) 
 	{
-		treeView.refresh();
+		try {
+			//System.out.println("input="+treeView.getInput());
+			//treeView.getControl().update();
+			treeView.refresh(true);
+			//treeView.setInput(treeView.getInput());//refresh();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
     
 }

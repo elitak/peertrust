@@ -83,7 +83,7 @@ import org.jgraph.graph.PortView;
 import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.model.HierarchyNodeCreationMechanism;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -286,7 +286,7 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 		}
 		String cellName="Cell "+ new Integer(cellCount++);
 		DefaultGraphCell cell = new DefaultGraphCell(cellName);
-		ModelObjectWrapper res=
+		PSModelObject res=
 			hierarchyNodeCreationMechanism.createNode(
 											psRDFModel.getRdfModel(),
 											cellName);
@@ -305,12 +305,12 @@ public class GraphEditor extends JPanel implements GraphSelectionListener,
 				&& graph.getModel().acceptsTarget(edge, target)) {
 			// Create a Map thath holds the attributes for the edge
 			edge.getAttributes().applyMap(createEdgeAttributes());
-			ModelObjectWrapper sourceMOW=
-				(ModelObjectWrapper)((DefaultGraphCell)source).getUserObject();
-			ModelObjectWrapper targetMOW=
-				(ModelObjectWrapper)((DefaultGraphCell)target).getUserObject();
+			PSModelObject sourceMOW=
+				(PSModelObject)((DefaultGraphCell)source).getUserObject();
+			PSModelObject targetMOW=
+				(PSModelObject)((DefaultGraphCell)target).getUserObject();
 			
-			ModelObjectWrapper edgeStatement=
+			PSModelObject edgeStatement=
 				hierarchyNodeCreationMechanism.createLink(
 							PolicySystemRDFModel.getInstance().getRdfModel(),
 							(Resource)sourceMOW.getModelObject(),

@@ -1,16 +1,16 @@
 package org.peertrust.modeler.policysystem.model;
 
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 
-public interface PSHierarchyRelationship extends ModelObjectWrapper 
+public interface PSHierarchyRelationship extends PSModelObject 
 {
 	public boolean isDirected();
 	
-	public ModelObjectWrapper getSource();
-	public void setSource(ModelObjectWrapper source);
+	public PSModelObject getSource();
+	public void setSource(PSModelObject source);
 	
-	public ModelObjectWrapper getTarget();
-	public void setTarget(ModelObjectWrapper target);
+	public PSModelObject getTarget();
+	public void setTarget(PSModelObject target);
 	
-	public ModelObjectWrapper[] getHierarchyNodes();
+	public PSModelObject[] getHierarchyNodes();
 }

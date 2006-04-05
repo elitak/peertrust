@@ -4,7 +4,8 @@
 package org.peertrust.modeler.policysystem.model;
 
 import org.apache.log4j.Logger;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
@@ -14,8 +15,9 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 class PSPolicyImpl implements PSPolicy
 {
 	private Resource resource;
-	Logger logger;
-	ModelObjectWrapper guarded;
+	private static final Logger logger=Logger.getLogger(PSPolicyImpl.class);
+	private PSModelObject guarded;
+	private String role;
 	
 	private PSPolicyImpl(Resource resource)
 	{
@@ -24,10 +26,9 @@ class PSPolicyImpl implements PSPolicy
 		this(resource,null);
 	}
 	
-	public PSPolicyImpl(Resource resources, ModelObjectWrapper guarded)
+	public PSPolicyImpl(Resource resources, PSModelObject guarded)
 	{
 		this.resource=resources;
-		logger=Logger.getLogger(PSPolicyImpl.class);
 		this.guarded=guarded;
 		
 	}
@@ -62,7 +63,7 @@ class PSPolicyImpl implements PSPolicy
 //		return;
 //	}
 
-	public String getLabel() 
+	public PSModelLabel getLabel() 
 	{
 		if(resource==null)
 		{
@@ -70,9 +71,11 @@ class PSPolicyImpl implements PSPolicy
 			return null;
 		}
 		
-		return PolicySystemRDFModel.getStringProperty(
-						resource,
-						RDFS.label);
+		String labelValue=
+			PolicySystemRDFModel.getStringProperty(
+												resource,
+												RDFS.label);
+		return new PSModelLabelImpl(this,labelValue);
 	}
 
 	public void setLabel(String label) 
@@ -125,7 +128,7 @@ class PSPolicyImpl implements PSPolicy
 
 	public String toString() 
 	{
-		return getLabel();
+		return getLabel().getValue();
 	}
 
 
@@ -135,12 +138,12 @@ class PSPolicyImpl implements PSPolicy
 	}
 
 
-	public ModelObjectWrapper getGuarded() 
+	public PSModelObject getGuarded() 
 	{
 		return guarded;
 	}
 
-	public void setGuarded(ModelObjectWrapper guarded) 
+	public void setGuarded(PSModelObject guarded) 
 	{
 		this.guarded=guarded;		
 	}
@@ -163,7 +166,16 @@ class PSPolicyImpl implements PSPolicy
 		{
 			return super.equals(obj);
 		}
+	}
+
+	public String getRole() 
+	{
+		return role;
 	}	
 	
+	public void setRole(String role)
+	{
+		this.role=role;
+	}
 	
 }

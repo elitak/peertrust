@@ -4,6 +4,8 @@ package org.peertrust.modeler.policysystem.model;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -12,12 +14,14 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 
-public class PSOverriddingRuleImpl implements PSOverrindingRule {
+public class PSOverriddingRuleImpl implements PSOverrindingRule 
+{
 	private Resource overriddingRule;
 	private PSResource overriddingPlace; 
 	private PSPolicy overridden;
 	private PSPolicy overridder;
-	private Logger logger;
+	private static final Logger logger= 
+		Logger.getLogger(PSOverriddingRuleImpl.class);
 	
 	public PSOverriddingRuleImpl(
 						Resource overridenRule,
@@ -30,6 +34,10 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 	
 	public PSPolicy getHasOverridden() 
 	{
+		if(overridden==null)
+		{
+			initPolicies();
+		}
 		return overridden;
 	}
 
@@ -51,14 +59,19 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 			logger.warn("PSPolicy wrapped policy is null; skipping set");
 			return;
 		}
-		PolicySystemRDFModel.setResourceProperty(
+		PolicySystemRDFModel.getInstance().setResourceProperty(
 								overriddingRule,
 								PolicySystemRDFModel.PROP_HAS_OVERRIDDEN,
 								policy);
 		this.overridden=psPolicy;
 	}
 
-	public PSPolicy getHasOverridder() {
+	public PSPolicy getHasOverridder() 
+	{
+		if(overridder==null)
+		{
+			initPolicies();
+		}
 		return overridder;
 	}
 
@@ -80,7 +93,7 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 			logger.warn("PSPolicy wrapped policy is null; skipping set");
 			return;
 		}
-		PolicySystemRDFModel.setResourceProperty(
+		PolicySystemRDFModel.getInstance().setResourceProperty(
 								overriddingRule,
 								PolicySystemRDFModel.PROP_HAS_OVERRIDDER,
 								policy);
@@ -104,13 +117,16 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 
 	public Object getModelObject() 
 	{
+		
 		return overriddingRule;
 	}
 
-	public String getLabel() {
-		return PolicySystemRDFModel.getStringProperty(
+	public PSModelLabel getLabel() {
+		String labelValue=
+			PolicySystemRDFModel.getStringProperty(
 						overriddingRule,
 						RDFS.label);
+		return new PSModelLabelImpl(this,labelValue);
 	}
 
 	public void setLabel(String label) {
@@ -137,10 +153,35 @@ public class PSOverriddingRuleImpl implements PSOverrindingRule {
 			(PSPolicy)PolicySystemRDFModel.getResourceProperty(
 				overriddingRule,
 				PolicySystemRDFModel.PROP_HAS_OVERRIDDEN);
+		if(overridden!=null)
+		{
+			overridden.setRole(PSModelObject.ROLE_ORULE_OVERRIDDEN);
+		}
 		overridder=
 			(PSPolicy)PolicySystemRDFModel.getResourceProperty(
 				overriddingRule,
 				PolicySystemRDFModel.PROP_HAS_OVERRIDDER);
+		if(overridder!=null)
+		{
+			overridder.setRole(PSModelObject.ROLE_ORULE_OVERRIDDER);
+		}
 		
 	}
+
+	public String toString() 
+	{
+		return getLabel().getValue();
+	}
+
+	public String getRole() 
+	{
+		return null;
+	}
+
+	public void setRole(String role) 
+	{
+		
+	}
+	
+	
 }

@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
@@ -100,19 +101,21 @@ public class PSFilterImpl implements PSFilter
 		
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getLabel()
 	 */
-	public String getLabel() 
+	public PSModelLabel getLabel() 
 	{
 		if(filter==null)
 		{
 			logger.warn("Filter is null cannot returned label is null");
 			return null;
 		}
-		return PolicySystemRDFModel.getStringProperty(
-				filter,
-				RDFS.label);
+		String labelValue= 
+			PolicySystemRDFModel.getStringProperty(
+											filter,
+											RDFS.label);
+		return new PSModelLabelImpl(this,labelValue);
 	}
 	
 	public void setLabel(String label) {
@@ -183,5 +186,15 @@ public class PSFilterImpl implements PSFilter
 		{
 			removeCondition((String)it.next());
 		}
+	}
+
+	public String getRole() 
+	{
+		return null;
+	}
+
+	public void setRole(String role) 
+	{
+		
 	}
 }

@@ -308,18 +308,22 @@ public class ResourcePolicyView extends ViewPart
 			logger.warn("param selection is null");
 			return;
 		}
+		
+		Object sel0=((StructuredSelection)selection).getFirstElement();
+		
+		if(sel0==null)
+		{
+			logger.warn("selection first element is null");
+			return;
+		}
+		
 		logger.info("Selection changed:"+
 				"\n\tpart="+part +
 				"\n\tselection="+selection +
-				"\n\tselectionclass:"+((StructuredSelection)selection).getFirstElement());
-		Object sel0=((StructuredSelection)selection).getFirstElement();
+				"\n\tselectionclass:"+sel0.getClass());
 		
 		try {
-			if(selection==null)
-			{
-				logger.warn("selection first element is null");
-				return;
-			}
+			
 			
 			if(part instanceof PolicySystemView)
 			{
@@ -349,21 +353,21 @@ public class ResourcePolicyView extends ViewPart
 			else if(sel0 instanceof File)
 			{
 				File selFile= (File)sel0;
-				if(selFile.isFile())
-				{
-					int decision=askYesNoQuestion(
-						"You have selected a file not a directory.\n"+
-						"Do you want show the parent directory",
-						part.getSite().getShell());
-					if(decision==SWT.YES)
-					{
-						selFile=selFile.getParentFile();
-					}
-					else
-					{
-						return;
-					}
-				}
+//				if(selFile.isFile())
+//				{
+//					int decision=askYesNoQuestion(
+//						"You have selected a file not a directory.\n"+
+//						"Do you want show the parent directory",
+//						part.getSite().getShell());
+//					if(decision==SWT.YES)
+//					{
+//						selFile=selFile.getParentFile();
+//					}
+//					else
+//					{
+//						return;
+//					}
+//				}
 				
 //			localPolicyView.setInput(selFile);
 //			pageBook.showPage(localPolicyView.getControl());

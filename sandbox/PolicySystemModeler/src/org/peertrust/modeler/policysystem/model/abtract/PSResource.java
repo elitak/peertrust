@@ -4,7 +4,7 @@ import java.util.Vector;
 
 
 
-public interface PSResource extends ModelObjectWrapper {
+public interface PSResource extends PSModelObject {
 	
 	public String getHasMapping();
 	public void setHasMapping(String name);
@@ -14,10 +14,11 @@ public interface PSResource extends ModelObjectWrapper {
 	public void addIsOverrindingRule(PSOverrindingRule rule);
 	
 	public Vector getHasSuper();
-	public void addHasSuper(ModelObjectWrapper res);
+	public void addHasSuper(PSModelObject res);
 	
 	public Vector getIsProtectedBy();
 	public void addIsProtectedBy(PSPolicy policy);
 	
 	public Vector getHasFilter();
+	public void addHasFilter(PSFilter filter);
 }

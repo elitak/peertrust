@@ -1,6 +1,10 @@
 package org.peertrust.modeler.policysystem.control;
 
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -12,6 +16,8 @@ import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.ui.part.Page;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+
+import com.sun.corba.se.impl.oa.poa.Policies;
 
 
 public class PSPolicyEditorPage extends Page 
@@ -66,7 +72,8 @@ public class PSPolicyEditorPage extends Page
 		this.psPolicy = psPolicy;
 		if(psPolicy!=null)
 		{
-			labelFiledEditor.setStringValue(psPolicy.getLabel());
+			labelFiledEditor.setStringValue(
+								psPolicy.getLabel().getValue());
 			valueFieldEditor.setStringValue(psPolicy.getHasValue());
 		}
 	}
@@ -92,5 +99,24 @@ public class PSPolicyEditorPage extends Page
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void editPolicy(PSPolicy policy)
+	{
+//		Wizard wiz=new Wizard()
+//		{
+//			private Object selected;
+//			public boolean performFinish() 
+//			{
+////				selPol[0]=((ChooserWizardPage)
+////									this.getPages()[0]).getSelected();
+//				return true;
+//			}
+//		};
+//		Dialog dlg=null;
+//		Page p;
+//		DialogPage dp;
+//		
+//		IWizardPage page;
 	}
 }

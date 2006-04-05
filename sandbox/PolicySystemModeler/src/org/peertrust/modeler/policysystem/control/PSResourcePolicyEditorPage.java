@@ -1,12 +1,19 @@
 package org.peertrust.modeler.policysystem.control;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.jmx.LayoutDynamicMBean;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
@@ -18,52 +25,133 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.views.ModelObjectArrayViewContentProvider;
 
-
-public class PSResourcePolicyEditorPage extends Page {
-
+/**
+ * Provides a Page to edit a PSResource Policy protection
+ * 
+ * @author pat_dev
+ *
+ */
+public class PSResourcePolicyEditorPage 
+							extends Page 
+							implements PSModelChangeEventListener	
+{
+	private final static String PSRESOURCE_LABEL_PREFIX="Resource: ";
+	/** main container composite*/
 	private Composite composite;
+	
+	/** used to show the local Policies*/
 	private TableViewer localPolicyView;
+	
+	/** a label for showing the identity of the ps resource*/
+	private Label psResourceLabel;
+	
 	private ToolBar toolBar;
 	private ToolBarManager toolBarMng;
-	private Logger logger=Logger.getLogger(PSResourcePolicyEditorPage.class);
 	
+	/** the logger for the PSResourcePolicyEditorPage class*/
+	private Logger logger=
+		Logger.getLogger(PSResourcePolicyEditorPage.class);
+	
+	/**
+	 * The tree view to show the model resource overrridding rules
+	 */
+	TreeViewer oRulesTree;
+
+	/**
+	 * @see org.eclipse.ui.part.IPage#createControl(org.eclipse.swt.widgets.Composite)
+	 */
 	public void createControl(Composite parent) 
 	{
 		
 		composite=new Composite(parent,SWT.NONE);
-		composite.setLayout(new FormLayout());
+		composite.setLayout(new GridLayout());
+//		composite.setLayout(new FormLayout());
+//		
+//		Composite top= new Composite(composite,SWT.NONE);
+//		Composite tableComposite= new Composite(composite,SWT.NONE);
+//		final int HEIGHT=30;
+//		
+//
+//		
+//		FormData tFD=new FormData();
+//		tFD.top=new FormAttachment(0,HEIGHT+5);//0,7);//,10,SWT.BOTTOM);
+//		tFD.left= new FormAttachment(0);
+//		tFD.right= new FormAttachment(100);
+//		tFD.bottom= new FormAttachment(100);
+//		tableComposite.setLayoutData(tFD);
+//		
+//		FormData formData= new FormData();
+//		formData.top= new FormAttachment(0,0);
+//		formData.left= new FormAttachment(0,0);
+//		formData.right= new FormAttachment(100);
+//		formData.height= HEIGHT;//new FormAttachment(5);
+//		top.setLayoutData(formData);
 		
-		Composite top= new Composite(composite,SWT.NONE);
-		Composite tableComposite= new Composite(composite,SWT.NONE);
-		final int HEIGHT=30;
+//		///table Composite 
+//		tableComposite.setLayout(new GridLayout());
+		psResourceLabel= 
+			new Label(
+					composite,//tableComposite,
+					SWT.LEFT|SWT.WRAP|SWT.HORIZONTAL);
+		psResourceLabel.setText(PSRESOURCE_LABEL_PREFIX);
+		psResourceLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		Label separator=new Label(
+				composite,//tableComposite,
+				SWT.LEFT|SWT.WRAP|SWT.SEPARATOR|SWT.HORIZONTAL);
+		separator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-
 		
-		FormData tFD=new FormData();
-		tFD.top=new FormAttachment(0,HEIGHT+5);//0,7);//,10,SWT.BOTTOM);
-		tFD.left= new FormAttachment(0);
-		tFD.right= new FormAttachment(100);
-		tFD.bottom= new FormAttachment(100);
-		tableComposite.setLayoutData(tFD);
+//		localPolicyView=makeTable(tableComposite);
+		//toolBar=makeActions(top);
 		
-		FormData formData= new FormData();
-		formData.top= new FormAttachment(0,0);
-		formData.left= new FormAttachment(0,0);
-		formData.right= new FormAttachment(100);
-		formData.height= HEIGHT;//new FormAttachment(5);
+//		Composite folderComposite= new Composite(tableComposite,SWT.NONE);
+//		folderComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+//		folderComposite.setLayout(new GridLayout());
+		TabFolder tabFolder= 
+						new TabFolder(
+								composite,//tableComposite,
+								SWT.NONE);
+		tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
+		TabItem tableItem= new TabItem(tabFolder,SWT.NONE);
+		tableItem.setText("Policies and Filters");
+		Composite policyViewComposite=makePoliciesFiltersView(tabFolder);
+		tableItem.setControl(policyViewComposite);//localPolicyView.getControl());
 		
-		localPolicyView=makeTable(tableComposite);
-		toolBar=makeActions(top);
+		TabItem oRuleItem= new TabItem(tabFolder,SWT.NONE);
+		oRuleItem.setText("Overridding Rules");
+//		Button button= new Button(tabFolder,SWT.NONE);		
+//		oRuleItem.setControl(button);
+//		button.setText("DADADADADADADADADAD");
+		Composite oRuleViewComposite=
+			makeORuleView(tabFolder);
+		oRuleItem.setControl(oRuleViewComposite);
+		
+//		Button but= new Button(tableComposite,SWT.NONE);
+//		but.setText("dididdidididid");
+//		but.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+//		PolicySystemRDFModel rdfModel=
+//			PolicySystemRDFModel.getInstance();
+//		rdfModel.addPSModelChangeEventListener(this);
 	}
 
 	public Control getControl() 
@@ -78,22 +166,54 @@ public class PSResourcePolicyEditorPage extends Page {
 	
 	
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jface.viewers.ContentViewer#setInput(java.lang.Object)
 	 */
 	public void setInput(Object input) 
 	{
+		
 		logger.info("input set:"+input);
-		localPolicyView.setInput(input);
+		try {
+			localPolicyView.setInput(input);
+//		PSResource psResource=
+//			PolicySystemRDFModel.getInstance().getResource(input,false));
+			if(input instanceof File)
+			{
+				String identity=((File)input).getCanonicalPath();
+				PSResource psResource=
+					PolicySystemRDFModel.getInstance().getResource(
+										identity,true,null);
+				oRulesTree.setInput(psResource);
+				psResourceLabel.setText(
+						PSRESOURCE_LABEL_PREFIX+
+						identity);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Exception while setting new input:"+input);
+		}
+		
+		
+	
 	}
 
-	private TableViewer makeTable(Composite parent)
+	private Composite makePoliciesFiltersView(Composite parent)
 	{
+		
 		///layout
-		parent.setLayout(new GridLayout());
+		Composite policiesTab=
+					new Composite(parent,SWT.NONE);
+		policiesTab.setLayout(new GridLayout());
+		
+		//Composite top= new Composite(policiesTab,SWT.NONE);
+		//top.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		toolBar=makePoliciesFiltersActions(policiesTab);
+		toolBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+//		parent.setLayout(new GridLayout());
 		////make table
 		TableViewer tv= 
-			new TableViewer(parent,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);		
+			new TableViewer(policiesTab,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);		
 		GridData gData= 
 			new GridData(
 					GridData.FILL_BOTH);
@@ -136,16 +256,22 @@ public class PSResourcePolicyEditorPage extends Page {
 		table.setHeaderVisible(true);		
 	
 		tv.setInput(PolicySystemRDFModel.LNAME_PROP_HAS_NAME);
-		return tv;
+		//return tv;
+		this.localPolicyView=tv;
+		return policiesTab;
 	}
 	
-	private ToolBar makeActions(Composite parent) 
+	private ToolBar makePoliciesFiltersActions(Composite parent) 
 	{
 		///manager
 		toolBarMng= new ToolBarManager(toolBar);
 		///
 		Action addAction = new Action() {
-			public void run() {
+			public void run() 
+			{
+				IStructuredSelection sel=
+					(IStructuredSelection)localPolicyView.getSelection();
+				System.out.println("Sell:"+sel.getFirstElement());
 			}
 		};
 		addAction.setText("save");
@@ -171,5 +297,79 @@ public class PSResourcePolicyEditorPage extends Page {
 		ToolBar tb= toolBarMng.createControl(parent);
 		tb.setLayoutData(gd);
 		return tb;
+	}
+	
+	
+	private Composite makeORuleView(Composite parent)
+	{
+		
+		///layout
+		Composite oRulesTab=
+					new Composite(parent,SWT.NONE);
+		oRulesTab.setLayout(new GridLayout());
+		ToolBar toolBar=makeORuleActions(oRulesTab);
+		toolBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		GridData gData= 
+			new GridData(
+					GridData.FILL_BOTH);
+//		Button but= 
+//			new Button(oRulesTab,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);		
+//		but.setLayoutData(gData);
+		
+		oRulesTree= new TreeViewer(oRulesTab);
+		oRulesTree.getControl().setLayoutData(gData);
+		ModelObjectArrayViewContentProvider provider=
+				new ModelObjectArrayViewContentProvider(
+										null,
+										PSOverrindingRule.class);
+		oRulesTree.setContentProvider(provider);
+		////
+		return oRulesTab;
+	}
+	
+	private ToolBar makeORuleActions(Composite parent) 
+	{
+		///manager
+		ToolBarManager toolBarMng= new ToolBarManager(null);
+		///
+		Action addAction = new Action() {
+			public void run() 
+			{
+				IStructuredSelection sel=
+					(IStructuredSelection)localPolicyView.getSelection();
+				System.out.println("Sell:"+sel.getFirstElement());
+				
+			}
+		};
+		addAction.setText("save");
+		addAction.setToolTipText("Action 1 tooltip");
+		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		toolBarMng.add(addAction);
+		
+		Action removeAction = new Action() {
+			public void run() {
+				
+			}
+		};
+		
+		removeAction.setText("Action 2");
+		removeAction.setToolTipText("Action 2 tooltip");
+		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		toolBarMng.add(removeAction);
+		
+		parent.setLayout(new GridLayout());
+		GridData gd= new GridData(GridData.FILL_BOTH);
+		ToolBar tb= toolBarMng.createControl(parent);
+		tb.setLayoutData(gd);
+		return tb;
+	}
+	
+	public void onPSModelChange(PSModelChangeEvent event) 
+	{
+		oRulesTree.setInput(oRulesTree.getInput());
+		localPolicyView.setInput(localPolicyView.getInput());
 	}
 }

@@ -66,13 +66,13 @@ public class NewAction extends Action
 				new WizardDialog(
 						shell,
 						wiz);
+			dlg.create();
 			dlg.setTitle("Create New Poject");
 			wiz.setWindowTitle("Create New Project");
-			dlg.create();
 			dlg.open();
 		
 		} 
-		catch (RuntimeException e) 
+		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}

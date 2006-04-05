@@ -6,7 +6,9 @@ package org.peertrust.modeler.policysystem.model;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -17,16 +19,16 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 class PSResourceImpl implements PSResource
 {
-	Resource resource;
-	Logger logger;
+	private Resource resource;
+	private static final Logger logger= Logger.getLogger(PSResourceImpl.class);
+	private String role;
 	
 	public PSResourceImpl(Resource resource)
 	{
 		this.resource=resource;
-		logger= Logger.getLogger(PSResourceImpl.class);
 	}
 	
-	public String getLabel() 
+	public PSModelLabel getLabel() 
 	{
 		if(resource==null)
 		{
@@ -34,9 +36,11 @@ class PSResourceImpl implements PSResource
 				"wrapped resources is null; returning null as label");
 			return null;
 		}
-		return PolicySystemRDFModel.getStringProperty(
-								resource,
-								RDFS.label);
+		String labelValue=
+			PolicySystemRDFModel.getStringProperty(
+												resource,
+												RDFS.label);
+		return new PSModelLabelImpl(this,labelValue);
 	}
 
 	public void setLabel(String label) 
@@ -70,13 +74,15 @@ class PSResourceImpl implements PSResource
 				resource,PolicySystemRDFModel.PROP_HAS_MAPPING,mapping);
 	}
 
-	public Vector getIsOverrindingRule() {
+	public Vector getIsOverrindingRule() 
+	{
 		return PolicySystemRDFModel.getInstance().getMultipleProperty(
 							this,//resource,
 							PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
 
-	public void addIsOverrindingRule(PSOverrindingRule rule) {
+	public void addIsOverrindingRule(PSOverrindingRule rule) 
+	{
 		resource.addProperty(
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,
 					(Resource)rule.getModelObject());
@@ -93,7 +99,7 @@ class PSResourceImpl implements PSResource
 							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
-	public void addHasSuper(ModelObjectWrapper parent) {
+	public void addHasSuper(PSModelObject parent) {
 		PolicySystemRDFModel.getInstance().addMultipleProperty(
 					resource,
 					PolicySystemRDFModel.PROP_HAS_SUPER,
@@ -121,12 +127,31 @@ class PSResourceImpl implements PSResource
 					this,//resource,
 					PolicySystemRDFModel.PROP_HAS_FILTER);
 	}
-	public Object getModelObject() {
+	public Object getModelObject() 
+	{
 		return resource;
 	}
 	
 	public String toString() 
 	{
 		return "   "+getLabel()+"  ";
+	}
+
+	public String getRole() 
+	{
+		return role;
+	}
+
+	public void setRole(String role) 
+	{
+		this.role=role;
+	}
+
+	public void addHasFilter(PSFilter filter) 
+	{
+		resource.addProperty(
+				PolicySystemRDFModel.PROP_HAS_FILTER,
+				(Resource)filter.getModelObject());
+		
 	}
 }

@@ -56,13 +56,16 @@ import org.peertrust.modeler.policysystem.control.PSResourcePolicyEditorPage;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
 
 public class PSResourcePolicyPageBookView extends PageBookView 
-				implements ISelectionListener
+				implements 	ISelectionListener,
+							PSModelChangeEventListener	
 {
 	static final public String ID="org.peertrust.modeler.policysystem.ResourcePolicyView";
 	
@@ -138,7 +141,8 @@ public class PSResourcePolicyPageBookView extends PageBookView
 		filterEditorPage= new PSFilterEditorPage();
 		filterEditorPage.createControl(pageBook);
 		
-		pageBook.showPage(resourcePolicyEditorPage.getControl());
+		//pageBook.showPage(resourcePolicyEditorPage.getControl());
+		pageBook.showPage(overriddingRuleEditorPage.getControl());
 		//pageBook.showPage(pjtEd.getControl());
 		////
 		PageBookView pbv;
@@ -152,6 +156,9 @@ public class PSResourcePolicyPageBookView extends PageBookView
 				localPolicyView.getControl(),//.treeView.getControl(),
 				(ISelectionProvider)null,//treeView,
 				"");
+		PolicySystemRDFModel rdfModel=
+		PolicySystemRDFModel.getInstance();
+		rdfModel.addPSModelChangeEventListener(this);
 	}
 
 	public void setFocus() 
@@ -313,18 +320,19 @@ public class PSResourcePolicyPageBookView extends PageBookView
 			logger.warn("param selection is null");
 			return;
 		}
-		logger.info("Selection changed:"+
-				"\n\tpart="+part +
-				"\n\tselection="+selection +
-				"\n\tselectionclass:"+((StructuredSelection)selection).getFirstElement());
+		
 		Object sel0=((StructuredSelection)selection).getFirstElement();
 		
-		if(selection==null)
+		if(sel0==null)
 		{
 			logger.warn("selection first element is null");
 			return;
 		}
 		
+		logger.info("Selection changed:"+
+				"\n\tpart="+part +
+				"\n\tselection="+selection +
+				"\n\tselectionclass:"+sel0.getClass());
 		if(part instanceof PolicySystemView)
 		{
 			pageBook.showPage(blankPage.getControl());
@@ -349,26 +357,29 @@ public class PSResourcePolicyPageBookView extends PageBookView
 		else if(sel0 instanceof File)
 		{
 			File selFile= (File)sel0;
-			if(selFile.isFile())
-			{
-				int decision=askYesNoQuestion(
-					"You have selected a file not a directory.\n"+
-					"Do you want show the parent directory",
-					part.getSite().getShell());
-				if(decision==SWT.YES)
-				{
-					selFile=selFile.getParentFile();
-				}
-				else
-				{
-					return;
-				}
-			}
+			//TODO file dir differenciation
+//			if(selFile.isFile())
+//			{
+//				int decision=askYesNoQuestion(
+//					"You have selected a file not a directory.\n"+
+//					"Do you want show the parent directory",
+//					part.getSite().getShell());
+//				if(decision==SWT.YES)
+//				{
+//					selFile=selFile.getParentFile();
+//				}
+//				else
+//				{
+//					return;
+//				}
+//			}
 			
 //			localPolicyView.setInput(selFile);
 //			pageBook.showPage(localPolicyView.getControl());
+			System.out.println("\n===================================");
 			resourcePolicyEditorPage.setInput(selFile);
 			pageBook.showPage(resourcePolicyEditorPage.getControl());
+			
 		}
 		else
 		{
@@ -440,23 +451,36 @@ public class PSResourcePolicyPageBookView extends PageBookView
 		return rec;
 	}
 
-	protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) {
-		// TODO Auto-generated method stub
+	protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) 
+	{
 		
 	}
 
-	protected IWorkbenchPart getBootstrapPart() {
-		// TODO Auto-generated method stub
+	protected IWorkbenchPart getBootstrapPart() 
+	{
 		return null;
 	}
 
-	protected boolean isImportant(IWorkbenchPart part) {
-		// TODO Auto-generated method stub
+	protected boolean isImportant(IWorkbenchPart part) 
+	{
 		return false;
 	}
 	
 ///////////////////////////////////////////////////////////////////////////
-	
+	public void onPSModelChange(PSModelChangeEvent event) 
+	{
+		logger.info("Event model changed:"+event);
+		IPage iPage=this.getCurrentPage();
+		if(iPage==null)
+		{
+			return;
+		}
+		else if(iPage instanceof PSResourcePolicyEditorPage)
+		{
+			((PSResourcePolicyEditorPage)iPage).onPSModelChange(null);
+		}
+		//localPolicyView.setInput(localPolicyView.getInput());
+	}
 	
 }
 

@@ -9,7 +9,7 @@ import java.util.Collection;
  *@author congo
  *
  */
-public interface PSOverrindingRule extends ModelObjectWrapper 
+public interface PSOverrindingRule extends PSModelObject 
 {
 	
 	public PSPolicy getHasOverridden();

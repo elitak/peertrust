@@ -1,13 +1,13 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 
-public interface PSPolicy extends ModelObjectWrapper 
+public interface PSPolicy extends PSModelObject 
 {
 	public String getHasValue();
 	public void setHasValue(String name);
 	
 	public Object getModelObject();
-	public ModelObjectWrapper getGuarded();
-	public void setGuarded(ModelObjectWrapper guarded);
+	public PSModelObject getGuarded();
+	public void setGuarded(PSModelObject guarded);
 	
 }

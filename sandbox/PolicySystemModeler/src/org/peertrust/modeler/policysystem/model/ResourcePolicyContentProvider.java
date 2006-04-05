@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.internal.registry.StickyViewDescriptor;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -36,16 +36,18 @@ public class ResourcePolicyContentProvider
 		implements 	IStructuredContentProvider,
 					ITableLabelProvider
 {
-
+	
 	static public final Object[] EMPTY_ARRAY= new Object[0];
-	Logger logger;//= Logger.getLogger(ResourcePolicyContentProvider.class);
+	
+	/** logger for the ResourcePolicyContentProvider class*/
+	static private Logger logger= 
+		Logger.getLogger(ResourcePolicyContentProvider.class);
 	
 	public ResourcePolicyContentProvider()
 	{
-		logger= Logger.getLogger(ResourcePolicyContentProvider.class);
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
 	 */
 	public Object[] getElements(Object inputElement) 
@@ -63,12 +65,14 @@ public class ResourcePolicyContentProvider
 		{
 			try {
 				File file=(File)inputElement;
-				if(file.isFile())
-				{
-					logger.warn("Cannot handle file["+file.toURI()+
-								"]; directory expedted");
-					return EMPTY_ARRAY;//new Object[0];
-				}
+				//TODO file dir differenciation
+//				if(file.isFile())
+//				{
+//					logger.warn("Cannot handle file["+file.toURI()+
+//								"]; directory expedted");
+////					return EMPTY_ARRAY;//new Object[0];
+//					file=file.getParentFile();
+//				}
 				
 				PSResource res= 
 					PolicySystemRDFModel.getInstance().getResource(
@@ -221,7 +225,7 @@ public class ResourcePolicyContentProvider
 		{
 			case 0://name
 			{
-				return policy.getLabel();				
+				return policy.getLabel().getValue();				
 			}
 			case 1:///value 
 			{
@@ -229,7 +233,7 @@ public class ResourcePolicyContentProvider
 			}
 			case 2:/// filter for policy is *
 			{
-				ModelObjectWrapper guarded=policy.getGuarded();
+				PSModelObject guarded=policy.getGuarded();
 				if(guarded instanceof PSFilter)
 				{
 					StringBuffer strBuf= new StringBuffer(512);
@@ -268,7 +272,7 @@ public class ResourcePolicyContentProvider
 		{
 			case 0://name
 			{
-					return filter.getLabel();				
+					return filter.getLabel().getValue();				
 			}
 			case 1:///value 
 			{

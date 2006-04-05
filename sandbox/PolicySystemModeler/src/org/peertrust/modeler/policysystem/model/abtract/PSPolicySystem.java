@@ -41,11 +41,11 @@ public interface PSPolicySystem
 	 */
 	public Vector getRoots(Class modelObjectWrapper);
 	
-	public Vector getDirectChilds(ModelObjectWrapper parent);
+	public Vector getDirectChilds(PSModelObject parent);
 	
-	public Vector getDirectParents(ModelObjectWrapper child);
+	public Vector getDirectParents(PSModelObject child);
 	
-	public Vector getPathToAncestorRoots(ModelObjectWrapper node);
+	public Vector getPathToAncestorRoots(PSModelObject node);
 	
 	public PSResource createResource(
 						String label,

@@ -5,7 +5,8 @@ package org.peertrust.modeler.policysystem.model;
 
 
 import org.apache.log4j.Logger;
-import org.peertrust.modeler.policysystem.model.abtract.ModelObjectWrapper;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -27,7 +28,7 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		return true;
 	}
 
-	public ModelObjectWrapper getSource() {
+	public PSModelObject getSource() {
 		if(stm==null)
 		{
 			return null;
@@ -36,11 +37,11 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		return PolicySystemRDFModel.getInstance().createModelObjectWrapper(res,null);//TODO change null
 	}
 
-	public void setSource(ModelObjectWrapper source) {
+	public void setSource(PSModelObject source) {
 		
 	}
 
-	public ModelObjectWrapper getTarget() {
+	public PSModelObject getTarget() {
 		if(stm==null)
 		{
 			return null;
@@ -49,19 +50,19 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		return PolicySystemRDFModel.getInstance().createModelObjectWrapper(res,null);//TODO change that
 	}
 
-	public void setTarget(ModelObjectWrapper target) {
+	public void setTarget(PSModelObject target) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public ModelObjectWrapper[] getHierarchyNodes() 
+	public PSModelObject[] getHierarchyNodes() 
 	{
 		if(stm==null)
 		{
 			return null;
 		}
 		
-		return new ModelObjectWrapper[]{
+		return new PSModelObject[]{
 					PolicySystemRDFModel.getInstance().createModelObjectWrapper(
 							(Resource)stm.getSubject(),
 							null),
@@ -83,13 +84,15 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		return " ";
 	}
 
-	public String getLabel() {
+	public PSModelLabel getLabel() {
 		if(stm==null)
 		{
 			logger.warn("wrapped stm is null");
 			return null;
 		}
-		return stm.getPredicate().getLocalName();
+		return new PSModelLabelImpl(
+						this,
+						stm.getPredicate().getLocalName());
 	}
 
 	public void setLabel(String label) {
@@ -104,6 +107,16 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 			return;
 		}
 		stm.changeObject(label);
+	}
+
+	public String getRole() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setRole(String role) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
