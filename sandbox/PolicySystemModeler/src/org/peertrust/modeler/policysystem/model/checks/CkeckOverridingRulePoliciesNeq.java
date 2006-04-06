@@ -1,6 +1,6 @@
 package org.peertrust.modeler.policysystem.model.checks;
 
-import org.peertrust.modeler.policysystem.model.PSModelCheck;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
@@ -35,7 +35,7 @@ public class CkeckOverridingRulePoliciesNeq implements PSModelCheck
 	
 	
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSModelCheck#doCheck()
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelCheck#doCheck()
 	 */
 	public boolean doCheck() 
 	{
@@ -48,7 +48,7 @@ public class CkeckOverridingRulePoliciesNeq implements PSModelCheck
 	}
 	
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSModelCheck#getMessage()
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelCheck#getMessage()
 	 */
 	public String getMessage() 
 	{

@@ -3,7 +3,7 @@ package org.peertrust.modeler.policysystem.model.checks;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.peertrust.modeler.policysystem.model.PSModelCheck;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
 
 
 public class PSModelCheckContainer implements PSModelCheck 

@@ -42,7 +42,7 @@ public class CheckORulePoliciesInSamePath extends
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSModelCheck#doCheck()
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelCheck#doCheck()
 	 */
 	public boolean doCheck() 
 	{
@@ -66,7 +66,7 @@ public class CheckORulePoliciesInSamePath extends
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSModelCheck#getMessage()
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelCheck#getMessage()
 	 */
 	public String getMessage() {
 		if(mesgKey==-1)

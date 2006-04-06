@@ -1,4 +1,4 @@
-package org.peertrust.modeler.policysystem.model;
+package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
  * The interface to implements for a model check mechanism
