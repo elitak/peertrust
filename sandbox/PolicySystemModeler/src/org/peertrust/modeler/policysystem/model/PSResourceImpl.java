@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -81,7 +81,7 @@ class PSResourceImpl implements PSResource
 							PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
 
-	public void addIsOverrindingRule(PSOverrindingRule rule) 
+	public void addIsOverrindingRule(PSOverridingRule rule) 
 	{
 		resource.addProperty(
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,

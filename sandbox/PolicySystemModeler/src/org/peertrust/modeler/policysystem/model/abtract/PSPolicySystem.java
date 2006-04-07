@@ -60,7 +60,7 @@ public interface PSPolicySystem
 						String label,
 						String value);
 	
-	public PSOverrindingRule createOverriddingRule(
+	public PSOverridingRule createOverriddingRule(
 						String label,
 						PSPolicy overridder,
 						PSPolicy overridden);

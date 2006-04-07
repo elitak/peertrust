@@ -14,6 +14,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPage;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelCheckStore;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 /**
@@ -21,33 +22,8 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
  * @author Patrice Congo
  *
  */
-public class PSPolicyEditorControl
+public class PSPolicyEditorControl implements PSModelObjectEditControl
 {
-	/** 
-	 * Return if save succeed
-	 */
-	static public final int SAVE_RESULT_OK=0;
-	/**
-	 * return if the policy to edit is null while trying to save changes
-	 */
-	static public final int SAVE_RESULT_FAILURE_POLICY_NULL=-1;
-	
-	/**
-	 * return for a failure due to an illegal value of the label or value
-	 */
-	static public final int SAVE_RESULT_FAILURE_ILLEGAL_VALUE=-2;
-	
-	/**
-	 *return  for a failure caused by an exception 
-	 */
-	static public final int SAVE_RESULT_FAILURE_EXCEPTION=-3;
-	
-	/**
-	 * return for a failure to a failed integrity check for the 
-	 * ps policy setting
-	 */
-	static public final int SAVE_RESULT_FAILURE_INTEGRITY_CHECK=0;
-	
 	/** 
 	 * the PSPolicyEditorControl logger
 	 */
@@ -114,17 +90,16 @@ public class PSPolicyEditorControl
 	}
 	
 	
-	/**
-	 * does cleanups
+	/* (non-Javadoc)
+	 * @see org.peertrust.modeler.policysystem.control.PSModelObjectEditControl#dispose()
 	 */
 	public void dispose() 
 	{
 		//nthing
 	}
 	
-	/**
-	 * Creates the editor controls
-	 * @param parent -- 
+	/* (non-Javadoc)
+	 * @see org.peertrust.modeler.policysystem.control.PSModelObjectEditControl#createControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createControl(Composite parent) 
 	{
@@ -157,9 +132,8 @@ public class PSPolicyEditorControl
 		}
 	}
 
-	/**
-	 * To get the editor controls
-	 * @return the top composite comtaining the editor control
+	/* (non-Javadoc)
+	 * @see org.peertrust.modeler.policysystem.control.PSModelObjectEditControl#getControl()
 	 */
 	public Control getControl() 
 	{
@@ -198,14 +172,14 @@ public class PSPolicyEditorControl
 		}
 	}
 	
-	/**
-	 * Saves the changes
+	/* (non-Javadoc)
+	 * @see org.peertrust.modeler.policysystem.control.PSModelObjectEditControl#saveEdit()
 	 */
 	public int saveEdit()
 	{
 		if(psPolicy==null)
 		{
-			return SAVE_RESULT_FAILURE_POLICY_NULL;
+			return SAVE_RESULT_FAILURE_NULL_POINTER;
 		}
 		
 		String newLabel=
@@ -247,5 +221,18 @@ public class PSPolicyEditorControl
 			//return false actualy
 		}
 		return true;
+	}
+
+	public PSModelObject getModelObject() {
+		return this.getPsPolicy();
+	}
+
+	public void setModelObject(PSModelObject psModelObject) 
+	{
+		if(psModelObject instanceof PSPolicy)
+		{
+			this.setPsPolicy((PSPolicy)psModelObject);
+		}
+
 	}
 }

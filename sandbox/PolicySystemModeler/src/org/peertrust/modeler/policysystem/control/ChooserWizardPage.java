@@ -22,7 +22,7 @@ import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.Ch
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -138,7 +138,7 @@ public class ChooserWizardPage extends WizardPage
 					modelObjects=
 						PolicySystemRDFModel.getInstance().getResources();
 				}
-				else if(type.equals(PSOverrindingRule.class))
+				else if(type.equals(PSOverridingRule.class))
 				{
 					modelObjects=
 						PolicySystemRDFModel.getInstance().getOverriddingRules(null);
@@ -417,7 +417,7 @@ public class ChooserWizardPage extends WizardPage
 				{
 					return "Select Policy";
 				}
-				else if(modelObjectType.equals(PSOverrindingRule.class))
+				else if(modelObjectType.equals(PSOverridingRule.class))
 				{
 					return "Select Overridding rule";
 				}
@@ -440,7 +440,7 @@ public class ChooserWizardPage extends WizardPage
 				{
 					return "Select Policies";
 				}
-				else if(modelObjectType.equals(PSOverrindingRule.class))
+				else if(modelObjectType.equals(PSOverridingRule.class))
 				{
 					return "Select Overridding rules";
 				}

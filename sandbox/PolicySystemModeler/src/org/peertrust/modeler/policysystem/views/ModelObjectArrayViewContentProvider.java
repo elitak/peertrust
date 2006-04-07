@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -65,10 +65,10 @@ public class ModelObjectArrayViewContentProvider
 			{
 				return getChildren((PSResource)parentElement,childrenClass);
 			}
-			else if(parentElement instanceof PSOverrindingRule)
+			else if(parentElement instanceof PSOverridingRule)
 			{
-				PSOverrindingRule rule=
-					(PSOverrindingRule)parentElement;
+				PSOverridingRule rule=
+					(PSOverridingRule)parentElement;
 				return new Object[]{rule.getHasOverridden(),rule.getHasOverridder()};
 			}
 			else
@@ -86,7 +86,7 @@ public class ModelObjectArrayViewContentProvider
 		{
 			return EMPTY_ARRAY;
 		}
-		else if(childrenClass.equals(PSOverrindingRule.class))
+		else if(childrenClass.equals(PSOverridingRule.class))
 		{
 			return psResource.getIsOverrindingRule().toArray();
 		}
@@ -133,7 +133,7 @@ public class ModelObjectArrayViewContentProvider
 		{
 			return true;//hasChildren((PSResource)modelObject,childrenClass,element);
 		}
-		else if(element instanceof PSOverrindingRule)
+		else if(element instanceof PSOverridingRule)
 		{
 			return true;//hasChildren((PSResource)modelObject,childrenClass,element);
 		}

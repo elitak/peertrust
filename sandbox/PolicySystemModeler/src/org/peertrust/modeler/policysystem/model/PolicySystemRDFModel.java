@@ -19,7 +19,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -1025,7 +1025,7 @@ public class PolicySystemRDFModel
 
 	}
 
-	public PSOverrindingRule createOverriddingRule(
+	public PSOverridingRule createOverriddingRule(
 							String label, 
 							PSPolicy overridder, 
 							PSPolicy overridden) 
@@ -1293,16 +1293,16 @@ public class PolicySystemRDFModel
 		logger.info("Policy at 0:"+policies);
 		///follow path; add polcies and do overriding
 		PSResource curRes;
-		PSOverrindingRule rule;
+		PSOverridingRule rule;
 		for(int i=1;i<=MAX;i++)
 		{
 			curRes=(PSResource)path.get(i);
 			oRules=getOverriddingRule(curRes);
 			for(Iterator it=oRules.iterator();it.hasNext();)
 			{
-				//PSOverrindingRule rule=
+				//PSOverridingRule rule=
 				rule=
-					(PSOverrindingRule)it.next();
+					(PSOverridingRule)it.next();
 				rule.performOverridding(policies);
 			}
 			lPolicies=getLocalPolicies(curRes);
@@ -1315,7 +1315,7 @@ public class PolicySystemRDFModel
 //		oRules=((PSResource)path.lastElement()).getIsOverrindingRule();
 //		for(Iterator it=oRules.iterator();it.hasNext();)
 //		{
-//			rule=(PSOverrindingRule)it.next();
+//			rule=(PSOverridingRule)it.next();
 //			rule.performOverridding(policies);
 //		}
 		return policies;
@@ -1341,10 +1341,10 @@ public class PolicySystemRDFModel
 		
 		Vector localORules=psResource.getIsOverrindingRule();
 		logger.info("\n\tlocalOrules:"+localORules);
-		PSOverrindingRule oRule;
+		PSOverridingRule oRule;
 		for(Iterator it=localORules.iterator();it.hasNext();)
 		{
-			oRule=(PSOverrindingRule)it.next();
+			oRule=(PSOverridingRule)it.next();
 			oRule.performOverridding(policies);
 		}
 		return policies;

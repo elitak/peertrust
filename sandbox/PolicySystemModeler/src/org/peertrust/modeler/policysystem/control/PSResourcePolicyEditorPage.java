@@ -8,7 +8,10 @@ import org.apache.log4j.jmx.LayoutDynamicMBean;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.TableLayout;
@@ -40,7 +43,8 @@ import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 import org.peertrust.modeler.policysystem.views.ModelObjectArrayViewContentProvider;
 
@@ -52,7 +56,7 @@ import org.peertrust.modeler.policysystem.views.ModelObjectArrayViewContentProvi
  */
 public class PSResourcePolicyEditorPage 
 							extends Page 
-							implements PSModelChangeEventListener	
+							implements IDoubleClickListener	
 {
 	private final static String PSRESOURCE_LABEL_PREFIX="Resource: ";
 	/** main container composite*/
@@ -256,6 +260,12 @@ public class PSResourcePolicyEditorPage
 		table.setHeaderVisible(true);		
 	
 		tv.setInput(PolicySystemRDFModel.LNAME_PROP_HAS_NAME);
+		
+		//
+//		ISelectionChangedListener sl=null;
+//		tv.addSelectionChangedListener(sl);
+//		IDoubleClickListener dl;
+		tv.addDoubleClickListener(this);
 		//return tv;
 		this.localPolicyView=tv;
 		return policiesTab;
@@ -322,8 +332,10 @@ public class PSResourcePolicyEditorPage
 		ModelObjectArrayViewContentProvider provider=
 				new ModelObjectArrayViewContentProvider(
 										null,
-										PSOverrindingRule.class);
+										PSOverridingRule.class);
 		oRulesTree.setContentProvider(provider);
+		////
+		oRulesTree.addDoubleClickListener(this);
 		////
 		return oRulesTab;
 	}
@@ -372,4 +384,55 @@ public class PSResourcePolicyEditorPage
 		oRulesTree.setInput(oRulesTree.getInput());
 		localPolicyView.setInput(localPolicyView.getInput());
 	}
+
+	/**
+	 * @see org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.eclipse.jface.viewers.DoubleClickEvent)
+	 */
+	public void doubleClick(DoubleClickEvent event) {
+		ISelection sel=event.getSelection();
+		if(sel==null)
+		{
+			return;
+		}
+		if(sel instanceof IStructuredSelection)
+		{
+			IStructuredSelection ssel= (IStructuredSelection)sel;
+			Object ele0=ssel.getFirstElement();
+			if(ele0==null)
+			{
+				logger.warn("first selection is null");
+				return;
+			}
+			else if(ele0 instanceof PSPolicy)
+			{
+				PSPolicyEditDialog dlg=
+					new PSPolicyEditDialog(composite.getShell(),PSPolicy.class);
+				dlg.create();
+				dlg.setModelObject((PSPolicy)ele0);
+				dlg.open();
+			}
+			else if(ele0 instanceof PSOverridingRule)
+			{
+				//logger.warn("oRule not supported jet");
+				PSPolicyEditDialog dlg=
+					new PSPolicyEditDialog(composite.getShell(),PSOverridingRule.class);
+				dlg.create();
+				dlg.setModelObject((PSOverridingRule)ele0);
+				dlg.open();
+				
+			}
+			else
+			{
+				logger.warn(
+					"Cannot handle this kind of selection element:"+ele0);
+			}
+		}
+		else
+		{
+			logger.warn("Cannot handle this kind auf selection:"+sel);
+		}	
+		
+	}
+	
+	
 }

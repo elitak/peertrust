@@ -58,7 +58,7 @@ import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
@@ -343,11 +343,11 @@ public class PSResourcePolicyPageBookView extends PageBookView
 			policyEditorPage.setPsPolicy(
 					(PSPolicy)sel0);
 		}
-		else if(sel0 instanceof PSOverrindingRule)
+		else if(sel0 instanceof PSOverridingRule)
 		{
 			pageBook.showPage(overriddingRuleEditorPage.getControl());
 			overriddingRuleEditorPage.setOverrindingRule(
-					(PSOverrindingRule)sel0);
+					(PSOverridingRule)sel0);
 		}
 		else if(sel0 instanceof PSFilter)
 		{

@@ -1,7 +1,7 @@
 package org.peertrust.modeler.policysystem.model.checks;
 
 import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 

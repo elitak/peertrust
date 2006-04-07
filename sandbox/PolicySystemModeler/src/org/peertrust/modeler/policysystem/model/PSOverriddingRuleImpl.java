@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -14,7 +14,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 
-public class PSOverriddingRuleImpl implements PSOverrindingRule 
+public class PSOverriddingRuleImpl implements PSOverridingRule 
 {
 	private Resource overriddingRule;
 	private PSResource overriddingPlace; 

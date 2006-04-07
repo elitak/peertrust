@@ -11,7 +11,7 @@ public interface PSResource extends PSModelObject {
 	
 	
 	public Vector getIsOverrindingRule();
-	public void addIsOverrindingRule(PSOverrindingRule rule);
+	public void addIsOverrindingRule(PSOverridingRule rule);
 	
 	public Vector getHasSuper();
 	public void addHasSuper(PSModelObject res);

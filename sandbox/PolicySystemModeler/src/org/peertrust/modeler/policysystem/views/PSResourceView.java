@@ -43,7 +43,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
-import org.peertrust.modeler.policysystem.model.abtract.PSOverrindingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
@@ -338,12 +338,12 @@ public class PSResourceView extends ViewPart
 						PSModelObject rules[]=
 								ChooserWizardPage.chooseModelObjects(
 											treeView.getControl().getShell(),
-											PSOverrindingRule.class,
+											PSOverridingRule.class,
 											null);
 						if(rules!=null)
 						{
 							psRes.addIsOverrindingRule(
-									(PSOverrindingRule)rules[0]);
+									(PSOverridingRule)rules[0]);
 							logger.info("ORules:"+
 									psRes.getIsOverrindingRule()+
 									"\n\tResource:"+psRes);
@@ -534,9 +534,9 @@ public class PSResourceView extends ViewPart
             {
             	return ((PSModelObject)element).getLabel().getValue();
             }
-//            else if(element instanceof PSOverrindingRule)
+//            else if(element instanceof PSOverridingRule)
 //            {
-//            	return ((PSOverrindingRule)element).getLabel();
+//            	return ((PSOverridingRule)element).getLabel();
 //            }
             else
             {

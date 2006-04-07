@@ -1,52 +1,41 @@
+/**
+ * 
+ */
 package org.peertrust.modeler.policysystem.control;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Platform;
-
-import org.eclipse.ui.IResourceActionFilter;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.editors.text.SelectResourcesDialog;
-import org.eclipse.ui.part.Page;
 import org.peertrust.modeler.policysystem.PolicysystemPlugin;
+import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
-import org.peertrust.modeler.policysystem.model.checks.CheckORulePoliciesInSamePath;
 import org.peertrust.modeler.policysystem.model.checks.CkeckOverridingRulePoliciesNeq;
 
-import com.hp.hpl.jena.query.util.LabelToNodeMap;
-
 /**
- * Page to edit an overriding rule model Object 
+ * Provide a panel for editing an overriding model object.
+ * 
  * @author Patrice Congo
- *
  */
-public class PSOverriddingRuleEditorPage 
-					extends Page
+public class PSOverriddingRuleEditControl 
+				implements PSModelObjectEditControl
 {
+
 	/**
 	 * to cache localy the parent composite that holds
 	 * all editor controls
@@ -61,7 +50,7 @@ public class PSOverriddingRuleEditorPage
 	/** 
 	 * The ps overridding rule to edit
 	 */
-	private PSOverridingRule overrindingRule;
+	private PSOverridingRule overridingRule;
 	
 	/**
 	 * The field edito used to edit the overridding rule 
@@ -84,10 +73,13 @@ public class PSOverriddingRuleEditorPage
 	/** the change comit button*/
 	private Button setButton;
 	
+	private boolean doCreateSetButtion=false;
+	
 	/**
-	 * The logger for the PSPolicyOverriddingRuleEditorPage Class
+	 * The logger for the PSPolicyOverriddingRuleEditControl Class
 	 */
-	static private Logger logger= Logger.getLogger(PSOverriddingRuleEditorPage.class);
+	static private Logger logger= 
+		Logger.getLogger(PSOverriddingRuleEditControl.class);
 	
 	/** 
 	 * the selected new replacement rule model object 
@@ -102,7 +94,7 @@ public class PSOverriddingRuleEditorPage
 	private PSPolicy selectedOverridder=null;
 	
 	/**
-	 * @see org.eclipse.ui.part.IPage#createControl(org.eclipse.swt.widgets.Composite)
+	 * Creates the controls; use the provided composite as parent container
 	 */
 	public void createControl(Composite parent) 
 	{
@@ -135,17 +127,6 @@ public class PSOverriddingRuleEditorPage
 					new GridData(GridData.FILL_HORIZONTAL));
 		
 		////editor
-//		top = new Composite(parent, SWT.LEFT);
-		//top.setLayout(new GridLayout());
-		///////////////////////////////////////////////////////
-//		Label headerdd= new Label(top,SWT.NONE);
-//		
-//		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
-//		header.setText("Overridding");
-//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//		headerdd= new Label(top,SWT.NONE);
-//		Composite panel=
-//			new Composite(top,SWT.LEFT);
 		panel.setLayoutData(new GridData(GridData.FILL_BOTH));
 		//labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
 		labelFieldEditor= new StringFieldEditor("labelFieldEditor","Label",panel);
@@ -163,19 +144,26 @@ public class PSOverriddingRuleEditorPage
 		overriddenFieldEditor.setFieldValueProvider(createOverridenProvider());
 		
 		headerdd= new Label(panel,SWT.NONE);
-		setButton= new Button(panel,SWT.NONE);
-		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		setButton.setText("set");
-		setButton.addSelectionListener(new SelectionAdapter() 
-				{
-					public void widgetSelected(SelectionEvent e) 
-					{	
-						saveEdit();
-					}
-				});
+		if(doCreateSetButtion)
+		{
+			setButton= new Button(panel,SWT.NONE);
+			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			setButton.setText("set");
+			setButton.addSelectionListener(new SelectionAdapter() 
+					{
+						public void widgetSelected(SelectionEvent e) 
+						{	
+							saveEdit();
+						}
+					});
+		}
+		
 		//top.update();
 	}
 
+	/**
+	 * @return the top editor control
+	 */
 	public Control getControl() 
 	{
 		return top;
@@ -188,22 +176,29 @@ public class PSOverriddingRuleEditorPage
 
 	
 	
-	public PSOverridingRule getOverrindingRule() 
+	/**
+	 * @return the rule which is being edited
+	 */
+	public PSOverridingRule getOverridingRule() 
 	{
-		return overrindingRule;
+		return overridingRule;
 	}
 
-	public void setOverrindingRule(PSOverridingRule overrindingRule) 
+	/**
+	 * Sets a new model overriding rule to edit
+	 * @param overridingRule -- a new overriding rule to edit
+	 */
+	public void setOverridingRule(PSOverridingRule overridingRule) 
 	{
-		if(overrindingRule==null)
+		if(overridingRule==null)
 		{
 			return;
 		}
 		try {
-			System.out.println("overrindingRule:"+overrindingRule);
-			this.overrindingRule = overrindingRule;
-			PSPolicy psPol=overrindingRule.getHasOverridden();
-			System.out.println("overrindingRulePSPol:"+psPol);
+			logger.info("new overridingRule:"+overridingRule);
+			this.overridingRule = overridingRule;
+			PSPolicy psPol=overridingRule.getHasOverridden();
+			
 			if(psPol!=null)
 			{
 				overriddenFieldEditor.setStringValue(
@@ -214,8 +209,8 @@ public class PSOverriddingRuleEditorPage
 				overriddenFieldEditor.setStringValue("");
 			}
 			
-			psPol=overrindingRule.getHasOverridder();
-			System.out.println("overrindingRulePSPol:"+psPol);
+			psPol=overridingRule.getHasOverridder();
+			//System.out.println("overrindingRulePSPol:"+psPol);
 			if(psPol!=null)
 			{
 				overridderFieldEditor.setStringValue(
@@ -227,7 +222,7 @@ public class PSOverriddingRuleEditorPage
 			}
 			
 			labelFieldEditor.setStringValue(
-					overrindingRule.getLabel().getValue());
+					overridingRule.getLabel().getValue());
 			selectedOverridden=null;
 			selectedOverridder=null;
 		} catch (Exception e) {
@@ -236,12 +231,12 @@ public class PSOverriddingRuleEditorPage
 		
 	}
 
-	private void saveEdit()
+	public int saveEdit()
 	{
 		try {
-			if(overrindingRule==null)
+			if(overridingRule==null)
 			{
-				return;
+				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_NULL_POINTER;
 			}
 			
 			String overriddenLabel=
@@ -251,7 +246,7 @@ public class PSOverriddingRuleEditorPage
 			String ruleLabel=labelFieldEditor.getStringValue();
 			if(ruleLabel!=null || !"".equals(ruleLabel))
 			{
-				overrindingRule.setLabel(ruleLabel);
+				overridingRule.setLabel(ruleLabel);
 			}
 			
 			if(selectedOverridden==null || selectedOverridder==null)
@@ -260,7 +255,7 @@ public class PSOverriddingRuleEditorPage
 						"Selection incomplete:"+
 						"\n\t:overridder:"+selectedOverridder+
 						"\n\t:overridden:"+selectedOverridden);
-				return;
+				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
 			}
 			
 			CkeckOverridingRulePoliciesNeq check=
@@ -271,32 +266,36 @@ public class PSOverriddingRuleEditorPage
 			{
 				PolicysystemPlugin.getDefault().showMessage(
 						"Overridding and overridden policies must not be equals");
-				return;
+				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_INTEGRITY_CHECK;
 			}
 			
 			if(overriddenLabel==null || overridderLabel==null)
 			{
-				return;
+				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
 			}
 			
 			if(selectedOverridden!=null)
 			{
-				overrindingRule.setHasOverriden(selectedOverridden);
+				overridingRule.setHasOverriden(selectedOverridden);
 			}
 			
 			if(selectedOverridder!=null)
 			{
-				overrindingRule.setHasOverrider(selectedOverridder);	
+				overridingRule.setHasOverrider(selectedOverridder);	
 			}
 			
 //			String ruleLabel=labelFieldEditor.getStringValue();
 //			if(ruleLabel!=null || !"".equals(ruleLabel))
 //			{
-//				overrindingRule.setLabel(ruleLabel);
+//				overridingRule.setLabel(ruleLabel);
 //			}
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			e.printStackTrace();
 		}
+		
+		return PSModelObjectEditControl.SAVE_RESULT_OK;
 	}
 	
 	private FieldValueProvider createOverridenProvider()
@@ -327,7 +326,7 @@ public class PSOverriddingRuleEditorPage
 							logger.warn("nothing selected returning null");
 							return null;
 						}
-						//overrindingRule.setHasOverriden(sel);
+						//overridingRule.setHasOverriden(sel);
 						selectedOverridden=sel;
 						
 						String label=sel.getLabel().getValue();
@@ -371,7 +370,7 @@ public class PSOverriddingRuleEditorPage
 							logger.warn("nothing selected returning null");
 							return null;
 						}
-						//overrindingRule.setHasOverrider(sel);
+						//overridingRule.setHasOverrider(sel);
 						selectedOverridder=sel;
 						String label=sel.getLabel().getValue();
 						logger.info("Selected:"+sel);
@@ -419,7 +418,7 @@ public class PSOverriddingRuleEditorPage
 					String label=labelFieldEditor.getStringValue();
 					if(label!=null)
 					{
-						overrindingRule.setLabel(label);
+						overridingRule.setLabel(label);
 					}
 					return label;
 				}
@@ -471,7 +470,22 @@ public class PSOverriddingRuleEditorPage
 		}
 		
 	}
-	
-	
-	
+
+	public void dispose() 
+	{
+		// nothing
+	}
+
+	public PSModelObject getModelObject() 
+	{
+		return this.getOverridingRule();
+	}
+
+	public void setModelObject(PSModelObject psModelObject) 
+	{
+		if(psModelObject instanceof PSOverridingRule)
+		{
+			this.setOverridingRule((PSOverridingRule)psModelObject);
+		}
+	}
 }
