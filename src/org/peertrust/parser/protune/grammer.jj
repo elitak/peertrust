@@ -1,0 +1,604 @@
+options {
+  JDK_VERSION = "1.5";
+  STATIC = false;
+}
+
+PARSER_BEGIN(Parser)
+
+package foo;
+
+import java.io.*;
+import java.util.*;
+
+public class Parser{
+	
+	public static void main(String args[]) throws ParseException,TokenMgrError{
+		
+		Parser parser=null;
+		try{
+			
+			parser=new Parser(new FileReader("foo/exemplu.pro"));
+			parser.start(System.out);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return;
+		}
+
+	}
+}
+
+PARSER_END(Parser)
+
+/*----------------------------------------------------------------------------------------------------------*/
+
+SKIP :
+{
+ 	" " | "\r" | "\t" |	"\n"
+}
+
+TOKEN:
+{
+	<COMMENT: ( "%" (~["\n","\r"])* ) |( "//" (~["\n","\r"])* ) | ("/*" (~[])* "*/") >	
+}
+
+TOKEN:
+{
+	<OPERATOR: ( "==" | ">" | ">=" | "<" | "<=" | "!=" | " is ") >
+}
+
+TOKEN:
+{
+	<NEGATION: ("not " | "\\=") >
+}
+
+TOKEN:
+{
+	<SEPARATOR: "<-" | ":-" >
+}
+
+TOKEN:
+{
+	<IN: "in" >
+}
+
+TOKEN:
+{
+	<DECLCRED: ("declaration"|"credential") >
+}
+
+TOKEN : 
+{
+	<VARIABLE: (<UPPERCASE> | <UNDERSCORE>) (<STRING>)? >
+}
+
+TOKEN:
+{
+	<IDENTIFIER: (<LOWERCASE> <STRING>) >
+}
+
+TOKEN : 
+{
+	<#STRING: ( (<LOWERCASE>|<UPPERCASE>|<UNDERSCORE>)* (<DIGIT>)* ) >
+}
+
+TOKEN : 
+{
+	<STRING_QUOTED: ("'" (~["'","\\","\n","\r"])* "'") | ("\"" (~["\"","\\","\n","\r"])* "\"") >
+}
+
+TOKEN:
+{
+	<NUMBER: (<DIGIT>)+ >
+}
+
+TOKEN:
+{
+	<#LOWERCASE: ["a"-"z"] >
+}
+
+TOKEN:
+{
+	<#UPPERCASE: ["A"-"Z"] >
+}
+
+TOKEN:
+{
+	<#DIGIT: ["0"-"9"] >
+}
+
+TOKEN:
+{
+	<#UNDERSCORE: "_" >
+}
+
+//------------------------------------------------------------------------------------------------------------
+void start(PrintStream out):
+{
+	String id=null;
+	String head=null;
+	Strign field=null;
+	String metabody=null;
+	String body=null;
+	String s=null;
+}
+{
+	(
+		(
+		id=Id()	
+				( 
+					(
+						"." field=Field(id)  ( <SEPARATOR> (metabody=Metabody())? )? "."
+					)
+					{
+						if(metabody==null)
+							s="metarule( id, "+field+", []).";
+						else
+							s="metarule( id, "+field+", ["+metabody+"]).";
+					} 
+					| 
+					(
+						head=Head() (<SEPARATOR> (body=Body())? )? "."
+					)
+					{
+						if(body==null)
+							s="rule( "+id+", "+head+", []).";
+						else
+							s="rule( "+id+", "+head+", ["+body+"]).";
+					}	
+				)
+		|
+		head=Head()
+				(
+					(
+						"."  ( field=Field(head)  ( <SEPARATOR> (metabody=Metabody())? )? "." )?
+					)
+					{
+						//tb sa generez id
+						if(field==null)
+							s="rule( id, "+head+", []).";
+						
+						else{	
+							if(metabody==null)
+								s="metarule( pred, "+field+", []).";
+							else
+								s="metarule( pred, "+field+", ["+metabody+"]).";
+						}
+					} 
+					| 
+					(
+						<SEPARATOR> (body=Body())? "."
+					)
+					{
+						//tb sa generez id
+						if(body==null)
+							s="rule( id, "+head+", []).";
+						else
+							s="rule( id, "+head+", ["+body+"]).";
+					}	
+				
+				)
+		)
+		{out.println(s);}
+	)+
+	<EOF>
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Id():
+{
+	String ct=null;
+}
+{
+	"[" ct=Constant() "]"
+	{return ct;}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Constant():
+{
+	Token t=null;
+}
+{
+	(
+		t=<IDENTIFIER> 
+		|
+		t=<NUMBER> 
+		|
+		t=<STRING_QUOTED>
+	)
+	{return t.image;}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Head():
+{
+	Token pred=null;
+	String args=null;
+	boolean flag=false;
+}
+{
+	pred=<IDENTIFIER> ( "(" (args=Arguments())? ")" {flag=true;} )?
+	{
+		if(args==null){
+			
+			if(flag==false)
+				return pred.image;
+			else
+				return pred.image+"()";
+		}
+			
+		return pred.image+"("+args+")";
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Arguments():
+{
+	String arg=null;
+	String args=null;
+}
+{
+	arg=Argument() ( "," args=Arguments() )? 
+	{
+		if(args==null)
+			return arg;
+			
+		return arg+", "+args;
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String[] Argument():
+{
+	Token t=null;
+	String s=null;
+	boolean flag=false;
+	String[] r=new String[2];
+}
+{
+	(
+		t=<VARIABLE> 
+		|
+		t=<NUMBER> 
+		|
+		t=<STRING_QUOTED> 
+	)	("[" s=Fields(t.image) "]") ?
+	{
+		if(s==null)
+			return t.image;
+			
+		return s;
+	}
+	|
+	t=<IDENTIFIER> ( ("[" s=Fields(t.image) "]") |( "(" (s=Arguments())? ")" {flag=true;} ) )?
+	{
+		if(s==null){
+			
+			if(flag==false)
+				return t.image;
+			else
+				return t.image+"()";
+		}
+		
+		if(flag==true)
+			return t.image+"("+s+")";
+						
+		return s;
+	}
+	
+}		
+
+//------------------------------------------------------------------------------------------------------------
+String Fields(String id):
+{
+	String field=null;
+	String fields=null;
+}
+{
+	field=Field(id) ( "," fields=Fields(id) )? 
+	{
+		if(fields==null)
+			return field;
+			
+		return field+", "+fields;
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Field(String id):
+{
+	Token atr=null;
+	String val=null;
+}
+{
+	atr=<IDENTIFIER> ":" val=Term()
+	{return "complex_term( "+id+", "+atr+", "+value+")";}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Term():
+{
+	Token t=null;
+	String s=null;
+}
+{
+	t=<VARIABLE> 
+	{return t.image; }
+	|
+	s=Constant()
+	{return s;}
+}
+
+
+/*
+//------------------------------------------------------------------------------------------------------------
+String Rule():
+{
+	String id=null;
+	String head=null;
+	String body=null;	
+}
+{
+	( id=Id() )? head=Head() ( <SEPARATOR> body=Body() )?  "."
+ 	{	
+ 		//if there is no id,we must generate one!
+ 		if(id==null)	
+ 			id="id";
+ 			
+ 		if(body==null)
+ 			return "rule("+id+","+head+",[]).";
+ 			
+ 		return "rule("+id+","+head+",["+body+"]).";
+ 	}
+	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Id():
+{
+	String s=null;
+}
+{
+	"[" s=Constant() "]"
+	{return s;}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Constant():
+{
+	Token t=null;
+}
+{
+	t=<IDENTIFIER> 
+	{return t.image;}
+	|
+	t=<NUMBER> 
+	{return t.image;}
+	|
+	t=<STRING_QUOTED>
+	{return t.image;}
+}
+
+
+//------------------------------------------------------------------------------------------------------------
+String Body():
+{
+	String literal=null;
+	String body=null;
+}
+{
+	literal=Literal() ( "," body=Body() )? 
+	{
+		if(body==null)
+			return literal;
+			
+		return literal+", "+body;
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Literal():
+{
+	Token t=null;
+	String s=null;
+	boolean flag=false;
+	Token op=null;
+	String pc=null;
+}
+{
+	s=SpecialLiteral()
+	{return s;}
+	|
+	t=<IDENTIFIER> ( ( "(" (s=Arguments())? ")" {flag=true;} )|  ( op=<OPERATOR> s=Term() ) | ( "[" s=Fields(t.image) "]" ) )?
+	{
+		if(s==null){
+			
+			if(flag==false)
+				return t.image;
+			else
+				return t.image+"()";
+		}
+			
+		if(op!=null)
+			return t.image+" "+op.image+" "+s;
+			
+		if(flag!=false)
+			return t.image+"("+s+")";
+			
+		return s;
+	}
+	|
+	t=<VARIABLE> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+	{
+		if(op!=null)
+			return t.image+" "+op.image+" "+s;
+			
+		return s;
+	}
+	|
+	t=<NUMBER> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+	{
+		if(op!=null)
+			return t.image+" "+op.image+" "+s;
+			
+		return s;
+	}
+	|
+	t=<STRING_QUOTED> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+	{
+		if(op!=null)
+			return t.image+" "+op.image+" "+s;
+			
+		return s;
+	}
+	| 
+	<NEGATION> (
+					t=<IDENTIFIER> ( ( "(" (s=Arguments())? ")" {flag=true;} )| ( op=<OPERATOR> s=Term()) | ( "[" s=Fields(t.image) "]" ) )? 
+					|
+					t=<VARIABLE> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+					|
+					t=<NUMBER> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+					|
+					t=<STRING_QUOTED> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+				)
+	{
+		if(s==null){
+			
+			if(flag==false)
+				return "not("+t.image+")";
+			else
+				return "not("+t.image+"()"+")";
+		}
+			
+		if(op!=null)
+			return "not("+t.image+" "+op.image+" "+s+")";
+			
+		if(flag!=false)
+			return "not("+t.image+"("+s+")"+")";
+			
+		return "not("+s+")";
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String SpecialLiteral():
+{
+	Token t=null;
+	String s=null;
+	String pc=null;
+	String id=null;
+	String tm=null;
+}
+{
+	t=<IN> "(" s=Head() "," pc=PackageCall() ")"
+	{
+		return "in("+s+","+pc+")";
+	}
+	|
+	t=<DECLCRED> "(" id=Constant() "," tm=Term() ("[" s=Fields(tm)"]")? ")"
+	{
+		if(s==null)
+			return "declaration("+id+","+tm+")";
+			
+		return "declaration("+id+","+s+")";
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+String PackageCall():
+{
+	Token p;
+	Token f;
+	String s;
+	boolean flag=false;
+}
+{
+	p=<IDENTIFIER> ":" f=<IDENTIFIER> ( "(" (s=Terms())? ")" {flag=true;})?
+	{
+		return p+", "+f+", ["+s+"]";
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String Terms():
+{
+	String term=null;
+	String terms=null;
+}
+{
+	term=Term() ( "," terms=Terms() )? 
+	{
+		if(terms==null)
+			return term;
+			
+		return term+", "+terms;
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String MetaRule():
+{
+	String[] metahead;
+	String field=null;
+	String metabody=null;
+}
+{
+	metahead=MetaHead()  "." field=Field(metahead[1]) ( <SEPARATOR> (metabody=MetaBody())? )? "."
+	{
+		if(metabody==null)
+			return "metarule( "+metahead[0]+", "+field+", []).";
+			
+		return "metarule( "+metahead[0]+", "+field+", ["+metabody+"]).";
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String[] MetaHead():
+{
+	String s=null;
+	String[] metahead=new String[2];
+}
+{
+	(
+	s=Id() { metahead[0]="id"; }
+	|
+	s=Head() { metahead[0]="pred"; }
+	)
+	{
+		metahead[1]=s;
+		return metahead;
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------
+String MetaBody():
+{
+	String metaliteral=null;
+	String metabody=null;
+}
+{
+	metaliteral=MetaLiteral() ( "," metabody=MetaBody() )? 
+	{
+		if(metabody==null)
+			return metaliteral;
+			
+		return metaliteral+", "+metabody;
+	}	
+}
+
+//------------------------------------------------------------------------------------------------------------
+String MetaLiteral():
+{
+	String s;
+}
+{
+	s=Literal()
+	{return s;}
+	|
+	metahead=MetaHead()  "." field=Field(metahead[1])
+	{}
+	| <NEGATION> metahead=MetaHead()  "." field=Field(metahead[1])
+	{}
+}
+*/
