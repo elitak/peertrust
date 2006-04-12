@@ -851,23 +851,29 @@ public class PolicySystemRDFModel
 		else
 		{
 			
-			
-			RuntimeException ex=
-				new RuntimeException(
+			//TODO check replacement with logger.warn plus return null
+//			RuntimeException ex=
+//				new RuntimeException(
+//						"\ncannot handle this:"+res.getLocalName()+
+//						"\n\t type="+res.getProperty(RDF.type)+
+//						"\n\t URI"+res.getURI()+
+//						"\n\t "+res.getLocalName());
+//			System.out.println("\nStatemenList:");
+//			StmtIterator it=
+//				getInstance().rdfModel.listStatements(
+//									(Resource)null,RDF.type,(RDFNode)null);
+//			for(;it.hasNext();)
+//			{
+//				System.out.println("\n\t"+it.nextStatement());
+//			}
+//			getInstance().logger.error(ex);
+//			throw ex;
+			logger.warn(
 						"\ncannot handle this:"+res.getLocalName()+
 						"\n\t type="+res.getProperty(RDF.type)+
 						"\n\t URI"+res.getURI()+
 						"\n\t "+res.getLocalName());
-			System.out.println("\nStatemenList:");
-			StmtIterator it=
-				getInstance().rdfModel.listStatements(
-									(Resource)null,RDF.type,(RDFNode)null);
-			for(;it.hasNext();)
-			{
-				System.out.println("\n\t"+it.nextStatement());
-			}
-			getInstance().logger.error(ex);
-			throw ex;
+			return null;
 		}
 	}
 	
@@ -1121,7 +1127,7 @@ public class PolicySystemRDFModel
 		
 	}
 
-	public Vector getDirectChilds(PSModelObject parent) 
+	public Vector getDirectChildren(PSModelObject parent) 
 	{
 		if(parent ==null)
 		{
@@ -1528,6 +1534,215 @@ public class PolicySystemRDFModel
 			firePSModelChangeEvent(null);
 		}
 		
+	}
+	/**
+	 * Finds the statement of the following kind:
+	 * [? prop object] where the property prop and the obj are given 
+	 * representing one of the given properties.
+	 * @param object -- the statement object
+	 * @param props -- a vector holding the statement properties
+	 * @param linkedObjectType -- the type of the linked object to find and return
+	 * @return a vector of ps model object linked to the specify object throught the 
+	 * 	the given vectors
+	 */
+	private Vector getLinkedObjForTheseProps(
+										Resource obj, 
+										Vector props,
+										Class linkedObjectType)
+	{
+		Vector linkedObjects=new Vector();
+		Resource res;
+		PSModelObject modelObject;
+		for(Iterator it=props.iterator();it.hasNext();)
+		{	
+			Property prop=(Property)it.next();
+			Selector psSel=
+				new SimpleSelector(
+							null,
+							prop,//PROP_IS_PROTECTED_BY,
+							obj//(RDFNode)psModelObject.getModelObject()
+							);
+			StmtIterator stmIt=rdfModel.listStatements(psSel);
+			for(;stmIt.hasNext();)
+			{
+				res=stmIt.nextStatement().getSubject();
+				modelObject=createModelObjectWrapper(res,null);
+				if(modelObject!=null)
+				{
+					if(linkedObjectType==null)
+					{
+						linkedObjects.add(modelObject);
+					}
+					else if(linkedObjectType.isInstance(modelObject))
+					{
+						linkedObjects.add(modelObject);
+					}					
+					else
+					{
+						logger.warn("slectorreturn unexpeted type:"+modelObject.getClass());
+					}
+				}
+			}
+		}
+		return linkedObjects;
+	}
+
+	/**
+	 * Utility method return all the model object linked o the given policy 
+	 * of the given type
+	 * @param psModelObject
+	 * @param linkedObjectType
+	 * @return
+	 */
+	private Vector getToPolicyLinkedModelObjects(
+								PSPolicy psModelObject, 
+								Class linkedObjectType)
+	{
+		logger.warn("not implemented");
+		//getMultipleProperty(psModelObject,PROP)
+		Vector props= new Vector();
+		if(linkedObjectType==null)
+		{
+			//prop=null;
+			props.add(PROP_IS_PROTECTED_BY);
+			props.add(PROP_HAS_OVERRIDDEN);
+			props.add(PROP_HAS_OVERRIDDER);
+		}
+		else if(linkedObjectType==PSResource.class)
+		{
+			props.add(PROP_IS_PROTECTED_BY);
+		}
+		else if(linkedObjectType==PSFilter.class)
+		{
+			props.add(PROP_IS_PROTECTED_BY);
+		}
+		else if(linkedObjectType==PSOverriddingRuleImpl.class)
+		{
+			props.add(PROP_HAS_OVERRIDDEN);
+			props.add(PROP_HAS_OVERRIDDER);
+		}
+		else
+		{
+			return props;//an empty vector
+		}
+		
+		Object res=psModelObject.getModelObject();
+		if(res instanceof Resource)
+		{
+			return getLinkedObjForTheseProps((Resource)res,props,linkedObjectType);
+		}
+		else
+		{
+			return new Vector();
+		}
+		
+	}
+	
+	private Vector getToFilterLinkedModelObjects(
+									PSFilter psModelObject, 
+									Class linkedObjectType)
+	{
+	
+		Vector props= new Vector();
+		if(linkedObjectType==null)
+		{
+			//prop=null;
+			props.add(PROP_HAS_FILTER);
+		}
+		else if(linkedObjectType==PSResource.class)
+		{
+			props.add(PROP_HAS_FILTER);
+		}
+		else
+		{
+			return props;//an empty vector
+		}
+		
+		Object res=psModelObject.getModelObject();
+		if(res instanceof Resource)
+		{
+			return getLinkedObjForTheseProps(
+										(Resource)res,
+										props,
+										linkedObjectType);
+		}
+		else
+		{
+			return new Vector();
+		}
+	
+	}
+	
+	private Vector getToORuleFilterLinkedModelObjects(
+			PSOverridingRule psModelObject, 
+			Class linkedObjectType)
+	{
+
+		Vector props= new Vector();
+		if(linkedObjectType==null)
+		{
+			//prop=null;
+			props.add(PROP_HAS_OVERRIDING_RULES);
+		}
+		else if(linkedObjectType==PSResource.class)
+		{
+			props.add(PROP_HAS_OVERRIDING_RULES);
+		}
+		else
+		{
+			return props;//an empty vector
+		}
+		
+		Object res=psModelObject.getModelObject();
+		if(res instanceof Resource)
+		{
+			return getLinkedObjForTheseProps(
+						(Resource)res,
+						props,
+						linkedObjectType);
+		}
+		else
+		{
+			return new Vector();
+		}
+	
+	}
+	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem#getLinkedModelObjects(org.peertrust.modeler.policysystem.model.abtract.PSModelObject, java.lang.Class)
+	 */
+	public Vector getLinkedModelObjects(
+								PSModelObject psModelObject, 
+								Class linkedObjectjType) 
+	{
+		if(psModelObject==null)
+		{
+			logger.warn("argumennt psModelObject must not be null");
+			return new Vector();
+		}
+		
+		if(psModelObject instanceof PSPolicy)
+		{
+			return getToPolicyLinkedModelObjects(
+										(PSPolicy)psModelObject,
+										linkedObjectjType);
+		}
+		else if(psModelObject instanceof PSFilter)
+		{
+			return getToFilterLinkedModelObjects(
+										(PSFilter)psModelObject,
+										linkedObjectjType);
+		}
+		else if(psModelObject instanceof PSOverridingRule)
+		{
+			return getToORuleFilterLinkedModelObjects(
+									(PSOverridingRule)psModelObject,
+									linkedObjectjType);
+		}		
+		else
+		{
+			return new Vector();
+		}		
 	}
 }
 

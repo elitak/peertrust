@@ -70,4 +70,13 @@ public class PSModelLabelImpl implements PSModelLabel
 		this.value=value;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		//return super.toString();
+		return value;
+	}
+	 
+	
 }

@@ -21,11 +21,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.*;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 //import com.tools.logging.LoggingPlugin;
@@ -44,6 +48,23 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	private static final String RDFS_FILE="/model/schema.rdfs";
 	private static final String RDF_FILE="/model/empty.rdf";
 	
+	public static final String IMG_KEY_POLICY="IMG_KEY_POLICY";
+	public static final String IMG_PATH_POLICY="/icons/policy.gif";
+	
+	public static final String IMG_KEY_OVERRIDDEN_POLICY=
+										"IMG_KEY_OVERRIDDEN_POLICY";
+	public static final String IMG_PATH_OVERRIDDEN_POLICY=
+										"/icons/overridden_policy.gif";
+	
+	public static final String IMG_KEY_ORULE="IMG_KEY_ORULE";
+	public static final String IMG_PATH_ORULE="/icons/orule.gif";
+	
+	public static final String IMG_KEY_FILTER="IMG_KEY_FILTER";
+	public static final String IMG_PATH_FILTER="/icons/filter.gif";
+	
+	public static final String IMG_KEY_RESOURCE="IMG_KEY_REOURCE";
+	public static final String IMG_PATH_RESOURCE="/icons/resource.gif";
+	
 	//private PluginLogManager logManager;
 	/**
 	 * The constructor.
@@ -58,6 +79,20 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception 
 	{
 		super.start(context);
+//		try {
+//			getImageRegistry();
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		try
+//		{
+//			createImageRegistry();
+//		}
+//		catch(Exception ee)
+//		{
+//			ee.printStackTrace();
+//		}
 		try 
 		{
 			configure();
@@ -69,7 +104,8 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception 
+	{
 		super.stop(context);
 //		if (this.logManager != null) {
 //			this.logManager.shutdown();
@@ -296,6 +332,38 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 		} catch (Exception e) {
 			showException("Exception while Copying rdf model file",e);
 		}
+	}
+
+	/**
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#createImageRegistry()
+	 */
+	//protected ImageRegistry createImageRegistry()
+	protected void initializeImageRegistry(ImageRegistry reg)
+	{
+		String couples[][]={
+				{IMG_KEY_FILTER,IMG_PATH_FILTER},
+				{IMG_KEY_ORULE,IMG_PATH_ORULE},
+				{IMG_KEY_OVERRIDDEN_POLICY,IMG_PATH_OVERRIDDEN_POLICY},
+				{IMG_KEY_POLICY,IMG_PATH_POLICY},
+				{IMG_KEY_RESOURCE,IMG_PATH_RESOURCE},
+		};
+		
+		//ImageRegistry registry=super.createImageRegistry();
+		Bundle bundle = this.getBundle();//Platform.getBundle(PLUGIN_ID);
+		
+		IPath path;
+		String curCouple[];
+		for(int i=0; i<couples.length;i++)
+		{
+			curCouple=couples[i];
+			//System.out.println("loading:"+curCouple[0]+"="+curCouple[1]);
+			path= new Path(curCouple[1]);
+			URL url = getBundle().getEntry(curCouple[1]);//Platform.find(bundle, path);
+			System.out.println("loading:"+curCouple[0]+"="+curCouple[1]+ " url="+url);
+			ImageDescriptor desc = ImageDescriptor.createFromURL(url);
+			reg.put(curCouple[0], desc);
+		}
+		return;// registry;
 	}
 	
 	
