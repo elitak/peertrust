@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.peertrust.config.Configurable;
 import org.peertrust.exception.ConfigurationException;
 import org.peertrust.exception.InferenceEngineException;
 import org.peertrust.inference.InferenceEngine;
@@ -39,16 +40,16 @@ import org.peertrust.net.Peer;
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngine.java,v 1.2 2006/03/06 12:47:54 dolmedilla Exp $
+ * $Id: YPrologEngine.java,v 1.3 2006/04/14 21:17:41 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/03/06 12:47:54 $
+ * Last changed: $Date: 2006/04/14 21:17:41 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
  */
-public class YPrologEngine implements InferenceEngine {
+public class YPrologEngine implements InferenceEngine,Configurable {
 
 	private static Logger log = Logger.getLogger(YPrologEngine.class);
 	
@@ -67,10 +68,12 @@ public class YPrologEngine implements InferenceEngine {
 	public YPrologEngine ()
 	{
 		super() ;
-		log.debug("$Id: YPrologEngine.java,v 1.2 2006/03/06 12:47:54 dolmedilla Exp $");
+		log.debug("$Id: YPrologEngine.java,v 1.3 2006/04/14 21:17:41 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
+		log.debug("Initializing " + this.getClass().getName()) ;
+		
 		_engine = new YProlog() ;
 		
 		if (_prologFiles != null)
@@ -102,6 +105,8 @@ public class YPrologEngine implements InferenceEngine {
 	public LogicAnswer[] processTree(LogicQuery logicQuery) throws InferenceEngineException {
 		
 		log.debug ("Process logic query: " + logicQuery.getGoal() + " - "  + logicQuery.getSubgoals()) ;
+		
+		checkEngine() ;
 		
 		String query = "tree(" + 
 								logicQuery.getGoal() + "," +
@@ -168,6 +173,8 @@ public class YPrologEngine implements InferenceEngine {
 		
 		log.debug ("Unify new query: " + unifiedGoal + " and old query: " + query) ;
 		
+		checkEngine() ;
+		
 //		PrologTerm oldQuery = PrologTools.getTerm(query) ;
 //		PrologTerm newQuery = PrologTools.getTerm(unifiedGoal) ;
 
@@ -199,6 +206,8 @@ public class YPrologEngine implements InferenceEngine {
 	}
 
 	public boolean execute(String query) throws InferenceEngineException {
+		checkEngine() ;
+		
 		TermList list = _engine.query(query) ;
 		
 		if (list == null)
@@ -210,12 +219,15 @@ public class YPrologEngine implements InferenceEngine {
 	public boolean validate(String goal, Peer prover, Proof proof) throws InferenceEngineException {
 		log.debug("Validating Goal " + goal + " at " + prover.getAlias() + " with proof \n\t" + proof) ;
 		
+		checkEngine() ;
+		
 		String query = VALIDATE_PREDICATE + "(" + goal + "," + prover.getAlias() + "," + proof.toString() + ")" ;
 		
 		return execute(query) ;
 	}
 
 	public void insert(String clause) throws InferenceEngineException {
+		checkEngine() ;
 		_engine.query("assert(" + clause + ")") ;
 	}
 
@@ -224,6 +236,10 @@ public class YPrologEngine implements InferenceEngine {
 		log.warn("YProlog does not distinguish between normal or applet mode") ;
 	}
 
+	public void checkEngine () throws InferenceEngineException {
+		if (_engine == null)
+			throw new InferenceEngineException("Engine not initialized") ;
+	}
 	/**
 	 * @return Returns the _baseFolder.
 	 */
