@@ -1,0 +1,199 @@
+options 
+{
+  COMMON_TOKEN_ACTION = true;
+  STATIC = false;
+}
+
+PARSER_BEGIN( PrologGrammar )
+
+   /**
+    * This class represents Prolog parser. It consists of three methods
+    * ConvertRules() and SyntaxCheck() to be used for converting Prolog
+    * programs to PeerTrust and automatically generated methods for parsing.
+    *
+    * @author Bogdan Vlasenko
+    */
+
+package org.peertrust.parser.prolog ;
+
+import java.util.Vector;
+
+public class PrologGrammar
+{
+    public static Vector tokens = new Vector(0, 1);
+
+   /**
+    * Converts Prolog program saved to a file to Peer Trust syntax and saves
+    * result to another file. Throws IOException or FileNotFoundException
+    * if load / save operations were unsuccessful or ParseException if
+    * syntax of input was wrong.
+    *
+    * @param  inputPath path to input file
+    *         outputPath path to output file
+    */
+
+    public static void ConvertRules( String inputPath, String outputPath)
+    throws ParseException, java.io.FileNotFoundException, java.io.IOException
+    {
+        System.out.println("Getting rules from " + inputPath );
+        java.io.FileInputStream inStream = new java.io.FileInputStream( inputPath );
+        java.io.FileWriter outFile = new java.io.FileWriter( outputPath, false );
+        tokens = new Vector(0, 1);
+        PrologGrammar parser = new PrologGrammar( inStream );
+        parser.Input();
+        Vector convertedRules = PrologSemanticAnalyzer.analyze(tokens);
+        for( int i = 0; i < convertedRules.capacity(); i++ )
+        {
+            String str = ((String) convertedRules.elementAt(i)) + "\n";        
+            outFile.write(str, 0, str.length());
+        }
+        inStream.close();
+        outFile.close();
+        System.out.println("Syntax looks to be ok, converted rules saved to " + outputPath);
+    }
+
+   /**
+    * Check syntax of given Prolog rule. Throws ParseException if syntax
+    * of input was wrong. This method is used for rules without policy.
+    *
+    * @param  stringToCheck Prolog rule to be checked
+    *
+    * @return Vector with one string which is translation of given 
+    * Prolog rule to Peer Trust
+    */
+
+    public static Vector SyntaxCheck( String stringToCheck )
+    throws ParseException, java.io.FileNotFoundException, java.io.IOException
+    {
+        return( SyntaxCheck( stringToCheck, "" ) );
+    }
+
+   /**
+    * Check syntax of given Prolog rules. Throws ParseException if syntax
+    * of input was wrong. This method is used for rules with policy.
+    *
+    * @param  stringToCheck Prolog rule to be checked
+    *         policyString policy of Prolog rule to be checked
+    *
+    * @return Vector with one string which is translation of given 
+    * Prolog rules to Peer Trust
+    */
+
+    public static Vector SyntaxCheck( String stringToCheck, String policyString )
+    throws ParseException, java.io.FileNotFoundException, java.io.IOException
+    {
+        String str = stringToCheck + policyString;
+        java.io.StringBufferInputStream inStream = new java.io.StringBufferInputStream( str );
+        tokens = new Vector(0, 1);
+        PrologGrammar parser = new PrologGrammar( inStream );
+        parser.Input();
+
+        Vector convertedRules = PrologSemanticAnalyzer.analyze(tokens);
+   
+        return( convertedRules );
+    }
+
+}
+
+PARSER_END( PrologGrammar )
+
+TOKEN_MGR_DECLS : 
+{ 
+    static void CommonTokenAction(Token token) 
+    {
+        InputToken prologToken = new InputToken();
+        prologToken.kind = token.kind;
+        prologToken.beginLine = token.beginLine;
+        prologToken.beginColumn = token.beginColumn;
+        prologToken.endLine = token.endLine;
+        prologToken.endColumn = token.endColumn;
+        prologToken.image = token.image;
+
+        PrologGrammar.tokens.add(prologToken);
+    } 
+} 
+
+SKIP :
+{
+    " "
+  | "\t"
+  | "\n"
+  | "\r"
+}
+
+void Input() :
+{}
+{
+    ( Rule() )+ <EOF>
+}
+void Rule() :
+{}
+{
+    ( SimpleRule() | SignedRule() | PolicyRule() )
+}
+void SimpleRule() :
+{}
+{
+    "rule" "(" Head() ","  Guards() "," Body() ")" "."
+}
+void SignedRule() :
+{}
+{
+    "signed" "(" "rule" "(" Head() "," Guards() "," Body() ")" "," String() "," "signature" "(" String() ")" ")" "."
+}
+void PolicyRule() :
+{}
+{
+    "policy" "(" Head() "," Body() ")" "."
+}
+void Head() :
+{}
+{
+    ExtendedLiteral()
+}
+void Guards() :
+{}
+{
+    "[" ( ExtendedLiteral() ( "," ExtendedLiteral() )* )? "]"
+}
+void Body() :
+{}
+{
+    "[" ( ExtendedLiteral() ( "," ExtendedLiteral() )* )? "]"
+}
+void ExtendedLiteral() :
+{}
+{
+    Literal() ( "@" Issuer() )? ( "$" Requester() )?
+}
+void Issuer() :
+{}
+{
+    String() ( "@" Issuer() )?
+}
+void Requester() :
+{}
+{
+    String() ( "$" Requester() )?
+}
+void Literal() :
+{}
+{
+    ListOfStrings() "(" ( ListOfStrings() )? ( "," ListOfStrings() )*  ")"
+}
+void ListOfStrings() :
+{}
+{
+    ( ( String() ) | ( "[" String() "," ListOfStrings() ( "," ListOfStrings() )* "]") )
+}
+void String() :
+{}
+{
+    ( <DIGITS> | <SMALLLETTERS> | <BIGLETTERS> | "_" )+
+}
+TOKEN :
+{
+    <DIGITS : ["0"-"9"]>
+  | <SMALLLETTERS : ["a"-"z"]>
+  | <BIGLETTERS : ["A"-"Z"]>
+}
