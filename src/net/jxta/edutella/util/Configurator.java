@@ -745,7 +745,7 @@ public class Configurator {
 
 				if (getter != null && setter != null) {
 					try {
-						Object value = getter.invoke(object, null);
+						Object value = getter.invoke(object, (Object [])null);
 						if (value != null) {
 							properties.setProperty(
 								prefix + attribute,
