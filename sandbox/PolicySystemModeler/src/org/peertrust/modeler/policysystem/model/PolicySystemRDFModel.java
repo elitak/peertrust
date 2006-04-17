@@ -15,10 +15,12 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.model.RDFModelManipulator;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
@@ -354,7 +356,7 @@ public class PolicySystemRDFModel
 						targetResource==null ||
 						PROP_HAS_SUPER==null)
 					{
-						System.out.println("Statement:model="+rdfModel+ 
+						System.out.println("PSModelStatement:model="+rdfModel+ 
 										" res1="+startResource +
 										" res2:"+targetResource);
 						return null;
@@ -366,7 +368,7 @@ public class PolicySystemRDFModel
 										PROP_HAS_SUPER,
 										targetResource);
 					rdfModel.add(stm);
-					System.out.println("Statement:"+stm);
+					System.out.println("PSModelStatement:"+stm);
 					return new PSHierarchyRelationshipImpl(stm);
 				}
 		
@@ -758,7 +760,7 @@ public class PolicySystemRDFModel
 	
 		try 
 		{
-//			Statement stm=
+//			PSModelStatement stm=
 //				rdfModel.createStatement(
 //									subject,
 //									prop,
@@ -1616,7 +1618,7 @@ public class PolicySystemRDFModel
 		{
 			props.add(PROP_IS_PROTECTED_BY);
 		}
-		else if(linkedObjectType==PSOverriddingRuleImpl.class)
+		else if(linkedObjectType==PSOverridingRule.class)
 		{
 			props.add(PROP_HAS_OVERRIDDEN);
 			props.add(PROP_HAS_OVERRIDDER);
@@ -1743,6 +1745,177 @@ public class PolicySystemRDFModel
 		{
 			return new Vector();
 		}		
+	}
+
+	private PSModelChangeVeto removePSPolicy(PSPolicy psPolicy)
+	{
+		Vector linkedRes=getLinkedModelObjects(psPolicy,PSResource.class);
+		Vector linkedORules=getLinkedModelObjects(psPolicy,PSOverridingRule.class);
+		Vector linkedFilter=getLinkedModelObjects(psPolicy,PSFilter.class);
+		System.out.println("Veto:"+linkedFilter+ " "+linkedORules+ " "+linkedRes);
+		if(		linkedRes.isEmpty() && 
+				linkedORules.isEmpty() &&
+				linkedFilter.isEmpty())
+		{
+			Resource res=(Resource)psPolicy.getModelObject();
+			rdfModel.removeAll(res,null,null);
+			return null;
+		}
+		else
+		{
+			PSModelChangeVeto veto=new PSModelChangeVetoImpl();
+			PSModelObject modelObject;
+			PSModelStatement stm;
+			///for resources
+			for(Iterator it = linkedRes.iterator();it.hasNext();)
+			{
+				modelObject=(PSModelObject)it.next();
+				stm=
+					new PSModelStatementImpl(
+								modelObject,
+								Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+								psPolicy);
+				veto.addPSModelStatement(stm);
+			}
+			
+			//for filters
+			for(Iterator it = linkedFilter.iterator();it.hasNext();)
+			{
+				modelObject=(PSModelObject)it.next();
+				stm=
+					new PSModelStatementImpl(
+								modelObject,
+								Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+								psPolicy);
+				veto.addPSModelStatement(stm);
+			}
+			
+			//for overriding rules
+			PSOverridingRule oRule;
+			for(Iterator it = linkedORules.iterator();it.hasNext();)
+			{
+				oRule=(PSOverridingRule)it.next();
+				if(oRule.getHasOverridden().getLabel().equals(psPolicy.getLabel()) )
+				{
+				
+					stm=
+						new PSModelStatementImpl(
+									oRule,
+									Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN,
+									psPolicy);
+				}
+				else
+				{
+					stm=
+						new PSModelStatementImpl(
+									oRule,
+									Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER,
+									psPolicy);
+				}
+				veto.addPSModelStatement(stm);
+			}
+			return veto;
+		}
+	}
+	
+	private PSModelChangeVeto removePSFilter(PSFilter psFilter)
+	{
+		Vector linkedRes=getLinkedModelObjects(psFilter,PSResource.class);
+		if(linkedRes.isEmpty())
+		{
+			Resource res=(Resource)psFilter.getModelObject();
+			rdfModel.removeAll(res,null,null);
+			return null;
+		}
+		else
+		{
+			PSModelChangeVeto veto=new PSModelChangeVetoImpl();
+			PSModelObject modelObject;
+			PSModelStatement stm;
+			///for resources
+			for(Iterator it = linkedRes.iterator();it.hasNext();)
+			{
+				modelObject=(PSModelObject)it.next();
+				stm=
+					new PSModelStatementImpl(
+								modelObject,
+								Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER,
+								psFilter);
+				veto.addPSModelStatement(stm);
+			}
+			
+			return veto;
+		}
+		
+	}
+	
+	private PSModelChangeVeto removePSOverridingRule(
+									PSOverridingRule oRule)
+	{
+		Vector linkedRes=getLinkedModelObjects(oRule,PSResource.class);
+		if(linkedRes.isEmpty())
+		{
+			Resource res=(Resource)oRule.getModelObject();
+			rdfModel.removeAll(res,null,null);
+			return null;
+		}
+		else
+		{
+			PSModelChangeVeto veto=new PSModelChangeVetoImpl();
+			PSModelObject modelObject;
+			PSModelStatement stm;
+			///for resources
+			for(Iterator it = linkedRes.iterator();it.hasNext();)
+			{
+				modelObject=(PSModelObject)it.next();
+				stm=
+					new PSModelStatementImpl(
+								modelObject,
+								Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE,
+								oRule);
+				veto.addPSModelStatement(stm);
+			}
+			
+			return veto;
+		}
+	}
+	
+	private PSModelChangeVeto removePSresource(PSResource psResource)
+	{
+		return new PSModelChangeVetoImpl();
+	}
+	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem#removeModelObject(org.peertrust.modeler.policysystem.model.abtract.PSModelObject)
+	 */
+	public PSModelChangeVeto removeModelObject(PSModelObject psModelObject) 
+	{
+		if(psModelObject==null)
+		{
+			return null;
+		}
+		
+		if(psModelObject instanceof PSPolicy)
+		{
+			return removePSPolicy((PSPolicy)psModelObject);
+		}
+		else if(psModelObject instanceof PSFilter)
+		{
+			return removePSFilter((PSFilter)psModelObject);
+		} 
+		else if(psModelObject instanceof PSOverridingRule)
+		{
+			return removePSOverridingRule(
+					(PSOverridingRule)psModelObject);
+		}
+		else if(psModelObject instanceof PSResource)
+		{
+			return removePSresource((PSResource)psModelObject);
+		}
+		else
+		{
+			return null;
+		}
 	}
 }
 

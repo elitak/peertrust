@@ -205,6 +205,6 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
     						Object oldInput, 
     						Object newInput) 
     {
-    	//nothing
+    	root=newInput;//TODO test it
     }
 }

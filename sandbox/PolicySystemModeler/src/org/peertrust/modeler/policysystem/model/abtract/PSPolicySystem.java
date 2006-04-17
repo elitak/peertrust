@@ -156,4 +156,6 @@ public interface PSPolicySystem
 	public Vector getLinkedModelObjects(
 						PSModelObject psModelObject, 
 						Class linkedObectjType);
+	
+	public PSModelChangeVeto removeModelObject(PSModelObject psModelObject);
 }

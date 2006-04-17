@@ -1,6 +1,7 @@
 package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -39,6 +40,7 @@ import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.Ch
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
@@ -71,8 +73,11 @@ public class PSResourceView extends ViewPart
 	private Action addPRuleAction;
 	private Action addFilterAction;
 	
+	PolicySystemRDFModel psModel;
+	
 	public PSResourceView()
 	{
+		psModel=PolicySystemRDFModel.getInstance();
 	}
 	
 	public void createPartControl(Composite parent) 
@@ -136,7 +141,7 @@ public class PSResourceView extends ViewPart
 		
 		removeAction = new Action() {
 			public void run() {
-				
+				removeActionRun();
 			}
 		};
 		
@@ -428,6 +433,37 @@ public class PSResourceView extends ViewPart
 	}
 	
 	
+	private void removeActionRun()
+	{
+		Object input=treeView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else
+		{
+			StructuredSelection structSel=
+				(StructuredSelection)treeView.getSelection();
+			Object sel0=structSel.getFirstElement();
+			if(sel0 instanceof PSModelObject)
+			{
+				treeView.remove(sel0);
+				PSModelChangeVeto veto=psModel.removeModelObject((PSModelObject)sel0);
+				if(veto!=null)
+				{
+					System.out.println("veto:"+veto);
+					treeView.setInput(treeView.getInput());
+				}
+				else
+				{
+					//nothing
+				}
+				
+			}
+		}
+	}
+	
 	///////////////////////////////////////////////////////////////////
 	////////////////////SELCTION LISTENER//////////////////////////////
 	///////////////////////////////////////////////////////////////////
@@ -532,7 +568,15 @@ public class PSResourceView extends ViewPart
             }
             else if(element instanceof PSModelObject)
             {
-            	return ((PSModelObject)element).getLabel().getValue();
+            	String label= ((PSModelObject)element).getLabel().getValue();
+            	if(label!=null)
+            	{
+            		return label;
+            	}
+            	else
+            	{
+            		return "label"+element;
+            	}
             }
 //            else if(element instanceof PSOverridingRule)
 //            {
@@ -551,9 +595,26 @@ public class PSResourceView extends ViewPart
 	public void onPSModelChange(PSModelChangeEvent event) 
 	{
 		try {
-			//System.out.println("input="+treeView.getInput());
+			Object oldInput=treeView.getInput();
+			System.out.println("input="+oldInput);
+			if(oldInput instanceof String)
+			{
+				if(oldInput.equals(
+						PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+				{
+					//treeView.setInput(PSModelObject.class);//clear
+				}
+				else
+				{
+					treeView.setInput(oldInput);
+				}
+			}
+			else
+			{
+				treeView.setInput(oldInput);
+			}
 			//treeView.getControl().update();
-			treeView.refresh(true);
+			//treeView.refresh(true);
 			//treeView.setInput(treeView.getInput());//refresh();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -35,7 +35,7 @@ public class FileResourceSelector extends SimpleSelector
 		}
 		this.identity=identity;
 	}
-//	public boolean test(Statement arg0) {
+//	public boolean test(PSModelStatement arg0) {
 //		return false;
 //	}
 
