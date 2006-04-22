@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -19,13 +20,20 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 class PSResourceImpl implements PSResource
 {
+	
 	private Resource resource;
-	private static final Logger logger= Logger.getLogger(PSResourceImpl.class);
+	
+	private static final Logger logger= 
+				Logger.getLogger(PSResourceImpl.class);
+	
 	private String role;
+	
+	PolicySystemRDFModel psModel;
 	
 	public PSResourceImpl(Resource resource)
 	{
 		this.resource=resource;
+		this.psModel=PolicySystemRDFModel.getInstance();
 	}
 	
 	public PSModelLabel getLabel() 
@@ -76,9 +84,9 @@ class PSResourceImpl implements PSResource
 
 	public Vector getIsOverrindingRule() 
 	{
-		return PolicySystemRDFModel.getInstance().getMultipleProperty(
-							this,//resource,
-							PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
+		return psModel.getMultipleProperty(
+						this,//resource,
+						PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
 
 	public void addIsOverrindingRule(PSOverridingRule rule) 
@@ -86,7 +94,7 @@ class PSResourceImpl implements PSResource
 		resource.addProperty(
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,
 					(Resource)rule.getModelObject());
-		PolicySystemRDFModel.getInstance().addMultipleProperty(
+		psModel.addMultipleProperty(
 					resource,
 					PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES,
 					(Resource)rule.getModelObject());
@@ -94,20 +102,22 @@ class PSResourceImpl implements PSResource
 
 	public Vector getHasSuper() {
 		return
-			PolicySystemRDFModel.getInstance().getMultipleProperty(
+			psModel.getMultipleProperty(
 							this,//resource,
 							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
-	public void addHasSuper(PSModelObject parent) {
-		PolicySystemRDFModel.getInstance().addMultipleProperty(
-					resource,
-					PolicySystemRDFModel.PROP_HAS_SUPER,
-					(Resource)parent.getModelObject());
+	public void addHasSuper(PSModelObject parent) 
+	{
+		psModel.addMultipleProperty(
+				resource,
+				PolicySystemRDFModel.PROP_HAS_SUPER,
+				(Resource)parent.getModelObject());
 	}
 
-	public void addIsProtectedBy(PSPolicy policy) {
-		PolicySystemRDFModel.getInstance().addMultipleProperty(
+	public void addIsProtectedBy(PSPolicy policy) 
+	{
+		psModel.addMultipleProperty(
 				resource,
 				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
 				(Resource)policy.getModelObject());
@@ -116,14 +126,14 @@ class PSResourceImpl implements PSResource
 
 	public Vector getIsProtectedBy() {
 		return 
-			PolicySystemRDFModel.getInstance().getMultipleProperty(
-							this,//resource,
-							PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
+			psModel.getMultipleProperty(
+						this,//resource,
+						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 	}
 
 	public Vector getHasFilter()
 	{
-		return PolicySystemRDFModel.getInstance().getMultipleProperty(
+		return psModel.getMultipleProperty(
 					this,//resource,
 					PolicySystemRDFModel.PROP_HAS_FILTER);
 	}
@@ -153,5 +163,35 @@ class PSResourceImpl implements PSResource
 				PolicySystemRDFModel.PROP_HAS_FILTER,
 				(Resource)filter.getModelObject());
 		
+	}
+
+	public void removePolicy(PSPolicy policyToDel) 
+	{
+		PSModelStatement stm= 
+			new PSModelStatementImpl(
+						this,
+						Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+						policyToDel); 
+		psModel.removeStatement(stm);
+	}
+
+	public void removeFilter(PSFilter filterToRemove) 
+	{
+		PSModelStatement stm= 
+			new PSModelStatementImpl(
+						this,
+						Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER,
+						filterToRemove); 
+		psModel.removeStatement(stm);
+	}
+
+	public void removeOverriddingRule(PSOverridingRule ruleToDel) 
+	{
+		PSModelStatement stm= 
+			new PSModelStatementImpl(
+						this,
+						Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE,
+						ruleToDel); 
+		psModel.removeStatement(stm);
 	}
 }

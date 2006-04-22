@@ -93,10 +93,11 @@ public class ResourcePolicyContentProvider
 				{
 						Iterator it=filters.iterator();
 						PSFilter filter;
-						
+					
 						for(;it.hasNext();)
 						{
 							filter=(PSFilter)it.next();
+							
 							allPolicies.addAll(filter.getIsprotectedBy());
 						}
 				}

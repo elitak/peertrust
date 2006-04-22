@@ -2,6 +2,8 @@ package org.peertrust.modeler.policysystem.control;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.jmx.LayoutDynamicMBean;
@@ -14,6 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -40,9 +43,12 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
+import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -56,11 +62,17 @@ import org.peertrust.modeler.policysystem.views.ModelObjectArrayViewContentProvi
  */
 public class PSResourcePolicyEditorPage 
 							extends Page 
-							implements IDoubleClickListener	
+							implements 	IDoubleClickListener,
+										PSModelChangeEventListener
 {
+	private static final String TAB_ITEM_POLICIES_AND_FILTERS = "Policies and Filters";
+	private static final String TAB_ITEM_OVERRIDDING_RULES = "Overridding Rules";
 	private final static String PSRESOURCE_LABEL_PREFIX="Resource: ";
 	/** main container composite*/
 	private Composite composite;
+	
+	/** the tabfolder to hold the policy and overriding rules views*/
+	TabFolder tabFolder;
 	
 	/** used to show the local Policies*/
 	private TableViewer localPolicyView;
@@ -79,6 +91,14 @@ public class PSResourcePolicyEditorPage
 	 * The tree view to show the model resource overrridding rules
 	 */
 	TreeViewer oRulesTree;
+	
+	PolicySystemRDFModel psModel;
+	
+	public PSResourcePolicyEditorPage()
+	{
+		this.psModel=PolicySystemRDFModel.getInstance();
+		this.psModel.addPSModelChangeEventListener(this);
+	}
 
 	/**
 	 * @see org.eclipse.ui.part.IPage#createControl(org.eclipse.swt.widgets.Composite)
@@ -88,30 +108,7 @@ public class PSResourcePolicyEditorPage
 		
 		composite=new Composite(parent,SWT.NONE);
 		composite.setLayout(new GridLayout());
-//		composite.setLayout(new FormLayout());
-//		
-//		Composite top= new Composite(composite,SWT.NONE);
-//		Composite tableComposite= new Composite(composite,SWT.NONE);
-//		final int HEIGHT=30;
-//		
-//
-//		
-//		FormData tFD=new FormData();
-//		tFD.top=new FormAttachment(0,HEIGHT+5);//0,7);//,10,SWT.BOTTOM);
-//		tFD.left= new FormAttachment(0);
-//		tFD.right= new FormAttachment(100);
-//		tFD.bottom= new FormAttachment(100);
-//		tableComposite.setLayoutData(tFD);
-//		
-//		FormData formData= new FormData();
-//		formData.top= new FormAttachment(0,0);
-//		formData.left= new FormAttachment(0,0);
-//		formData.right= new FormAttachment(100);
-//		formData.height= HEIGHT;//new FormAttachment(5);
-//		top.setLayoutData(formData);
-		
-//		///table Composite 
-//		tableComposite.setLayout(new GridLayout());
+
 		psResourceLabel= 
 			new Label(
 					composite,//tableComposite,
@@ -130,18 +127,18 @@ public class PSResourcePolicyEditorPage
 //		Composite folderComposite= new Composite(tableComposite,SWT.NONE);
 //		folderComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 //		folderComposite.setLayout(new GridLayout());
-		TabFolder tabFolder= 
-						new TabFolder(
-								composite,//tableComposite,
-								SWT.NONE);
+		tabFolder= 
+				new TabFolder(
+						composite,//tableComposite,
+						SWT.NONE|SWT.SINGLE);
 		tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
 		TabItem tableItem= new TabItem(tabFolder,SWT.NONE);
-		tableItem.setText("Policies and Filters");
+		tableItem.setText(TAB_ITEM_POLICIES_AND_FILTERS);
 		Composite policyViewComposite=makePoliciesFiltersView(tabFolder);
 		tableItem.setControl(policyViewComposite);//localPolicyView.getControl());
 		
 		TabItem oRuleItem= new TabItem(tabFolder,SWT.NONE);
-		oRuleItem.setText("Overridding Rules");
+		oRuleItem.setText(TAB_ITEM_OVERRIDDING_RULES);
 //		Button button= new Button(tabFolder,SWT.NONE);		
 //		oRuleItem.setControl(button);
 //		button.setText("DADADADADADADADADAD");
@@ -275,31 +272,43 @@ public class PSResourcePolicyEditorPage
 	{
 		///manager
 		toolBarMng= new ToolBarManager(toolBar);
-		///
-		Action addAction = new Action() {
+		///add policy
+		Action addPolicyAction = new Action() {
 			public void run() 
 			{
-				IStructuredSelection sel=
-					(IStructuredSelection)localPolicyView.getSelection();
-				System.out.println("Sell:"+sel.getFirstElement());
+				addNewResPolicy();				
 			}
 		};
-		addAction.setText("save");
-		addAction.setToolTipText("Action 1 tooltip");
-		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		toolBarMng.add(addAction);
+		addPolicyAction.setText("P");
+		addPolicyAction.setToolTipText("Add policy");
+//		addPolicyAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+		toolBarMng.add(addPolicyAction);
 		
+		///addfilter
+		Action addFilterAction = new Action() 
+		{
+			public void run() 
+			{
+				addFilterAction();				
+			}
+		};
+		addFilterAction.setText("F");
+		addFilterAction.setToolTipText("Add Filter");
+//		addFilterAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+		toolBarMng.add(addFilterAction);
+		
+		///remove action
 		Action removeAction = new Action() {
 			public void run() {
-				
+				removeResLinkedModelObject();//removeResPolicy();
 			}
 		};
-		
 		removeAction.setText("Action 2");
-		removeAction.setToolTipText("Action 2 tooltip");
+		removeAction.setToolTipText("Remove Policy");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
 		toolBarMng.add(removeAction);
 		
 		parent.setLayout(new GridLayout());
@@ -309,6 +318,290 @@ public class PSResourcePolicyEditorPage
 		return tb;
 	}
 	
+	private void removeResLinkedModelObject()
+	{
+		TabItem[] tabItems=tabFolder.getSelection();
+		if(tabItems==null)
+		{
+			logger.warn("no tab selected");
+			return;
+		}
+		String tabItemText=tabItems[0].getText();
+		IStructuredSelection selection=null;
+		Object sel0=null;
+		if(tabItemText==null)
+		{
+			logger.warn("tabItem text is null");
+			return;
+		}
+		else if(tabItemText.equals(TAB_ITEM_POLICIES_AND_FILTERS))//localPolicyView.getControl().getVisible())
+		{
+			System.out.println("localPolicyView visible");
+			selection=(IStructuredSelection)localPolicyView.getSelection();
+			sel0=selection.getFirstElement();
+		}
+		else if(tabItemText.equals(TAB_ITEM_OVERRIDDING_RULES))//oRulesTree.getControl().getVisible())
+		{
+			selection=(IStructuredSelection)oRulesTree.getSelection();
+			sel0=selection.getFirstElement();
+			if(!(sel0 instanceof PSOverridingRule))
+			{
+				logger.info("no overriding rule selected");
+				return;
+			}
+		}
+		else
+		{
+			logger.warn("Visible view not expected tabItemText="+tabItemText);
+			return;
+		}
+		
+		//Object sel0=selection.getFirstElement();
+		System.out.println("sel0:"+sel0);
+		if(sel0==null)
+		{
+			logger.info("selection is null");
+			return;
+		}
+		else if(sel0 instanceof PSPolicy)
+		{
+			Object input=localPolicyView.getInput();
+			if(input==null)
+			{
+				return;
+			}
+			else if(input instanceof File)
+			{
+				try {
+					PSResource psRes=
+						psModel.getResource(
+								((File)input).getCanonicalPath(),true,null);
+					psRes.removePolicy((PSPolicy)sel0);
+				} catch (IOException e) {
+					logger.warn("Exception while removing a policy",e);
+				}
+				return;
+			}
+			else
+			{
+				logger.warn("can only remove policies from a psresource");
+				return;
+			}
+		}
+		else if(sel0 instanceof PSOverridingRule)
+		{
+			Object input=localPolicyView.getInput();
+			if(input==null)
+			{
+				return;
+			}
+			else if(input instanceof File)
+			{
+				try {
+					PSResource psRes=
+						psModel.getResource(
+								((File)input).getCanonicalPath(),true,null);
+					psRes.removeOverriddingRule((PSOverridingRule)sel0);
+				} catch (IOException e) {
+					logger.warn("Exception while removing a policy",e);
+				}
+				return;
+			}
+			else
+			{
+				logger.warn("can only remove policies from a psresource");
+				return;
+			}
+		}
+		else if(sel0 instanceof PSFilter)
+		{
+			Object input=localPolicyView.getInput();
+			if(input==null)
+			{
+				return;
+			}
+			else if(input instanceof File)
+			{
+				try {
+					PSResource psRes=
+						psModel.getResource(
+								((File)input).getCanonicalPath(),true,null);
+					psRes.removeFilter((PSFilter)sel0);
+				} catch (IOException e) {
+					logger.warn("Exception while removing a policy",e);
+				}
+				return;
+			}
+			else
+			{
+				logger.warn("can only remove policies from a psresource");
+				return;
+			}
+		}
+		else
+		{
+			logger.warn("Sell:"+sel0 +" class:"+sel0.getClass());
+			return;
+		}
+	}
+	
+	private void addNewResPolicy()
+	{
+		Object input=localPolicyView.getInput();
+		if(input==null)
+		{
+			logger.warn("localPolicyView input is null");
+			return;
+		}
+		else if(input instanceof File)
+		{
+			try {
+				PSResource psRes=
+					psModel.getResource(
+							((File)input).getCanonicalPath(),true,null);
+				PSPolicy pol=
+					ChooserWizardPage.choosePlicy(
+							composite.getShell());
+							
+				if(pol!=null)
+				{
+					psRes.addIsProtectedBy(pol);
+				}
+			} catch (IOException e) {
+				logger.warn("error while add policy to resource",e);
+			}
+		}
+		else
+		{
+			logger.warn(
+					"localPolicyInput:"+input+"\n\tclass="+input.getClass());
+		}
+		
+	}
+	
+	private void addNewResORule()
+	{
+		Object input=oRulesTree.getInput();
+		if(input==null)
+		{
+			logger.warn("localPolicyView input is null");
+			return;
+		}
+		else if(input instanceof File)
+		{
+			try {
+				PSResource psRes=
+					psModel.getResource(
+							((File)input).getCanonicalPath(),true,null);
+				PSOverridingRule oRules[]=
+					(PSOverridingRule[])
+						ChooserWizardPage.chooseModelObjects(
+										composite.getShell(),PSOverridingRule.class,null);
+							
+				if(oRules!=null)
+				{
+					for(int i=oRules.length-1;i>0;i--)
+					{
+						psRes.addIsOverrindingRule(oRules[i]);
+					}
+				}
+			} catch (IOException e) {
+				logger.warn("error while add policy to resource",e);
+			}
+		}
+		else if(input instanceof PSResource)
+		{
+			try {
+				PSResource psRes=(PSResource)input;
+				PSModelObject oRules[]=
+						ChooserWizardPage.chooseModelObjects(
+										composite.getShell(),PSOverridingRule.class,null);
+						
+				if(oRules!=null)
+				{
+					System.out.println("ORules:"+Arrays.asList(oRules));
+					for(int i=oRules.length-1;i>=0;i--)
+					{
+						if(oRules[i] instanceof PSOverridingRule)
+						{
+							System.out.println("mo:"+oRules[i].getModelObject());
+							psRes.addIsOverrindingRule((PSOverridingRule)oRules[i]);
+						}
+						else
+						{
+							logger.warn("Skipping since nor ORule:"+oRules[i]);
+						}
+					}
+				}
+			} catch (Exception e) {
+				logger.warn("error while add policy to resource",e);
+			}
+		}
+		else
+		{
+			logger.warn(
+					"localPolicyInput:"+input+"\n\tclass="+input.getClass());
+		}
+		
+	}
+	
+	private void addFilterAction()
+	{
+		logger.info("Adding Filter");
+		Object input=localPolicyView.getInput();
+		if(input==null)
+		{
+			logger.info("treeview input is null");
+			return;
+		}
+		else if(input instanceof File)
+		{
+			try {
+					PSResource psRes=
+						psModel.getResource(
+								((File)input).getCanonicalPath(),true,null);
+					Vector resFilters=psRes.getHasFilter();
+					String[] resFiltersNames=null;
+					logger.info("Resource filters:"+
+							"\n\tResource:"+psRes+
+							"\n\tFilters:"+resFilters);
+					if(resFilters!=null)
+					{
+						int size=resFilters.size();
+						resFiltersNames=new String[size];
+						PSFilter curFilter;
+						for(int i=0; i<size; i++)
+						{
+							curFilter=(PSFilter)resFilters.elementAt(i);
+							resFiltersNames[i]=curFilter.getLabel().getValue();
+						}
+					}
+					PSModelObject filters[]=
+							ChooserWizardPage.chooseModelObjects(
+										composite.getShell(),
+										PSFilter.class,
+										resFiltersNames);
+					if(filters!=null)
+					{
+						psRes.addHasFilter((PSFilter)filters[0]);
+						logger.info("\n\tFilters:"+
+								psRes.getHasFilter()+
+								"\n\tResource:"+psRes);
+					}
+				return;	
+			} catch (Exception e) {
+				logger.warn("error while trying to add filter to the resource");
+				return;
+			}
+		}
+		else
+		{
+			logger.warn(
+					"cannot handle input of this art:"+input+
+					"\n\tclass="+input.getClass());
+			return;
+		}
+	}
 	
 	private Composite makeORuleView(Composite parent)
 	{
@@ -348,28 +641,29 @@ public class PSResourcePolicyEditorPage
 		Action addAction = new Action() {
 			public void run() 
 			{
-				IStructuredSelection sel=
-					(IStructuredSelection)localPolicyView.getSelection();
-				System.out.println("Sell:"+sel.getFirstElement());
+//				IStructuredSelection sel=
+//					(IStructuredSelection)localPolicyView.getSelection();
+//				System.out.println("Sell:"+sel.getFirstElement());
+				addNewResORule();
 				
 			}
 		};
-		addAction.setText("save");
-		addAction.setToolTipText("Action 1 tooltip");
+		addAction.setText("add orule");
+		addAction.setToolTipText("add overriding rule");
 		addAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+			getImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
 		toolBarMng.add(addAction);
 		
 		Action removeAction = new Action() {
 			public void run() {
-				
+				removeResLinkedModelObject();
 			}
 		};
 		
-		removeAction.setText("Action 2");
-		removeAction.setToolTipText("Action 2 tooltip");
+		removeAction.setText("rm orule");
+		removeAction.setToolTipText("remove overriding rule");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
 		toolBarMng.add(removeAction);
 		
 		parent.setLayout(new GridLayout());
@@ -381,8 +675,8 @@ public class PSResourcePolicyEditorPage
 	
 	public void onPSModelChange(PSModelChangeEvent event) 
 	{
-		oRulesTree.setInput(oRulesTree.getInput());
-		localPolicyView.setInput(localPolicyView.getInput());
+		//oRulesTree.setInput(oRulesTree.getInput());
+		//localPolicyView.setInput(localPolicyView.getInput());
 	}
 
 	/**
@@ -398,6 +692,7 @@ public class PSResourcePolicyEditorPage
 		{
 			IStructuredSelection ssel= (IStructuredSelection)sel;
 			Object ele0=ssel.getFirstElement();
+			
 			if(ele0==null)
 			{
 				logger.warn("first selection is null");
@@ -405,17 +700,36 @@ public class PSResourcePolicyEditorPage
 			}
 			else if(ele0 instanceof PSPolicy)
 			{
-				PSPolicyEditDialog dlg=
-					new PSPolicyEditDialog(composite.getShell(),PSPolicy.class);
-				dlg.create();
-				dlg.setModelObject((PSPolicy)ele0);
-				dlg.open();
+				PSModelObject guarded=((PSPolicy)ele0).getGuarded();
+				logger.info("ele0:"+ele0+" guarded:"+guarded);
+				if(guarded instanceof PSFilter)
+				{
+					PSModelObjectEditDialog dlg=
+						new PSModelObjectEditDialog(
+								composite.getShell(),
+								PSFilter.class);
+					dlg.create();
+					dlg.setModelObject((PSFilter)guarded);
+					dlg.open();
+				}
+				else
+				{
+					PSModelObjectEditDialog dlg=
+						new PSModelObjectEditDialog(
+									composite.getShell(),
+									PSPolicy.class);
+					dlg.create();
+					dlg.setModelObject((PSPolicy)ele0);
+					dlg.open();
+				}
 			}
 			else if(ele0 instanceof PSOverridingRule)
 			{
 				//logger.warn("oRule not supported jet");
-				PSPolicyEditDialog dlg=
-					new PSPolicyEditDialog(composite.getShell(),PSOverridingRule.class);
+				PSModelObjectEditDialog dlg=
+					new PSModelObjectEditDialog(
+								composite.getShell(),
+								PSOverridingRule.class);
 				dlg.create();
 				dlg.setModelObject((PSOverridingRule)ele0);
 				dlg.open();

@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
@@ -16,7 +17,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
  * @author pat_dev
  *
  */
-public class PSPolicyEditDialog extends TitleAreaDialog 
+public class PSModelObjectEditDialog extends TitleAreaDialog 
 {
 	
 	private PSModelObjectEditControl editorControl;
@@ -26,7 +27,7 @@ public class PSPolicyEditDialog extends TitleAreaDialog
 	 * 
 	 * @param parentShell
 	 */
-	public PSPolicyEditDialog(Shell parentShell, Class modelObjectType) 
+	public PSModelObjectEditDialog(Shell parentShell, Class modelObjectType) 
 	{
 		super(parentShell);
 		this.modelObjectType=modelObjectType;
@@ -37,6 +38,14 @@ public class PSPolicyEditDialog extends TitleAreaDialog
 		else if(modelObjectType==PSOverridingRule.class)
 		{
 			editorControl=new PSOverriddingRuleEditControl();
+		}
+		else if(modelObjectType==PSFilter.class)
+		{
+			editorControl=new PSFilterEditorControl();
+		}
+		else
+		{
+			//empty
 		}
 		
 	}

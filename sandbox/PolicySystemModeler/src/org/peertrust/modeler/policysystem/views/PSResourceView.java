@@ -113,9 +113,9 @@ public class PSResourceView extends ViewPart
 				treeView.getControl(),
 				treeView,
 				"");
-		PolicySystemRDFModel rdfModel=
-						PolicySystemRDFModel.getInstance();
-		rdfModel.addPSModelChangeEventListener(this);
+//		PolicySystemRDFModel rdfModel=
+//						PolicySystemRDFModel.getInstance();
+		psModel.addPSModelChangeEventListener(this);
 		
 	}
 
@@ -213,7 +213,7 @@ public class PSResourceView extends ViewPart
 					if(sel0 instanceof File)
 					{
 						PSResource psRes=
-							PolicySystemRDFModel.getInstance().getResource(
+							psModel.getResource(
 									((File)sel0).getCanonicalPath(),true,null);
 						PSPolicy pol=
 							ChooserWizardPage.choosePlicy(
@@ -263,7 +263,7 @@ public class PSResourceView extends ViewPart
 					else if(sel0 instanceof File)
 					{
 						PSResource psRes=
-							PolicySystemRDFModel.getInstance().getResource(
+							psModel.getResource(
 									((File)sel0).getCanonicalPath(),true,null);
 						Vector resFilters=psRes.getHasFilter();
 						String[] resFiltersNames=null;
@@ -338,7 +338,7 @@ public class PSResourceView extends ViewPart
 					else if(sel0 instanceof File)
 					{
 						PSResource psRes=
-							PolicySystemRDFModel.getInstance().getResource(
+							psModel.getResource(
 									((File)sel0).getCanonicalPath(),true,null);
 						PSModelObject rules[]=
 								ChooserWizardPage.chooseModelObjects(
@@ -388,9 +388,9 @@ public class PSResourceView extends ViewPart
 			{
 				try {
 					long time=System.currentTimeMillis();
-					PolicySystemRDFModel.getInstance().createPolicy(
-																"label"+time,
-																"value"+time);
+					psModel.createPolicy(
+										"label"+time,
+										"value"+time);
 					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();
@@ -401,10 +401,10 @@ public class PSResourceView extends ViewPart
 			{
 				try {
 					long time=System.currentTimeMillis();
-					PolicySystemRDFModel.getInstance().createFilter(
-														"label"+time,
-														new String[]{"value"+time},
-														new PSPolicy[]{});
+					psModel.createFilter(
+									"label"+time,
+									new String[]{"value"+time},
+									new PSPolicy[]{});
 					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();
@@ -415,10 +415,10 @@ public class PSResourceView extends ViewPart
 			{
 				try {
 					long time=System.currentTimeMillis();
-					PolicySystemRDFModel.getInstance().createOverriddingRule(
-														"label"+time,
-														(PSPolicy)null,
-														(PSPolicy)null);
+					psModel.createOverriddingRule(
+											"label"+time,
+											(PSPolicy)null,
+											(PSPolicy)null);
 					//treeView.refresh();
 				} catch (RuntimeException e) {
 					e.printStackTrace();

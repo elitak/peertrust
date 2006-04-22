@@ -449,8 +449,8 @@ public class PSOverriddingRuleEditorPage
 			}
 			else if(ele0 instanceof PSPolicy)
 			{
-				PSPolicyEditDialog dlg=
-					new PSPolicyEditDialog(parent.getShell(),PSPolicy.class);
+				PSModelObjectEditDialog dlg=
+					new PSModelObjectEditDialog(parent.getShell(),PSPolicy.class);
 				dlg.create();
 				dlg.setModelObject((PSPolicy)ele0);
 				dlg.open();

@@ -157,5 +157,7 @@ public interface PSPolicySystem
 						PSModelObject psModelObject, 
 						Class linkedObectjType);
 	
+	public PSModelChangeVeto removeStatement(PSModelStatement psStm);
+	
 	public PSModelChangeVeto removeModelObject(PSModelObject psModelObject);
 }
