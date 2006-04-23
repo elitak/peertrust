@@ -44,11 +44,11 @@ import org.peertrust.strategy.*;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreter.java,v 1.21 2005/08/10 12:02:43 dolmedilla Exp $
+ * $Id: MetaInterpreter.java,v 1.22 2006/04/23 23:07:39 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/10 12:02:43 $
+ * Last changed: $Date: 2006/04/23 23:07:39 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -85,7 +85,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.21 2005/08/10 12:02:43 dolmedilla Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.22 2006/04/23 23:07:39 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -257,6 +257,12 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			return ;
 		}
 
+/*		String requester ;
+		if (selectedTree.getRequester() == null)
+			requester = null ;
+		else
+			requester = selectedTree.getRequester().getAlias() ; */
+		
 		// we create the appropriate logic query for the selected tree 
 		LogicQuery logicQuery = new LogicQuery(selectedTree.getGoal(), selectedTree.getResolvent(), selectedTree.getRequester().getAlias()) ;
 

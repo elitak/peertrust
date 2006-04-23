@@ -40,11 +40,11 @@ import org.peertrust.net.Query ;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.14 2006/01/18 11:03:25 dolmedilla Exp $
+ * $Id: TrustClient.java,v 1.15 2006/04/23 23:07:17 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2006/01/18 11:03:25 $
+ * Last changed: $Date: 2006/04/23 23:07:17 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -121,7 +121,8 @@ public class TrustClient implements PTEventListener, Configurable
 		}
 
 		_id = 0 ;
-		_queries = new Hashtable() ;		
+		_queries = new Hashtable() ;
+		setAlias(DEFAULT_ALIAS) ;
 	}
 
 	private void checkValidTrustClient () throws NullPointerException
@@ -289,7 +290,7 @@ public class TrustClient implements PTEventListener, Configurable
 		
 		String USAGE_MESSAGE = "Usage: program <configFile> <queryString>" ;
 		int USAGE_RETURN_ERROR = 1 ; 
-		String DEFAULT_QUERY = "request(spanishCourse,Session) @ elearn" ;
+		String DEFAULT_QUERY = "'@'(request(spanishCourse,Session),elearn)" ;
 		
 		String defaultConfigFile = "file:peertrustConfig.rdf" ;
 		String [] defaultComponents = { Vocabulary.PeertrustEngine.toString() } ;

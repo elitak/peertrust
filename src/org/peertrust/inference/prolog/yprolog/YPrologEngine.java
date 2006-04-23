@@ -40,11 +40,11 @@ import org.peertrust.net.Peer;
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngine.java,v 1.4 2006/04/23 22:07:13 dolmedilla Exp $
+ * $Id: YPrologEngine.java,v 1.5 2006/04/23 23:07:01 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/04/23 22:07:13 $
+ * Last changed: $Date: 2006/04/23 23:07:01 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -68,7 +68,7 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 	public YPrologEngine ()
 	{
 		super() ;
-		log.debug("$Id: YPrologEngine.java,v 1.4 2006/04/23 22:07:13 dolmedilla Exp $");
+		log.debug("$Id: YPrologEngine.java,v 1.5 2006/04/23 23:07:01 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -194,6 +194,8 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 //		PrologTerm oldQuery = PrologTools.getTerm(query) ;
 //		PrologTerm newQuery = PrologTools.getTerm(unifiedGoal) ;
 
+		log.debug("unification(" + query + "," + unifiedGoal + ",Result)") ;
+		
 		String[] result = _engine.queryToTable("unification(" + query + "," + unifiedGoal + ",Result)") ;
 		if (result == null)
 		{
@@ -203,7 +205,7 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 		
 		PrologTerm term ;
 		try {
-			term = PrologTools.getTerm(result[1]) ;
+			term = PrologTools.getTerm(result[0]) ;
 		} catch (ParseException e) {
 			throw new InferenceEngineException(e) ;
 		}
@@ -212,11 +214,13 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 			throw new InferenceEngineException("Resulting value '" + term + "' is wrong") ;
 		else
 		{
+			log.debug("Term: " + term) ;
+			
 			PrologCompoundTerm t = (PrologCompoundTerm) term;
 			
 			tree.setLastExpandedGoal(null) ;
 			tree.setGoal(t.getArg(0).getText()) ;
-			tree.setResolvent(t.getArg(1).getText()) ;
+			tree.setResolvent(t.getArg(2).getText()) ;
 		}
 
 	}
@@ -238,6 +242,8 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 		checkEngine() ;
 		
 		String query = VALIDATE_PREDICATE + "(" + goal + "," + prover.getAlias() + "," + proof.toString() + ")" ;
+		
+		log.debug("Validate: " + query) ;
 		
 		return execute(query) ;
 	}

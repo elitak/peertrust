@@ -4,9 +4,9 @@
 
 % example(access(url)).
 
-rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
-rule(validClient(localhost,'http://result1'), [],[]).
-rule(validClient(localhost,'http://result2'), [],[]).
+%rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+%rule(validClient(localhost,'http://result1'), [],[]).
+%rule(validClient(localhost,'http://result2'), [],[]).
 
 % ---------------------------------------
 % query, rules and facts for example 7
@@ -33,17 +33,17 @@ internal(get_record(project7, document_data), [], []).
 % ---------------------------------------
 % Semantic Web paper example
 
-rule(request(Course,Session) $ Requester,
-     [policy2(request(Course),Requester)],
-     [get(Course,Session)]).
+%rule('$'(request(Course,Session),Requester),
+%     [policy2(request(Course),Requester)],
+%     [get(Course,Session)]).
 
-rule(request(Course,Session) $ Requester,
+rule('$'(request(Course,Session),Requester),
      [policy1(request(Course),Requester)],
      [get(Course,Session)]).
 
 rule(policy1(request(spanishCourse),Requester),
-     [drivingLicense(Requester) @ caState @ Requester,
-      policy3(request(Course),Requester)],
+     ['@'('@'(drivingLicense(Requester),caState),Requester),
+      policy3(request(spanishCourse),Requester)],
      []).
 
 rule(policy1(request(germanCourse),_),
@@ -51,26 +51,26 @@ rule(policy1(request(germanCourse),_),
      []).
 
 rule(policy2(request(Course),Requester),
-     [student(Requester) @ naplesUniversity @ Requester],
+     ['@'('@'(student(Requester),naplesUniversity), Requester)],
      []).
 
 rule(policy2(request(Course),Requester),
-     [student(Requester) @ hanoverUniversity @ Requester],
+     ['@'('@'(student(Requester),hanoverUniversity),Requester)],
      []).
 
 rule(policy3(request(Course),Requester),
-     [policeOfficer(Requester) @ caStatePolice @ Requester],
+     ['@'('@'(policeOfficer(Requester), caStatePolice), Requester)],
      []).
 
 rule(policy3(request(Course),Requester),
-     [employee(Requester) @ caStatePolice @ Requester],
+     ['@'('@'(employee(Requester), caStatePolice), Requester)],
      []).
 
-signed(rule(bbbMember(eLearn) @ bbb, [], []),
+signed(rule('@'(bbbMember(eLearn),bbb), [], []),
             bbb, signature(bbb)).
 
-policy(bbbMember(eLearn) @ bbb $ Requester,
-     [drivingLicense(Requester) @ caState @ Requester]).
+policy('$'('@'(bbbMember(eLearn),bbb), Requester),
+     ['@'('@'(drivingLicense(Requester), caState),Requester)]).
 
 internal(get(spanishCourse,session1),[],[]).
 
@@ -79,6 +79,6 @@ internal(get(germanCourse,session2),[],[]).
 %---------------------------------------
 % Pharmaceutical example
 
-rule( orderDrugs(Drug,Requester)$Requester, [], [isPharmacy(Requester)@fda@Requester] ).
+%rule( orderDrugs(Drug,Requester)$Requester, [], [isPharmacy(Requester)@fda@Requester] ).
 
-signed( rule( isPharmaceuticalCo(elearn)@fda, [], [] ), fda, signature( fda ) ).
+%signed( rule( isPharmaceuticalCo(elearn)@fda, [], [] ), fda, signature( fda ) ).

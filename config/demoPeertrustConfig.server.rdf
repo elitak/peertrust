@@ -79,12 +79,13 @@
 	Inference Engine
 	================================================================== -->
 	<pt:InferenceEngine rdf:about="#InferenceEngine">
-		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
+		<pt:javaClass>org.peertrust.inference.prolog.yprolog.YPrologEngine</pt:javaClass>
+		<!--<pt:javaClass>org.peertrust.inference.prolog.minerva.MinervaProlog</pt:javaClass>-->
 		<!--<pt:baseFolder>${user.home}/trust/</pt:baseFolder> -->
 		<pt:baseFolder>${user.dir}/</pt:baseFolder>
-		<pt:prologFiles>demoPolicies.eLearn</pt:prologFiles>
+		<pt:prologFiles>basics.P:tools.P:interpreter.P:demoPolicies.eLearn</pt:prologFiles>
 		<pt:rdfFiles></pt:rdfFiles>
-		<pt:license>minervagui.mca</pt:license>
+		<!--<pt:license>minervagui.mca</pt:license> -->
 		<pt:debugMode>true</pt:debugMode>
 	</pt:InferenceEngine>
 

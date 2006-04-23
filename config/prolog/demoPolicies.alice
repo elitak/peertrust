@@ -4,11 +4,11 @@
 
 % example(access(url)).
 
-rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+%rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
 %rule(validClient(alice,'http://result1'), [],[]).
 %rule(validClient(alice,'http://result2'), [],[]).
-rule(validClient(alice,result1), [],[]).
-rule(validClient(alice,result2), [],[]).
+%rule(validClient(alice,result1), [],[]).
+%rule(validClient(alice,result2), [],[]).
 
 
 % ---------------------------------------
@@ -16,29 +16,29 @@ rule(validClient(alice,result2), [],[]).
 
 % alice has an employee ID
 
-signed(rule(employee(alice, microsoft) @ microsoft, [], []),
-            microsoft, signature(microsoft)).
+%signed(rule(employee(alice, microsoft) @ microsoft, [], []),
+%            microsoft, signature(microsoft)).
 
 % ---------------------------------------
 % Semantic Web paper example
 
-signed(rule(drivingLicense(alice) @ caState, [], []),
+signed(rule('@'(drivingLicense(alice),caState), [], []),
             caState, signature(caState)).
 
-signed(rule(policeOfficer(alice) @ caStatePolice, [], []),
+signed(rule('@'(policeOfficer(alice),caStatePolice), [], []),
             caStatePolice, signature(caStatePolice)).
 
-policy(policeOfficer(alice) @ caStatepolice $ Requester,
-            [bbbMember(Requester) @ bbb @ Requester]).
+policy('$'('@'(policeOfficer(alice),caStatepolice), Requester),
+            ['@'('@'(bbbMember(Requester),bbb), Requester)]).
 
 
 %---------------------------------------
 % Pharmaceutical example
 
-signed( rule( isPharmacy(alice)@fda, [], [] ), fda, signature( fda ) ).
+%signed( rule( isPharmacy(alice)@fda, [], [] ), fda, signature( fda ) ).
 
-policy( isPharmacy(X)@fda, [isPharmacy(X)@massBP] ).
+%policy( isPharmacy(X)@fda, [isPharmacy(X)@massBP] ).
 
-signed( rule( isPharmacy(alice)@massBP$_Requester, [], [] ), massBP, signature( massBP ) ).
+%signed( rule( isPharmacy(alice)@massBP$_Requester, [], [] ), massBP, signature( massBP ) ).
 
-policy( isPharmacy(alice)@massBP$Requester, [isPharmaceuticalCo(Requester)@fda@Requester] ).
+%policy( isPharmacy(alice)@massBP$Requester, [isPharmaceuticalCo(Requester)@fda@Requester] ).

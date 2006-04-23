@@ -59,9 +59,10 @@ processTree(tree(_Goal,_Resolvent,_Requester),[]) :-
 %	log_info(['Evaluation finished']).
 
 % -- Version without findall - Results returned separately
-processTree(tree(Goal,Resolvent,Requester),Results) :-
+processTree(tree(Goal,Resolvent,Requester),resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator)) :-
 	log_info(['Starting evaluation']),
 	evaluate(tree(Goal,Resolvent,Requester),resultTree(FinalGoal,NewResolvent,Proof,Trace,RemoteGoal,Delegator)),
+	log_debug(['resultTree(',FinalGoal,',',NewResolvent,',',Proof,',',Trace,',',RemoteGoal,',',Delegator,')']),
 	log_info(['Evaluation finished']).
 
 evaluate(tree(Goal,[],_Requester),resultTree(Goal,[],[],[],nil,nil)) :- !,
@@ -73,8 +74,8 @@ evaluate(tree(Goal,Resolvent,Requester),resultTree(Goal,FinalResolvent,FinalProo
 	evaluateQuery(tree(Goal,Query,Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)),
 	log_debug(['Query ', Query,' evaluated. NewQueries: ', NewQueries]),
 	append(NewQueries,RestResolvent,NewResolvent),
-%	( ( Delegator == nil, \+(NewQueries == []) )
-	( ( Delegator == nil )
+%	( ( Delegator = nil, \+(NewQueries = []) )
+	( ( Delegator = nil )
 	->
 	    log_debug(['Delegator = nil']),
 	    log_extra(['New call to evaluate with ',tree(Goal,NewResolvent,Requester)]),
@@ -122,7 +123,7 @@ createTrace(_NewFact,_InternalRule,[]).
 % simplify 'Goal @ Issuer @ Issuer' to 'Goal @ Issuer'
 evaluateQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)) :-
 	log_extra(['Can ',SubGoal,' be simplified?']),
-	SubGoal == '@'('@'(G, Issuer), Issuer),
+	SubGoal = '@'('@'(G, Issuer), Issuer),
 	!,
 	log_debug(['Simplifying ',SubGoal]),
 	evaluateQuery(tree(Goal,query('@'(G, Issuer),Internal),Requester),resultTree(Goal,NewQueries,Proof,Trace,RemoteGoal,Delegator)).
@@ -199,7 +200,7 @@ localQuery(tree(Goal,query(SubGoal,Internal),Requester),resultTree(Goal,NewQueri
 	append(NewListQueries2,NewListQueries,NewQueries),
 	createProof(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Proof1),
 	createTrace(signed(rule(SubGoal,Guard,Body),Issuer,Credential),Internal,Trace1),
-	( (ExtraGuards == [])
+	( (ExtraGuards = [])
 	->
 	    Proof = Proof1,
 	    Trace = Trace1
@@ -273,7 +274,7 @@ validateProof(Goal,Peer,Proof) :-
 	validate([Goal],Peer,Requester).
 
 removeProof :-
-	retractall(proof(_)).
+	retractall(proof/1).
 
 insertProof([]).
 insertProof([F|R]) :-

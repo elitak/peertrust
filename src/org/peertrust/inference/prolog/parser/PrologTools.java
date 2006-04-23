@@ -29,11 +29,11 @@ import org.peertrust.inference.prolog.yprolog.*;
  * <p>
  * 
  * </p><p>
- * $Id: PrologTools.java,v 1.1 2006/01/25 16:07:45 dolmedilla Exp $
+ * $Id: PrologTools.java,v 1.2 2006/04/23 23:07:01 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/01/25 16:07:45 $
+ * Last changed: $Date: 2006/04/23 23:07:01 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -58,6 +58,8 @@ public class PrologTools {
 		return prologTerm ;
 	}
 	
+	
+	// Structure from yprolog Term.toString()
 	static PrologTerm term2prologTerm(Term term)
 	{
 		//String s ;
@@ -126,7 +128,9 @@ public class PrologTools {
 	                    //s = s + term.getarg(arity-1).toString() + ")";
 	                    
 	                    //prologTerm = new PrologTerm (PrologTerm.COMPOUND_TERM, functor, args.size(), (PrologTerm[])args.toArray()) ;
-	                    return new PrologCompoundTerm (functor, args.size(), args.toArray(new PrologTerm[0]), term.toString()) ;
+	                    log.debug ("Functor: " + functor + " - size: " + args.size()) ;
+	                    
+	                    return new PrologCompoundTerm (YProlog.addQuotes(functor,false), args.size(), args.toArray(new PrologTerm[0]), term.toString()) ;
 	                }
 	            }
         	}
