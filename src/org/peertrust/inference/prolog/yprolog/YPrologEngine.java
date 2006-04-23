@@ -40,11 +40,11 @@ import org.peertrust.net.Peer;
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngine.java,v 1.3 2006/04/14 21:17:41 dolmedilla Exp $
+ * $Id: YPrologEngine.java,v 1.4 2006/04/23 22:07:13 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/04/14 21:17:41 $
+ * Last changed: $Date: 2006/04/23 22:07:13 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -68,7 +68,7 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 	public YPrologEngine ()
 	{
 		super() ;
-		log.debug("$Id: YPrologEngine.java,v 1.3 2006/04/14 21:17:41 dolmedilla Exp $");
+		log.debug("$Id: YPrologEngine.java,v 1.4 2006/04/23 22:07:13 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -76,28 +76,40 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 		
 		_engine = new YProlog() ;
 		
-		if (_prologFiles != null)
+		try
 		{
-			StringTokenizer filesString;
-			String tmp ;
+			if (_debugMode)
+				insert("debug_extra") ;
 			
-			filesString = new StringTokenizer(_prologFiles,FILE_SEPARATOR) ;
-			while (filesString.hasMoreTokens())
+			if (_prologFiles != null)
 			{
-				tmp = _baseFolder + filesString.nextToken() ;
-
-				/*	MinervaAtom atom ;
-				if (isApplet())
-					atom = new MinervaAtom("file://" + tmp) ;
-				else
-					atom = new MinervaAtom(tmp) ;
-					*/
+				StringTokenizer filesString;
+				String tmp ;
 				
-				log.debug("Loading file " + tmp + " into the inference engine") ;
-				_engine.consultFile(tmp) ;
-				log.debug("File " + tmp + " loaded") ;
+				filesString = new StringTokenizer(_prologFiles,FILE_SEPARATOR) ;
+				while (filesString.hasMoreTokens())
+				{
+					tmp = _baseFolder + filesString.nextToken() ;
+	
+					/*	MinervaAtom atom ;
+					if (isApplet())
+						atom = new MinervaAtom("file://" + tmp) ;
+					else
+						atom = new MinervaAtom(tmp) ;
+						*/
+					
+					log.debug("Loading file " + tmp + " into the inference engine") ;
+					//_engine.consultFile(tmp) ;
+					consultFile(tmp) ;
+					log.debug("File " + tmp + " loaded") ;
+				}
 			}
 		}
+		catch (InferenceEngineException e)
+		{
+			throw new ConfigurationException(e) ;
+		}
+	
 		if (_rdfFiles != null)
 			log.warn("PeerTrust using YProlog does not yet support RDF files") ;
 	}
@@ -117,7 +129,7 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 		log.debug ("Query: " + query) ;
 
 		Vector results = _engine.queryToTable("processTree(" + query + ",Result)",0,true) ;
-
+		
 		if (results == null)
 		{
 			log.debug("No answers") ;
@@ -137,6 +149,8 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 			result = (String []) results.elementAt(i) ;
 			
 			try {
+				for (int j = 0 ; j < result.length ; j++)
+					log.debug("Term: " + result[j]) ;
 				term = PrologTools.getTerm(result[1]) ;
 			} catch (ParseException e) {
 				throw new InferenceEngineException(e) ;
@@ -158,6 +172,8 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 												t.getArg(2).getText(),
 												t.getArg(3).getText(),
 												delegator) ;
+				
+				log.debug("Answer: " + answers[i]) ;
 			}
 		}
 

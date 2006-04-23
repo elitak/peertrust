@@ -8,12 +8,12 @@
 options {
     LOOKAHEAD = 1;
     STATIC = false;
+	UNICODE_INPUT=true;
 }
 
 PARSER_BEGIN(Parser)
 
 package org.peertrust.inference.prolog.yprolog;
-
 import java.util.*;
 import java.io.StringReader;
  
@@ -111,9 +111,10 @@ TOKEN : /* Function names */
         < VAR:      ( (<HICASE> |  "_" )  ( <ANYCHAR> )* ) >
   |     < ATOM:     ( <LOCASE>) ( <ANYCHAR> )*  >
   
-  |     < #ANYCHAR: ( <LOCASE> | <HICASE> | <DIGIT> | "_" ) > 
+  |     < #ANYCHAR: ( <LOCASE> | <HICASE> | <EXTENDED> | <DIGIT> | "_" ) > 
   |     < #LOCASE: ["a"-"z"] > 
   |     < #HICASE: ["A"-"Z"] > 
+  |     < #EXTENDED: ["\u0080"-"\u00ff"] > 
 } 
 
 

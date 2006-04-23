@@ -1,53 +1,14 @@
-/**
-* This class is distributed under the revised BSD license.
-* 
-* Copyright (c) 1996-2005 by:
-* Michael Winikoff, RMIT University, Melbourne, Australia
-* Jean Vaucher, Montreal university, Canada
-* Boris van Schooten, University of Twente, Netherlands
-* All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-* 
-*     * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright notice,
-*       this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the organizations nor the names of its contributors
-*       may be used to endorse or promote products derived from this software
-*       without specific prior written permission.
-* 
-* * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
 package org.peertrust.inference.prolog.yprolog;
 
+import java.lang.*;
 import java.util.*;
 import java.io.*;
 
+import java.awt.Rectangle;
 import java.lang.reflect.*;
 
 /** The interface to the YProlog interpreter.   
 */
-/**
- * @author olmedilla
- *
- */
-/**
- * @author olmedilla
- *
- */
 public class YProlog {
 
     public static String VERSION =
@@ -67,7 +28,7 @@ public class YProlog {
 		type_conv_ids.put("[Ljava.lang.String;",new Integer(9));
 	}
 
-	Engine yp_eng=null;
+	org.peertrust.inference.prolog.yprolog.Engine yp_eng=null;
 
 	/** Create new engine with empty environment.
 	*/
@@ -79,9 +40,10 @@ public class YProlog {
 		}
 	}
 
-	/** Add statements to Prolog environment.
+	/** Add statements to Prolog environment.  Does nothing if null passed.
 	*/
 	public void consult(String statements) {
+		if (statements==null) return;
 		try {
 			yp_eng.consultStringFront(statements);
 		} catch (ParseException e) {
@@ -100,29 +62,60 @@ public class YProlog {
 	}
 
 	/** Quick method for asserting a single fact from a functor string and a
-	 * list of string parameters, Vector version.
+	 * list of unquoted string parameters, Vector version.
 	 */
 	public void assertFact(String functor, Vector params) {
     	Term [] par_terms = new Term [params.size()];
 		int i=0;
 		for (Enumeration e=params.elements(); e.hasMoreElements(); i++) {
 			String par = (String) e.nextElement();
-			par_terms[i] = new Term(par,0);
+			par_terms[i] = stringToAtom(par);
 		}
 		yp_eng.db.addClauseFront(
 			new Clause(new Term(functor, par_terms), null) );
 	}
 
 	/** Quick method for asserting a single fact from a functor string and a
-	 * list of string parameters, array version.
+	 * list of unquoted string parameters, array version.
 	 */
 	public void assertFact(String functor, String [] params) {
     	Term [] par_terms = new Term [params.length];
 		for (int i=params.length-1; i>=0; i--) {
-			par_terms[i] = new Term(params[i],0);
+			par_terms[i] = stringToAtom(params[i]);
 		}
 		yp_eng.db.addClauseFront(
 			new Clause(new Term(functor, par_terms), null) );
+	}
+
+	/** Convert string to appropriate atom, either a Term or a Number.
+	* XXX what about Cut?
+	*/
+	private Term stringToAtom(String termstr) {
+		try {
+			int term_number = Integer.parseInt(termstr);
+			if (term_number >= 0) {
+				return new Number(term_number);
+			} else {
+				// can't handle negative numbers
+				return new Term(termstr,0);
+			}
+		} catch (NumberFormatException e) {
+			return new Term(termstr,0);
+		}
+	}
+
+
+	/** Assert Vector of arrays of String parameters as facts with given
+	* functor. The input Vector is equivalent to the output given by
+	* queryToTable.  Does nothing is items=null.
+	* @see #queryToTable(String,int,boolean)
+	*/ 
+	public void assertTable(String functor, Vector items) {
+		if (items==null) return;
+		for (Enumeration e=items.elements(); e.hasMoreElements(); ) {
+			String [] params = (String []) e.nextElement();
+			assertFact(functor,params);
+		}
 	}
 
 
@@ -214,13 +207,44 @@ public class YProlog {
 	* objects are assumed to have the PrologObject interface.  The
 	* toPrologTable method is used to convert each object to a parameter
 	* list.  The fact with given functor and thus obtained parameters is
-	* asserted.  Does nothing if objects==null.
+	* asserted.  Does nothing if objects==null. This method is faster if all
+	* toPrologTable return values are atoms (type "a").
 	*/
 	public void assertObjects(String functor,Vector objects){
 		if (objects==null) return;
 		for (Enumeration e=objects.elements(); e.hasMoreElements(); ) {
 			PrologObject obj = (PrologObject) e.nextElement();
-			assertFact(functor, obj.toPrologTable());
+			String [] param = obj.toPrologTable();
+			// find out if all parameters are of type "a".
+			boolean atoms_only=true;
+			for (int i=0; i<param.length; i++) {
+				if (param[i].charAt(0) != 'a') {
+					atoms_only=false;
+					break;
+				}
+			}
+			if (!atoms_only) {
+				StringBuffer statement = new StringBuffer(functor);
+				statement.append("(");
+				//String [] parseparam = new String [param.length];
+				for (int i=0; i<param.length; i++) {
+					char paramtype = param[i].charAt(0);
+					if (paramtype == 'a') { // atom
+						statement.append(addQuotesQuick(param[i].substring(1)));
+					} else if (paramtype == 'e') { // expression
+						statement.append(param[i].substring(1));
+					} else {
+						System.out.println("assertObjects warning: unknown"
+						+" parameter type '"+paramtype+"'.");
+						statement.append("'UNKNOWN'");
+					}
+					if (i<param.length-1) statement.append(",");
+				}
+				statement.append(").");
+				consult(statement.toString());
+			} else {
+				assertFact(functor, param);
+			}
 		}
 	}
 
@@ -233,6 +257,7 @@ public class YProlog {
 		yp_eng.clauses_to_delete = new Vector(40,80);
 		if (query(goal)==null) return;
 		while (yp_eng.more()) ;
+		//System.out.println(yp_eng.clauses_to_delete);
 		for (Enumeration e=yp_eng.clauses_to_delete.elements();
 		e.hasMoreElements(); ) {
 			TermList elem_del = (TermList) e.nextElement();
@@ -536,7 +561,15 @@ public class YProlog {
 				// strings. Maybe do something else later.
 				res[i] = argterm.toString();
 			} else {
+				// here, we want the unquoted String.  We can return the
+				// functor, however, note that the empty list, [], is returned
+				// as its literal atom, "null".
 				res[i] = argterm.getFunctor();
+				if (res[i]==null) {
+					// XXX fix this!!
+					System.out.println(
+					"buildResult: null functor, probably unbound variable" );
+				}
 			}
 		}
 		return res;
@@ -591,15 +624,19 @@ public class YProlog {
 				}
 			break;
 			case 1: /* byte */
+				res = stripQuotes(res);
 				res_obj=new Byte(Byte.parseByte(res));
 			break;
 			case 2: /* short */
+				res = stripQuotes(res);
 				res_obj=new Short(Short.parseShort(res));
 			break;
 			case 3: /* int */
+				res = stripQuotes(res);
 				res_obj=new Integer(Integer.parseInt(res));
 			break;
 			case 4: /* long */
+				res = stripQuotes(res);
 				res_obj=new Long(Long.parseLong(res));
 			break;
 			case 5: /* float */
@@ -654,9 +691,16 @@ public class YProlog {
 		Vector arr = new Vector(20,50);
 		boolean inside_quotes=false;
 		boolean stuff_in_buffer=false;
+		if (prologlist==null) {
+			System.out.println("Warning: null string!");
+		}
+		if (prologlist.equals("null")) { // the empty list
+			return new String [0];
+		}
 		if (!(prologlist.charAt(0) == '[')
 		||  !(prologlist.charAt(prologlist.length()-1) == ']') ) {
-			System.out.println("Warning: can't find list brackets!");
+			System.out.println("Warning: can't find list brackets in: '"
+				+prologlist+"'.");
 		} else {
 			prologlist = prologlist.substring(1, prologlist.length()-1);
 		}
@@ -875,8 +919,8 @@ class TestConstructorClass implements PrologObject {
 	}
 	public String [] toPrologTable() {
 		return new String [] {
-			z+"", b+"",s+"",i+"",l+"", f+"", d+"", c+"", str,
-			"["+YProlog.arrayToString(strarr)+"]"
+			"a"+z, "a"+b, "a"+s, "a"+i, "a"+l, "a"+f, "a"+d, "a"+c, "a"+str,
+			"e["+YProlog.arrayToString(strarr)+"]"
 		};
 	}
 }
