@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/usr/share/junit/lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/bouncyCastle.jar"/>
 	<classpathentry kind="lib" path="lib/jsse.jar"/>
 	<classpathentry kind="lib" path="lib/minrt.jar"/>
@@ -16,5 +15,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/YProlog.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
