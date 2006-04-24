@@ -1959,6 +1959,45 @@ public class PolicySystemRDFModel
 		return null;
 	}
 	
+	private PSModelChangeVeto removeFilterLinkedStm(
+											PSFilter psFilter, 
+											String psProp, 
+											PSModelObject psObject)
+	{
+		Statement stm= null;
+		Resource subject= (Resource)psFilter.getModelObject();
+		Resource object = (Resource)psObject.getModelObject();
+	
+		Property prop=null;
+		if(psProp==null)
+		{
+			logger.warn("Property type must not be null");
+			return null;
+		}
+		else if(psProp.equals(Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY))
+		{
+		prop=PROP_IS_PROTECTED_BY;
+		}
+		else if(psProp.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE))
+		{
+		prop=PROP_HAS_OVERRIDING_RULES;
+		}
+		else if(psProp.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER))
+		{
+		prop=PROP_HAS_FILTER;
+		}
+		else
+		{
+		logger.warn("Cannot remove this property type from a resaource:"+psProp);
+		return null;
+		}		
+		logger.info("STM "+
+		"\n\tsubject="+subject+
+		"\n\tprop="+prop+
+		"\n\tobject="+object);
+		rdfModel.removeAll(subject,prop,object);
+		return null;
+	}
 	public PSModelChangeVeto removeStatement(PSModelStatement psStm) {
 		PSModelObject subject = psStm.getSubject();
 		if(subject==null)
@@ -1972,6 +2011,14 @@ public class PolicySystemRDFModel
 								(PSResource)subject,
 								psStm.getProperty(),
 								psStm.getObject());
+			
+		}
+		else if(subject instanceof PSFilter)
+		{
+//			return removeFlterLinkedStm(
+//								(PSFilter)subject,
+//								psStm.getProperty(),
+//								psStm.getObject());
 			
 		}
 		else if(subject instanceof PSOverridingRule)

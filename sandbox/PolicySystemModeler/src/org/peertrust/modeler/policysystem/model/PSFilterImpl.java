@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
 
@@ -24,6 +25,8 @@ public class PSFilterImpl implements PSFilter
 {
 	private Resource filter;
 	private static Logger logger;
+	static private PolicySystemRDFModel psModel=
+						PolicySystemRDFModel.getInstance();
 	
 	
 	public PSFilterImpl(Resource filter) {
@@ -195,6 +198,20 @@ public class PSFilterImpl implements PSFilter
 
 	public void setRole(String role) 
 	{
+		
+	}
+
+	public void removeIsProtectedBy(PSPolicy policy) {
+		if(policy==null)
+		{
+			return;
+		}
+		
+		PSModelStatement psStm= new PSModelStatementImpl(
+							this,
+							Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+							policy);
+		psModel.removeStatement(psStm);
 		
 	}
 }

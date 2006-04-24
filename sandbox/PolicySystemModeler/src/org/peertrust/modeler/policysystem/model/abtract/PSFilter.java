@@ -14,5 +14,6 @@ public interface PSFilter extends PSModelObject
 	
 	public Vector getIsprotectedBy();
 	public void addIsProtectedBy(PSPolicy policy) ;
+	public void removeIsProtectedBy(PSPolicy policy);
 	//public String getLabel();
 }

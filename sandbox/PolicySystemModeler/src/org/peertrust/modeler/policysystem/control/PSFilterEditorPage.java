@@ -228,6 +228,18 @@ public class PSFilterEditorPage extends Page
 				psFilter.addHasCondition(conditions[i]);
 			}
 			
+			Vector oldIsProteted=psFilter.getIsprotectedBy();
+			System.out.println("PPPPPPPPPPP:"+oldIsProteted);
+			Object pol;
+			for(Iterator it=oldIsProteted.iterator(); it.hasNext();)
+			{
+				pol=it.next();
+				if(pol instanceof PSPolicy)
+				{
+					psFilter.removeIsProtectedBy((PSPolicy)pol);
+				}
+			}
+			
 			Vector policies=filterPolicyListEditor.getListModelObject();
 			logger.info("\n\nFilter Policies:"+policies);
 			for(Iterator it=policies.iterator();it.hasNext();)
