@@ -16,6 +16,7 @@ public interface PSResource extends PSModelObject {
 	
 	public Vector getHasSuper();
 	public void addHasSuper(PSModelObject res);
+	public Vector getChildren();
 	
 	public Vector getIsProtectedBy();
 	public void addIsProtectedBy(PSPolicy policy);

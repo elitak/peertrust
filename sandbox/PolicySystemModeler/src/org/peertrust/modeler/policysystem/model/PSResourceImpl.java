@@ -73,13 +73,24 @@ class PSResourceImpl implements PSResource
 
 	public String getHasMapping() 
 	{
+		//TODO check hasMapping
+//		return PolicySystemRDFModel.getStringProperty(
+//					resource,PolicySystemRDFModel.PROP_HAS_MAPPING);
 		return PolicySystemRDFModel.getStringProperty(
-					resource,PolicySystemRDFModel.PROP_HAS_MAPPING);
+				resource,PolicySystemRDFModel.PROP_HAS_IDENTITY);
 	}
 
-	public void setHasMapping(String mapping) {
+	public void setHasMapping(String mapping) 
+	{
+		if(mapping==null)
+		{
+			return;
+		}
+		//TODO check has mapping
+//		PolicySystemRDFModel.setStringProperty(
+//				resource,PolicySystemRDFModel.PROP_HAS_MAPPING,mapping);
 		PolicySystemRDFModel.setStringProperty(
-				resource,PolicySystemRDFModel.PROP_HAS_MAPPING,mapping);
+				resource,PolicySystemRDFModel.PROP_HAS_IDENTITY,mapping);
 	}
 
 	public Vector getIsOverrindingRule() 
@@ -193,5 +204,11 @@ class PSResourceImpl implements PSResource
 						Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE,
 						ruleToDel); 
 		psModel.removeStatement(stm);
+	}
+
+	public Vector getChildren() 
+	{
+		return psModel.getDirectChildren(this);
+		
 	}
 }

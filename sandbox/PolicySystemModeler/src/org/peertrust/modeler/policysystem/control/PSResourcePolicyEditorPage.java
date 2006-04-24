@@ -189,6 +189,21 @@ public class PSResourcePolicyEditorPage
 						PSRESOURCE_LABEL_PREFIX+
 						identity);
 			}
+			else if(input instanceof PSResource)
+			{
+				oRulesTree.setInput((PSResource)input);
+				String mapping=((PSResource)input).getHasMapping();
+				if(mapping==null)
+				{
+					logger.warn("mapping is null using label for ps resource:"+input);
+					mapping=((PSResource)input).getLabel().getValue();
+				}
+				psResourceLabel.setText(mapping);
+			}
+			else
+			{
+				//empty
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Exception while setting new input:"+input);
@@ -382,6 +397,10 @@ public class PSResourcePolicyEditorPage
 				}
 				return;
 			}
+			else if(input instanceof PSResource)
+			{
+				((PSResource)input).removePolicy((PSPolicy)sel0);
+			}
 			else
 			{
 				logger.warn("can only remove policies from a psresource");
@@ -469,6 +488,18 @@ public class PSResourcePolicyEditorPage
 				}
 			} catch (IOException e) {
 				logger.warn("error while add policy to resource",e);
+			}
+		}
+		else if(input instanceof PSResource)
+		{
+			PSResource psRes= (PSResource)input;
+			PSPolicy pol=
+				ChooserWizardPage.choosePlicy(
+						composite.getShell());
+						
+			if(pol!=null)
+			{
+				psRes.addIsProtectedBy(pol);
 			}
 		}
 		else
@@ -560,6 +591,44 @@ public class PSResourcePolicyEditorPage
 					PSResource psRes=
 						psModel.getResource(
 								((File)input).getCanonicalPath(),true,null);
+					Vector resFilters=psRes.getHasFilter();
+					String[] resFiltersNames=null;
+					logger.info("Resource filters:"+
+							"\n\tResource:"+psRes+
+							"\n\tFilters:"+resFilters);
+					if(resFilters!=null)
+					{
+						int size=resFilters.size();
+						resFiltersNames=new String[size];
+						PSFilter curFilter;
+						for(int i=0; i<size; i++)
+						{
+							curFilter=(PSFilter)resFilters.elementAt(i);
+							resFiltersNames[i]=curFilter.getLabel().getValue();
+						}
+					}
+					PSModelObject filters[]=
+							ChooserWizardPage.chooseModelObjects(
+										composite.getShell(),
+										PSFilter.class,
+										resFiltersNames);
+					if(filters!=null)
+					{
+						psRes.addHasFilter((PSFilter)filters[0]);
+						logger.info("\n\tFilters:"+
+								psRes.getHasFilter()+
+								"\n\tResource:"+psRes);
+					}
+				return;	
+			} catch (Exception e) {
+				logger.warn("error while trying to add filter to the resource");
+				return;
+			}
+		}
+		else if(input instanceof PSResource)
+		{
+			try {
+					PSResource psRes= (PSResource)input;
 					Vector resFilters=psRes.getHasFilter();
 					String[] resFiltersNames=null;
 					logger.info("Resource filters:"+

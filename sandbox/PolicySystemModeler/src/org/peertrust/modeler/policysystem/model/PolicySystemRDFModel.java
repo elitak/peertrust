@@ -966,6 +966,7 @@ public class PolicySystemRDFModel
 				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+id);
 			res.addProperty(RDFS.label,id);
 			res.addProperty(PROP_HAS_IDENTITY,id);
+			////System.out.println("CDDDDDDD:"+id+" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
 			res.addProperty(RDF.type,CLASS_RESOURCE);
 		}
 		return new PSResourceImpl(res);
@@ -976,7 +977,7 @@ public class PolicySystemRDFModel
 /////////////////////////////////////////////////////////////////////////////
 	synchronized public void projectConfigChanged(ProjectConfig config) 
 	{
-		System.out.println("Model loaded="+rdfModelFile + 
+		logger.info("Model loaded="+rdfModelFile + 
 					" schema="+rdfSchemaFile);
 		try {
 			createPolicySystemRDFModel();

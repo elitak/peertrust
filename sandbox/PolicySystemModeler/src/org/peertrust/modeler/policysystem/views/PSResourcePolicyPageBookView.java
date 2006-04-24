@@ -60,6 +60,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
 
@@ -354,7 +355,7 @@ public class PSResourcePolicyPageBookView extends PageBookView
 			pageBook.showPage(filterEditorPage.getControl());
 			filterEditorPage.setPSFilter((PSFilter)sel0);
 		}
-		else if(sel0 instanceof File)
+		else if((sel0 instanceof File) || (sel0 instanceof PSResource))
 		{
 			File selFile= (File)sel0;
 			//TODO file dir differenciation

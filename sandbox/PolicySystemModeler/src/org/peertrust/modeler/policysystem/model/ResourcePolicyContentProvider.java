@@ -43,8 +43,72 @@ public class ResourcePolicyContentProvider
 	static private Logger logger= 
 		Logger.getLogger(ResourcePolicyContentProvider.class);
 	
+	static private PolicySystemRDFModel psModel=
+							PolicySystemRDFModel.getInstance();
 	public ResourcePolicyContentProvider()
 	{
+		//empty
+	}
+	
+	private void addParentResource(File file, PSResource psRes)
+	{
+		if(file==null || psRes==null)
+		{
+			return;
+		}
+		//identity
+		if(psRes.getHasMapping()==null)
+		{
+			psRes.setHasMapping(file.toString());
+		}
+		//test for allready set parent
+		Vector aParent=psRes.getHasSuper();
+		if(aParent!=null)
+		{
+			if(aParent.size()>0)
+			{
+				logger.warn("parent res allready set");
+				return;
+			}
+		}
+		
+		logger.info("setting parent res; res="+psRes);
+		File parentFile=file.getParentFile();
+		String rootFileName=
+			ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+		File rootFile=null;
+		PSResource parentRes=null;
+		if(rootFileName!=null)
+		{
+			rootFile= new File(rootFileName);
+			if(parentFile.getAbsolutePath().startsWith(
+								rootFile.getAbsolutePath()))
+			{
+				parentRes=
+					psModel.getResource(
+						parentFile.toString(),
+						true,
+						new FileResourceSelector(parentFile));
+				if(parentRes!=null)
+				{
+					psRes.addHasSuper(parentRes);
+				}
+				else
+				{
+					logger.warn("parentResource not found; file="+parentFile);
+				}
+			}
+			else
+			{
+				logger.warn("rootfile doe not contain parent file"+
+							"\n\troot      ="+rootFile+
+							"\n\tparentFile="+parentFile);
+			}
+		}
+		else
+		{
+			logger.warn("Root file name is null");
+		}
 	}
 	
 	/**
@@ -65,24 +129,16 @@ public class ResourcePolicyContentProvider
 		{
 			try {
 				File file=(File)inputElement;
-				//TODO file dir differenciation
-//				if(file.isFile())
-//				{
-//					logger.warn("Cannot handle file["+file.toURI()+
-//								"]; directory expedted");
-////					return EMPTY_ARRAY;//new Object[0];
-//					file=file.getParentFile();
-//				}
-				
 				PSResource res= 
-					PolicySystemRDFModel.getInstance().getResource(
-												file.toString(),
-												true,
-												new FileResourceSelector(file));
-				
+					psModel.getResource(
+									file.toString(),
+									true,
+									new FileResourceSelector(file));
+				addParentResource(file,res);
 				Vector dirPolicies=res.getIsProtectedBy();
 				Vector filters = res.getHasFilter();
 				Vector allPolicies= new Vector();
+				
 				
 				if(dirPolicies!=null)
 				{
@@ -110,7 +166,51 @@ public class ResourcePolicyContentProvider
 					logger.info("no policy found for:"+inputElement);
 					return EMPTY_ARRAY;
 				}
-			} catch (RuntimeException e) {
+			} 
+			catch (RuntimeException e) 
+			{
+				return EMPTY_ARRAY;
+			}
+			
+		}
+		else if(inputElement instanceof PSResource)
+		{
+			try {
+				PSResource res=(PSResource)inputElement;
+				Vector dirPolicies=res.getIsProtectedBy();
+				Vector filters = res.getHasFilter();
+				Vector allPolicies= new Vector();
+				
+				
+				if(dirPolicies!=null)
+				{
+					allPolicies.addAll(dirPolicies);
+				}
+				
+				if(filters!=null)
+				{
+						Iterator it=filters.iterator();
+						PSFilter filter;
+					
+						for(;it.hasNext();)
+						{
+							filter=(PSFilter)it.next();
+							
+							allPolicies.addAll(filter.getIsprotectedBy());
+						}
+				}
+				if(allPolicies.size()>0)
+				{
+					return allPolicies.toArray();
+				}
+				else
+				{
+					logger.info("no policy found for:"+inputElement);
+					return EMPTY_ARRAY;
+				}
+			} 
+			catch (RuntimeException e) 
+			{
 				return EMPTY_ARRAY;
 			}
 			

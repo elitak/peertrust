@@ -2,6 +2,7 @@ package org.peertrust.modeler.policysystem.views;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -10,6 +11,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
 /**
@@ -52,6 +54,8 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
     private static Logger logger=
     	Logger.getLogger(PSResourceViewContentProvider.class);;
 
+    private PolicySystemRDFModel psModel=PolicySystemRDFModel.getInstance();
+    
     /**
      * Creates a new instance of the receiver.
      * 
@@ -111,6 +115,18 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
             	return EMPTY;
             }
         }
+    	else if(parentElement instanceof PSResource)
+    	{
+    		Vector children=((PSResource)parentElement).getChildren();
+    		if(children==null)
+    		{
+    			return EMPTY;
+    		}
+    		else
+    		{
+    			return children.toArray();
+    		}
+    	}
         else if (parentElement instanceof String) 
         {
         	PolicySystemRDFModel modelImpl=PolicySystemRDFModel.getInstance();
@@ -120,7 +136,44 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         	{
         		String rootDir=
 					ProjectConfig.getInstance().getProperty("rootDir");
-        		return new File[]{new File(rootDir)};
+        		File rootDirFile= new File(rootDir);
+        		if(rootDirFile.exists())
+        		{
+        			return new File[]{new File(rootDir)};
+        		}
+        		else
+        		{//return all ps resources without parent
+        			Vector ress=psModel.getResources();
+        			if(ress==null)
+        			{
+        				return null;
+        			}
+        			else
+        			{
+        				PSResource psRes;
+        				Vector supers;
+        				Vector roots=new Vector();
+        				for(Iterator it=ress.iterator();it.hasNext();)
+        				{
+        					psRes=(PSResource)it.next();
+        					supers=psRes.getHasSuper();
+        					if(supers==null)
+        					{
+        						roots.add(psRes);
+        					}
+        					else if(supers.size()==0)
+        					{
+        						roots.add(psRes);
+        					}
+        					else
+        					{
+        						//empty
+        					}
+        						
+        				}
+        				return roots.toArray();
+        			}
+        		}
         	}
         	else if(
         			((String)parentElement).equals(
@@ -161,9 +214,29 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
      * Only file element can have parent in the content model
      * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
      */
-    public Object getParent(Object element) {
-        if (element instanceof File) {
+    public Object getParent(Object element) 
+    {
+        if (element instanceof File) 
+        {
             return ((File) element).getParentFile();
+        }
+        else if(element instanceof PSResource)
+        {
+        	Vector parents=((PSResource)element).getHasSuper();
+        	if(parents==null)
+        	{
+        		return root;
+        	}
+        	else if(parents.size()==1)
+        	{
+        		return parents.get(0);
+        	}
+        	else
+        	{
+        		logger.warn("Multiple inheritance for resource:"+element);
+        		return null;
+        	}
+        		
         }
         else
         {

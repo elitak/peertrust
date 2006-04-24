@@ -56,6 +56,7 @@ import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 
 
@@ -317,7 +318,7 @@ public class ResourcePolicyView extends ViewPart
 			return;
 		}
 		
-		logger.info("Selection changed:"+
+		logger.info("==>Selection changed:"+
 				"\n\tpart="+part +
 				"\n\tselection="+selection +
 				"\n\tselectionclass:"+sel0.getClass());
@@ -371,7 +372,13 @@ public class ResourcePolicyView extends ViewPart
 				
 //			localPolicyView.setInput(selFile);
 //			pageBook.showPage(localPolicyView.getControl());
+				System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 				resourcePolicyEditorPage.setInput(selFile);
+				pageBook.showPage(resourcePolicyEditorPage.getControl());
+			}
+			else if(sel0 instanceof PSResource)
+			{
+				resourcePolicyEditorPage.setInput(sel0);
 				pageBook.showPage(resourcePolicyEditorPage.getControl());
 			}
 			else
@@ -379,8 +386,10 @@ public class ResourcePolicyView extends ViewPart
 				//logger.warn("Cannoet handle selection of this class:"+sel0.getClass());
 				pageBook.showPage(blankPage.getControl());
 			}
-		} catch (Exception e) {
-			//e.printStackTrace();
+		} 
+		catch (Exception e) 
+		{
+			logger.warn("could nor change view according to selection:",e);
 		}
 		
 		return;
