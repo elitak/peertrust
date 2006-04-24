@@ -33,9 +33,9 @@ internal(get_record(project7, document_data), [], []).
 % ---------------------------------------
 % Semantic Web paper example
 
-%rule('$'(request(Course,Session),Requester),
-%     [policy2(request(Course),Requester)],
-%     [get(Course,Session)]).
+rule('$'(request(Course,Session),Requester),
+     [policy2(request(Course),Requester)],
+     [get(Course,Session)]).
 
 rule('$'(request(Course,Session),Requester),
      [policy1(request(Course),Requester)],

@@ -36,15 +36,17 @@ import org.peertrust.meta.Proof;
 import org.peertrust.meta.Tree;
 import org.peertrust.net.Peer;
 
+import yprolog.*;
+
 /**
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngine.java,v 1.5 2006/04/23 23:07:01 dolmedilla Exp $
+ * $Id: YPrologEngine.java,v 1.6 2006/04/24 12:01:28 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/04/23 23:07:01 $
+ * Last changed: $Date: 2006/04/24 12:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -68,7 +70,7 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 	public YPrologEngine ()
 	{
 		super() ;
-		log.debug("$Id: YPrologEngine.java,v 1.5 2006/04/23 23:07:01 dolmedilla Exp $");
+		log.debug("$Id: YPrologEngine.java,v 1.6 2006/04/24 12:01:28 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException {
@@ -228,9 +230,9 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 	public boolean execute(String query) throws InferenceEngineException {
 		checkEngine() ;
 		
-		TermList list = _engine.query(query) ;
+		String result = _engine.queryToString(query) ;
 		
-		if (list == null)
+		if (result == null)
 			return false;
 		else
 			return true ;
@@ -250,7 +252,8 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 
 	public void insert(String clause) throws InferenceEngineException {
 		checkEngine() ;
-		_engine.query("assert(" + clause + ")") ;
+		_engine.consult(clause + ".") ;
+		// _engine.query("assert(" + clause + ")") ;
 	}
 
 	public void setApplet(Applet applet) throws InferenceEngineException {
@@ -317,10 +320,10 @@ public class YPrologEngine implements InferenceEngine,Configurable {
 		
 		//String query = "append(X,[c],[a,n(J),cs])" ;
 		String query = "asserta(a(1))" ;
-		TermList list = engine.query(query) ;
+		String value = engine.queryToString(query) ;
 		
-		if (list != null)
-			log.debug(list.toString()) ;
+		if (value != null)
+			log.debug(value.toString()) ;
 		
 		String[] result = engine.queryToTable(query) ;
 		

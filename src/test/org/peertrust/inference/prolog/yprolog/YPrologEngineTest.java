@@ -33,11 +33,11 @@ import junit.framework.*;
  * <p>
  * 
  * </p><p>
- * $Id: YPrologEngineTest.java,v 1.2 2006/03/06 12:47:57 dolmedilla Exp $
+ * $Id: YPrologEngineTest.java,v 1.3 2006/04/24 12:01:28 dolmedilla Exp $
  * <br/>
  * Date: 21-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/03/06 12:47:57 $
+ * Last changed: $Date: 2006/04/24 12:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
@@ -87,6 +87,28 @@ public class YPrologEngineTest extends TestCase {
 		
 		boolean res = engine.execute(s) ;
 		
+		assertTrue(res) ;
+	}
+	
+	public void testQuery2() throws InferenceEngineException, ConfigurationException
+	{
+		String s = "append([a],[c(U)],[a,b,c(U)])" ;
+		
+		boolean res = engine.execute(s) ;
+		
+		assertFalse(res) ;
+	}
+	
+	public void testConsult1() throws InferenceEngineException, ConfigurationException
+	{
+		String s = "p(a)" ;
+		
+		boolean res = engine.execute(s) ;
+		assertFalse(res) ;
+		
+		engine.insert(s) ;
+		
+		res = engine.execute(s) ;
 		assertTrue(res) ;
 	}
 	

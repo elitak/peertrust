@@ -23,17 +23,18 @@ package org.peertrust.inference.prolog.parser;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.peertrust.inference.prolog.yprolog.*;
+
+import yprolog.*;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PrologTools.java,v 1.2 2006/04/23 23:07:01 dolmedilla Exp $
+ * $Id: PrologTools.java,v 1.3 2006/04/24 12:01:29 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/04/23 23:07:01 $
+ * Last changed: $Date: 2006/04/24 12:01:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla

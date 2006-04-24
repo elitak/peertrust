@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.9 2005/12/13 12:32:52 token77 Exp $
+     $Id: build.xml,v 1.10 2006/04/24 12:04:36 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -211,6 +211,7 @@ You need to set ANT_HOME in your shell.
       	<include name="icu4j.jar"/>
       	<include name="jgraph.jar"/>
       	<include name="interprolog.jar"/>
+      	<include name="YProlog.jar"/>
   	  </fileset>
     </path>
 
@@ -281,6 +282,7 @@ You need to set ANT_HOME in your shell.
       <exclude name="test/org/peertrust/security/credentials/**"/>
       <exclude name="net/jxta/edutella/util/Config**"/>
       <exclude name="net/jxta/edutella/util/Option*"/>
+      <exclude name="org/policyframework/**"/>
       <exclude name="org/peertrust/meta/TrustApplet*"/>
       <exclude name="org/peertrust/inference/*XsbProlog*"/>
    	  <exclude name="org/peertrust/security/credentials/*CredentialLister*"/>
@@ -288,6 +290,7 @@ You need to set ANT_HOME in your shell.
    	  <exclude name="org/peertrust/security/credentials/gui/*Editor*"/>
    	  <exclude name="org/peertrust/security/credentials/*CredentialPanel*"/>
       <exclude name="org/peertrust/protege/**"/>
+      <exclude name="de/**"/>
       <classpath refid="build.classpath"/>
       <src path="${src}"/>
     </javac>
@@ -706,7 +709,10 @@ ${Name} Build file
   	<copy file="${configdir}/prolog/minerva/load.mbc" todir="${startdir}"/>
     <copy file="${configdir}/prolog/minerva/rdfParser.mbc" todir="${startdir}"/>
     <copy file="${configdir}/entities.dat" todir="${startdir}"/>
-    <copy file="${configdir}/prolog/minerva/minervagui.mca" todir="${startdir}"/>
+    <!-- <copy file="${configdir}/prolog/minerva/minervagui.mca" todir="${startdir}"/> -->
+  	<copy file="${configdir}/prolog/yprolog/basics.P" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/yprolog/tools.P" todir="${startdir}"/>
+  	<copy file="${configdir}/prolog/yprolog/interpreter.P" todir="${startdir}"/>
   </target>
 
   <!-- ====================================================================

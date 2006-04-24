@@ -24,8 +24,9 @@ package test.org.peertrust.inference.prolog.parser;
 import org.apache.log4j.Logger;
 import org.peertrust.inference.prolog.parser.PrologTools;
 import org.peertrust.inference.prolog.parser.PrologTerm;
-import org.peertrust.inference.prolog.yprolog.ParseException;
-import org.peertrust.inference.prolog.yprolog.TokenMgrError;
+
+import yprolog.*;
+
 
 import junit.framework.*;
 
@@ -33,11 +34,11 @@ import junit.framework.*;
  * <p>
  * 
  * </p><p>
- * $Id: PrologToolsTest.java,v 1.1 2006/01/25 16:07:46 dolmedilla Exp $
+ * $Id: PrologToolsTest.java,v 1.2 2006/04/24 12:01:28 dolmedilla Exp $
  * <br/>
  * Date: 19-Jan-2006
  * <br/>
- * Last changed: $Date: 2006/01/25 16:07:46 $
+ * Last changed: $Date: 2006/04/24 12:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla
