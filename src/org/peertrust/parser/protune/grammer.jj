@@ -10,14 +10,19 @@ package foo;
 import java.io.*;
 import java.util.*;
 
-public class Parser{
+public class Parser {
 	
-	public static void main(String args[]) throws ParseException,TokenMgrError{
+	static Vector directives=new Vector();
+	static Vector rules=new Vector();
+	static Vector metarules=new Vector();
 		
+	public static void main(String args[]) throws ParseException,TokenMgrError{
+			
 		Parser parser=null;
 		try{
 			
 			parser=new Parser(new FileReader("foo/exemplu.pro"));
+			
 			parser.start(System.out);
 			
 		}catch(Exception e){
@@ -25,6 +30,12 @@ public class Parser{
 			return;
 		}
 
+		for(Iterator it=directives.iterator();it.hasNext();)
+			System.out.println((String)it.next());
+		for(Iterator it=rules.iterator();it.hasNext();)
+			System.out.println((String)it.next());
+		for(Iterator it=metarules.iterator();it.hasNext();)
+			System.out.println((String)it.next());
 	}
 }
 
@@ -34,22 +45,18 @@ PARSER_END(Parser)
 
 SKIP :
 {
- 	" " | "\r" | "\t" |	"\n"
+ 	" " | "\r" | "\t" |	"\n" 
+ 	| <COMMENT: ( "%" (~["\n","\r"])* ) |( "//" (~["\n","\r"])* ) | ("/*" (~[])* "*/") >
 }
 
 TOKEN:
 {
-	<COMMENT: ( "%" (~["\n","\r"])* ) |( "//" (~["\n","\r"])* ) | ("/*" (~[])* "*/") >	
+	<OPERATOR: ( "=" | ">" | ">=" | "<" | "<=" | "!=" | " is ") >
 }
 
 TOKEN:
 {
-	<OPERATOR: ( "==" | ">" | ">=" | "<" | "<=" | "!=" | " is ") >
-}
-
-TOKEN:
-{
-	<NEGATION: ("not " | "\\=") >
+	<NEGATION: ("not " | "\\+") >
 }
 
 TOKEN:
@@ -59,17 +66,27 @@ TOKEN:
 
 TOKEN:
 {
+	<INCLUDE: "include" >
+}
+
+TOKEN:
+{
 	<IN: "in" >
 }
 
 TOKEN:
 {
-	<DECLCRED: ("declaration"|"credential") >
+	<DECLARATION: "declaration" >
+}
+
+TOKEN:
+{
+	<CREDENTIAL: "credential" >
 }
 
 TOKEN : 
 {
-	<VARIABLE: (<UPPERCASE> | <UNDERSCORE>) (<STRING>)? >
+	<VARIABLE: (<UPPERCASE> | <UNDERSCORE>) (<STRING>) >
 }
 
 TOKEN:
@@ -79,7 +96,7 @@ TOKEN:
 
 TOKEN : 
 {
-	<#STRING: ( (<LOWERCASE>|<UPPERCASE>|<UNDERSCORE>)* (<DIGIT>)* ) >
+	<#STRING: ( (<LOWERCASE>|<UPPERCASE>|<UNDERSCORE>)* (<NUMBER>)* ) >
 }
 
 TOKEN : 
@@ -112,57 +129,131 @@ TOKEN:
 	<#UNDERSCORE: "_" >
 }
 
-//------------------------------------------------------------------------------------------------------------
-void start(PrintStream out):
+/*----------------------------------------------------------------------------------------------------------*/
+String StringConstant():
 {
-	String id=null;
-	String head=null;
-	Strign field=null;
-	String metabody=null;
-	String body=null;
+	Token t=null;
+}
+{
+	(
+		t=<IDENTIFIER> 
+		|
+		t=<STRING_QUOTED>
+	)
+	{return t.image;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String Constant():
+{
+	Token t=null;
 	String s=null;
 }
 {
+	t=<NUMBER>
+	{return t.image;} 
+	|
+	s=StringConstant()
+	{return s;}
+	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+void start(PrintStream out):
+{
+	String directive=null;
+	String id=null;
+	String field=null;
+	String metabody=null;
+	Vector head=null;
+	String body=null;
+	
+	String s=null;
+}
+{
+	(
+		directive=Directive()
+		{directives.add(directive);}
+	)*
 	(
 		(
 		id=Id()	
 				( 
 					(
-						"." field=Field(id)  ( <SEPARATOR> (metabody=Metabody())? )? "."
+						"." field=Field(false,id)  ( <SEPARATOR> (metabody=MetaBody())? )? "."
 					)
-					{
-						if(metabody==null)
-							s="metarule( id, "+field+", []).";
-						else
-							s="metarule( id, "+field+", ["+metabody+"]).";
-					} 
+					{	
+						s="";
+						if(metabody!=null)
+							s=metabody;
+						
+						metarules.add("metarule( id, "+field+", ["+s+"]).");
+					}
 					| 
-					(
+					(	
 						head=Head() (<SEPARATOR> (body=Body())? )? "."
 					)
 					{
-						if(body==null)
-							s="rule( "+id+", "+head+", []).";
-						else
-							s="rule( "+id+", "+head+", ["+body+"]).";
-					}	
+						s="";
+						if(body!=null)
+							s=body;
+							
+						if(head.size()<=2)
+							rules.add("rule( "+id+", "+(String)head.elementAt(0)+", ["+s+"]).");
+						
+						if(head.size()>1){
+							
+							for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
+								rules.add("rule( "+id+", "+(String)it.next()+", ["+s+"]).");
+						}
+					}
 				)
 		|
 		head=Head()
 				(
 					(
-						"."  ( field=Field(head)  ( <SEPARATOR> (metabody=Metabody())? )? "." )?
+						"."  ( LOOKAHEAD (2) field=Field(false,(String)(head.elementAt(0))) ( <SEPARATOR>  (metabody=MetaBody())? )? "." )?
 					)
 					{
-						//tb sa generez id
-						if(field==null)
-							s="rule( id, "+head+", []).";
-						
-						else{	
-							if(metabody==null)
-								s="metarule( pred, "+field+", []).";
-							else
-								s="metarule( pred, "+field+", ["+metabody+"]).";
+						if(field==null){
+							
+							//tb sa generez id: id=generate_id
+							id="id";
+							
+							if(head.size()<=2)
+								rules.add("rule("+id+", "+(String)head.elementAt(0)+", []).");
+							
+							if(head.size()>1){
+							
+								for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
+									rules.add("rule( "+id+", "+(String)it.next()+", []).");
+							}
+						}
+						else{
+							
+							s="";
+							
+							if(head.size()>1){
+								
+								StringBuffer sb=new StringBuffer();
+								boolean first=false;
+								for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
+									if(first==false)
+										first=true;
+									else
+										sb.append(",");
+									sb.append((String)it.next());
+								}
+								s=sb.toString();
+							}
+							
+							if(metabody!=null){
+								if(s.length()>0)
+									s=s.concat(", ");
+								s=s.concat(metabody);
+							}
+								
+							metarules.add("metarule( pred, "+field+", ["+s+"]).");
 						}
 					} 
 					| 
@@ -170,21 +261,40 @@ void start(PrintStream out):
 						<SEPARATOR> (body=Body())? "."
 					)
 					{
-						//tb sa generez id
-						if(body==null)
-							s="rule( id, "+head+", []).";
-						else
-							s="rule( id, "+head+", ["+body+"]).";
+						//tb sa generez id: id=generate_id
+						id="id";
+						
+						s="";
+						if(body!=null)
+							s=body;
+							
+						if(head.size()<=2)
+							rules.add("rule( "+id+", "+(String)head.elementAt(0)+", ["+s+"]).");
+						
+						if(head.size()>1){
+
+							for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
+								rules.add("rule( "+id+", "+(String)it.next()+", ["+s+"]).");
+						}
 					}	
-				
 				)
 		)
-		{out.println(s);}
 	)+
 	<EOF>
 }
 
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
+String Directive():
+{
+	Token t=null;
+}
+{
+	<INCLUDE> t=<STRING_QUOTED>
+	{
+		return "%include("+t.image+").";
+	}
+}
+/*----------------------------------------------------------------------------------------------------------*/
 String Id():
 {
 	String ct=null;
@@ -194,129 +304,190 @@ String Id():
 	{return ct;}
 }
 
-//------------------------------------------------------------------------------------------------------------
-String Constant():
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Head():
 {
+	Vector predicate=null;
+	String s=null;
 	Token t=null;
+	Vector fields=null;
+	Vector v=null;
 }
 {
-	(
-		t=<IDENTIFIER> 
-		|
-		t=<NUMBER> 
-		|
-		t=<STRING_QUOTED>
-	)
-	{return t.image;}
+	LOOKAHEAD( 2 )
+	predicate=Predicate()
+	{
+		return predicate;
+	}
+	|
+	s=StringConstant() ("[" fields=Fields(s,new Vector()) "]") ?
+	{		
+		if(fields==null){
+			v=new Vector(1);
+			v.add(s);
+		}
+		else{
+			v=new Vector(3);
+			v.add(s);
+			v.add(fields);
+			v.add(new Boolean(true));
+		}
+
+		return v;
+	}
+	|
+	t=<VARIABLE> "[" fields=Fields(t.image,new Vector()) "]"
+	{
+		v=new Vector(3);
+		v.add(t.image);
+		v.add(fields);
+		v.add(new Boolean(true));
+		return v;
+	}
+	
 }
 
-//------------------------------------------------------------------------------------------------------------
-String Head():
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Predicate():
 {
-	Token pred=null;
-	String args=null;
-	boolean flag=false;
+	String s=null;
+	Vector args=null;
+	Vector v=null;
 }
 {
-	pred=<IDENTIFIER> ( "(" (args=Arguments())? ")" {flag=true;} )?
+	s=StringConstant() "(" (args=Arguments(new Vector()))? ")"
 	{
 		if(args==null){
 			
-			if(flag==false)
-				return pred.image;
-			else
-				return pred.image+"()";
+			v=new Vector(1);
+			v.add(s+"()");
 		}
+		else{
 			
-		return pred.image+"("+args+")";
+			v=new Vector(2);
+			v.add(s+"("+(String)args.elementAt(0)+")");
+			if(args.size()>1)
+				v.add(args.elementAt(1));
+		}	
+		return v;
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
-String Arguments():
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Arguments(Vector v):
 {
-	String arg=null;
-	String args=null;
+	Vector arg=null;
+	Vector args=null;
 }
 {
-	arg=Argument() ( "," args=Arguments() )? 
+	arg=Argument()
+	{
+		if(v.isEmpty()){
+			
+			v.add((String)arg.elementAt(0));
+		}
+		else{
+		
+			String first=(String)v.elementAt(0)+", "+(String)arg.elementAt(0);
+			v.setElementAt(first,0);
+		}
+		
+		if(arg.size()>1){
+		
+			if(v.size()<=1){
+				
+				v.add(arg.elementAt(1));
+			}
+			else{
+				Vector second=(Vector)v.elementAt(1);
+				second.addAll((Vector)arg.elementAt(1));
+				v.setElementAt(second,1);
+			}
+		}
+	}
+	( "," args=Arguments(v) )? 
 	{
 		if(args==null)
-			return arg;
+			return v;
 			
-		return arg+", "+args;
+		return args;
 	}	
 }
 
-//------------------------------------------------------------------------------------------------------------
-String[] Argument():
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Argument():
 {
 	Token t=null;
+	Vector predicate=null;
 	String s=null;
-	boolean flag=false;
-	String[] r=new String[2];
+	Vector fields=null;
+	Vector v=null;
 }
 {
+	t=<NUMBER> 
+	{
+		v=new Vector(1);
+		v.add(t.image);
+		return v;
+	}
+	|
+	LOOKAHEAD( 2 )
+	predicate=Predicate()
+	{
+		return predicate;
+	}
+	|
 	(
 		t=<VARIABLE> 
 		|
-		t=<NUMBER> 
-		|
-		t=<STRING_QUOTED> 
-	)	("[" s=Fields(t.image) "]") ?
+		s=StringConstant() 
+	)	
+	{if(s==null)s=t.image;}
+	("[" fields=Fields(s,new Vector()) "]") ?
 	{
-		if(s==null)
-			return t.image;
-			
-		return s;
-	}
-	|
-	t=<IDENTIFIER> ( ("[" s=Fields(t.image) "]") |( "(" (s=Arguments())? ")" {flag=true;} ) )?
-	{
-		if(s==null){
-			
-			if(flag==false)
-				return t.image;
-			else
-				return t.image+"()";
-		}
-		
-		if(flag==true)
-			return t.image+"("+s+")";
-						
-		return s;
+		v=new Vector(2);
+		v.add(s);
+		if(fields!=null)
+			v.add(fields);
+
+		return v;
 	}
 	
 }		
 
-//------------------------------------------------------------------------------------------------------------
-String Fields(String id):
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Fields(String id,Vector v):
 {
 	String field=null;
-	String fields=null;
+	Vector fields=null;
 }
 {
-	field=Field(id) ( "," fields=Fields(id) )? 
+	field=Field(true,id) {v.add(field);} ( "," fields=Fields(id,v) )? 
 	{
 		if(fields==null)
-			return field;
+			return v;
 			
-		return field+", "+fields;
-	}	
+		return fields;
+	}
 }
 
-//------------------------------------------------------------------------------------------------------------
-String Field(String id):
+/*----------------------------------------------------------------------------------------------------------*/
+String Field(boolean flag,String id):
 {
-	Token atr=null;
-	String val=null;
+	String attribute=null;
+	String value=null;
 }
 {
-	atr=<IDENTIFIER> ":" val=Term()
-	{return "complex_term( "+id+", "+atr+", "+value+")";}
+	attribute=StringConstant() ":" value=Term()
+	{
+		if(flag==true)
+			return "complex_term( "+id+", "+attribute+", "+value+")";
+		
+		return attribute+"("+id+", "+value+")";
+	}
 }
 
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
 String Term():
 {
 	Token t=null;
@@ -330,196 +501,153 @@ String Term():
 	{return s;}
 }
 
-
-/*
-//------------------------------------------------------------------------------------------------------------
-String Rule():
-{
-	String id=null;
-	String head=null;
-	String body=null;	
-}
-{
-	( id=Id() )? head=Head() ( <SEPARATOR> body=Body() )?  "."
- 	{	
- 		//if there is no id,we must generate one!
- 		if(id==null)	
- 			id="id";
- 			
- 		if(body==null)
- 			return "rule("+id+","+head+",[]).";
- 			
- 		return "rule("+id+","+head+",["+body+"]).";
- 	}
-	
-}
-
-//------------------------------------------------------------------------------------------------------------
-String Id():
-{
-	String s=null;
-}
-{
-	"[" s=Constant() "]"
-	{return s;}
-}
-
-//------------------------------------------------------------------------------------------------------------
-String Constant():
-{
-	Token t=null;
-}
-{
-	t=<IDENTIFIER> 
-	{return t.image;}
-	|
-	t=<NUMBER> 
-	{return t.image;}
-	|
-	t=<STRING_QUOTED>
-	{return t.image;}
-}
-
-
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
 String Body():
 {
+	
 	String literal=null;
 	String body=null;
 }
 {
-	literal=Literal() ( "," body=Body() )? 
+	literal=Literal() ( "," body=Body() )?
 	{
 		if(body==null)
 			return literal;
-			
+
 		return literal+", "+body;
-	}	
+	}
 }
 
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
 String Literal():
 {
+	Token pred=null;
+	Vector function=null;
+	Vector pc=null;
+	String ct=null;
 	Token t=null;
 	String s=null;
-	boolean flag=false;
-	Token op=null;
-	String pc=null;
+	Vector fields=null;
+	Vector head=null;
+	String term=null;
+	
+	StringBuffer sb=null;
 }
 {
-	s=SpecialLiteral()
-	{return s;}
-	|
-	t=<IDENTIFIER> ( ( "(" (s=Arguments())? ")" {flag=true;} )|  ( op=<OPERATOR> s=Term() ) | ( "[" s=Fields(t.image) "]" ) )?
-	{
-		if(s==null){
+	<NEGATION> 
+		(
+			LOOKAHEAD(2)
+			term=Term() t=<OPERATOR> s=Term()
+			{return "not("+term+" "+t.image+" "+s+")";}
+			|
+			head=Head()
+			{
+				sb=new StringBuffer();
+				if(head.size()<=2)
+					sb.append("not("+(String)head.elementAt(0)+")");
+		
+				if(head.size()>1){
 			
-			if(flag==false)
-				return t.image;
-			else
-				return t.image+"()";
+					boolean first=false;
+					if(sb.length()>0)
+						first=true;
+				
+					for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
+						if(first==false)
+							first=true;
+						else
+							sb.append(",");
+						sb.append((String)it.next());
+					}
+				}
+		
+				return sb.toString();
+			}
+		)
+	|
+	<IN> "(" function=Function() "," pc=PackageCall() ")"
+	{
+		sb=new StringBuffer("in( ");
+		sb.append((String)function.elementAt(0)+"( "+(String)function.elementAt(1)+"), ");
+		sb.append((String)pc.elementAt(0)+", "+(String)pc.elementAt(1)+", ["+(String)pc.elementAt(2)+"])");
+		
+		return sb.toString();
+	}
+	|
+	( pred=<DECLARATION> | pred=<CREDENTIAL> ) 
+		"(" ct=Constant() "," 
+			( 
+				t=<NUMBER>
+				|
+				(
+					t=<VARIABLE>
+					|
+					s=StringConstant()
+				){if(s==null)s=t.image;} 
+				( "[" fields=Fields(s,new Vector()) "]" )? 
+			){if(s==null)s=t.image;} 
+		")" 
+	{
+		sb=new StringBuffer(pred.image+"("+ct+","+s+")");
+		
+		if(fields!=null){
+			
+			for(Iterator it=fields.iterator();it.hasNext();)
+				sb.append(","+(String)it.next());
 		}
-			
-		if(op!=null)
-			return t.image+" "+op.image+" "+s;
-			
-		if(flag!=false)
-			return t.image+"("+s+")";
-			
-		return s;
+		
+		return sb.toString();
 	}
 	|
-	t=<VARIABLE> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
-	{
-		if(op!=null)
-			return t.image+" "+op.image+" "+s;
-			
-		return s;
-	}
+	LOOKAHEAD(2)	
+	term=Term() t=<OPERATOR> s=Term() 
+	{return term+" "+t.image+" "+s;}
 	|
-	t=<NUMBER> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
+	head=Head()
 	{
-		if(op!=null)
-			return t.image+" "+op.image+" "+s;
+		sb=new StringBuffer();
+		if(head.size()<=2)
+			sb.append((String)head.elementAt(0));
+		
+		if(head.size()>1){
 			
-		return s;
-	}
-	|
-	t=<STRING_QUOTED> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
-	{
-		if(op!=null)
-			return t.image+" "+op.image+" "+s;
-			
-		return s;
-	}
-	| 
-	<NEGATION> (
-					t=<IDENTIFIER> ( ( "(" (s=Arguments())? ")" {flag=true;} )| ( op=<OPERATOR> s=Term()) | ( "[" s=Fields(t.image) "]" ) )? 
-					|
-					t=<VARIABLE> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
-					|
-					t=<NUMBER> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
-					|
-					t=<STRING_QUOTED> ( ( op=<OPERATOR> s=Term() )| ( "[" s=Fields(t.image) "]" ) )
-				)
-	{
-		if(s==null){
-			
-			if(flag==false)
-				return "not("+t.image+")";
-			else
-				return "not("+t.image+"()"+")";
+			boolean first=false;
+			if(sb.length()>0)
+				first=true;
+				
+			for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
+				if(first==false)
+					first=true;
+				else
+					sb.append(",");
+				sb.append((String)it.next());
+			}
 		}
-			
-		if(op!=null)
-			return "not("+t.image+" "+op.image+" "+s+")";
-			
-		if(flag!=false)
-			return "not("+t.image+"("+s+")"+")";
-			
-		return "not("+s+")";
-	}	
-}
-
-//------------------------------------------------------------------------------------------------------------
-String SpecialLiteral():
-{
-	Token t=null;
-	String s=null;
-	String pc=null;
-	String id=null;
-	String tm=null;
-}
-{
-	t=<IN> "(" s=Head() "," pc=PackageCall() ")"
-	{
-		return "in("+s+","+pc+")";
-	}
-	|
-	t=<DECLCRED> "(" id=Constant() "," tm=Term() ("[" s=Fields(tm)"]")? ")"
-	{
-		if(s==null)
-			return "declaration("+id+","+tm+")";
-			
-		return "declaration("+id+","+s+")";
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-String PackageCall():
-{
-	Token p;
-	Token f;
-	String s;
-	boolean flag=false;
-}
-{
-	p=<IDENTIFIER> ":" f=<IDENTIFIER> ( "(" (s=Terms())? ")" {flag=true;})?
-	{
-		return p+", "+f+", ["+s+"]";
+		
+		return sb.toString();
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
+
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Function():
+{
+	String s=null;
+	String terms=null;
+}
+{
+	s=StringConstant() ( "(" (terms=Terms())? ")" )?
+	{		
+		Vector v=new Vector(2);
+		v.add(s);
+		if(terms!=null)
+			v.add(terms);
+		
+		return v;
+	}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
 String Terms():
 {
 	String term=null;
@@ -535,43 +663,25 @@ String Terms():
 	}	
 }
 
-//------------------------------------------------------------------------------------------------------------
-String MetaRule():
-{
-	String[] metahead;
-	String field=null;
-	String metabody=null;
-}
-{
-	metahead=MetaHead()  "." field=Field(metahead[1]) ( <SEPARATOR> (metabody=MetaBody())? )? "."
-	{
-		if(metabody==null)
-			return "metarule( "+metahead[0]+", "+field+", []).";
-			
-		return "metarule( "+metahead[0]+", "+field+", ["+metabody+"]).";
-	}
-	
-}
-
-//------------------------------------------------------------------------------------------------------------
-String[] MetaHead():
+/*----------------------------------------------------------------------------------------------------------*/
+Vector PackageCall():
 {
 	String s=null;
-	String[] metahead=new String[2];
+	Vector f=null;
 }
 {
-	(
-	s=Id() { metahead[0]="id"; }
-	|
-	s=Head() { metahead[0]="pred"; }
-	)
+	s=StringConstant() ":" f=Function()
 	{
-		metahead[1]=s;
-		return metahead;
+		Vector v=new Vector(3);
+		v.add(s);
+		v.add(f.elementAt(0));
+		if(f.size()>1)
+			v.add(f.elementAt(1));
+		return v;
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
 String MetaBody():
 {
 	String metaliteral=null;
@@ -587,18 +697,125 @@ String MetaBody():
 	}	
 }
 
-//------------------------------------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------------------------------*/
 String MetaLiteral():
 {
-	String s;
+	Token pred=null;
+	Vector function=null;
+	Vector pc=null;
+	String ct=null;
+	Token t=null;
+	String s=null;
+	Vector fields=null;
+	String id=null;
+	String field=null;
+	Vector head=null;
+	String term=null;
 }
 {
-	s=Literal()
-	{return s;}
+	<NEGATION>
+		(
+			id=Id() "." field=Field(false,id)
+			{return "not("+field+")";}
+			|
+			LOOKAHEAD(2)	
+			term=Term() t=<OPERATOR> s=Term() 
+			{return "not("+term+" "+t.image+" "+s+")";}
+			|
+			head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
+			{
+				StringBuffer sb=new StringBuffer();
+		
+				if(field==null){
+					if(head.size()<=2)
+						sb.append("not("+(String)head.elementAt(0)+")");
+				}
+				else
+					sb.append("not("+field+")");
+			
+				if(head.size()>1){
+		
+					boolean first=false;
+					if(sb.length>0)
+						first=true;
+				
+					for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
+						if(first==false)
+							first=true;
+						else
+							sb.append(",");
+						sb.append((String)it.next());
+					}
+				}
+			}
+		)
 	|
-	metahead=MetaHead()  "." field=Field(metahead[1])
-	{}
-	| <NEGATION> metahead=MetaHead()  "." field=Field(metahead[1])
-	{}
+	<IN> "(" function=Function() "," pc=PackageCall() ")"
+	{
+		StringBuffer sb=new StringBuffer("in( ");
+		sb.append((String)function.elementAt(0)+"( "+(String)function.elementAt(1)+"), ");
+		sb.append((String)pc.elementAt(0)+", "+(String)pc.elementAt(1)+", ["+(String)pc.elementAt(2)+"])");
+		
+		return sb.toString();
+	}
+	|
+	( pred=<DECLARATION> | pred=<CREDENTIAL> ) 
+		"(" ct=Constant() "," 
+			( 
+				t=<NUMBER>
+				|
+				(
+					t=<VARIABLE>
+					|
+					s=StringConstant()
+				){if(s==null)s=t.image;} 
+				( "[" fields=Fields(s,new Vector()) "]" )? 
+			){if(s==null)s=t.image;} 
+		")" 
+	{
+		StringBuffer sb=new StringBuffer(pred.image+"("+ct+","+s+")");
+		
+		if(fields!=null){
+			
+			for(Iterator it=fields.iterator();it.hasNext();)
+				sb.append(","+(String)it.next());
+		}
+		
+		return sb.toString();
+	}
+	|
+	id=Id() "." field=Field(false,id)
+	{return field;}
+	|
+	LOOKAHEAD(2)	
+	term=Term() t=<OPERATOR> s=Term() 
+	{return term+" "+t.image+" "+s;}
+	|
+	head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
+	{
+		StringBuffer sb=new StringBuffer();
+		
+		if(field==null){
+			if(head.size()<=2)
+				sb.append((String)head.elementAt(0));
+		}
+		else
+			sb.append(field);
+			
+		if(head.size()>1){
+		
+			boolean first=false;
+			if(sb.length>0)
+				first=true;
+				
+			for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
+				if(first==false)
+					first=true;
+				else
+					sb.append(",");
+				sb.append((String)it.next());
+			}
+		}
+	}
+	
 }
-*/
