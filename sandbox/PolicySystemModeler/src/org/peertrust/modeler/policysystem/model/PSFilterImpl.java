@@ -11,6 +11,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -18,24 +19,42 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
- * @author congo
+ * An implementation of PSFilter
+ * @author Patrice Congo
  *
  */
 public class PSFilterImpl implements PSFilter 
 {
+	/** the jena rdf resource representing the ps filter*/
 	private Resource filter;
-	private static Logger logger;
-	static private PolicySystemRDFModel psModel=
-						PolicySystemRDFModel.getInstance();
+	
+	/**
+	 * The logger for the PSFilterImpl class
+	 */
+	private final static Logger logger=
+				Logger.getLogger(PSFilterImpl.class);
 	
 	
-	public PSFilterImpl(Resource filter) {
+//	static private PolicySystemRDFModel psModel=
+//						PolicySystemRDFModel.getInstance();
+	
+	/**
+	 * The policy system model 
+	 */
+	private PSPolicySystem psModel;//=PolicySystemRDFModel.getInstance();
+	
+	/**
+	 * Creates a PSFilterImpl which represents the the provided resource
+	 * @param filter
+	 */
+	public PSFilterImpl(PSPolicySystem psModel,Resource filter) 
+	{
 		super();
 		this.filter = filter;
-		logger=Logger.getLogger(PSFilterImpl.class);
+		this.psModel=psModel;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getHasCondition()
 	 */
 	public Vector getHasCondition() 
@@ -46,11 +65,18 @@ public class PSFilterImpl implements PSFilter
 			return null;
 		}
 		
-		return PolicySystemRDFModel.getInstance().getMultipleProperty(
-										this,
-										PolicySystemRDFModel.PROP_HAS_CONDITION);
+//		return PolicySystemRDFModel.getInstance().getMultipleProperty(
+//										this,
+//										PolicySystemRDFModel.PROP_HAS_CONDITION);
+		return psModel.getModelObjectProperties(
+				this,
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION //PolicySystemRDFModel.PROP_HAS_CONDITION
+				);
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#addHasCondition(java.lang.String)
+	 */
 	public void addHasCondition(String condition) 
 	{
 		if(condition==null)
@@ -66,14 +92,20 @@ public class PSFilterImpl implements PSFilter
 			return;
 		}
 		logger.info("adding condition:"+condition);
-		PolicySystemRDFModel.getInstance().addMultipleStringProperty(
-				filter,
-				PolicySystemRDFModel.PROP_HAS_CONDITION,
-				condition);
+		PSModelStatement stm=
+			new PSModelStatementImpl(
+					this,
+					Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION,
+					condition);
+		psModel.addStatement(stm);
+//		PolicySystemRDFModel.getInstance().addMultipleStringProperty(
+//				filter,
+//				PolicySystemRDFModel.PROP_HAS_CONDITION,
+//				condition);
 		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getIsprotectedBy()
 	 */
 	public Vector getIsprotectedBy() 
@@ -84,12 +116,18 @@ public class PSFilterImpl implements PSFilter
 			return new Vector();
 		}
 		
-		return 
-			PolicySystemRDFModel.getInstance().getMultipleProperty(
-						this,//filter,
-						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
+		return psModel.getModelObjectProperties(
+				this,
+				Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY);
+//		return 
+//			PolicySystemRDFModel.getInstance().getMultipleProperty(
+//						this,//filter,
+//						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#addIsProtectedBy(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
+	 */
 	public void addIsProtectedBy(PSPolicy policy) 
 	{
 		if(filter==null)
@@ -97,11 +135,16 @@ public class PSFilterImpl implements PSFilter
 			logger.warn("Filter is null cannot add policy:"+policy);
 			return;
 		}
-		PolicySystemRDFModel.getInstance().addMultipleProperty(
-				filter,
-				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
-				(Resource)policy.getModelObject());
-		
+//		PolicySystemRDFModel.getInstance().addMultipleProperty(
+//				filter,
+//				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
+//				(Resource)policy.getModelObject());
+		PSModelStatement stm=
+			new PSModelStatementImpl(
+					this,
+					Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+					policy);
+		psModel.addStatement(stm);
 	}
 	
 	/**
@@ -114,13 +157,34 @@ public class PSFilterImpl implements PSFilter
 			logger.warn("Filter is null cannot returned label is null");
 			return null;
 		}
-		String labelValue= 
-			PolicySystemRDFModel.getStringProperty(
-											filter,
-											RDFS.label);
-		return new PSModelLabelImpl(this,labelValue);
+		Vector props=
+			psModel.getModelObjectProperties(
+							this,Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME);
+		if(props==null)
+		{
+			return null;
+		}
+		else
+		{
+			if(props.size()==1)
+			{
+				String labelValue= (String) props.elementAt(0);
+//					PolicySystemRDFModel.getStringProperty(
+//													filter,
+//													RDFS.label);
+				return new PSModelLabelImpl(this,labelValue);
+			}
+			else
+			{
+				return null;
+			}
+		}
+		
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setLabel(java.lang.String)
+	 */
 	public void setLabel(String label) {
 		if(label==null)
 		{
@@ -133,10 +197,17 @@ public class PSFilterImpl implements PSFilter
 			return;
 		}
 		
-		PolicySystemRDFModel.setStringProperty(filter,RDFS.label,label);
+//		PSModelStatement stm=
+//			new PSModelStatementImpl(
+//					this,
+//					Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME,
+//					label);
+//		//TODO use psModel
+//		PolicySystemRDFModel.setStringProperty(filter,RDFS.label,label);
+		psModel.alterModelObjectProperty(this,Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME,label);
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.ModelObjectWrapper#getModelObject()
 	 */
 	public Object getModelObject() {
@@ -145,27 +216,61 @@ public class PSFilterImpl implements PSFilter
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#containsCondition(java.lang.String)
 	 */
-	public boolean containsCondition(String condition) {
+	public boolean containsCondition(String condition) 
+	{
 		if(condition==null)
 		{
 			logger.warn("condition is null");
 			return false;
 		}
-		return PolicySystemRDFModel.getInstance().getRdfModel().contains(
-										filter,
-										PolicySystemRDFModel.PROP_HAS_CONDITION,
-										condition);
+		
+		Vector conds=getHasCondition();
+		if(conds==null)
+		{
+			return false;
+		}
+		else
+		{
+			return conds.contains(condition);
+		}
+//		return PolicySystemRDFModel.getInstance().getRdfModel().contains(
+//										filter,
+//										PolicySystemRDFModel.PROP_HAS_CONDITION,
+//										condition);
 	}
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString()
 	{
-		return "filter:"+getLabel();
+		PSModelLabel label=getLabel();
+		if(label==null)
+		{
+			return "ErroFilterLabelNull";
+		}
+		else
+		{
+			String value=label.getValue();
+			if(value==null)
+			{
+				return "ErrorlabelValueNull";
+			}
+			else
+			{
+				return value;
+			}
+		}
 	}
 
-	public void removeCondition(String condition) {
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#removeCondition(java.lang.String)
+	 */
+	public void removeCondition(String condition) 
+	{
 		if(condition==null)
 		{
 			return;
@@ -181,6 +286,9 @@ public class PSFilterImpl implements PSFilter
 		return ;
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#removeAllConditions()
+	 */
 	public void removeAllConditions() 
 	{
 		Vector oldCond=
@@ -191,16 +299,25 @@ public class PSFilterImpl implements PSFilter
 		}
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getRole()
+	 */
 	public String getRole() 
 	{
 		return null;
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setRole(java.lang.String)
+	 */
 	public void setRole(String role) 
 	{
 		
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#removeIsProtectedBy(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
+	 */
 	public void removeIsProtectedBy(PSPolicy policy) {
 		if(policy==null)
 		{

@@ -41,6 +41,7 @@ import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
@@ -568,7 +569,14 @@ public class PSResourceView extends ViewPart
             }
             else if(element instanceof PSModelObject)
             {
-            	String label= ((PSModelObject)element).getLabel().getValue();
+       
+            	PSModelLabel lLabel=((PSModelObject)element).getLabel();
+            	
+            	String label=null;
+            	if(lLabel!=null)
+            	{
+            		label= lLabel.getValue();
+            	}
             	if(label!=null)
             	{
             		return label;

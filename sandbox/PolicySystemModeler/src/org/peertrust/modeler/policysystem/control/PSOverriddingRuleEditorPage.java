@@ -101,6 +101,7 @@ public class PSOverriddingRuleEditorPage
 	 */
 	private PSPolicy selectedOverridder=null;
 	
+	PSOverriddingRuleEditControl orControl;
 	/**
 	 * @see org.eclipse.ui.part.IPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
@@ -111,69 +112,59 @@ public class PSOverriddingRuleEditorPage
 		Label headerdd;
 		top = new Composite(parent, SWT.LEFT);
 		top.setLayout(new GridLayout());
+		orControl= new PSOverriddingRuleEditControl(true);
+		orControl.createControl(top);
 		///header
-		Composite headerContainer= 
-						new Composite(top,SWT.LEFT);
-		Composite panel=
-						new Composite(top,SWT.LEFT);
-		
-		headerContainer.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		headerContainer.setLayout(new GridLayout());
-		headerdd= new Label(headerContainer,SWT.NONE);
-		
-		Label header= 
-			new Label(
-					headerContainer,
-					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
-		header.setText("Overridding");
-		
-		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		headerdd= new Label(
-					headerContainer,
-					SWT.NONE|SWT.SEPARATOR|SWT.HORIZONTAL);
-		headerdd.setLayoutData(
-					new GridData(GridData.FILL_HORIZONTAL));
-		
-		////editor
-//		top = new Composite(parent, SWT.LEFT);
-		//top.setLayout(new GridLayout());
-		///////////////////////////////////////////////////////
-//		Label headerdd= new Label(top,SWT.NONE);
-//		
-//		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
-//		header.setText("Overridding");
-//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//		headerdd= new Label(top,SWT.NONE);
+//		Composite headerContainer= 
+//						new Composite(top,SWT.LEFT);
 //		Composite panel=
-//			new Composite(top,SWT.LEFT);
-		panel.setLayoutData(new GridData(GridData.FILL_BOTH));
-		//labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
-		labelFieldEditor= new StringFieldEditor("labelFieldEditor","Label",panel);
-		headerdd= new Label(panel,SWT.NONE);
-		overridderFieldEditor=
-			new StringButtonFieldEditor(
-					"overridderFieldEditor",
-					"Overridder",
-					panel);
-		overridderFieldEditor.setFieldValueProvider(
-									createOverriderProvider());
-		overriddenFieldEditor=
-			new StringButtonFieldEditor(
-					"overriddenFieldEditor","overridden",panel);
-		overriddenFieldEditor.setFieldValueProvider(createOverridenProvider());
-		
-		headerdd= new Label(panel,SWT.NONE);
-		setButton= new Button(panel,SWT.NONE);
-		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		setButton.setText("set");
-		setButton.addSelectionListener(new SelectionAdapter() 
-				{
-					public void widgetSelected(SelectionEvent e) 
-					{	
-						saveEdit();
-					}
-				});
-		//top.update();
+//						new Composite(top,SWT.LEFT);
+//		
+//		headerContainer.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		headerContainer.setLayout(new GridLayout());
+//		headerdd= new Label(headerContainer,SWT.NONE);
+//		
+//		Label header= 
+//			new Label(
+//					headerContainer,
+//					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
+//		header.setText("Overridding");
+//		
+//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		headerdd= new Label(
+//					headerContainer,
+//					SWT.NONE|SWT.SEPARATOR|SWT.HORIZONTAL);
+//		headerdd.setLayoutData(
+//					new GridData(GridData.FILL_HORIZONTAL));
+//
+//		panel.setLayoutData(new GridData(GridData.FILL_BOTH));
+//		//labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
+//		labelFieldEditor= new StringFieldEditor("labelFieldEditor","Label",panel);
+//		headerdd= new Label(panel,SWT.NONE);
+//		overridderFieldEditor=
+//			new StringButtonFieldEditor(
+//					"overridderFieldEditor",
+//					"Overridder",
+//					panel);
+//		overridderFieldEditor.setFieldValueProvider(
+//									createOverriderProvider());
+//		overriddenFieldEditor=
+//			new StringButtonFieldEditor(
+//					"overriddenFieldEditor","overridden",panel);
+//		overriddenFieldEditor.setFieldValueProvider(createOverridenProvider());
+//		
+//		headerdd= new Label(panel,SWT.NONE);
+//		setButton= new Button(panel,SWT.NONE);
+//		setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		setButton.setText("set");
+//		setButton.addSelectionListener(new SelectionAdapter() 
+//				{
+//					public void widgetSelected(SelectionEvent e) 
+//					{	
+//						saveEdit();
+//					}
+//				});
+//		//top.update();
 	}
 
 	public Control getControl() 
@@ -195,44 +186,45 @@ public class PSOverriddingRuleEditorPage
 
 	public void setOverrindingRule(PSOverridingRule overrindingRule) 
 	{
-		if(overrindingRule==null)
-		{
-			return;
-		}
-		try {
-			System.out.println("overrindingRule:"+overrindingRule);
-			this.overrindingRule = overrindingRule;
-			PSPolicy psPol=overrindingRule.getHasOverridden();
-			System.out.println("overrindingRulePSPol:"+psPol);
-			if(psPol!=null)
-			{
-				overriddenFieldEditor.setStringValue(
-									psPol.getLabel().getValue());	
-			}
-			else
-			{
-				overriddenFieldEditor.setStringValue("");
-			}
-			
-			psPol=overrindingRule.getHasOverridder();
-			System.out.println("overrindingRulePSPol:"+psPol);
-			if(psPol!=null)
-			{
-				overridderFieldEditor.setStringValue(
-									psPol.getLabel().getValue());
-			}
-			else
-			{
-				overridderFieldEditor.setStringValue("");
-			}
-			
-			labelFieldEditor.setStringValue(
-					overrindingRule.getLabel().getValue());
-			selectedOverridden=null;
-			selectedOverridder=null;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		orControl.setOverridingRule(overrindingRule);
+//		if(overrindingRule==null)
+//		{
+//			return;
+//		}
+//		try {
+//			System.out.println("overrindingRule:"+overrindingRule);
+//			this.overrindingRule = overrindingRule;
+//			PSPolicy psPol=overrindingRule.getHasOverridden();
+//			System.out.println("overrindingRulePSPol:"+psPol);
+//			if(psPol!=null)
+//			{
+//				overriddenFieldEditor.setStringValue(
+//									psPol.getLabel().getValue());	
+//			}
+//			else
+//			{
+//				overriddenFieldEditor.setStringValue("");
+//			}
+//			
+//			psPol=overrindingRule.getHasOverridder();
+//			System.out.println("overrindingRulePSPol:"+psPol);
+//			if(psPol!=null)
+//			{
+//				overridderFieldEditor.setStringValue(
+//									psPol.getLabel().getValue());
+//			}
+//			else
+//			{
+//				overridderFieldEditor.setStringValue("");
+//			}
+//			
+//			labelFieldEditor.setStringValue(
+//					overrindingRule.getLabel().getValue());
+//			selectedOverridden=null;
+//			selectedOverridder=null;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 	}
 

@@ -1,6 +1,7 @@
 package org.peertrust.modeler.policysystem.model.checks;
 
 import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 
@@ -39,12 +40,27 @@ public class CkeckOverridingRulePoliciesNeq implements PSModelCheck
 	 */
 	public boolean doCheck() 
 	{
-		if(overridden==null || overridden ==null)
+		if(overridden==null || overridder ==null)
 		{
 			return false;
 		}
-		
-		return !overridden.getLabel().equals(overridder.getLabel());
+		PSModelLabel label1=overridden.getLabel();
+		PSModelLabel label2=overridder.getLabel();
+		if(label1==null || label2==null)
+		{
+			if(label1!=label2)
+			{
+				return true;
+			}
+			else
+			{//both equal null
+				return false;
+			}
+		}
+		else
+		{
+			return !label1.equals(label2);
+		}
 	}
 	
 	/**

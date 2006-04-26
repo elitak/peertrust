@@ -3,66 +3,78 @@
  */
 package org.peertrust.modeler.policysystem.model;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+/**
+ * An implementation of PSPolicy
+ * @author Patrice Congo
+ *
+ */
 class PSPolicyImpl implements PSPolicy
 {
+	
+	/**
+	 * The jena rdf resource representing a policy
+	 */
 	private Resource resource;
+	
+	/**
+	 * The logger for the PSPolicyImpl class
+	 */
 	private static final Logger logger=Logger.getLogger(PSPolicyImpl.class);
+	
+	/**
+	 *Holds annobject which is being protected by this policy 
+	 */
 	private PSModelObject guarded;
+	
+	/**
+	 * The role played by this policy
+	 */
 	private String role;
 	
-	private PSPolicyImpl(Resource resource)
-	{
-//		this.resource=resources;
-//		logger=Logger.getLogger(PSPolicyImpl.class);
-		this(resource,null);
-	}
+	/**
+	 * The policy System model
+	 */
+	private PSPolicySystem psModel;//=PolicySystemRDFModel.getInstance();
 	
-	public PSPolicyImpl(Resource resources, PSModelObject guarded)
+//	private PSPolicyImpl(Resource resource)
+//	{
+////		this.resource=resources;
+////		logger=Logger.getLogger(PSPolicyImpl.class);
+//		this(resource,null);
+//	}
+	
+	/**
+	 * Creates a PSPolicyImpl wrapping the provided resource and 
+	 * protecting the provided model object
+	 * @param resource -- the policy rdf resource 
+	 * @param guarded -- the guarded model object
+	 */
+	public PSPolicyImpl(
+				PSPolicySystem psModel,
+				Resource resource, 
+				PSModelObject guarded)
 	{
-		this.resource=resources;
+		this.resource=resource;
 		this.guarded=guarded;
-		
+		this.psModel=psModel;
 	}
 	
-//	public String getHasName() 
-//	{
-//		if(resource==null)
-//		{
-//			logger.warn("resource is null return null as label");
-//			return null;
-//		}
-//		return PolicySystemRDFModel.getStringProperty(
-//						resource,
-//						RDFS.label);
-//	}
-//
-//	public void setHasName(String name) 
-//	{
-//		if(name==null)
-//		{
-//			logger.warn("param name is null skipping setting");
-//			return;
-//		}
-//		if(resource==null)
-//		{
-//			logger.warn("resource is null skipping setting of name:"+name);
-//		}
-//		PolicySystemRDFModel.setStringProperty(
-//						resource,
-//						PolicySystemRDFModel.PROP_HAS_NAME,
-//						name);
-//		return;
-//	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getLabel()
+	 */
 	public PSModelLabel getLabel() 
 	{
 		if(resource==null)
@@ -71,13 +83,35 @@ class PSPolicyImpl implements PSPolicy
 			return null;
 		}
 		
-		String labelValue=
-			PolicySystemRDFModel.getStringProperty(
-												resource,
-												RDFS.label);
-		return new PSModelLabelImpl(this,labelValue);
+//		String labelValue=
+//			PolicySystemRDFModel.getStringProperty(
+//												resource,
+//												RDFS.label);
+//		return new PSModelLabelImpl(this,labelValue);
+		Vector props=
+			psModel.getModelObjectProperties(
+							this,Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME);
+		if(props==null)
+		{
+			return null;
+		}
+		else
+		{
+			if(props.size()==1)
+			{
+				String labelValue= (String) props.elementAt(0);
+				return new PSModelLabelImpl(this,labelValue);
+			}
+			else
+			{
+				return null;
+			}
+		}
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setLabel(java.lang.String)
+	 */
 	public void setLabel(String label) 
 	{
 		if(label==null)
@@ -91,11 +125,14 @@ class PSPolicyImpl implements PSPolicy
 				"wrapped resources is null; skipping setting of label:"+label);
 			return;
 		}
-		
-		PolicySystemRDFModel.setStringProperty(
-						resource,
-						RDFS.label,//PolicySystemRDFModel.PROP_HAS_NAME,
+		psModel.alterModelObjectProperty(
+						this,
+						Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME,
 						label);
+//		PolicySystemRDFModel.setStringProperty(
+//						resource,
+//						RDFS.label,//PolicySystemRDFModel.PROP_HAS_NAME,
+//						label);
 		return;
 	}
 	
@@ -128,7 +165,15 @@ class PSPolicyImpl implements PSPolicy
 
 	public String toString() 
 	{
-		return getLabel().getValue();
+		PSModelLabel label=getLabel();
+		if(label!=null)
+		{
+			return getLabel().getValue();
+		}
+		else
+		{
+			return "polnull";
+		}
 	}
 
 

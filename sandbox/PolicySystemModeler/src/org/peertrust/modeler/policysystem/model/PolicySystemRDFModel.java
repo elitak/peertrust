@@ -175,7 +175,7 @@ public class PolicySystemRDFModel
 	}
 	synchronized public void createPropertyTypes()
 	{
-		PROP_HAS_NAME=schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_NAME);
+		PROP_HAS_NAME=RDFS.label;//schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_NAME);
 		PROP_HAS_MAPPING=
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_MAPPING);
 		PROP_HAS_SUPER=
@@ -538,7 +538,7 @@ public class PolicySystemRDFModel
 			return EMPTY_VECTOR;
 			
 		}
-		if(!(modelObjectWrapper.getModelObject() instanceof Resource))
+		if(!(wrappee instanceof Resource))
 		{
 			logger.warn(
 					"Model object not a resource["+wrappee.getClass()+
@@ -554,6 +554,7 @@ public class PolicySystemRDFModel
 			logger.warn("model instance not created");
 			return null;//new PSPolicy[]{};
 		}
+		
 		Selector psSel=
 				new SimpleSelector(
 							resource,
@@ -839,15 +840,15 @@ public class PolicySystemRDFModel
 		}
 		else if(isSubClassOf(res,CLASS_POLICY))
 		{
-			return new PSPolicyImpl(res,guarded);
+			return new PSPolicyImpl(this,res,guarded);
 		}
 		else if(isSubClassOf(res,CLASS_FILTER))
 		{
-			return new PSFilterImpl(res);
+			return new PSFilterImpl(this,res);
 		}		
 		else if(isSubClassOf(res,CLASS_OVERRIDDING_RULE))
 		{
-			return new PSOverriddingRuleImpl(res,(PSResource)guarded);
+			return new PSOverriddingRuleImpl(this,res,(PSResource)guarded);
 			//throw new RuntimeException("overrinding rull not suported");
 		}
 		else
@@ -1030,7 +1031,7 @@ public class PolicySystemRDFModel
 		}
 		filter.addProperty(RDF.type,CLASS_FILTER);
 		//firePSModelChangeEvent(null);
-		return new PSFilterImpl(filter);
+		return new PSFilterImpl(this,filter);
 
 	}
 
@@ -1068,7 +1069,7 @@ public class PolicySystemRDFModel
 			orule.addProperty(PROP_HAS_OVERRIDDER,overridder.getModelObject());
 		}
 		//firePSModelChangeEvent(null);
-		return new PSOverriddingRuleImpl(orule,null);
+		return new PSOverriddingRuleImpl(this,orule,null);
 	}
 
 	public PSPolicy createPolicy(String label, String value) 
@@ -1096,7 +1097,7 @@ public class PolicySystemRDFModel
 		pol.addProperty(RDFS.label,label);
 		pol.addProperty(RDF.type,CLASS_POLICY);
 		//firePSModelChangeEvent(null);
-		PSPolicyImpl pp=new PSPolicyImpl(pol,null);
+		PSPolicyImpl pp=new PSPolicyImpl(this,pol,null);
 		logger.info("resource created:"+pp);
 		return pp;
 	}
@@ -1922,11 +1923,11 @@ public class PolicySystemRDFModel
 	private PSModelChangeVeto removeResourceLinkedStm(
 									PSResource psResource, 
 									String psProp, 
-									PSModelObject psObject)
+									Object psObject)
 	{
 		Statement stm= null;
 		Resource subject= (Resource)psResource.getModelObject();
-		Resource object = (Resource)psObject.getModelObject();
+		//Resource object = (Resource)psObject.getModelObject();
 		
 		Property prop=null;
 		if(psProp==null)
@@ -1954,19 +1955,33 @@ public class PolicySystemRDFModel
 		logger.info("STM "+
 						"\n\tsubject="+subject+
 						"\n\tprop="+prop+
-						"\n\tobject="+object);
-		rdfModel.removeAll(subject,prop,object);
-		return null;
+						"\n\tobject="+psObject);
+		if(psObject instanceof PSModelObject)
+		{
+			Resource object = 
+				(Resource)((PSModelObject)psObject).getModelObject();
+			rdfModel.removeAll(subject,prop,object);
+			return null;
+		}
+		else if(psObject instanceof String)
+		{
+			removeStringProperty(subject,prop,(String)psObject);
+			return null;
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	private PSModelChangeVeto removeFilterLinkedStm(
 											PSFilter psFilter, 
 											String psProp, 
-											PSModelObject psObject)
+											Object psObject)
 	{
 		Statement stm= null;
 		Resource subject= (Resource)psFilter.getModelObject();
-		Resource object = (Resource)psObject.getModelObject();
+		
 	
 		Property prop=null;
 		if(psProp==null)
@@ -1994,11 +2009,81 @@ public class PolicySystemRDFModel
 		logger.info("STM "+
 		"\n\tsubject="+subject+
 		"\n\tprop="+prop+
-		"\n\tobject="+object);
-		rdfModel.removeAll(subject,prop,object);
-		return null;
+		"\n\tobject="+psObject);
+		if(psObject instanceof PSModelObject)
+		{
+			Resource object = 
+				(Resource)((PSModelObject)psObject).getModelObject();
+			rdfModel.removeAll(subject,prop,object);
+			return null;
+		}
+		else if(psObject instanceof String)
+		{
+			removeStringProperty(subject,prop,(String)psObject);
+			return null;
+		}
+		else
+		{
+			return null;
+		}
 	}
-	public PSModelChangeVeto removeStatement(PSModelStatement psStm) {
+	
+	private PSModelChangeVeto addFilterLinkedStm(
+			PSFilter psFilter, 
+			String psProp, 
+			Object psObject)
+	{
+		Resource subject= (Resource)psFilter.getModelObject();
+		Property prop=lookupModelProperty(psProp);
+		
+		logger.info("STM TO ADD:"+
+					"\n\tsubject="+subject+
+					"\n\tprop="+prop+
+					"\n\tobject="+psObject);
+		if(prop==null)
+		{
+			return null;
+		}
+		else if(	(prop==PROP_IS_PROTECTED_BY) )
+		{
+			if(psObject instanceof PSPolicy)
+			{
+				Resource object = 
+					(Resource)((PSModelObject)psObject).getModelObject();
+				rdfModel.add(subject,prop,object);
+				return null;
+			}
+			else
+			{
+				logger.warn("Cannot protect with a "+psObject.getClass());
+				return null;
+			}
+		}
+		else if((prop==PROP_HAS_CONDITION) || 
+				(prop==PROP_HAS_NAME) )
+		{
+			if(psObject instanceof String)
+			{
+				rdfModel.add(subject,prop,(String)psObject);
+				//removeStringProperty(subject,prop,(String)psObject);
+				return null;
+			}
+			else
+			{
+				logger.warn(
+						"condition or name are of type string not "+
+						psObject.getClass());
+				return null;
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	public PSModelChangeVeto removeStatement(PSModelStatement psStm) 
+	{
 		PSModelObject subject = psStm.getSubject();
 		if(subject==null)
 		{
@@ -2015,10 +2100,10 @@ public class PolicySystemRDFModel
 		}
 		else if(subject instanceof PSFilter)
 		{
-//			return removeFlterLinkedStm(
-//								(PSFilter)subject,
-//								psStm.getProperty(),
-//								psStm.getObject());
+			return removeFilterLinkedStm(
+								(PSFilter)subject,
+								psStm.getProperty(),
+								psStm.getObject());
 			
 		}
 		else if(subject instanceof PSOverridingRule)
@@ -2032,7 +2117,306 @@ public class PolicySystemRDFModel
 		
 		return null;
 	}
+
+	public PSModelChangeVeto addStatement(PSModelStatement psStm) 
+	{
+		PSModelObject subject = psStm.getSubject();
+		if(subject==null)
+		{
+			logger.warn("Statement subject is null:"+psStm);
+			return null;
+		}
+		else if(subject instanceof PSResource)
+		{
+			return removeResourceLinkedStm(
+								(PSResource)subject,
+								psStm.getProperty(),
+								psStm.getObject());
+			
+		}
+		else if(subject instanceof PSFilter)
+		{
+			return addFilterLinkedStm(
+								(PSFilter)subject,
+								psStm.getProperty(),
+								psStm.getObject());
+			
+		}
+		else if(subject instanceof PSOverridingRule)
+		{
+			logger.warn("not supported");	
+		}
+		else
+		{
+			logger.warn("Removing this statement");
+		}
+		
+		return null;
+	}
+
+	public Vector getModelObjectProperties(
+						PSModelObject modelObject, 
+						String propertyKey) 
+	{
+		if(modelObject==null || propertyKey==null)
+		{
+			logger.warn(
+				"args of getModelObjectProperties must not be null");
+			return null;
+		}
+		Object res=modelObject.getModelObject();
+		if(res==null)
+		{
+			logger.warn("modelobject wrappeed resource is null");
+			return null;
+		}
+		else if(!(res instanceof Resource))
+		{
+			logger.warn("Wrapped object is nota resource but a "+res.getClass());
+			return null;
+		}
+		
+		Property prop=lookupModelProperty(propertyKey);
+		if(prop==null)
+		{
+			logger.warn("Property is null for property:"+propertyKey);
+			return null;
+		}
+			
+		return getMultipleProperty(modelObject,prop);
+	}
+	
+	/***
+	 * Get the rdf property mapped by this property key
+	 * @param propKey -- the property key
+	 * @return 
+	 */
+	private Property lookupModelProperty(String propKey)
+	{
+		//TODO use a hastable initialized at constructor
+		if(propKey==null)
+		{
+			return null;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY))
+		{
+			return PROP_IS_PROTECTED_BY;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION))
+		{
+			return PROP_HAS_CONDITION;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER))
+		{
+			return PROP_HAS_FILTER;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME))
+		{
+			return PROP_HAS_NAME;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN))
+		{
+			return PROP_HAS_OVERRIDDEN;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER))
+		{
+			return PROP_HAS_OVERRIDDER;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE))
+		{
+			return PROP_HAS_OVERRIDING_RULES;
+		}
+		else
+		{
+			logger.warn("unknown property");
+			return null;
+		}
+	}
+
+	public PSModelChangeVeto alterFilterProperty(
+			PSFilter filter, 
+			String propertyKey, 
+			Object object)
+	{
+		Property prop= lookupModelProperty(propertyKey);
+		if(prop==null)
+		{
+			return null;
+		}
+		else if( (prop==PROP_IS_PROTECTED_BY))
+		{
+//			if(object instanceof PSPolicy)
+//			{
+//				setResourceProperty(
+//						(Resource)filter.getModelObject(),
+//						prop,
+//						(Resource)((PSPolicy)object).getModelObject());
+//				return null;
+//			}
+//			else
+//			{
+//				logger.warn("cannot protect filter with "+object.getClass());
+//				return null;
+//			}
+			logger.warn("Altering multiple prop is not allow");
+			return null;
+		}
+		else if((prop==PROP_HAS_NAME))
+		{
+			if(object instanceof String)
+			{
+				setStringProperty(
+							(Resource)filter.getModelObject(),
+							prop,
+							(String)object);
+				return null;
+			}
+			else
+			{
+				logger.warn("label is not a string but a "+object.getClass());
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public PSModelChangeVeto alterPolicyProperty(
+										PSPolicy policy, 
+										String propertyKey, 
+										Object object)
+	{
+		Property prop= 
+			lookupModelProperty(propertyKey);
+		if(prop==null)
+		{
+			return null;
+		}
+		else if( prop==PROP_HAS_FILTER)
+		{
+//			if(object instanceof PSFilter)
+//			{
+//				setResourceProperty(
+//						(Resource)policy.getModelObject(),
+//						prop,
+//						(Resource)((PSPolicy)object).getModelObject());
+//				return null;
+//			}
+//			else
+//			{
+//				logger.warn("object is not a filter but a "+object.getClass());
+//				return null;
+//			}
+			logger.warn(
+				"Altering policy filter is not allow since it is a multiple prop");;
+			return null;
+		}
+		else if((prop==PROP_HAS_NAME)|| (prop==PROP_HAS_VALUE))
+		{
+			if(object instanceof String)
+			{
+				setStringProperty(
+						(Resource)policy.getModelObject(),
+						prop,
+						(String)object);
+				return null;
+			}
+			else
+			{
+				logger.warn("expecting string for property"+prop+
+							" but got "+object.getClass());
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public PSModelChangeVeto alterORuleProperty(
+									PSOverridingRule oRule, 
+									String propertyKey, 
+									Object object)
+	{
+		Property prop= 
+			lookupModelProperty(propertyKey);
+		if(prop==null)
+		{
+		return null;
+		}
+		else if( prop==PROP_HAS_OVERRIDDEN || prop==PROP_HAS_OVERRIDDER)
+		{
+			if(object instanceof PSPolicy)
+			{
+				setResourceProperty(
+						(Resource)oRule.getModelObject(),
+						prop,
+						(Resource)((PSPolicy)object).getModelObject());
+				return null;
+			}
+			else
+			{
+				logger.warn("object is not a policy but a "+object.getClass());
+				return null;
+			}
+
+		}
+		else if((prop==PROP_HAS_NAME))
+		{
+			if(object instanceof String)
+			{
+				setStringProperty(
+					(Resource)oRule.getModelObject(),
+					prop,
+					(String)object);
+				return null;
+			}
+			else
+			{
+				logger.warn("expecting string for property"+prop+
+				" but got "+object.getClass());
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	public PSModelChangeVeto alterModelObjectProperty(
+						PSModelObject modelObject, 
+						String propertyKey, 
+						Object object) 
+	{
+		if(modelObject==null || propertyKey==null || object==null)
+		{
+			logger.warn("params must not be null");
+			return null;
+		}
+		
+		if(modelObject instanceof PSPolicy)
+		{
+			return alterPolicyProperty(
+						(PSPolicy)modelObject,propertyKey,object);
+		}
+		else if(modelObject instanceof PSFilter)
+		{
+			return alterFilterProperty(
+						(PSFilter)modelObject,propertyKey,object);
+		}
+		else if(modelObject instanceof PSOverridingRule)
+		{
+			return alterORuleProperty(
+						(PSOverridingRule)modelObject,propertyKey,object);
+		}
+		else if(modelObject instanceof PSResource)
+		{
+			return null;
+		}
+		else
+		{
+			return null;
+		}
+		
+	}
+	
 }
+
 
 
 

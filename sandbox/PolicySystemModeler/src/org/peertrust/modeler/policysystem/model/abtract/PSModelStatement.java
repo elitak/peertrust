@@ -26,7 +26,7 @@ public interface PSModelStatement
 	 * Get the statement object
 	 * @return the PSModelObject acting as object in this statement
 	 */
-	public PSModelObject getObject();
+	public Object getObject();
 	
 	
 	/**
@@ -34,7 +34,7 @@ public interface PSModelStatement
 	 * this statement
 	 * @param object
 	 */
-	public void setObject(PSModelObject object);
+	public void setObject(Object object);
 	
 	/**
 	 * Return a string representing the statement property

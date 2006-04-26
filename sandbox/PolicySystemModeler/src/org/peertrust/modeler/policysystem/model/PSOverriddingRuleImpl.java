@@ -8,6 +8,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -16,22 +17,58 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class PSOverriddingRuleImpl implements PSOverridingRule 
 {
+	/**
+	 * The overridding rule resource
+	 */
 	private Resource overriddingRule;
+	
+	/**
+	 * A resource where this overriding rule is applied
+	 */
 	private PSResource overriddingPlace; 
+	
+	/**
+	 * The overridden poliy
+	 */
 	private PSPolicy overridden;
+	
+	
+	/**
+	 * The overridding policy
+	 */
 	private PSPolicy overridder;
+	
+	/**
+	 * The logger for the PSOverriddingRuleImpl class
+	 */
 	private static final Logger logger= 
 		Logger.getLogger(PSOverriddingRuleImpl.class);
 	
+	/**
+	 * The policy system
+	 */
+	private PSPolicySystem psModel;
+	
+	/**
+	 * Create an overridding rule
+	 * @param psModel -- the policy system containing the rule
+	 * @param overridenRule -- the original model object representing the rule
+	 * @param psResource -- a resouce where the rule is applied
+	 */
 	public PSOverriddingRuleImpl(
+						PSPolicySystem psModel,
 						Resource overridenRule,
 						PSResource psResource)
 	{
 		this.overriddingRule=overridenRule;
-		overriddingPlace=psResource;
+		this.overriddingPlace=psResource;
+		this.psModel=psModel;
 		initPolicies();
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule#getHasOverridden()
+	 */
 	public PSPolicy getHasOverridden() 
 	{
 		if(overridden==null)
@@ -41,6 +78,9 @@ public class PSOverriddingRuleImpl implements PSOverridingRule
 		return overridden;
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule#setHasOverriden(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
+	 */
 	public void setHasOverriden(PSPolicy psPolicy) 
 	{
 		if(overriddingRule==null)
@@ -59,10 +99,14 @@ public class PSOverriddingRuleImpl implements PSOverridingRule
 			logger.warn("PSPolicy wrapped policy is null; skipping set");
 			return;
 		}
-		PolicySystemRDFModel.getInstance().setResourceProperty(
-								overriddingRule,
-								PolicySystemRDFModel.PROP_HAS_OVERRIDDEN,
-								policy);
+		psModel.alterModelObjectProperty(
+				this,
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN,
+				psPolicy);
+//		PolicySystemRDFModel.getInstance().setResourceProperty(
+//								overriddingRule,
+//								PolicySystemRDFModel.PROP_HAS_OVERRIDDEN,
+//								policy);
 		this.overridden=psPolicy;
 	}
 
@@ -93,10 +137,14 @@ public class PSOverriddingRuleImpl implements PSOverridingRule
 			logger.warn("PSPolicy wrapped policy is null; skipping set");
 			return;
 		}
-		PolicySystemRDFModel.getInstance().setResourceProperty(
-								overriddingRule,
-								PolicySystemRDFModel.PROP_HAS_OVERRIDDER,
-								policy);
+//		PolicySystemRDFModel.getInstance().setResourceProperty(
+//								overriddingRule,
+//								PolicySystemRDFModel.PROP_HAS_OVERRIDDER,
+//								policy);
+		psModel.alterModelObjectProperty(
+					this,
+					Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER,
+					psPolicy);
 		this.overridder=psPolicy;
 	}
 

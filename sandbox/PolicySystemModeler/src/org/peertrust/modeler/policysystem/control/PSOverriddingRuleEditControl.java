@@ -86,12 +86,24 @@ public class PSOverriddingRuleEditControl
 	 * for the overridden rule
 	 */ 
 	private PSPolicy selectedOverridden=null;
+	private PSPolicy selectedOverriddenOld=null;
 	
 	/** 
 	 * the selected new replacement rule model object 
 	 * for the overridder rule
 	 */
 	private PSPolicy selectedOverridder=null;
+	private PSPolicy selectedOverridderOld=null;
+	
+	public PSOverriddingRuleEditControl ()
+	{
+		this(false);
+	}
+	
+	public PSOverriddingRuleEditControl (boolean doCreateSetButtion)
+	{
+		this.doCreateSetButtion=doCreateSetButtion;
+	}
 	
 	/**
 	 * Creates the controls; use the provided composite as parent container
@@ -103,6 +115,7 @@ public class PSOverriddingRuleEditControl
 		Label headerdd;
 		top = new Composite(parent, SWT.LEFT);
 		top.setLayout(new GridLayout());
+		top.setLayoutData(new GridData(GridData.FILL_BOTH));
 		///header
 		Composite headerContainer= 
 						new Composite(top,SWT.LEFT);
@@ -198,7 +211,8 @@ public class PSOverriddingRuleEditControl
 			logger.info("new overridingRule:"+overridingRule);
 			this.overridingRule = overridingRule;
 			PSPolicy psPol=overridingRule.getHasOverridden();
-			
+			selectedOverridden=psPol;
+			selectedOverriddenOld=psPol;
 			if(psPol!=null)
 			{
 				overriddenFieldEditor.setStringValue(
@@ -210,6 +224,8 @@ public class PSOverriddingRuleEditControl
 			}
 			
 			psPol=overridingRule.getHasOverridder();
+			selectedOverridder=psPol;
+			selectedOverridderOld=psPol;
 			//System.out.println("overrindingRulePSPol:"+psPol);
 			if(psPol!=null)
 			{
@@ -223,10 +239,10 @@ public class PSOverriddingRuleEditControl
 			
 			labelFieldEditor.setStringValue(
 					overridingRule.getLabel().getValue());
-			selectedOverridden=null;
-			selectedOverridder=null;
+//			selectedOverridden=null;
+//			selectedOverridder=null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("error while setting rule",e);
 		}
 		
 	}
@@ -246,17 +262,18 @@ public class PSOverriddingRuleEditControl
 			String ruleLabel=labelFieldEditor.getStringValue();
 			if(ruleLabel!=null || !"".equals(ruleLabel))
 			{
+				System.out.println("WWWWWWWWWWWWWWWWW0");
 				overridingRule.setLabel(ruleLabel);
 			}
 			
-			if(selectedOverridden==null || selectedOverridder==null)
-			{
-				PolicysystemPlugin.getDefault().showMessage(
-						"Selection incomplete:"+
-						"\n\t:overridder:"+selectedOverridder+
-						"\n\t:overridden:"+selectedOverridden);
-				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
-			}
+//			if(selectedOverridden==null || (selectedOverridder==null))
+//			{
+//				PolicysystemPlugin.getDefault().showMessage(
+//						"Selection incomplete:"+
+//						"\n\t:overridder:"+selectedOverridder+
+//						"\n\t:overridden:"+selectedOverridden);
+//				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
+//			}
 			
 			CkeckOverridingRulePoliciesNeq check=
 				new CkeckOverridingRulePoliciesNeq(
@@ -271,17 +288,32 @@ public class PSOverriddingRuleEditControl
 			
 			if(overriddenLabel==null || overridderLabel==null)
 			{
+				System.out.println("WWWWWWWWWWWWWWWWW");
 				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
 			}
 			
-			if(selectedOverridden!=null)
+			if(selectedOverridden!=selectedOverriddenOld)
 			{
-				overridingRule.setHasOverriden(selectedOverridden);
+				if(selectedOverridden!=null)
+				{
+					overridingRule.setHasOverriden(selectedOverridden);
+				}
+				else
+				{
+					//TODO remove overridden
+				}
 			}
 			
-			if(selectedOverridder!=null)
+			if(selectedOverridder!=selectedOverridderOld)
 			{
-				overridingRule.setHasOverrider(selectedOverridder);	
+				if(selectedOverridder!=null)
+				{
+					overridingRule.setHasOverrider(selectedOverridder);
+				}
+				else
+				{
+					//TODO remove rule
+				}
 			}
 			
 //			String ruleLabel=labelFieldEditor.getStringValue();
@@ -371,6 +403,7 @@ public class PSOverriddingRuleEditControl
 							return null;
 						}
 						//overridingRule.setHasOverrider(sel);
+						///selectedOverridderOld=selectedOverridder;
 						selectedOverridder=sel;
 						String label=sel.getLabel().getValue();
 						logger.info("Selected:"+sel);

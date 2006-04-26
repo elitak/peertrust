@@ -27,7 +27,7 @@ public class PSModelStatementImpl implements PSModelStatement {
 	/**
 	 * The stament object
 	 */
-	private PSModelObject object;
+	private Object object;
 	
 	/**
 	 *Create an empty PSModelStamentImpl object 
@@ -43,7 +43,7 @@ public class PSModelStatementImpl implements PSModelStatement {
 	public PSModelStatementImpl(
 						PSModelObject subject, 
 						String property,
-						PSModelObject object) 
+						Object object) 
 	{
 		super();
 		this.subject=subject;
@@ -70,15 +70,15 @@ public class PSModelStatementImpl implements PSModelStatement {
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelStatement#getObject()
 	 */
-	public PSModelObject getObject() 
+	public Object getObject() 
 	{
 		return object;
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelStatement#setObject(org.peertrust.modeler.policysystem.model.abtract.PSModelObject)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelStatement#setObject(java.lang.Object)
 	 */
-	public void setObject(PSModelObject object) 
+	public void setObject(Object object) 
 	{
 		this.object=object;
 	}

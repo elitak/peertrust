@@ -2,6 +2,8 @@ package org.peertrust.modeler.policysystem.model.abtract;
 
 import java.util.Vector;
 
+import com.hp.hpl.jena.ontology.ObjectProperty;
+
 /**
  * This is the interface a policy system must implement.
  * 
@@ -158,6 +160,15 @@ public interface PSPolicySystem
 						Class linkedObectjType);
 	
 	public PSModelChangeVeto removeStatement(PSModelStatement psStm);
+	public PSModelChangeVeto addStatement(PSModelStatement stm);
 	
 	public PSModelChangeVeto removeModelObject(PSModelObject psModelObject);
+	
+	public Vector getModelObjectProperties(
+							PSModelObject modelObject,
+							String PropertyKey);
+	public PSModelChangeVeto alterModelObjectProperty(
+							PSModelObject modelObject,
+							String propertyKey,
+							Object object);
 }
