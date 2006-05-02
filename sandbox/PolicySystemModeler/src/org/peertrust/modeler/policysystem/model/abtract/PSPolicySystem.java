@@ -19,16 +19,16 @@ public interface PSPolicySystem
 	 */
 	public Vector getResources();
 	
-	/**
-	 * Returns the Policies define at this Resource
-	 * 
-	 * @param resource -- the PSResource which loacal
-	 * 			policies is been retrieved
-	 * @return the local policies appling to a resource
-	 * 			if resource is non null else return all
-	 * 			policies in the system
-	 */
-	public Vector getLocalPolicies(PSResource resource);
+//	/**
+//	 * Returns the Policies define at this Resource
+//	 * 
+//	 * @param resource -- the PSResource which loacal
+//	 * 			policies is been retrieved
+//	 * @return the local policies appling to a resource
+//	 * 			if resource is non null else return all
+//	 * 			policies in the system
+//	 */
+//	public Vector getLocalPolicies(PSResource resource);
 	
 	/**
 	 * Returns all the policies a resource has inherited from

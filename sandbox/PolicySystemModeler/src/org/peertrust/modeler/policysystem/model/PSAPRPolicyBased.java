@@ -96,9 +96,11 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 		Vector oRules;
 		Vector lPolicies;
 		///add root policies
+//		policies.addAll(
+//				psSystem.getLocalPolicies(
+//						(PSResource)path.get(0)));
 		policies.addAll(
-				psSystem.getLocalPolicies(
-						(PSResource)path.get(0)));
+				((PSResource)path.get(0)).getIsProtectedBy());
 		logger.info("Policy at 0:"+policies);
 		///follow path; add polcies and do overriding
 		PSResource curRes;

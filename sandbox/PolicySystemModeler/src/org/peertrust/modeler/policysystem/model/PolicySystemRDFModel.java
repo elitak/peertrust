@@ -53,7 +53,7 @@ public class PolicySystemRDFModel
 				implements 	ProjectConfigChangeListener,
 							PSPolicySystem
 {
-	static final public Vector EMPTY_VECTOR=new Vector(0);
+	
 	static final public String POLICY_SYSTEM_RES="PolicySystem"; 
 	static final public String POLICY_SYSTEM_RES_POLICIES="Policies";
 	static final public String POLICY_SYSTEM_RES_RESOURCES="Resources";
@@ -168,20 +168,7 @@ public class PolicySystemRDFModel
 		identityMakers= new Hashtable();
 		identityMakers.put(File.class,new PSFileIdentityMaker());
 		PSResourceIdentityMaker iMaker=
-			new PSResourceIdentityMaker()
-			{
-
-				public String makeIdentity(Object resource) 
-				{
-					return (String)resource;
-				}
-
-				public String makeLabel(Object resource) 
-				{
-					return (String)resource;
-				}
-			
-			};
+			new PSStringBasedRIM();
 		identityMakers.put(String.class,iMaker);
 	}
 	
@@ -290,52 +277,14 @@ public class PolicySystemRDFModel
 	}
 
 
-	public Model getSchema() {
+	public Model getSchema() 
+	{
 		if(policySystemRDFModel==null)
 		{
 			return null;
 		}
 		
-		System.out.println("policySystemRDFModel.schema:"+policySystemRDFModel.schema);
 		return schema;
-		//return schema;
-	}
-
-
-	synchronized public Vector getPolicySystems()
-	{
-		Property typeProp=rdfModel.createProperty(RDF_TYPE);
-		Resource typeRes=rdfModel.createResource(KB_POLICY_SYSTEM);
-		//String propVal=null;//RS_NAME_POLICY_SYSTEM;//null;
-		
-		Selector psSel=new SimpleSelector(null,typeProp,typeRes);
-		StmtIterator it=rdfModel.listStatements(psSel);
-		//it=rdfModel.listStatements();
-		Vector resources=new Vector();
-		Statement st;
-		for(;it.hasNext();){
-			st=it.nextStatement();
-			resources.add(st.getSubject());
-			//System.out.println("=====>it:"+st.getSubject());
-		}
-		return resources;
-	}
-	
-	synchronized public Vector getPolicySystemPolicies(Resource psRes)
-	{
-		Property typeProp=rdfModel.createProperty(KB_POLICIES);
-		Resource typeRes=null;//rdfModel.createResource(RS_NAME_POLICY_SYSTEM);
-		
-		Selector psSel=new SimpleSelector(psRes,typeProp,typeRes);
-		StmtIterator it=rdfModel.listStatements(psSel);
-		Vector resources=new Vector();
-		Statement st;
-		for(;it.hasNext();){
-			st=it.nextStatement();
-			resources.add(st.getSubject());
-			//System.out.println("=====>it:"+st);
-		}
-		return resources;
 	}
 	
 	synchronized static public PolicySystemRDFModel getInstance()
@@ -580,7 +529,7 @@ public class PolicySystemRDFModel
 			logger.warn(
 					"Wrapped model object is null; wrapper="+modelObjectWrapper+
 					" return empty vector");
-			return EMPTY_VECTOR;
+			return new Vector();
 			
 		}
 		if(!(wrappee instanceof Resource))
@@ -588,7 +537,7 @@ public class PolicySystemRDFModel
 			logger.warn(
 					"Model object not a resource["+wrappee.getClass()+
 					" return empty Vector");
-			return EMPTY_VECTOR;
+			return new Vector();
 		}
 		
 		Resource resource=(Resource)wrappee;
@@ -871,8 +820,7 @@ public class PolicySystemRDFModel
 			getInstance().logger.warn("A param is null:res="+res+" cls="+cls);
 			return false;
 		}
-		return 
-			policySystemRDFModel.rdfModel.contains(res,RDF.type,cls);
+		return rdfModel.contains(res,RDF.type,cls);
 	}
 	
 	final public PSModelObject createModelObjectWrapper(
@@ -899,135 +847,19 @@ public class PolicySystemRDFModel
 		else
 		{
 			
-			//TODO check replacement with logger.warn plus return null
-//			RuntimeException ex=
-//				new RuntimeException(
-//						"\ncannot handle this:"+res.getLocalName()+
-//						"\n\t type="+res.getProperty(RDF.type)+
-//						"\n\t URI"+res.getURI()+
-//						"\n\t "+res.getLocalName());
-//			System.out.println("\nStatemenList:");
-//			StmtIterator it=
-//				getInstance().rdfModel.listStatements(
-//									(Resource)null,RDF.type,(RDFNode)null);
-//			for(;it.hasNext();)
-//			{
-//				System.out.println("\n\t"+it.nextStatement());
-//			}
-//			getInstance().logger.error(ex);
-//			throw ex;
 			logger.warn(
 						"\ncannot handle this:"+res.getLocalName()+
 						"\n\t type="+res.getProperty(RDF.type)+
 						"\n\t URI"+res.getURI()+
 						"\n\t "+res.getLocalName());
-			return null;
+			return null;//res;
 		}
 	}
 	
-//	private PSResource getPSResource(
-//									String identity,  
-//									boolean forceCreation,
-//									Selector selector) 
-//	{
-//		if(identity==null)
-//		{
-//			logger.warn(
-//					"param resource identity must not be null");
-//			return null;
-//		}
-//		
-//		if(policySystemRDFModel==null)
-//		{
-//			logger.warn("model instance not created");
-//			return null;
-//		}
-//		
-//		
-//		
-//		Selector psSel=selector;
-//		if(selector==null)
-//		{
-//			logger.warn("No selector provided using default selector");
-//			psSel=
-//				new SimpleSelector(
-//						(Resource)null,
-//						PROP_HAS_IDENTITY,
-//						(String)identity);
-//		}
-//		
-//		blockModelEvent=true;
-//		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
-//		
-//		Statement stm;
-//		Resource res=null;
-//		if(it.hasNext())
-//		{
-//			stm=it.nextStatement();
-//			res=stm.getSubject();
-//		}
-////		else
-////		{
-////			logger.warn("No Model entry found for:"+identity);
-////			return null;
-////		}
-//		
-//		if(it.hasNext())
-//		{
-//			logger.warn(
-//					"Model contents several resources with this identity:"+
-//					identity);
-//		}
-//		
-//		if(res==null && forceCreation==true)
-//		{
-//			//res=policySystemRDFModel.rdfModel.cre
-////			res=
-////				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
-//			//res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
-//			String id=identity;
-//			String root=
-//				ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
-//			if(root==null)
-//			{
-//				logger.warn("root is null file resource creation skipped:"+
-//							id);
-//				blockModelEvent=false;
-//				return null;
-//			}
-//			if(!root.equals(id))
-//			{//if not root get rel path
-//				if(!id.startsWith(root))
-//				{
-//					logger.warn(
-//							"resource not root child: \n\tid  ="+id+" " +
-//							"\n\troot="+root);
-//					blockModelEvent=false;
-//					return null;
-//				}
-////				int start=root.length();
-////				if(root.endsWith("/"))
-////				{
-////					start=start+1;
-////				}
-////				id=id.substring(start);
-//			}
-//			res=
-//				rdfModel.createResource(
-//					idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
-//			res.addProperty(RDFS.label,id);
-//			res.addProperty(
-//					PROP_HAS_IDENTITY,id);
-//			System.out.println("CDDDDDDD:"+id+" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
-//			res.addProperty(RDF.type,CLASS_RESOURCE);
-//		}
-//		blockModelEvent=false;
-//		return new PSResourceImpl(res,this);
-//	}
-	
+
 	public PSResource getPSResource(
-					Object realResource,//String identity,  
-					boolean forceCreation) 
+						Object realResource,//String identity,  
+						boolean forceCreation) 
 	{
 		if(realResource==null)
 		{
@@ -1110,10 +942,13 @@ public class PolicySystemRDFModel
 	{
 		logger.info("Model loaded="+rdfModelFile + 
 					" schema="+rdfSchemaFile);
-		try {
+		try 
+		{
 			createPolicySystemRDFModel();
-		} catch (IOException e) {
-			getInstance().logger.error("Error while creating the model",e);//e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			getInstance().logger.error("Error while creating the model",e);
 		}
 	}
 ////////////////////////////////////////////////////////////////////////////////
@@ -1131,12 +966,7 @@ public class PolicySystemRDFModel
 		}
 		final int COND_LEN=conditions.length;
 		final int POL_LEN=policies.length;
-//		if(COND_LEN<=0 || POL_LEN<=0)
-//		{
-//			logger.warn("conditions odr policies must not be empty");
-//			return null;
-//		}
-		
+
 		if(rdfModel==null || NS_KB_DATA==null)
 		{
 			logger.warn("rdfModel and NS_KB_DATA must not be null");
@@ -1160,7 +990,6 @@ public class PolicySystemRDFModel
 			filter.addProperty(PROP_IS_PROTECTED_BY,conditions[i]);
 		}
 		filter.addProperty(RDF.type,CLASS_FILTER);
-		//firePSModelChangeEvent(null);
 		return new PSFilterImpl(this,filter);
 
 	}
@@ -1395,107 +1224,11 @@ public class PolicySystemRDFModel
 		return completedPath;
 	}
 	
-	public final Vector computedPathPolicies(Vector path)
-	{
-		logger.info("getting policies for path:"+path);
-		if(path==null)
-		{
-			return new Vector();
-		}
-		
-		final int MAX=path.size()-1;
-		if(MAX<0)
-		{
-			return new Vector();
-		}
-		
-		Vector policies= new Vector();
-		Vector oRules;
-		Vector lPolicies;
-		///add root policies
-		policies.addAll(
-				getLocalPolicies(
-						(PSResource)path.get(0)));
-		logger.info("Policy at 0:"+policies);
-		///follow path; add polcies and do overriding
-		PSResource curRes;
-		PSOverridingRule rule;
-		for(int i=1;i<=MAX;i++)
-		{
-			curRes=(PSResource)path.get(i);
-			oRules=getOverriddingRule(curRes);
-			for(Iterator it=oRules.iterator();it.hasNext();)
-			{
-				//PSOverridingRule rule=
-				rule=
-					(PSOverridingRule)it.next();
-				rule.performOverridding(policies);
-			}
-			lPolicies=getLocalPolicies(curRes);
-			logger.info("Policy at "+i+" for "+curRes+" "+lPolicies);
-			policies.addAll(lPolicies);
-			
-		}
-		return policies;
-	}
-	
 	public Vector getInheritedPolicies(PSResource psResource) 
 	{
 		return apResolver.getApplyingPolicies(psResource);
-//		if(psResource==null)
-//		{
-//			logger.warn("param psResurce must not be null");
-//			return new Vector(); 
-//		}
-//		
-//		Vector policies=new Vector();
-//		Vector paths=getPathToAncestorRoots(psResource);
-//		logger.info("PATHS:"+paths);
-//		for(int i=paths.size()-1;i>=0;i--)
-//		{
-//			Vector path=(Vector)paths.get(i);
-//			
-//			policies.addAll(computePathPolicies(path));
-//		}
-//		
-//		Vector localORules=psResource.getIsOverrindingRule();
-//		logger.info("\n\tlocalOrules:"+localORules);
-//		PSOverridingRule oRule;
-//		for(Iterator it=localORules.iterator();it.hasNext();)
-//		{
-//			oRule=(PSOverridingRule)it.next();
-//			oRule.performOverridding(policies);
-//		}
-//		return policies;
 	}
 
-	public Vector getLocalPolicies(PSResource psResource) 
-	{
-
-		if(psResource ==null)
-		{
-			logger.warn("param psResource must not be null");
-			return new Vector();
-		}
-		
-		Resource res=(Resource)psResource.getModelObject();
-		if(res==null)
-		{
-			logger.warn("wrapper resource is null, returning empty vector");
-			return new Vector();
-		}
-		logger.info("Getting Policies for Resource:"+res);
-		NodeIterator it=
-			rdfModel.listObjectsOfProperty(res,PROP_IS_PROTECTED_BY);
-		Resource pol;
-		Vector lPolicies= new Vector();
-		for(;it.hasNext();)
-		{
-			res=(Resource)it.nextNode();
-			lPolicies.add(createModelObjectWrapper(res,psResource));
-		}
-		return lPolicies;
-	}
 
 	public Vector getOverriddingRules(PSResource resource) 
 	{
