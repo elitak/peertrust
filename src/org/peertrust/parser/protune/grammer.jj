@@ -1,41 +1,72 @@
-options {
+aoteoptions {
   JDK_VERSION = "1.5";
   STATIC = false;
 }
 
 PARSER_BEGIN(Parser)
 
-package foo;
+package org.peertrust.parser.protune;
 
 import java.io.*;
 import java.util.*;
 
 public class Parser {
 	
-	static Vector directives=new Vector();
-	static Vector rules=new Vector();
-	static Vector metarules=new Vector();
+	private Vector directives;
+	private Vector rules;
+	private Vector metarules;
+	
+//	private Vector ids;
+	
+	private String DefaultId;
+	private int RuleNr;
 		
+	public void init(){
+		
+		directives=new Vector();
+		rules=new Vector();
+		metarules=new Vector();
+		
+//		ids=new Vector();
+		
+		DefaultId="RuLe_AbC_XyZ#";
+		RuleNr=0;
+	}
+
+	public Vector getDirectives(){
+		return directives;
+	}
+	
+	public Vector getRules(){
+		return rules;
+	}
+	
+	public Vector getMetarules(){
+		return metarules;
+	}
+	
 	public static void main(String args[]) throws ParseException,TokenMgrError{
-			
+		
 		Parser parser=null;
 		try{
 			
-			parser=new Parser(new FileReader("foo/exemplu.pro"));
+			//parser=new Parser(new BufferedReader(new StringReader("author(denisa).")));
+			parser=new Parser(new FileReader("./config/policy_code_samples/exemplu.pro"));
+			parser.init();
+			parser.start();
 			
-			parser.start(System.out);
+			for(Iterator it=parser.getDirectives().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			for(Iterator it=parser.getRules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
 			
 		}catch(Exception e){
 			e.printStackTrace();
 			return;
 		}
-
-		for(Iterator it=directives.iterator();it.hasNext();)
-			System.out.println((String)it.next());
-		for(Iterator it=rules.iterator();it.hasNext();)
-			System.out.println((String)it.next());
-		for(Iterator it=metarules.iterator();it.hasNext();)
-			System.out.println((String)it.next());
+		
 	}
 }
 
@@ -159,7 +190,7 @@ String Constant():
 }
 
 /*----------------------------------------------------------------------------------------------------------*/
-void start(PrintStream out):
+void start() throws Exception:
 {
 	String directive=null;
 	String id=null;
@@ -183,29 +214,45 @@ void start(PrintStream out):
 						"." field=Field(false,id)  ( <SEPARATOR> (metabody=MetaBody())? )? "."
 					)
 					{	
+/*						
+						if(ids.contains(id)==false)
+							throw new Exception("Metarule id doesn't match any rule id: "+id);
+*/						
 						s="";
 						if(metabody!=null)
 							s=metabody;
 						
-						metarules.add("metarule( id, "+field+", ["+s+"]).");
+						metarules.add("metarule(id,"+field+",["+s+"]).");
+						
+						id=null;field=null;metabody=null;
 					}
 					| 
 					(	
 						head=Head() (<SEPARATOR> (body=Body())? )? "."
 					)
 					{
+/*						
+						if(ids.contains(id)==true)
+							throw new Exception("Duplicate rule id: "+id);
+						
+						ids.add(id);
+						ids.add(head);
+*/
+							
 						s="";
 						if(body!=null)
 							s=body;
 							
 						if(head.size()<=2)
-							rules.add("rule( "+id+", "+(String)head.elementAt(0)+", ["+s+"]).");
+							rules.add("rule("+id+","+(String)head.elementAt(0)+",["+s+"]).");
 						
 						if(head.size()>1){
 							
 							for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
-								rules.add("rule( "+id+", "+(String)it.next()+", ["+s+"]).");
+								rules.add("rule("+id+","+(String)it.next()+",["+s+"]).");
 						}
+						
+						id=null;head=null;body=null;
 					}
 				)
 		|
@@ -217,30 +264,37 @@ void start(PrintStream out):
 					{
 						if(field==null){
 							
-							//tb sa generez id: id=generate_id
-							id="id";
-							
+							id=DefaultId+RuleNr;RuleNr++;
+/*							
+							if(ids.contains(id)==true)
+								throw new Exception("Duplicate rule id: "+id);
+						
+							ids.add(id);
+							ids.add(head);
+*/							
 							if(head.size()<=2)
-								rules.add("rule("+id+", "+(String)head.elementAt(0)+", []).");
+								rules.add("rule("+id+","+(String)head.elementAt(0)+",[]).");
 							
 							if(head.size()>1){
 							
 								for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
-									rules.add("rule( "+id+", "+(String)it.next()+", []).");
+									rules.add("rule("+id+","+(String)it.next()+",[]).");
 							}
+							
+							id=null;head=null;
 						}
 						else{
-							
+/*							
+							if(ids.contains(head)==false)
+								throw new Exception("Metarule head doesn't match any rule head: "+head);
+*/							
 							s="";
 							
 							if(head.size()>1){
 								
 								StringBuffer sb=new StringBuffer();
-								boolean first=false;
 								for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
-									if(first==false)
-										first=true;
-									else
+									if(sb.length()>0)
 										sb.append(",");
 									sb.append((String)it.next());
 								}
@@ -249,11 +303,13 @@ void start(PrintStream out):
 							
 							if(metabody!=null){
 								if(s.length()>0)
-									s=s.concat(", ");
+									s=s.concat(",");
 								s=s.concat(metabody);
 							}
 								
-							metarules.add("metarule( pred, "+field+", ["+s+"]).");
+							metarules.add("metarule(pred,"+field+",["+s+"]).");
+							
+							head=null;field=null;metabody=null;
 						}
 					} 
 					| 
@@ -261,21 +317,28 @@ void start(PrintStream out):
 						<SEPARATOR> (body=Body())? "."
 					)
 					{
-						//tb sa generez id: id=generate_id
-						id="id";
-						
+						id=DefaultId+RuleNr;RuleNr++;
+/*						
+						if(ids.contains(id)==true)
+								throw new Exception("Duplicate rule id: "+id);
+					
+						ids.add(id);
+						ids.add(head);
+*/						
 						s="";
 						if(body!=null)
 							s=body;
 							
 						if(head.size()<=2)
-							rules.add("rule( "+id+", "+(String)head.elementAt(0)+", ["+s+"]).");
+							rules.add("rule("+id+","+(String)head.elementAt(0)+",["+s+"]).");
 						
 						if(head.size()>1){
 
 							for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();)
-								rules.add("rule( "+id+", "+(String)it.next()+", ["+s+"]).");
+								rules.add("rule("+id+","+(String)it.next()+",["+s+"]).");
 						}
+						
+						id=null;head=null;body=null;
 					}	
 				)
 		)
@@ -388,7 +451,7 @@ Vector Arguments(Vector v):
 		}
 		else{
 		
-			String first=(String)v.elementAt(0)+", "+(String)arg.elementAt(0);
+			String first=(String)v.elementAt(0)+","+(String)arg.elementAt(0);
 			v.setElementAt(first,0);
 		}
 		
@@ -481,9 +544,9 @@ String Field(boolean flag,String id):
 	attribute=StringConstant() ":" value=Term()
 	{
 		if(flag==true)
-			return "complex_term( "+id+", "+attribute+", "+value+")";
+			return "complex_term("+id+","+attribute+","+value+")";
 		
-		return attribute+"("+id+", "+value+")";
+		return attribute+"("+id+","+value+")";
 	}
 }
 
@@ -514,7 +577,7 @@ String Body():
 		if(body==null)
 			return literal;
 
-		return literal+", "+body;
+		return literal+","+body;
 	}
 }
 
@@ -543,15 +606,18 @@ String Literal():
 			head=Head()
 			{
 				sb=new StringBuffer();
+				
 				if(head.size()<=2)
 					sb.append("not("+(String)head.elementAt(0)+")");
-		
-				if(head.size()>1){
-			
-					boolean first=false;
-					if(sb.length()>0)
-						first=true;
 				
+				if(head.size()>=2){
+			
+					if(sb.length()==0)
+						sb.append("not(");
+					else
+						sb.append(",");
+					
+					boolean first=false;
 					for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
 						if(first==false)
 							first=true;
@@ -559,6 +625,9 @@ String Literal():
 							sb.append(",");
 						sb.append((String)it.next());
 					}
+					
+					if(head.size()==3)
+						sb.append(")");
 				}
 		
 				return sb.toString();
@@ -568,8 +637,8 @@ String Literal():
 	<IN> "(" function=Function() "," pc=PackageCall() ")"
 	{
 		sb=new StringBuffer("in( ");
-		sb.append((String)function.elementAt(0)+"( "+(String)function.elementAt(1)+"), ");
-		sb.append((String)pc.elementAt(0)+", "+(String)pc.elementAt(1)+", ["+(String)pc.elementAt(2)+"])");
+		sb.append((String)function.elementAt(0)+"("+(String)function.elementAt(1)+"),");
+		sb.append((String)pc.elementAt(0)+","+(String)pc.elementAt(1)+",["+(String)pc.elementAt(2)+"])");
 		
 		return sb.toString();
 	}
@@ -611,14 +680,8 @@ String Literal():
 		
 		if(head.size()>1){
 			
-			boolean first=false;
-			if(sb.length()>0)
-				first=true;
-				
 			for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
-				if(first==false)
-					first=true;
-				else
+				if(sb.length()>0)
 					sb.append(",");
 				sb.append((String)it.next());
 			}
@@ -659,7 +722,7 @@ String Terms():
 		if(terms==null)
 			return term;
 			
-		return term+", "+terms;
+		return term+","+terms;
 	}	
 }
 
@@ -693,7 +756,7 @@ String MetaBody():
 		if(metabody==null)
 			return metaliteral;
 			
-		return metaliteral+", "+metabody;
+		return metaliteral+","+metabody;
 	}	
 }
 
@@ -711,6 +774,7 @@ String MetaLiteral():
 	String field=null;
 	Vector head=null;
 	String term=null;
+	StringBuffer sb=null;
 }
 {
 	<NEGATION>
@@ -724,21 +788,24 @@ String MetaLiteral():
 			|
 			head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
 			{
-				StringBuffer sb=new StringBuffer();
+				sb=new StringBuffer();
 		
 				if(field==null){
+					
 					if(head.size()<=2)
 						sb.append("not("+(String)head.elementAt(0)+")");
 				}
 				else
 					sb.append("not("+field+")");
 			
-				if(head.size()>1){
+				if(head.size()>=2){
 		
-					boolean first=false;
-					if(sb.length>0)
-						first=true;
+					if(sb.length()==0)
+						sb.append("not(");
+					else
+						sb.append(",");
 				
+					boolean first=false;
 					for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
 						if(first==false)
 							first=true;
@@ -746,15 +813,20 @@ String MetaLiteral():
 							sb.append(",");
 						sb.append((String)it.next());
 					}
+					
+					if(head.size()==3)
+						sb.append(")");
 				}
+				
+				return sb.toString();
 			}
 		)
 	|
 	<IN> "(" function=Function() "," pc=PackageCall() ")"
 	{
-		StringBuffer sb=new StringBuffer("in( ");
-		sb.append((String)function.elementAt(0)+"( "+(String)function.elementAt(1)+"), ");
-		sb.append((String)pc.elementAt(0)+", "+(String)pc.elementAt(1)+", ["+(String)pc.elementAt(2)+"])");
+		sb=new StringBuffer("in( ");
+		sb.append((String)function.elementAt(0)+"("+(String)function.elementAt(1)+"), ");
+		sb.append((String)pc.elementAt(0)+","+(String)pc.elementAt(1)+",["+(String)pc.elementAt(2)+"])");
 		
 		return sb.toString();
 	}
@@ -773,7 +845,7 @@ String MetaLiteral():
 			){if(s==null)s=t.image;} 
 		")" 
 	{
-		StringBuffer sb=new StringBuffer(pred.image+"("+ct+","+s+")");
+		sb=new StringBuffer(pred.image+"("+ct+","+s+")");
 		
 		if(fields!=null){
 			
@@ -793,7 +865,7 @@ String MetaLiteral():
 	|
 	head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
 	{
-		StringBuffer sb=new StringBuffer();
+		sb=new StringBuffer();
 		
 		if(field==null){
 			if(head.size()<=2)
@@ -805,7 +877,7 @@ String MetaLiteral():
 		if(head.size()>1){
 		
 			boolean first=false;
-			if(sb.length>0)
+			if(sb.length()>0)
 				first=true;
 				
 			for(Iterator it=((Vector)head.elementAt(1)).iterator();it.hasNext();){
@@ -816,6 +888,8 @@ String MetaLiteral():
 				sb.append((String)it.next());
 			}
 		}
+		
+		return sb.toString();
 	}
 	
 }
