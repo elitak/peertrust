@@ -19,13 +19,16 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.internal.registry.StickyViewDescriptor;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 /**
@@ -45,6 +48,9 @@ public class ResourcePolicyContentProvider
 	
 	static private PolicySystemRDFModel psModel=
 							PolicySystemRDFModel.getInstance();
+	static private PSResourceIdentityMaker identityMaker=
+				psModel.getPSResourceIdentityMaker(File.class);
+	
 	public ResourcePolicyContentProvider()
 	{
 		//empty
@@ -56,26 +62,25 @@ public class ResourcePolicyContentProvider
 		{
 			return;
 		}
-		//identity
-		if(psRes.getHasMapping()==null)
-		{
-			psRes.setHasMapping(file.toString());
-		}
+//		//identity
+//		if(psRes.getHasMapping()==null)
+//		{
+//			psRes.setHasMapping(identityMaker.makeIdentity(file));
+//		}
 		//test for allready set parent
-		Vector aParent=psRes.getHasSuper();
+		PSResource aParent=psRes.getHasSuper();
 		if(aParent!=null)
 		{
-			if(aParent.size()>0)
-			{
-				logger.warn("parent res allready set");
-				return;
-			}
+			logger.warn("parent res allready set");
+			return;
 		}
 		
-		logger.info("setting parent res; res="+psRes);
-		File parentFile=file.getParentFile();
+		File parentFile=file.getParentFile();		
 		String rootFileName=
 			ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+		logger.info("setting parent res; res="+psRes+
+				"\n\tparentFile:"+parentFile+
+				"\n\trootFile:"+rootFileName);
 		File rootFile=null;
 		PSResource parentRes=null;
 		if(rootFileName!=null)
@@ -84,11 +89,12 @@ public class ResourcePolicyContentProvider
 			if(parentFile.getAbsolutePath().startsWith(
 								rootFile.getAbsolutePath()))
 			{
+				//String identity=identityMaker.makeIdentity(parentFile);
 				parentRes=
-					psModel.getResource(
-						parentFile.toString(),
-						true,
-						new FileResourceSelector(parentFile));
+					psModel.getPSResource(
+						parentFile,//identity,//parentFile.getAbsolutePath(),//toString(),//TODO replacing by getAbs
+						true
+						);
 				if(parentRes!=null)
 				{
 					psRes.addHasSuper(parentRes);
@@ -124,16 +130,16 @@ public class ResourcePolicyContentProvider
 		
 		
 		logger.info("getElemnts:"+inputElement+ 
-					" class="+inputElement.getClass());
+					"\n\tclass="+inputElement.getClass());
 		if(inputElement instanceof File)
 		{
 			try {
 				File file=(File)inputElement;
 				PSResource res= 
-					psModel.getResource(
-									file.toString(),
-									true,
-									new FileResourceSelector(file));
+					psModel.getPSResource(
+						file,//.getAbsolutePath(),//toString(),
+						true);//new FileResourceSelector(file));
+				System.out.println("pres:"+res);
 				addParentResource(file,res);
 				Vector dirPolicies=res.getIsProtectedBy();
 				Vector filters = res.getHasFilter();
@@ -167,8 +173,9 @@ public class ResourcePolicyContentProvider
 					return EMPTY_ARRAY;
 				}
 			} 
-			catch (RuntimeException e) 
+			catch (Exception e) 
 			{
+				e.printStackTrace();
 				return EMPTY_ARRAY;
 			}
 			
@@ -209,8 +216,9 @@ public class ResourcePolicyContentProvider
 					return EMPTY_ARRAY;
 				}
 			} 
-			catch (RuntimeException e) 
+			catch (Exception e) 
 			{
+				e.printStackTrace();
 				return EMPTY_ARRAY;
 			}
 			
@@ -326,7 +334,17 @@ public class ResourcePolicyContentProvider
 		{
 			case 0://name
 			{
-				return policy.getLabel().getValue();				
+				PSModelLabel label=policy.getLabel();
+				String lValue=null;
+				if(label!=null)
+				{
+					lValue=label.getValue();
+				}
+				if(lValue==null)
+				{
+					lValue=" ";
+				}
+				return lValue;				
 			}
 			case 1:///value 
 			{

@@ -33,7 +33,7 @@ public class PSPolicySystemLabelProvider extends LabelProvider
 	 */
 	public Image getImage(Object element) 
 	{
-		// TODO Auto-generated method stub
+		
 		if(element == null)
 		{
 			return null;
@@ -72,6 +72,13 @@ public class PSPolicySystemLabelProvider extends LabelProvider
 		}
 		System.out.println("getImage for:"+element.getClass()+ " img="+img);
 		return img;
+	}
+	/**
+	 * @see org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
+	 */
+	public String getText(Object element) 
+	{
+		return super.getText(element);
 	}
 	
 	

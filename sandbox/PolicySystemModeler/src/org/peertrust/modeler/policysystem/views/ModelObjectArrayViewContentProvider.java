@@ -176,7 +176,7 @@ public class ModelObjectArrayViewContentProvider
 		{
 			logger.info("\n\tGetting element for Input:"+inputElement+ 
 					"\n\tclass:"+inputElement.getClass()+
-					"Children class:"+childrenClass);
+					"\n\tChildren class:"+childrenClass);
 			if(inputElement instanceof PSResource)
 			{
 				modelObject=(PSResource)inputElement;

@@ -1,5 +1,6 @@
 package org.peertrust.modeler.policysystem.model;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -15,7 +17,9 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.model.RDFModelManipulator;
+import org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelElementIDGenerator;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
@@ -25,6 +29,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
 
 
@@ -130,6 +135,11 @@ public class PolicySystemRDFModel
 	private Logger  logger;
 	private Vector modelChangeListeners;
 	private ModelEventAdapter modelEventAdapter;
+	private boolean blockModelEvent;
+	
+	private Hashtable identityMakers;
+	private PSModelElementIDGenerator idGenerator;
+	private PSApplyingPolicyResolver apResolver;
 	
 	private PolicySystemRDFModel()
 	{
@@ -140,7 +150,39 @@ public class PolicySystemRDFModel
 		logger=Logger.getLogger(PolicySystemRDFModel.class);
 		modelChangeListeners= new Vector();
 		modelEventAdapter= new ModelEventAdapter(this);
+		blockModelEvent=false;
 		
+		///identity makers 
+		makeIdentityMakers();
+		
+		//id generator
+		this.idGenerator= new PSModelElementIDGeneratorImpl();
+		
+		//applying policy resolver
+		this.apResolver= new PSFilterBasedAPR(this);
+	}
+	
+	
+	private void makeIdentityMakers()
+	{
+		identityMakers= new Hashtable();
+		identityMakers.put(File.class,new PSFileIdentityMaker());
+		PSResourceIdentityMaker iMaker=
+			new PSResourceIdentityMaker()
+			{
+
+				public String makeIdentity(Object resource) 
+				{
+					return (String)resource;
+				}
+
+				public String makeLabel(Object resource) 
+				{
+					return (String)resource;
+				}
+			
+			};
+		identityMakers.put(String.class,iMaker);
 	}
 	
 	private void createPolicySystemRDFModel() 
@@ -343,7 +385,10 @@ public class PolicySystemRDFModel
 					res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
 					res.addProperty(PROP_HAS_NAME,nodeName);
 					res.addProperty(PROP_HAS_VALUE,nodeName+"value");
-					PSResourceImpl psRes= new PSResourceImpl(res);
+					PSResourceImpl psRes= 
+						new PSResourceImpl(
+								res,
+								PolicySystemRDFModel.getInstance());
 					return psRes;
 				}
 
@@ -836,7 +881,7 @@ public class PolicySystemRDFModel
 	{
 		if(isSubClassOf(res,CLASS_RESOURCE))
 		{
-			return new PSResourceImpl(res);				
+			return new PSResourceImpl(res,this);				
 		}
 		else if(isSubClassOf(res,CLASS_POLICY))
 		{
@@ -880,15 +925,114 @@ public class PolicySystemRDFModel
 		}
 	}
 	
-	final public PSResource getResource(
-									String identity,  
-									boolean forceCreation,
-									Selector selector) 
+//	private PSResource getPSResource(
+//									String identity,  
+//									boolean forceCreation,
+//									Selector selector) 
+//	{
+//		if(identity==null)
+//		{
+//			logger.warn(
+//					"param resource identity must not be null");
+//			return null;
+//		}
+//		
+//		if(policySystemRDFModel==null)
+//		{
+//			logger.warn("model instance not created");
+//			return null;
+//		}
+//		
+//		
+//		
+//		Selector psSel=selector;
+//		if(selector==null)
+//		{
+//			logger.warn("No selector provided using default selector");
+//			psSel=
+//				new SimpleSelector(
+//						(Resource)null,
+//						PROP_HAS_IDENTITY,
+//						(String)identity);
+//		}
+//		
+//		blockModelEvent=true;
+//		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
+//		
+//		Statement stm;
+//		Resource res=null;
+//		if(it.hasNext())
+//		{
+//			stm=it.nextStatement();
+//			res=stm.getSubject();
+//		}
+////		else
+////		{
+////			logger.warn("No Model entry found for:"+identity);
+////			return null;
+////		}
+//		
+//		if(it.hasNext())
+//		{
+//			logger.warn(
+//					"Model contents several resources with this identity:"+
+//					identity);
+//		}
+//		
+//		if(res==null && forceCreation==true)
+//		{
+//			//res=policySystemRDFModel.rdfModel.cre
+////			res=
+////				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
+//			//res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
+//			String id=identity;
+//			String root=
+//				ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+//			if(root==null)
+//			{
+//				logger.warn("root is null file resource creation skipped:"+
+//							id);
+//				blockModelEvent=false;
+//				return null;
+//			}
+//			if(!root.equals(id))
+//			{//if not root get rel path
+//				if(!id.startsWith(root))
+//				{
+//					logger.warn(
+//							"resource not root child: \n\tid  ="+id+" " +
+//							"\n\troot="+root);
+//					blockModelEvent=false;
+//					return null;
+//				}
+////				int start=root.length();
+////				if(root.endsWith("/"))
+////				{
+////					start=start+1;
+////				}
+////				id=id.substring(start);
+//			}
+//			res=
+//				rdfModel.createResource(
+//					idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
+//			res.addProperty(RDFS.label,id);
+//			res.addProperty(
+//					PROP_HAS_IDENTITY,id);
+//			System.out.println("CDDDDDDD:"+id+" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
+//			res.addProperty(RDF.type,CLASS_RESOURCE);
+//		}
+//		blockModelEvent=false;
+//		return new PSResourceImpl(res,this);
+//	}
+	
+	public PSResource getPSResource(
+					Object realResource,//String identity,  
+					boolean forceCreation) 
 	{
-		if(identity==null)
+		if(realResource==null)
 		{
 			logger.warn(
-					"param resource identity must not be null");
+				"real resource is null");
 			return null;
 		}
 		
@@ -899,18 +1043,22 @@ public class PolicySystemRDFModel
 		}
 		
 		
-		
-		Selector psSel=selector;
-		if(selector==null)
-		{
-			logger.warn("No selector provided using default selector");
-			psSel=
-				new SimpleSelector(
-						(Resource)null,
-						PROP_HAS_IDENTITY,
-						(String)identity);
+		PSResourceIdentityMaker iMaker=
+			(PSResourceIdentityMaker)
+					identityMakers.get(realResource.getClass());
+		if(iMaker==null)
+		{			
+			return null;
 		}
-		StmtIterator it=policySystemRDFModel.rdfModel.listStatements(psSel);
+		String identity=iMaker.makeIdentity(realResource);
+		Selector psSel=
+			new SimpleSelector(
+					(Resource)null,
+					PROP_HAS_IDENTITY,
+					identity);
+		
+		blockModelEvent=true;
+		StmtIterator it=rdfModel.listStatements(psSel);
 		
 		Statement stm;
 		Resource res=null;
@@ -919,59 +1067,41 @@ public class PolicySystemRDFModel
 			stm=it.nextStatement();
 			res=stm.getSubject();
 		}
-//		else
-//		{
-//			logger.warn("No Model entry found for:"+identity);
-//			return null;
-//		}
-		
+				
 		if(it.hasNext())
 		{
 			logger.warn(
-					"Model contents several resources with this identity:"+
-					identity);
+				"Model contents several resources with this identity:"+
+				identity);
 		}
 		
 		if(res==null && forceCreation==true)
 		{
-			//res=policySystemRDFModel.rdfModel.cre
-//			res=
-//				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+identity);
-			//res.addProperty(PROP_HAS_MAPPING,nodeName+"mapping");
-			String id=identity;
 			String root=
 				ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
 			if(root==null)
 			{
 				logger.warn("root is null file resource creation skipped:"+
-							id);
+					identity);
+				blockModelEvent=false;
 				return null;
 			}
-			if(!root.equals(id))
-			{//if not root get rel path
-				if(!id.startsWith(root))
-				{
-					logger.warn(
-							"resource not root schild: \n\tid  ="+id+" " +
-							"\n\troot="+root);
-					return null;
-				}
-				int start=root.length();
-				if(root.endsWith("/"))
-				{
-					start=start+1;
-				}
-				id=id.substring(start);
+				String label=iMaker.makeLabel(realResource);
+				res=
+					rdfModel.createResource(
+						idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
+				res.addProperty(RDFS.label,label);
+				res.addProperty(
+					PROP_HAS_IDENTITY,identity);
+				logger.info(
+					"New PSResource:"+
+					"\n\tidentity......:"+identity+
+					" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
+				res.addProperty(RDF.type,CLASS_RESOURCE);
 			}
-			res=
-				policySystemRDFModel.rdfModel.createResource(NS_KB_DATA+id);
-			res.addProperty(RDFS.label,id);
-			res.addProperty(PROP_HAS_IDENTITY,id);
-			////System.out.println("CDDDDDDD:"+id+" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
-			res.addProperty(RDF.type,CLASS_RESOURCE);
+			blockModelEvent=false;
+			return new PSResourceImpl(res,this);
 		}
-		return new PSResourceImpl(res);
-	}
 	
 /////////////////////////////////////////////////////////////////////////////
 ////////////////////PROJECT CHANGED LISTENER/////////////////////////////////
@@ -1102,8 +1232,9 @@ public class PolicySystemRDFModel
 		return pp;
 	}
 
-	public PSResource createResource(String label, String identity) 
+	public PSResource createPSResource(String label, String identity) 
 	{
+		System.out.println("CreatingREsource:"+identity);
 		if(label==null || identity==null )
 		{
 			logger.warn("args must not be null");
@@ -1116,18 +1247,23 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		
-		Resource res=rdfModel.createResource(NS_KB_DATA+identity);
+		//Resource res=rdfModel.createResource(NS_KB_DATA+identity);
+		//TODO ID sequencer for resource
+		Resource res=
+			rdfModel.createResource(
+						NS_KB_DATA+"PSResource/"+identity);//System.currentTimeMillis());
 		if(res.getProperty(PROP_HAS_IDENTITY)!=null)
 		{
 			logger.warn("policy with this identity already exists:"+label);
 			return null;
 		}
 		
+		//res.addProperty(RDFS.label,label);
 		res.addProperty(RDFS.label,label);
 		res.addProperty(PROP_HAS_IDENTITY,identity);
 		res.addProperty(RDF.type,CLASS_RESOURCE);
 		//firePSModelChangeEvent(null);
-		return new PSResourceImpl(res);
+		return new PSResourceImpl(res,this);
 		
 	}
 
@@ -1165,37 +1301,39 @@ public class PolicySystemRDFModel
 		}
 	}
 
-	public Vector getDirectParents(PSModelObject child) 
+	public PSModelObject getDirectParent(PSModelObject child) 
 	{
 		if(child ==null)
 		{
-			return new Vector();
+			return null;
 		}
 		if(child instanceof PSResource)
 		{
 			Resource res=(Resource)child.getModelObject();
 			if(res==null)
 			{
-				return new Vector();
+				return null;//new Vector();
 			}
 			SimpleSelector sel=
 				new SimpleSelector(res,PROP_HAS_SUPER,(Resource)null);
 			StmtIterator it=rdfModel.listStatements(sel);
 			Vector p=new Vector();
 			PSModelObject mow;
-			while(it.hasNext())
+			if(it.hasNext())//while(it.hasNext())
 			{
 				res=(Resource)it.nextStatement().getObject();
 				mow=createModelObjectWrapper(res,null);
-				p.add(mow);
+				return mow;
+				//p.add(mow);
 			}
-			return p;
+			//return p;
+			return null;
 		}
 		else
 		{
 			logger.warn("No hierarchy for "+child+ 
 						" class="+child.getClass());
-			return new Vector();
+			return null;//new Vector();
 		}
 
 	}
@@ -1245,41 +1383,19 @@ public class PolicySystemRDFModel
 
 	public Vector getPathToAncestorRoots(PSModelObject node)
 	{
-		Vector curParent;
-		Vector paths=new Vector();
+		PSModelObject curParent;
 		Vector completedPath=new Vector();
-		curParent=getDirectParents(node);
-		for(int i=curParent.size()-1;i>=0;i--)
+		curParent=getDirectParent(node);
+		
+		while(curParent!=null)
 		{
-			Vector path=new Vector();
-			path.add(0,curParent.get(i));
-			paths.add(path);
-		}
-		logger.info("PATHS.SIZE:"+paths.size());
-		for(;paths.size()>0;)
-		{
-			Vector path=(Vector)paths.remove(0);
-			PSModelObject mow=(PSModelObject)path.get(0);
-			curParent=getDirectParents(mow);
-			if(curParent.size()>0)
-			{
-				for(Iterator it=curParent.iterator();it.hasNext();)
-				{
-					Vector xPath=new Vector(path);
-					mow=(PSResource)it.next();
-					xPath.add(0,mow);
-					paths.add(xPath);
-				}
-			}
-			else
-			{
-				completedPath.add(path);
-			}
+				completedPath.add(0,curParent);
+				curParent=getDirectParent(curParent);			
 		}
 		return completedPath;
 	}
 	
-	public final Vector computePathPolicies(Vector path)
+	public final Vector computedPathPolicies(Vector path)
 	{
 		logger.info("getting policies for path:"+path);
 		if(path==null)
@@ -1320,48 +1436,42 @@ public class PolicySystemRDFModel
 			policies.addAll(lPolicies);
 			
 		}
-		
-//		///remove overridden
-//		oRules=((PSResource)path.lastElement()).getIsOverrindingRule();
-//		for(Iterator it=oRules.iterator();it.hasNext();)
-//		{
-//			rule=(PSOverridingRule)it.next();
-//			rule.performOverridding(policies);
-//		}
 		return policies;
 	}
 	
 	public Vector getInheritedPolicies(PSResource psResource) 
 	{
-		if(psResource==null)
-		{
-			logger.warn("param psResurce must not be null");
-			return new Vector(); 
-		}
-		
-		Vector policies=new Vector();
-		Vector paths=getPathToAncestorRoots(psResource);
-		logger.info("PATHS:"+paths);
-		for(int i=paths.size()-1;i>=0;i--)
-		{
-			Vector path=(Vector)paths.get(i);
-			
-			policies.addAll(computePathPolicies(path));
-		}
-		
-		Vector localORules=psResource.getIsOverrindingRule();
-		logger.info("\n\tlocalOrules:"+localORules);
-		PSOverridingRule oRule;
-		for(Iterator it=localORules.iterator();it.hasNext();)
-		{
-			oRule=(PSOverridingRule)it.next();
-			oRule.performOverridding(policies);
-		}
-		return policies;
+		return apResolver.getApplyingPolicies(psResource);
+//		if(psResource==null)
+//		{
+//			logger.warn("param psResurce must not be null");
+//			return new Vector(); 
+//		}
+//		
+//		Vector policies=new Vector();
+//		Vector paths=getPathToAncestorRoots(psResource);
+//		logger.info("PATHS:"+paths);
+//		for(int i=paths.size()-1;i>=0;i--)
+//		{
+//			Vector path=(Vector)paths.get(i);
+//			
+//			policies.addAll(computePathPolicies(path));
+//		}
+//		
+//		Vector localORules=psResource.getIsOverrindingRule();
+//		logger.info("\n\tlocalOrules:"+localORules);
+//		PSOverridingRule oRule;
+//		for(Iterator it=localORules.iterator();it.hasNext();)
+//		{
+//			oRule=(PSOverridingRule)it.next();
+//			oRule.performOverridding(policies);
+//		}
+//		return policies;
 	}
 
 	public Vector getLocalPolicies(PSResource psResource) 
 	{
+
 		if(psResource ==null)
 		{
 			logger.warn("param psResource must not be null");
@@ -1461,12 +1571,15 @@ public class PolicySystemRDFModel
 	}
 	public void firePSModelChangeEvent(PSModelChangeEvent event) 
 	{
-		PSModelChangeEventListener l;
-		for(Iterator it=modelChangeListeners.iterator(); 
-			it.hasNext();)
+		if(!blockModelEvent)
 		{
-			l=(PSModelChangeEventListener)it.next();
-			l.onPSModelChange(event);
+			PSModelChangeEventListener l;
+			for(Iterator it=modelChangeListeners.iterator(); 
+				it.hasNext();)
+			{
+				l=(PSModelChangeEventListener)it.next();
+				l.onPSModelChange(event);
+			}
 		}
 	}
 	
@@ -2082,6 +2195,124 @@ public class PolicySystemRDFModel
 		}
 	}
 	
+	private PSModelChangeVeto addResourceLinkedStm(
+			PSResource psResource, 
+			String psProp, 
+			Object psObject)
+	{
+		Resource subject= (Resource)psResource.getModelObject();
+		Property prop=lookupModelProperty(psProp);
+		
+		logger.info("STM TO ADD:"+
+					"\n\tsubject="+subject+
+					"\n\tprop="+prop+
+					"\n\tobject="+psObject);
+		if(prop==null)
+		{
+			return null;
+		}
+		else if(	(prop==PROP_IS_PROTECTED_BY) )
+		{
+			if(psObject instanceof PSPolicy)
+			{
+				Resource object = 
+					(Resource)((PSModelObject)psObject).getModelObject();
+				rdfModel.add(subject,prop,object);
+				return null;
+			}
+			else
+			{
+				logger.warn("Cannot protect with a "+psObject.getClass());
+				return null;
+			}
+		}
+		else if(	(prop==PROP_HAS_OVERRIDING_RULES) )
+		{
+			if(psObject instanceof PSOverridingRule)
+			{
+				Resource object = 
+					(Resource)((PSModelObject)psObject).getModelObject();
+				rdfModel.add(subject,prop,object);
+				return null;
+			}
+			else
+			{
+				logger.warn("Not an overriding rule but a "+psObject.getClass());
+				return null;
+			}
+		}
+		else if(	(prop==PROP_HAS_FILTER) )
+		{
+			if(psObject instanceof PSFilter)
+			{
+				Resource object = 
+					(Resource)((PSModelObject)psObject).getModelObject();
+				rdfModel.add(subject,prop,object);
+				return null;
+			}
+			else
+			{
+				logger.warn("Not a Filter but a "+psObject.getClass());
+				return null;
+			}
+		}
+		else if(	(prop==PROP_HAS_SUPER) )
+		{
+			if(psObject instanceof PSResource)
+			{
+				if(psResource==psObject)
+				{
+					logger.warn("child and parent must not be equals");
+					return null;
+				}
+				else
+				{
+					Resource object = 
+						(Resource)((PSModelObject)psObject).getModelObject();
+					if(subject.hasProperty(prop))
+					{
+						logger.error("Resource has allready aparent set:"+
+								"respurce:"+subject+
+								"parent..:"+object);
+						return null;
+					}
+					else
+					{
+						
+						rdfModel.add(subject,prop,object);
+						return null;
+					}
+				}
+			}
+			else
+			{
+				logger.warn("Cannot protect with a "+psObject.getClass());
+				return null;
+			}
+		}
+		else if((prop==PROP_HAS_CONDITION) || 
+				(prop==PROP_HAS_NAME) )
+		{
+			if(psObject instanceof String)
+			{
+				rdfModel.add(subject,prop,(String)psObject);
+				//removeStringProperty(subject,prop,(String)psObject);
+				return null;
+			}
+			else
+			{
+				logger.warn(
+						"condition or name are of type string not "+
+						psObject.getClass());
+				return null;
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
 	public PSModelChangeVeto removeStatement(PSModelStatement psStm) 
 	{
 		PSModelObject subject = psStm.getSubject();
@@ -2128,7 +2359,7 @@ public class PolicySystemRDFModel
 		}
 		else if(subject instanceof PSResource)
 		{
-			return removeResourceLinkedStm(
+			return addResourceLinkedStm(
 								(PSResource)subject,
 								psStm.getProperty(),
 								psStm.getObject());
@@ -2225,6 +2456,10 @@ public class PolicySystemRDFModel
 		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE))
 		{
 			return PROP_HAS_OVERRIDING_RULES;
+		}
+		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER))
+		{
+			return PROP_HAS_SUPER;
 		}
 		else
 		{
@@ -2378,6 +2613,65 @@ public class PolicySystemRDFModel
 		return null;
 	}
 	
+	public PSModelChangeVeto alterPSResourceProperty(
+											PSResource psRes, 
+											String propertyKey, 
+											Object object)
+	{
+		Property prop= 
+		lookupModelProperty(propertyKey);
+		if(prop==null)
+		{
+			return null;
+		}
+		else if( prop==PROP_IS_PROTECTED_BY)
+		{
+		if(object instanceof PSPolicy)
+		{
+			setResourceProperty(
+				(Resource)psRes.getModelObject(),
+				prop,
+				(Resource)((PSPolicy)object).getModelObject());
+			return null;
+			}
+			else
+			{
+				logger.warn("object is not a policy but a "+object.getClass());
+				return null;
+			}
+		
+		}
+		else if(	(prop==PROP_HAS_NAME) || 
+					(prop==PROP_HAS_IDENTITY) || 
+					(prop==PROP_HAS_IDENTITY) ||
+					(prop==PROP_HAS_NAME))
+		{
+			if(object instanceof String)
+			{
+				setStringProperty(
+				(Resource)psRes.getModelObject(),
+				prop,
+				(String)object);
+				return null;
+			}
+			else
+			{
+				logger.warn("expecting string for property"+prop+
+				" but got "+object.getClass());
+				return null;
+			}
+		}
+		else
+		{
+			logger.error(
+					"not supported property"+
+					"\n\tprop="+prop+
+					"\n\tcontext="+psRes);
+			return null;
+		}
+		
+	}
+	
 	public PSModelChangeVeto alterModelObjectProperty(
 						PSModelObject modelObject, 
 						String propertyKey, 
@@ -2406,11 +2700,26 @@ public class PolicySystemRDFModel
 		}
 		else if(modelObject instanceof PSResource)
 		{
-			return null;
+			return alterPSResourceProperty(
+					(PSResource)modelObject,propertyKey,object);
 		}
 		else
 		{
 			return null;
+		}
+		
+	}
+
+
+	public PSResourceIdentityMaker getPSResourceIdentityMaker(Class type) 
+	{
+		if(type==null)
+		{
+			return null;
+		}
+		else
+		{
+			return (PSResourceIdentityMaker)identityMakers.get(type);
 		}
 		
 	}
@@ -2420,12 +2729,5 @@ public class PolicySystemRDFModel
 
 
 
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
 
 

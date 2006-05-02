@@ -76,7 +76,7 @@ public interface PSPolicySystem
 	 * @param child -- the model object with parents are to be returmed
 	 * @return thedirect parents ob the model object
 	 */
-	public Vector getDirectParents(PSModelObject child);
+	public PSModelObject getDirectParent(PSModelObject child);
 	
 	public Vector getPathToAncestorRoots(PSModelObject node);
 	
@@ -87,9 +87,20 @@ public interface PSPolicySystem
 	 * @param identity -- the identity for the new resource
 	 * @return
 	 */
-	public PSResource createResource(
+	public PSResource createPSResource(
 						String label,
 						String identity);
+	
+	/**
+	 * Gets a PSResource which represents the real resource
+	 * @param realResource -- the real resource
+	 * @param forceCreation -- if true a resource is added to the ps system
+	 * 			if it is not allready available
+	 * @return a ps resource representing the real resource
+	 */
+	public PSResource getPSResource(Object realResource, boolean forceCreation);
+	
+	
 	
 	/**
 	 * creates a filter with the specified label, conditions and policies
@@ -171,4 +182,6 @@ public interface PSPolicySystem
 							PSModelObject modelObject,
 							String propertyKey,
 							Object object);
+	
+	public PSResourceIdentityMaker getPSResourceIdentityMaker(Class type);
 }

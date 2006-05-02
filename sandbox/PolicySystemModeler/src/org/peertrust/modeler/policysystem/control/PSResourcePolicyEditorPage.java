@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 
+import javax.swing.text.TabExpander;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.jmx.LayoutDynamicMBean;
 import org.eclipse.jface.action.Action;
@@ -18,6 +20,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
+import org.eclipse.jface.viewers.TableTreeViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -42,16 +45,20 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.Page;
+import org.peertrust.modeler.policysystem.model.PSFileIdentityMaker;
+import org.peertrust.modeler.policysystem.model.PSModelElementIDGeneratorImpl;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ResourcePolicyContentProvider;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListener;
+import org.peertrust.modeler.policysystem.model.abtract.PSModelElementIDGenerator;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 import org.peertrust.modeler.policysystem.views.ModelObjectArrayViewContentProvider;
 
 /**
@@ -76,7 +83,7 @@ public class PSResourcePolicyEditorPage
 	
 	/** used to show the local Policies*/
 	private TableViewer localPolicyView;
-	
+//	private TableTreeViewer localPolicyView;
 	/** a label for showing the identity of the ps resource*/
 	private Label psResourceLabel;
 	
@@ -90,14 +97,22 @@ public class PSResourcePolicyEditorPage
 	/**
 	 * The tree view to show the model resource overrridding rules
 	 */
-	TreeViewer oRulesTree;
+	private TreeViewer oRulesTree;
 	
-	PolicySystemRDFModel psModel;
+	private PSResourceIdentityMaker identityMaker;
+	
+	
+	private  PolicySystemRDFModel psModel;
+	
+	
+	
 	
 	public PSResourcePolicyEditorPage()
 	{
 		this.psModel=PolicySystemRDFModel.getInstance();
 		this.psModel.addPSModelChangeEventListener(this);
+		this.identityMaker=psModel.getPSResourceIdentityMaker(File.class);
+		
 	}
 
 	/**
@@ -180,10 +195,10 @@ public class PSResourcePolicyEditorPage
 //			PolicySystemRDFModel.getInstance().getResource(input,false));
 			if(input instanceof File)
 			{
-				String identity=((File)input).getCanonicalPath();
+				//String identity=((File)input).getCanonicalPath();
+				String identity=identityMaker.makeIdentity((File)input);
 				PSResource psResource=
-					PolicySystemRDFModel.getInstance().getResource(
-										identity,true,null);
+					psModel.getPSResource(identity,true);
 				oRulesTree.setInput(psResource);
 				psResourceLabel.setText(
 						PSRESOURCE_LABEL_PREFIX+
@@ -229,7 +244,8 @@ public class PSResourcePolicyEditorPage
 //		parent.setLayout(new GridLayout());
 		////make table
 		TableViewer tv= 
-			new TableViewer(policiesTab,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);		
+			new TableViewer(policiesTab,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);
+//		TableTreeViewer tv= new TableTreeViewer(policiesTab,SWT.FILL|SWT.BORDER|SWT.FULL_SELECTION);
 		GridData gData= 
 			new GridData(
 					GridData.FILL_BOTH);
@@ -246,6 +262,7 @@ public class PSResourcePolicyEditorPage
 		layout.addColumnData(new ColumnWeightData(34,true));
 		
 		Table table=tv.getTable();
+//		Table table=tv.getTableTree().getTable();
 		table.setLayout(layout);
 		TableColumn nameC=
 				new TableColumn(
@@ -387,12 +404,13 @@ public class PSResourcePolicyEditorPage
 			}
 			else if(input instanceof File)
 			{
-				try {
+				try 
+				{
+					String identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getResource(
-								((File)input).getCanonicalPath(),true,null);
+						psModel.getPSResource(identity,true);
 					psRes.removePolicy((PSPolicy)sel0);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					logger.warn("Exception while removing a policy",e);
 				}
 				return;
@@ -417,11 +435,12 @@ public class PSResourcePolicyEditorPage
 			else if(input instanceof File)
 			{
 				try {
+					String identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getResource(
-								((File)input).getCanonicalPath(),true,null);
+						psModel.getPSResource(identity,true);
 					psRes.removeOverriddingRule((PSOverridingRule)sel0);
-				} catch (IOException e) {
+				} catch (Exception e) {
+					//TODO remove try catch
 					logger.warn("Exception while removing a policy",e);
 				}
 				return;
@@ -442,11 +461,12 @@ public class PSResourcePolicyEditorPage
 			else if(input instanceof File)
 			{
 				try {
+					String identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getResource(
-								((File)input).getCanonicalPath(),true,null);
+						psModel.getPSResource(identity,true);
 					psRes.removeFilter((PSFilter)sel0);
-				} catch (IOException e) {
+				} catch (Exception e) {
+					//TODO remove try catch
 					logger.warn("Exception while removing a policy",e);
 				}
 				return;
@@ -475,9 +495,9 @@ public class PSResourcePolicyEditorPage
 		else if(input instanceof File)
 		{
 			try {
+				String identity=identityMaker.makeIdentity(input);
 				PSResource psRes=
-					psModel.getResource(
-							((File)input).getCanonicalPath(),true,null);
+					psModel.getPSResource(identity,true);
 				PSPolicy pol=
 					ChooserWizardPage.choosePlicy(
 							composite.getShell());
@@ -486,7 +506,8 @@ public class PSResourcePolicyEditorPage
 				{
 					psRes.addIsProtectedBy(pol);
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
+				//TODO remode catch try
 				logger.warn("error while add policy to resource",e);
 			}
 		}
@@ -521,9 +542,9 @@ public class PSResourcePolicyEditorPage
 		else if(input instanceof File)
 		{
 			try {
+				String identity= identityMaker.makeIdentity(input);
 				PSResource psRes=
-					psModel.getResource(
-							((File)input).getCanonicalPath(),true,null);
+					psModel.getPSResource(identity,true);
 				PSOverridingRule oRules[]=
 					(PSOverridingRule[])
 						ChooserWizardPage.chooseModelObjects(
@@ -536,7 +557,10 @@ public class PSResourcePolicyEditorPage
 						psRes.addIsOverrindingRule(oRules[i]);
 					}
 				}
-			} catch (IOException e) {
+			} 
+			catch (Exception e) 
+			{
+				//TODO remoce try catch
 				logger.warn("error while add policy to resource",e);
 			}
 		}
@@ -546,7 +570,8 @@ public class PSResourcePolicyEditorPage
 				PSResource psRes=(PSResource)input;
 				PSModelObject oRules[]=
 						ChooserWizardPage.chooseModelObjects(
-										composite.getShell(),PSOverridingRule.class,null);
+												composite.getShell(),
+												PSOverridingRule.class,null);
 						
 				if(oRules!=null)
 				{
@@ -588,9 +613,9 @@ public class PSResourcePolicyEditorPage
 		else if(input instanceof File)
 		{
 			try {
+					String identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getResource(
-								((File)input).getCanonicalPath(),true,null);
+						psModel.getPSResource(identity,true);
 					Vector resFilters=psRes.getHasFilter();
 					String[] resFiltersNames=null;
 					logger.info("Resource filters:"+
@@ -744,8 +769,22 @@ public class PSResourcePolicyEditorPage
 	
 	public void onPSModelChange(PSModelChangeEvent event) 
 	{
-		//oRulesTree.setInput(oRulesTree.getInput());
-		//localPolicyView.setInput(localPolicyView.getInput());
+		try {
+			Object input=oRulesTree.getInput();
+			if(input!=null)
+			{
+				oRulesTree.setInput(oRulesTree.getInput());
+			}
+			
+			input=localPolicyView.getInput();
+			if(input!=null)
+			{
+				localPolicyView.setInput(localPolicyView.getInput());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
 	}
 
 	/**

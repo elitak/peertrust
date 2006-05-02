@@ -26,6 +26,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
 
 public class WarningsView 	extends ViewPart 
@@ -46,25 +47,31 @@ public class WarningsView 	extends ViewPart
 	/**
 	 * Content provider for the list view
 	 */
-	IStructuredContentProvider contentProvider;
+	private IStructuredContentProvider contentProvider;
 	
 	/**
 	 * The logger for the this class
 	 */
-	Logger logger= Logger.getLogger(WarningsView.class);
+	static private final Logger logger= Logger.getLogger(WarningsView.class);
 	
 	/**
 	 * the plicy system implementation
 	 */
-	PolicySystemRDFModel psSystem;
+	private PolicySystemRDFModel psSystem;
 	
-	PSPolicySystemLabelProvider labelProvider;
+	private PSResourceIdentityMaker identityMaker;
+	
+	private PSPolicySystemLabelProvider labelProvider;
+	
+	private ProjectConfig projectConfig;//=.getInstance()
 	
 	public WarningsView() 
 	{
 		super();
 		psSystem=PolicySystemRDFModel.getInstance();
 		PolicysystemPlugin.getDefault().getImageRegistry();
+		identityMaker=psSystem.getPSResourceIdentityMaker(File.class);
+		projectConfig=ProjectConfig.getInstance();
 	}
 
 	public void createPartControl(Composite parent) 
@@ -120,42 +127,42 @@ public class WarningsView 	extends ViewPart
 				else if(inputElement instanceof PSResource)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getInheritedPolicies(
-															(PSResource)inputElement);
+						//PolicySystemRDFModel.getInstance()
+						psSystem.getInheritedPolicies(
+											(PSResource)inputElement);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSPolicy)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSPolicy)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+													(PSPolicy)inputElement,
+													null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSFilter)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSFilter)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+													(PSFilter)inputElement,
+													null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSOverridingRule)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSOverridingRule)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+												(PSOverridingRule)inputElement,
+												null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof Vector)
 				{
-					PolicySystemRDFModel rdfModel=
-									PolicySystemRDFModel.getInstance();
-					Vector pols=
-						rdfModel.computePathPolicies(
-										(Vector)inputElement);
-					return pols.toArray();
+//					Vector pols=
+//						psSystem.computePathPolicies(
+//										(Vector)inputElement);
+//					return pols.toArray();
+					throw new RuntimeException("Path input not suppoerted:"+inputElement);
 				}
 				else
 				{
@@ -165,13 +172,15 @@ public class WarningsView 	extends ViewPart
 			}
 
 			public void dispose() {
-				// TODO Auto-generated method stub
-				
+				//empty				
 			}
 
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-				// TODO Auto-generated method stub
-				
+			public void inputChanged(
+							Viewer viewer, 
+							Object oldInput, 
+							Object newInput) 
+			{
+				//empty				
 			}
 			
 		};
@@ -192,42 +201,41 @@ public class WarningsView 	extends ViewPart
 				else if(inputElement instanceof PSResource)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getInheritedPolicies(
-															(PSResource)inputElement);
+						psSystem.getInheritedPolicies(
+										(PSResource)inputElement);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSPolicy)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSPolicy)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+								(PSPolicy)inputElement,
+								null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSFilter)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSFilter)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+											(PSFilter)inputElement,
+											null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof PSOverridingRule)
 				{
 					Vector pols=
-						PolicySystemRDFModel.getInstance().getLinkedModelObjects(
-															(PSOverridingRule)inputElement,
-															null);
+						psSystem.getLinkedModelObjects(
+											(PSOverridingRule)inputElement,
+											null);
 					return pols.toArray();
 				}
 				else if(inputElement instanceof Vector)
 				{
-					PolicySystemRDFModel rdfModel=
-									PolicySystemRDFModel.getInstance();
-					Vector pols=
-						rdfModel.computePathPolicies(
-										(Vector)inputElement);
-					return pols.toArray();
+//					Vector pols=
+//						psSystem.computePathPolicies(
+//										(Vector)inputElement);
+//					return pols.toArray();
+					throw new RuntimeException("Path input not supported:"+inputElement);
 				}
 				else
 				{
@@ -274,17 +282,16 @@ public class WarningsView 	extends ViewPart
 		{
 			if(sel instanceof File)
 			{
+				//TODO check algorithm
 				
 				try {
 					File file=(File)sel;
 					String root=
-						ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+						projectConfig.getProperty(ProjectConfig.ROOT_DIR);
 					if(root==null)
 					{
 						return;
 					}
-					PolicySystemRDFModel rdfModel=
-						PolicySystemRDFModel.getInstance();
 					File rootFile=new File(root);
 					root=rootFile.getAbsolutePath();					
 					File parentFile=file;
@@ -299,33 +306,33 @@ public class WarningsView 	extends ViewPart
 						parentFile=parentFile.getParentFile();
 						
 						tmpRes= 
-							rdfModel.getResource(
-										parentFile.toString(),
-										true,
-										new FileResourceSelector(parentFile));
+							psSystem.getPSResource(parentFile,true);
 						if(pRes!=null)
 						{
 							if(tmpRes!=null)
 							{
-								tmpRes.addHasSuper(pRes);
+								if(tmpRes.getHasSuper()!=null && !(parentFile.equals(root)))
+								{//no super set yet and not roo
+									tmpRes.addHasSuper(pRes);
+								}
 							}
 						}
-							pRes=tmpRes;
-							if(pRes!=null)
-							{
-								path.add(0,pRes);
-							}
+						pRes=tmpRes;
+						if(pRes!=null)
+						{
+							path.add(0,pRes);
+						}
 						
 					}
 					logger.info("Pathhh:"+path);
 					
 					PSResource res=
-						rdfModel.getResource(
-								file.toString(),
-								true,
-								new FileResourceSelector(file));
+						psSystem.getPSResource(file,true);
 					path.addElement(res);
-					listViewer.setInput(path);
+					//listViewer.setInput(path);
+					//TODO remove path computation
+					listViewer.setInput(res);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

@@ -150,8 +150,11 @@ public class PSOverriddingRuleImpl implements PSOverridingRule
 
 	public void performOverridding(Collection psPolicies)
 	{
-		psPolicies.remove(overridden);
-		psPolicies.add(overridder);
+		if(psPolicies.contains(overridden))
+		{
+			psPolicies.remove(overridden);
+			psPolicies.add(overridder);
+		}
 	}
 //	public boolean getIsInheritable() 
 //	{

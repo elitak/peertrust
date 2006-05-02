@@ -49,6 +49,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEventListen
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
+import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
 
 /**
@@ -74,11 +75,13 @@ public class PSResourceView extends ViewPart
 	private Action addPRuleAction;
 	private Action addFilterAction;
 	
-	PolicySystemRDFModel psModel;
-	
+	private PolicySystemRDFModel psModel;
+	private PSResourceIdentityMaker identityMaker;
+			
 	public PSResourceView()
 	{
 		psModel=PolicySystemRDFModel.getInstance();
+		identityMaker=psModel.getPSResourceIdentityMaker(File.class);
 	}
 	
 	public void createPartControl(Composite parent) 
@@ -214,8 +217,7 @@ public class PSResourceView extends ViewPart
 					if(sel0 instanceof File)
 					{
 						PSResource psRes=
-							psModel.getResource(
-									((File)sel0).getCanonicalPath(),true,null);
+							psModel.getPSResource(sel0,true);
 						PSPolicy pol=
 							ChooserWizardPage.choosePlicy(
 									treeView.getControl().getShell());
@@ -263,9 +265,10 @@ public class PSResourceView extends ViewPart
 					}
 					else if(sel0 instanceof File)
 					{
+//						String identity=
+//							identityMaker.makeIdentity(sel0);
 						PSResource psRes=
-							psModel.getResource(
-									((File)sel0).getCanonicalPath(),true,null);
+							psModel.getPSResource(sel0,true);
 						Vector resFilters=psRes.getHasFilter();
 						String[] resFiltersNames=null;
 						logger.info("Resource filters:"+
@@ -338,9 +341,9 @@ public class PSResourceView extends ViewPart
 					}
 					else if(sel0 instanceof File)
 					{
+//						String identity=identityMaker.makeIdentity(sel0);
 						PSResource psRes=
-							psModel.getResource(
-									((File)sel0).getCanonicalPath(),true,null);
+							psModel.getPSResource(sel0,true);
 						PSModelObject rules[]=
 								ChooserWizardPage.chooseModelObjects(
 											treeView.getControl().getShell(),
@@ -524,7 +527,6 @@ public class PSResourceView extends ViewPart
 				//System.out.println("dadadadad:"+el);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -624,7 +626,9 @@ public class PSResourceView extends ViewPart
 			//treeView.getControl().update();
 			//treeView.refresh(true);
 			//treeView.setInput(treeView.getInput());//refresh();
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			e.printStackTrace();
 		}
 	}

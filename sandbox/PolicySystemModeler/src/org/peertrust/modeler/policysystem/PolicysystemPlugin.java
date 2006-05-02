@@ -79,20 +79,6 @@ public class PolicysystemPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception 
 	{
 		super.start(context);
-//		try {
-//			getImageRegistry();
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		try
-//		{
-//			createImageRegistry();
-//		}
-//		catch(Exception ee)
-//		{
-//			ee.printStackTrace();
-//		}
 		try 
 		{
 			configure();

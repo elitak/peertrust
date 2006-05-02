@@ -25,7 +25,8 @@ public class FileResourceSelector extends SimpleSelector
 	{
 		super(	(Resource)null,
 				PolicySystemRDFModel.PROP_HAS_IDENTITY,
-				(String)null);
+				(String)null
+				);
 		logger= Logger.getLogger(FileResourceSelector.class);
 		root=
 			ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
@@ -34,6 +35,7 @@ public class FileResourceSelector extends SimpleSelector
 			logger.warn("not rootDir in Config");
 		}
 		this.identity=identity;
+		
 	}
 //	public boolean test(PSModelStatement arg0) {
 //		return false;
@@ -69,7 +71,8 @@ public class FileResourceSelector extends SimpleSelector
 			{
 				file= new File(relPath);
 			}
-			boolean comp=file.getAbsolutePath().equals(identity.getAbsolutePath());
+			//boolean comp=file.getAbsolutePath().equals(identity.getAbsolutePath());
+			boolean comp=relPath.equals(identity.getAbsolutePath());
 			logger.info("Checking:"+
 						"\n\tstm.....="+stm+
 						"\n\tfile....="+file+

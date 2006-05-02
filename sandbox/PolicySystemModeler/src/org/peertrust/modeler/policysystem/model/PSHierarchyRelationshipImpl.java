@@ -50,9 +50,9 @@ class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 		return PolicySystemRDFModel.getInstance().createModelObjectWrapper(res,null);//TODO change that
 	}
 
-	public void setTarget(PSModelObject target) {
-		// TODO Auto-generated method stub
-		
+	public void setTarget(PSModelObject target) 
+	{
+		//empty
 	}
 
 	public PSModelObject[] getHierarchyNodes() 

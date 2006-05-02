@@ -500,24 +500,26 @@ public class MesgView extends ViewPart
 		new ISelectionProvider()
 		{
 
-			public void addSelectionChangedListener(ISelectionChangedListener listener) {
-				// TODO Auto-generated method stub
-				
+			public void addSelectionChangedListener(
+							ISelectionChangedListener listener) 
+			{
+				//empty				
 			}
 
-			public ISelection getSelection() {
-				// TODO Auto-generated method stub
+			public ISelection getSelection() 
+			{
 				return null;
 			}
 
-			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-				// TODO Auto-generated method stub
+			public void removeSelectionChangedListener(
+								ISelectionChangedListener listener) 
+			{
 				
 			}
 
-			public void setSelection(ISelection selection) {
-				// TODO Auto-generated method stub
-				
+			public void setSelection(ISelection selection) 
+			{
+				//empty
 			}
 		
 		};

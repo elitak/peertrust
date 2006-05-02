@@ -129,8 +129,6 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
     	}
         else if (parentElement instanceof String) 
         {
-        	PolicySystemRDFModel modelImpl=PolicySystemRDFModel.getInstance();
-        	
         	if(((String)parentElement).equals(
         			PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
         	{
@@ -151,25 +149,20 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         			else
         			{
         				PSResource psRes;
-        				Vector supers;
+        				PSResource resParent;
         				Vector roots=new Vector();
         				for(Iterator it=ress.iterator();it.hasNext();)
         				{
         					psRes=(PSResource)it.next();
-        					supers=psRes.getHasSuper();
-        					if(supers==null)
-        					{
-        						roots.add(psRes);
-        					}
-        					else if(supers.size()==0)
-        					{
+        					resParent=psRes.getHasSuper();
+        					if(resParent==null)
+        					{//no super is a root
         						roots.add(psRes);
         					}
         					else
         					{
         						//empty
-        					}
-        						
+        					}        						
         				}
         				return roots.toArray();
         			}
@@ -179,13 +172,13 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         			((String)parentElement).equals(
         				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
         	{
-        		return PolicySystemRDFModel.getInstance().getPolicies().toArray();
+        		return psModel.getPolicies().toArray();
         	}
         	else if(
         			((String)parentElement).equals(
         				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
         	{
-        		Vector oRules=modelImpl.getOverriddingRules(null);
+        		Vector oRules=psModel.getOverriddingRules(null);
         		
         		return oRules.toArray();
         	}
@@ -193,7 +186,7 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         			((String)parentElement).equals(
         				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
         	{
-        		Vector oRules=modelImpl.getFilters(null);
+        		Vector oRules=psModel.getFilters(null);
         		
         		return oRules.toArray();
         	}
@@ -222,20 +215,24 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         }
         else if(element instanceof PSResource)
         {
-        	Vector parents=((PSResource)element).getHasSuper();
-        	if(parents==null)
-        	{
+        	PSResource parent=((PSResource)element).getHasSuper();
+        	if(parent==null)
+        	{//no parent a root
         		return root;
-        	}
-        	else if(parents.size()==1)
-        	{
-        		return parents.get(0);
         	}
         	else
         	{
-        		logger.warn("Multiple inheritance for resource:"+element);
-        		return null;
+        		return parent;
         	}
+//        	else if(parents.size()==1)
+//        	{
+//        		return parents.get(0);
+//        	}
+//        	else
+//        	{
+//        		logger.warn("Multiple inheritance for resource:"+element);
+//        		return null;
+//        	}
         		
         }
         else
