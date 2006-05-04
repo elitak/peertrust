@@ -79,7 +79,8 @@
 	Inference Engine
 	================================================================== -->
 	<pt:InferenceEngine rdf:about="#InferenceEngine">
-		<pt:javaClass>org.peertrust.inference.MinervaProlog</pt:javaClass>
+		<!--<pt:javaClass>org.peertrust.inference.prolog.minerva.MinervaProlog</pt:javaClass>-->
+		<pt:javaClass>org.peertrust.inference.prolog.yprolog.YPrologEngine</pt:javaClass>
 		<!--<pt:baseFolder>${user.home}/trust/</pt:baseFolder> -->
 		<pt:baseFolder>${user.dir}/</pt:baseFolder>
 		<pt:prologFiles>policies.eLearn</pt:prologFiles>

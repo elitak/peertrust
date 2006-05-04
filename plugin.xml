@@ -46,5 +46,12 @@
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"/>
    </extension>
+   <extension
+         id="editor"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="de.l3s.ppt.application"
+            name="PeerTrust and Protune Programming Editor"/>
+   </extension>
 
 </plugin>

@@ -13,3 +13,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.console
 Eclipse-AutoStart: true
+Bundle-ClassPath: lib/bouncyCastle.jar,
+ lib/commons-logging.jar,
+ lib/icu4j.jar,
+ lib/interprolog.jar,
+ lib/jdepend.jar,
+ lib/jena.jar,
+ lib/jgraph.jar,
+ lib/jsse.jar,
+ lib/junit.jar,
+ lib/log4j.jar,
+ lib/minrt.jar,
+ lib/peertrust-applet.jar,
+ lib/protege.jar,
+ lib/xercesImpl.jar,
+ lib/YProlog.jar
