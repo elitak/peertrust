@@ -3,14 +3,12 @@
 
 <product name="PeerTrust and Protune Programming Editor" id="de.l3s.ppt.editor" application="de.l3s.ppt.application" useFeatures="false">
 
-
    <configIni use="default"/>
 
    <launcherArgs>
    </launcherArgs>
 
    <windowImages/>
-
 
    <launcher>
       <solaris/>
