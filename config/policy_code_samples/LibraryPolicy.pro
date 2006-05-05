@@ -1,32 +1,31 @@
 /*---------------------------------------------------------------------------------------*/
 //Facts:
 
-recognized_university('UPB').
-recognized_university('HU').
-recognized_university('EPFL').
+[f1]recognized_university('UPB').
+[f2]recognized_university('HU').
+[f3]recognized_university('EPFL').
 
-passwd(mirela,alerim).
-passwd(dragos,sogard).
-passwd(alina,anila).
+[f4]passwd(mirela,alerim).
+[f5]passwd(dragos,sogard).
+[f6]passwd(alina,anila).
 
-has_subscription(dragos,'OnlineBooks').
-has_subscription(dragos,'Videotec').
-has_subscription(mirela,'Sonotec').
-has_subscription(mirela,'OnlineBooks').
-has_subscription(alina,'OnlineBooks').
+[f7]has_subscription(dragos,'OnlineBooks').
+[f8]has_subscription(dragos,'Videotec').
+[f9]has_subscription(mirela,'Sonotec').
+[f10]has_subscription(mirela,'OnlineBooks').
+[f11]has_subscription(alina,'OnlineBooks').
 
-trusted_organization('EC').
-trusted_organization('EUH').
+[f12]trusted_organization('EC').
+[f13]trusted_organization('EUH').
 
-price('OnlineBooks',5E).
-price('Videotec',9E).
-price('Sonotec',7E).
-
+[f14]price('OnlineBooks','5E').
+[f15]price('Videotec','9E').
+[f16]price('Sonotec','7E').
 
 /*---------------------------------------------------------------------------------------*/
 //Rules:
 
-[r1] allow(access(Resource)):-	valid_credential( C[ type:"Student", issuer:U, public_key:K]),
+[r1] allow(access(Resource)):-	valid_credential( C[ type:'Student', issuer:U, public_key:K]),
 				recognized_university(U),
 				challenge(K).
 
@@ -39,7 +38,7 @@ price('Sonotec',7E).
 				paid(X,Resource),
 				register(X).
 									
-[r5] european_citizen(X):-	valid_credential(C [owner:X,type:"European citizen",issuer:O,public_key:K]),         
+[r5] european_citizen(X):-	valid_credential(C [owner:X,type:'European citizen',issuer:O,public_key:K]),         
 				trusted_organization(O),
 				challenge(K).
 							
@@ -47,7 +46,7 @@ price('Sonotec',7E).
 				credit_card_payment(X,C,P),
 				logged('X paid P for the resource R').
 				
-[r7] credit_card_payment(X,C,P):-	valid_credential(C[type:"credit_card", issuer:'Visa', owner:X]),charged(C,P).
+[r7] credit_card_payment(X,C,P):-	valid_credential(C[type:'credit_card', issuer:'Visa', owner:X]),charged(C,P).
 								
 
 [r8] charged(C,P):-	not revoked(C),
@@ -63,13 +62,11 @@ price('Sonotec',7E).
 			logged('New user: X registered as U').
 					
 					
-[r12] valid_credential(C):-	credential(C[issuer:CA]),public_key(CA,K),
+[r12] valid_credential(C):-	credential( c, C[issuer:CA]),public_key(CA,K),
 				verify_signature(C,K).
 							
-[r13] allow(release(C[type:"member",owner:'Library',issuer:'BBB'])).
+[r13] allow(release(C[type:'member',owner:'Library',issuer:'BBB'])).
 
-
-							
 /*---------------------------------------------------------------------------------------*/
 //Metapolicy:		
 
