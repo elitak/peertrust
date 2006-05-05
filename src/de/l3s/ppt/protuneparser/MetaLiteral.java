@@ -1,63 +1,43 @@
 package de.l3s.ppt.protuneparser;
 
 public class MetaLiteral {
-	private boolean hasNegSymbol = false;
-	private boolean hasAttributeAndValue = false;
-	private StringDescription negSymbol = null;
-	private Literal literal = null;
-	private StringDescription attribute = null;
-	private Term value = null;
+	private MetaHeadLiteral metaHeadLiteral;
+	private StringDescription negSymbol;
+	private boolean hasNegSymbol;
+	private boolean isLiteral;
+	private Literal literal;
 	
-	public MetaLiteral(StringDescription negSymbol, Literal literal, StringDescription attribute, Term value) {
-		if (negSymbol != null) {
-			this.negSymbol = negSymbol;
+	public MetaLiteral(StringDescription negSymbol, MetaHeadLiteral metaHeadLiteral) {
+		this.metaHeadLiteral = metaHeadLiteral;
+		this.negSymbol = negSymbol;
+		if (negSymbol == null) {
+			hasNegSymbol = false;
+		} else {
 			hasNegSymbol = true;
 		}
+		isLiteral = false;
+		literal = null;
+	}
+	public MetaLiteral(Literal literal) {
+		metaHeadLiteral = null;
+		negSymbol = null;
+		hasNegSymbol = false;
+		isLiteral = true;
 		this.literal = literal;
-		if (attribute != null) {
-			this.attribute = attribute;
-			this.value = value;
-			hasAttributeAndValue = true;
-		}
 	}
-	
-	public String getImage() {
-		StringBuffer buff = new StringBuffer();
-		if (hasNegSymbol) {
-			buff.append(negSymbol.getStr());
-		}
-		buff.append(literal.getImage());
-		if (hasAttributeAndValue) {
-			buff.append(Constants.DOT);
-			buff.append(attribute.getStr());
-			buff.append(Constants.SEMICOLON);
-			buff.append(value.getImage());
-		}
-		return buff.toString();
-	}
-
-	public StringDescription getAttribute() {
-		return attribute;
-	}
-
 	public boolean hasNegSymbol() {
 		return hasNegSymbol;
 	}
-
+	public boolean isLiteral() {
+		return isLiteral;
+	}
 	public Literal getLiteral() {
 		return literal;
 	}
-
+	public MetaHeadLiteral getMetaHeadLiteral() {
+		return metaHeadLiteral;
+	}
 	public StringDescription getNegSymbol() {
 		return negSymbol;
 	}
-
-	public Term getValue() {
-		return value;
-	}
-
-	public boolean hasAttributeAndValue() {
-		return hasAttributeAndValue;
-	}
-
 }

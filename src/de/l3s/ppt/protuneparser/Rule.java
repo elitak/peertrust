@@ -3,122 +3,45 @@ package de.l3s.ppt.protuneparser;
 import java.util.ArrayList;
 
 public class Rule{
-	private boolean isMetaRule = false;
-	private boolean hasId = false;
-	private boolean hasNegSymbol = false;
-	private StringDescription id = null;
-	//private StringDescription idSeparator = null;
-	private StringDescription negSymbol = null;
-	private StringDescription ruleSep = null;
-	private Literal head = null;
-	private MetaLiteral metaHead = null;
-	private ArrayList body = null;
+	private StringDescription id;
+	private HeadLiteral headLiteral;
+	private StringDescription ruleSeparator;
+	private ArrayList body;
+	private boolean hasId;
+	private boolean hasRuleSeparator;
 	public int offsetInInput = -1;
-
-	public Rule( StringDescription id, StringDescription negSymbol,
-			Literal head, StringDescription ruleSep, ArrayList body, int offset) {
-		if (id != null) {
-			hasId = true;
-			this.id = id;
-			//this.idSeparator = idSeparator;
-		}
-		if (negSymbol != null) {
-			hasNegSymbol = true;
-			this.negSymbol = negSymbol;
-		}
-		this.head = head;
-		this.ruleSep = ruleSep;
-		if (body == null) {
-			this.body = new ArrayList();
-		} else {
-			this.body = body;
-		}
-		this.offsetInInput = offset;
-	}
-	public Rule( StringDescription id, MetaLiteral head, 
-			StringDescription ruleSep, ArrayList body, int offset) {
-		isMetaRule = true;
-		if (id != null) {
-			hasId = true;
-			this.id = id;
-			//this.idSeparator = idSeparator;
-		}
-		this.metaHead = head;
-		this.ruleSep = ruleSep;
-		if (body == null) {
-			this.body = new ArrayList();
-		} else {
-			this.body = body;
-		}
-		this.offsetInInput = offset;
-	}
-	public String getImage() {
-		StringBuffer buff = new StringBuffer();
-		if (hasId) {
-			buff.append(Constants.OPENING_SQUARE_BRACKET);
-			buff.append(id.getStr());
-			buff.append(Constants.CLOSING_SQUARE_BRACKET);
-			//buff.append(idSeparator.getStr());
-		}
-		if (hasNegSymbol) {
-			buff.append(negSymbol.getStr());
-		}
-		if (isMetaRule) {
-			buff.append(metaHead.getImage());
-		} else {
-			buff.append(head.getImage());
-		}
-		if (body.size() != 0) {
-			buff.append(ruleSep.getStr());
-			for (int i = 0; i < body.size(); i++) {
-				Object obj = body.get(i);
-				if (obj instanceof Literal) {
-					Literal literal = (Literal) obj;
-					buff.append(literal.getImage());
-				} else if (obj instanceof MetaLiteral) {
-					MetaLiteral literal = (MetaLiteral) obj;
-					buff.append(literal.getImage());
-				} else if (obj instanceof ComplexTerm) {
-					ComplexTerm complexTerm = (ComplexTerm) obj;
-					buff.append(complexTerm.getImage());
-				}
-				if (i != body.size() -1) {
-					buff.append(Constants.COMMA);
-				}
-			}
-		}
-		buff.append(Constants.DOT);
-		return buff.toString();
-	}
-	public boolean hasId() {
-		return hasId;
-	}
-	public StringDescription getId() {
-		return id;
-	}
-//	public StringDescription getIdSeparator() {
-//		return idSeparator;
-//	}
-	public boolean hasNegSymbol() {
-		return hasNegSymbol;
-	}
-	public StringDescription getNegSymbol() {
-		return negSymbol;
+	
+	public Rule(StringDescription id, HeadLiteral headLiteral, 
+			StringDescription ruleSeparator, ArrayList body, int endOffset) {
+		this.id = id;
+		this.headLiteral = headLiteral;
+		this.ruleSeparator = ruleSeparator;
+		this.body = body;
+		if (id == null) hasId = false;
+		else hasId = true;
+		if (ruleSeparator == null) hasRuleSeparator = false;
+		else hasRuleSeparator = true;
+		offsetInInput = endOffset;
 	}
 	public ArrayList getBody() {
 		return body;
 	}
-	public Literal getHead() {
-		return head;
+	public boolean hasId() {
+		return hasId;
 	}
-	public boolean isMetaRule() {
-		return isMetaRule;
+	public boolean hasRuleSeparator() {
+		return hasRuleSeparator;
 	}
-	public MetaLiteral getMetaHead() {
-		return metaHead;
+	public HeadLiteral getHeadLiteral() {
+		return headLiteral;
+	}
+	public StringDescription getId() {
+		return id;
+	}
+	public StringDescription getRuleSeparator() {
+		return ruleSeparator;
 	}
 	public int getOffsetInInput() {
 		return offsetInInput;
 	}
-
 }

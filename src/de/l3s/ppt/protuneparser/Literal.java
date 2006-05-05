@@ -1,95 +1,92 @@
 package de.l3s.ppt.protuneparser;
 
-import java.util.ArrayList;
-
 public class Literal {
-	private boolean termOperatorTerm = false;
-	private boolean predicateArguments = false;
-	private boolean declaration = false;
+	private HeadLiteral headLiteral;
+	private StringDescription negSymbol;
+	private boolean hasNegSymbol;
+	private SpecialLiteral specialLiteral;
+	private boolean isHeadLiteral;
+	private boolean isTermOperatorTerm;
+	private boolean isSpecialLiteral;
+	private StringDescription termBefore;
+	private StringDescription operator;
+	private StringDescription termAfter;
 	
-	private ArrayList variableBindingList = null;
-	private Term termBefore = null;
-	private Term termAfter = null;
-	private StringDescription operator = null;
-	private StringDescription predicate = null;
-	private StringDescription commandWord = null;
-	private Arguments arguments = null;
-	
-	public Literal(StringDescription commandWord, ArrayList variableBindingList) {
-		this.commandWord = commandWord;
-		this.variableBindingList = variableBindingList;
-		declaration = true;
+	public Literal(StringDescription negSymbol, HeadLiteral headLiteral) {
+		this.headLiteral = headLiteral;
+		if (negSymbol != null) {
+			hasNegSymbol = true;
+			this.negSymbol = negSymbol;
+		} else {
+			hasNegSymbol = false;
+			this.negSymbol = null;
+		}
+		specialLiteral = null;
+		isHeadLiteral = true;
+		isTermOperatorTerm = false;
+		isSpecialLiteral = false;
+		termBefore = null;
+		operator = null;
+		termAfter = null;
 	}
-	public Literal(Term termBefore, StringDescription operator, Term termAfter) {
+	public Literal(StringDescription negSymbol, StringDescription termBefore,
+			StringDescription operator, StringDescription termAfter) {
+		headLiteral = null;
+		if (negSymbol != null) {
+			hasNegSymbol = true;
+			this.negSymbol = negSymbol;
+		} else {
+			hasNegSymbol = false;
+			this.negSymbol = null;
+		}
+		specialLiteral = null;
+		isHeadLiteral = false;
+		isTermOperatorTerm = true;
+		isSpecialLiteral = false;
 		this.termBefore = termBefore;
 		this.operator = operator;
 		this.termAfter = termAfter;
-		termOperatorTerm = true;
 	}
-	public Literal(StringDescription predicate, Arguments arguments) {
-		this.predicate = predicate;
-		this.arguments = arguments;
-		predicateArguments = true;
+	public Literal(SpecialLiteral specialLiteral) {
+		headLiteral = null;
+		hasNegSymbol = false;
+		negSymbol = null;
+		this.specialLiteral = specialLiteral;
+		isHeadLiteral = false;
+		isTermOperatorTerm = false;
+		isSpecialLiteral = true;
+		termBefore = null;
+		operator = null;
+		termAfter = null;
 	}
-	
-	public String getImage() {
-		StringBuffer buff = new StringBuffer();
-		if (declaration) {
-			buff.append(Constants.DECLARATION);
-			buff.append(Constants.OPENING_BRACKET);
-			buff.append(Constants.OPENING_SQUARE_BRACKET);
-			for (int i = 0; i < variableBindingList.size(); i++) {
-				VariableBinding binding = (VariableBinding)variableBindingList.get(i);
-				buff.append(binding.getImage());
-				if (i != variableBindingList.size() - 1) {
-					buff.append(Constants.COMMA);
-				}
-			}
-			buff.append(Constants.CLOSING_SQUARE_BRACKET);
-			buff.append(Constants.CLOSING_BRACKET);
-		} else if (termOperatorTerm) {
-			buff.append(termBefore.getImage());
-			buff.append(operator.getStr());
-			buff.append(termAfter.getImage());
-		} else {
-			buff.append(predicate.getStr());
-			buff.append(arguments.getImage());
-		}
-		return buff.toString();
+	public boolean hasNegSymbol() {
+		return hasNegSymbol;
 	}
-
-	public boolean isDeclaration() {
-		return declaration;
+	public HeadLiteral getHeadLiteral() {
+		return headLiteral;
 	}
-
-	public boolean isPredicateArguments() {
-		return predicateArguments;
+	public boolean isHeadLiteral() {
+		return isHeadLiteral;
 	}
-
+	public boolean isSpecialLiteral() {
+		return isSpecialLiteral;
+	}
 	public boolean isTermOperatorTerm() {
-		return termOperatorTerm;
+		return isTermOperatorTerm;
 	}
-
-	public ArrayList getVariableBindingList() {
-		return variableBindingList;
+	public StringDescription getNegSymbol() {
+		return negSymbol;
 	}
 	public StringDescription getOperator() {
 		return operator;
 	}
-	public Term getTermAfter() {
+	public SpecialLiteral getSpecialLiteral() {
+		return specialLiteral;
+	}
+	public StringDescription getTermAfter() {
 		return termAfter;
 	}
-	public Term getTermBefore() {
+	public StringDescription getTermBefore() {
 		return termBefore;
 	}
-	public Arguments getArguments() {
-		return arguments;
-	}
-	public StringDescription getPredicate() {
-		return predicate;
-	}
-	public StringDescription getCommandWord() {
-		return commandWord;
-	}
-
 }

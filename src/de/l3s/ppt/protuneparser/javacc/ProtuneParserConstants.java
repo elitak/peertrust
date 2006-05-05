@@ -5,32 +5,40 @@ public interface ProtuneParserConstants {
 
   int EOF = 0;
   int DIGIT = 5;
-  int INCLUDE = 6;
-  int DECLARATION = 7;
-  int LOWER_CASE = 8;
-  int UPPER_CASE = 9;
-  int UNDERSCORE = 10;
-  int OPENING_BRACKET = 11;
-  int CLOSING_BRACKET = 12;
-  int OPENING_SQUARE_BRACKET = 13;
-  int CLOSING_SQUARE_BRACKET = 14;
-  int NEG_SYMBOL = 15;
-  int RULE_SEPARATOR = 16;
-  int COMMA = 17;
-  int SEMICOLON = 18;
-  int DOT = 19;
-  int OPERATOR = 20;
-  int EQUAL = 21;
-  int START_SINGLE_QUOTE = 22;
-  int START_DOUBLE_QUOTE = 23;
-  int ANY_CHARACTER = 24;
-  int END_SINGLE_QUOTE = 25;
-  int END_DOUBLE_QUOTE = 26;
-  int ANY_CHAR = 27;
+  int LOWER_CASE = 6;
+  int UPPER_CASE = 7;
+  int UNDERSCORE = 8;
+  int INCLUDE = 9;
+  int DECLARATION = 10;
+  int CREDENTIAL = 11;
+  int IN = 12;
+  int OPENING_BRACKET = 13;
+  int CLOSING_BRACKET = 14;
+  int OPENING_SQUARE_BRACKET = 15;
+  int CLOSING_SQUARE_BRACKET = 16;
+  int NEG_SYMBOL = 17;
+  int RULE_SEPARATOR = 18;
+  int COMMA = 19;
+  int SEMICOLON = 20;
+  int DOT = 21;
+  int OPERATOR = 22;
+  int START_SINGLE_QUOTE = 23;
+  int START_DOUBLE_QUOTE = 24;
+  int START_SINGLE_LINE_COMMENT = 25;
+  int START_SINGLE_LINE_COMMENT2 = 26;
+  int START_MULTIPLE_LINE_COMMENT = 27;
+  int END_SINGLE_LINE_COMMENT = 28;
+  int END_SINGLE_QUOTE = 29;
+  int END_DOUBLE_QUOTE = 30;
+  int ANY_CHAR = 31;
+  int END_MULTIPLE_LINE_COMMENT = 32;
+  int ANY_CHARACTER = 33;
 
   int DEFAULT = 0;
-  int IN_SINGLE_QUOTE = 1;
-  int IN_DOUBLE_QUOTE = 2;
+  int IN_SINGLE_LINE_COMMENT = 1;
+  int IN_SINGLE_QUOTE = 2;
+  int IN_DOUBLE_QUOTE = 3;
+  int IN_MULTIPLE_LINE_COMMENT = 4;
 
   String[] tokenImage = {
     "<EOF>",
@@ -39,11 +47,13 @@ public interface ProtuneParserConstants {
     "\"\\n\"",
     "\"\\r\"",
     "<DIGIT>",
-    "\"include\"",
-    "\"declaration\"",
     "<LOWER_CASE>",
     "<UPPER_CASE>",
     "\"_\"",
+    "\"include\"",
+    "\"declaration\"",
+    "\"credential\"",
+    "\"in\"",
     "\"(\"",
     "\")\"",
     "\"[\"",
@@ -54,13 +64,17 @@ public interface ProtuneParserConstants {
     "\":\"",
     "\".\"",
     "<OPERATOR>",
-    "\"=\"",
     "\"\\\'\"",
     "\"\\\"\"",
-    "<ANY_CHARACTER>",
+    "\"//\"",
+    "\"%\"",
+    "\"/*\"",
+    "<END_SINGLE_LINE_COMMENT>",
     "\"\\\'\"",
     "\"\\\"\"",
     "<ANY_CHAR>",
+    "\"*/\"",
+    "<ANY_CHARACTER>",
   };
 
 }

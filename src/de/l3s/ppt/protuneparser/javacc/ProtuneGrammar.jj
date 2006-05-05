@@ -97,8 +97,6 @@ public class ProtuneParser {
         }
         offset++;
       }
-      //does not work with tabs:
-      //offset += column - 1;
       offset += commonOffset;
     }
     return offset;
@@ -120,6 +118,10 @@ public class ProtuneParser {
         offset = ((Rule)entries.get(entries.size() - 1)).offsetInInput;
       } else if (entries.get(entries.size() - 1) instanceof Directive) {
         offset = ((Directive)entries.get(entries.size() - 1)).offsetInInput;
+      } else if (entries.get(entries.size() - 1) instanceof MetaRule) {
+        offset = ((MetaRule)entries.get(entries.size() - 1)).offsetInInput;
+      } else if (entries.get(entries.size() - 1) instanceof StringDescription) {
+        offset = ((StringDescription)entries.get(entries.size() - 1)).getEndOffset();
       } else {
         offset = ((Integer)entries.get(entries.size() - 1)).intValue();
       }
@@ -215,8 +217,9 @@ PARSER_END( ProtuneParser )
 
 ArrayList Input( ArrayList entries ) :
 {
-  Directive directive = null;
-  Rule rule = null;
+  Directive directive;
+  StringDescription comment;
+  Object obj;
 }
 {
   ( 
@@ -224,11 +227,449 @@ ArrayList Input( ArrayList entries ) :
     {entries.add(directive);}
   )* 
   ( 
-    rule = Rule()
-    {entries.add(rule);}
+    (
+      (
+        obj = RuleOrMetaRule()
+        {entries.add(obj);}
+      )
+      |
+      (
+        comment = Comment()
+        {entries.add(comment);}
+      )
+    )
   )* 
   <EOF>
   {return entries;}
+}
+
+Object RuleOrMetaRule() :
+{
+  HeadLiteral headLiteral;
+  StringDescription ruleSeparator = null;
+  StringDescription id = null;
+  ArrayList list = null;
+  Field field;
+  Token t;
+  int endOffset;
+}
+{
+  (
+    (
+      headLiteral = HeadLiteral()
+      (
+        // ignore choice conflict here
+        LOOKAHEAD( <DOT> Field() )
+        (
+          <DOT>
+          field = Field()
+          (
+            ruleSeparator = RuleSeparator()
+            list = MetaLiteralList()
+          )?
+          t = <DOT>
+          {
+          	endOffset = calculateOffset(t.endLine, t.endColumn);
+        	return new MetaRule(new MetaHeadLiteral(headLiteral, field), ruleSeparator, list, endOffset);
+          }
+        )
+        |
+        (
+          (
+            ruleSeparator = RuleSeparator()
+            list = LiteralList()
+          )?
+          t = <DOT>
+          {
+          	endOffset = calculateOffset(t.endLine, t.endColumn);
+      	    return new Rule(null, headLiteral, ruleSeparator, list, endOffset);
+          }
+        )
+      )
+    )
+    |
+    (
+      <OPENING_SQUARE_BRACKET>
+      id = Id()
+      <CLOSING_SQUARE_BRACKET>
+      (
+        (
+          <DOT>
+          field = Field()
+          (
+            ruleSeparator = RuleSeparator()
+            list = MetaLiteralList()
+          )?
+          t = <DOT>
+          {
+          	endOffset = calculateOffset(t.endLine, t.endColumn);
+          	return new MetaRule(new MetaHeadLiteral(id, field), ruleSeparator, list, endOffset);
+          }
+        )
+        |
+        (
+          headLiteral = HeadLiteral()
+          (
+            ruleSeparator = RuleSeparator()
+            list = LiteralList()
+          )?
+          t = <DOT>
+          {
+          	endOffset = calculateOffset(t.endLine, t.endColumn);
+          	return new Rule(id, headLiteral, ruleSeparator, list, endOffset);
+          }
+        )
+      )
+    )
+  )
+}
+
+Literal Literal() :
+{
+  SpecialLiteral specialLiteral;
+  StringDescription negSymbol = null;
+  StringDescription stringDescription = null;
+  ArrayList list = null;
+  StringDescription operator = null;
+  StringDescription termAfter = null;
+  StringDescription termBefore = null;
+}
+{
+  (
+    (
+      specialLiteral = SpecialLiteral()
+      {return new Literal(specialLiteral);}
+    )
+    |
+    (
+      negSymbol = NegSymbol()
+    )
+  )?
+  (
+    (
+      termBefore = Number()
+      operator = Operator()
+      termAfter = Term()
+      {return new Literal(negSymbol, termBefore, operator, termAfter);}
+    )
+    |
+    (
+      (
+        (
+          stringDescription = StringConstant()
+        )
+        |
+        (
+          stringDescription = Variable()
+        )
+      )
+      (
+        (
+          <OPENING_SQUARE_BRACKET>
+          list = FieldList()
+          <CLOSING_SQUARE_BRACKET>
+          {return new Literal(negSymbol, new HeadLiteral(new ComplexTerm(stringDescription, list)));}
+        )
+        |
+        (
+          operator = Operator()
+          termAfter = Term()
+          {return new Literal(negSymbol, stringDescription, operator, termAfter);}
+        )
+        |
+        (
+          (
+            <OPENING_BRACKET>
+            (
+              list = ArgumentList()
+            )?
+            <CLOSING_BRACKET>
+          )
+        )
+      )?
+      {return new Literal(negSymbol, new HeadLiteral(new PredicateLiteral(stringDescription, list)));}
+    )
+  )
+}
+
+MetaLiteral MetaLiteral() :
+{
+  StringDescription negSymbol = null;
+  SpecialLiteral specialLiteral;
+  StringDescription termBefore;
+  StringDescription operator;
+  StringDescription termAfter;
+  StringDescription id;
+  StringDescription stringDescription;
+  Field field = null;
+  ArrayList list = null;
+  boolean isPredicateLiteral = false;
+}
+{
+  (
+    (
+      specialLiteral = SpecialLiteral()
+      {return new MetaLiteral(new Literal(specialLiteral));}
+    )
+    |
+    (
+      negSymbol = NegSymbol()
+    )
+  )?
+  (
+    (
+      <OPENING_SQUARE_BRACKET>
+      id = Constant()
+      <CLOSING_SQUARE_BRACKET>
+      <DOT>
+      field = Field()
+      {return new MetaLiteral(negSymbol, new MetaHeadLiteral(id, field));}
+    )
+    |
+    (
+      termBefore = Number()
+      operator = Operator()
+      termAfter = Term()
+      {return new MetaLiteral(new Literal(negSymbol, termBefore, operator, termAfter));}
+    )
+    |
+    (
+      stringDescription = Variable()
+      (
+        (
+          <OPENING_SQUARE_BRACKET>
+          list = FieldList()
+          <CLOSING_SQUARE_BRACKET>
+          (
+            <DOT>
+            field = Field()
+          )?
+          {
+          	if (field != null) {
+          		// MetaHeadLiteral
+          		return new MetaLiteral(negSymbol, new MetaHeadLiteral(new HeadLiteral(new ComplexTerm(stringDescription, list)), field));
+          	} else {
+          		// HeadLiteral
+          		return new MetaLiteral(new Literal(negSymbol, new HeadLiteral(new ComplexTerm(stringDescription, list))));
+          	}
+          }
+        )
+        |
+        (
+          operator = Operator()
+          termAfter = Term()
+          {return new MetaLiteral(new Literal(negSymbol, stringDescription, operator, termAfter));}
+        )
+      )
+    )
+    |
+    (
+      stringDescription = StringConstant()
+      (
+        (
+          <OPENING_SQUARE_BRACKET>
+          list = FieldList()
+          <CLOSING_SQUARE_BRACKET>
+          (
+            <DOT>
+            field = Field()
+          )?
+          {
+          	if (field != null) {
+          		// MetaHeadLiteral
+          		return new MetaLiteral(negSymbol, new MetaHeadLiteral(new HeadLiteral(new ComplexTerm(stringDescription, list)), field));
+          	} else {
+          		// HeadLiteral
+          		return new MetaLiteral(new Literal(negSymbol, new HeadLiteral(new ComplexTerm(stringDescription, list))));
+          	}
+          }
+        )
+        |
+        (
+          operator = Operator()
+          termAfter = Term()
+          {return new MetaLiteral(new Literal(negSymbol, stringDescription, operator, termAfter));}
+        )
+        |
+        (
+          (
+            <OPENING_BRACKET>
+            {isPredicateLiteral = true;}
+            (
+              list = ArgumentList()
+            )?
+            <CLOSING_BRACKET>
+          )?
+          (
+            <DOT>
+            field = Field()
+          )?
+          {
+          	if (field != null) {
+          		// MetaHeadLiteral
+          		if (isPredicateLiteral) {
+          			return new MetaLiteral(negSymbol, new MetaHeadLiteral(new HeadLiteral(new PredicateLiteral(stringDescription, list)), field));
+          		} else {
+          			return new MetaLiteral(negSymbol, new MetaHeadLiteral(new HeadLiteral(stringDescription), field));
+          		}
+          	} else {
+          		// HeadLiteral
+          		if (isPredicateLiteral) {
+          			return new MetaLiteral(new Literal(negSymbol, new HeadLiteral(new PredicateLiteral(stringDescription, list))));
+          		} else {
+          			return new MetaLiteral(new Literal(negSymbol, new HeadLiteral(stringDescription)));
+          		}
+          	}
+          }
+        )
+      )
+    )
+  )
+}
+
+ArrayList MetaLiteralList() :
+{
+  ArrayList list = new ArrayList();
+  MetaLiteral metaLiteral;
+}
+{
+  metaLiteral = MetaLiteral()
+  {list.add(metaLiteral);}
+  (
+    <COMMA>
+    metaLiteral = MetaLiteral()
+    {list.add(metaLiteral);}
+  )*
+  {return list;}
+}
+
+ArrayList MetaBody() :
+{
+  ArrayList metaBody = null;
+}
+{
+  (
+    metaBody = MetaLiteralList()
+  )?
+  {return metaBody;}
+}
+
+MetaHeadLiteral MetaHeadLiteral() :
+{
+  Field field;
+  StringDescription id = null;
+  HeadLiteral headLiteral = null;
+  boolean hasId = false;
+}
+{
+  (
+    (
+      <OPENING_SQUARE_BRACKET>
+      id = Id()
+      <CLOSING_SQUARE_BRACKET>
+      {hasId = true;}
+    )
+    |
+    (
+      headLiteral = HeadLiteral()
+    )
+  )
+  <DOT>
+  field = Field()
+  {
+    if (hasId) return new MetaHeadLiteral(id, field);
+    else return new MetaHeadLiteral(headLiteral, field);
+  }
+}
+
+ArrayList Body() :
+{
+  ArrayList body = null;
+}
+{
+  (
+    body = LiteralList()
+  )?
+  {return body;}
+}
+
+ArrayList LiteralList() :
+{
+  ArrayList list = new ArrayList();
+  Literal literal;
+}
+{
+  literal = Literal()
+  {list.add(literal);}
+  (
+    <COMMA>
+    literal = Literal()
+    {list.add(literal);}
+  )*
+  {return list;}
+}
+
+SpecialLiteral SpecialLiteral() :
+{
+  Function function;
+  PackageCall packageCall;
+  StringDescription id;
+  AnyTerm anyTerm;
+  SpecialLiteral specialLiteral;
+  Token t;
+  StringDescription commandWord;
+}
+{
+  (
+    (
+      t = <IN>
+      {
+        commandWord = new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn),
+                                   StringDescription.RESERVED_WORD_TYPE);
+      }
+      <OPENING_BRACKET>
+      function = Function()
+      <COMMA>
+      packageCall = PackageCall()
+      <CLOSING_BRACKET>
+      {specialLiteral = new SpecialLiteral(commandWord, function, packageCall);}
+    )
+    |
+    (
+      t = <DECLARATION>
+      {
+        commandWord = new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn),
+                                   StringDescription.RESERVED_WORD_TYPE);
+      }
+      <OPENING_BRACKET>
+      id = Id()
+      <COMMA>
+      anyTerm = AnyTerm()
+      <CLOSING_BRACKET>
+      {specialLiteral = new SpecialLiteral(commandWord, true, id, anyTerm);}
+    )
+    |
+    (
+      t = <CREDENTIAL>
+      {
+        commandWord = new StringDescription(t.image, 
+                                   calculateOffset(t.beginLine, t.beginColumn),
+                                   calculateOffset(t.endLine, t.endColumn),
+                                   StringDescription.RESERVED_WORD_TYPE);
+      }
+      <OPENING_BRACKET>
+      id = Id()
+      <COMMA>
+      anyTerm = AnyTerm()
+      <CLOSING_BRACKET>
+      {specialLiteral = new SpecialLiteral(commandWord, false, id, anyTerm);}
+    )
+  )
+  {return specialLiteral;}
 }
 
 Directive Directive() :
@@ -242,179 +683,205 @@ Directive Directive() :
   {
     commandWord = new StringDescription(t.image, 
                                    calculateOffset(t.beginLine, t.beginColumn),
-                                   calculateOffset(t.endLine, t.endColumn));
+                                   calculateOffset(t.endLine, t.endColumn),
+                                   StringDescription.RESERVED_WORD_TYPE);
   }
   str = StringQuoted()
   {return new Directive(commandWord, str);}
 }
 
-Rule Rule() :
-{
-  StringDescription id = null;
-  StringDescription negSymbolHead = null;
-  Literal literalHead = null;
-  MetaLiteral metaLiteralHead = null;
-  ArrayList list = new ArrayList();
-  boolean isMetaHead = false;
-  boolean hasId = false;
-  StringDescription attribute = null;
-  Term value = null;
-  StringDescription ruleSep = null;
-  StringDescription variable = null;
-  Object obj = null;
-  Token t = null;
-  int offset;
-}
-{
-  (
-    LOOKAHEAD( Term() <OPERATOR> )
-    (
-      literalHead = Literal()
-    )
-    |
-    (
-      (
-        <OPENING_SQUARE_BRACKET>
-        id = Constant()
-        <CLOSING_SQUARE_BRACKET>
-        {hasId = true;}
-      )?
-      (
-        negSymbolHead = NegSymbol()
-      )?
-      literalHead = Literal()
-    )
-  )
-  (
-    LOOKAHEAD( <DOT> Constant() <SEMICOLON> )
-    (
-      <DOT>
-      attribute = Constant()
-      <SEMICOLON>
-      value = Term()
-      {
-        if (hasId) {
-          throw new ParseException("Metarules are not allowed to have ids");
-        }
-        metaLiteralHead = new MetaLiteral(negSymbolHead, literalHead, attribute, value);
-        isMetaHead = true;
-      }
-    )
-  )?
-  (
-    ruleSep = RuleSeparator()
-    obj = LiteralOrMetaLiteralOrComplexTerm()
-    {list.add(obj);}
-    (
-      <COMMA>
-      obj = LiteralOrMetaLiteralOrComplexTerm()
-      {list.add(obj);}
-    )*
-  )?
-  t = <DOT>
-  {
-    offset = calculateOffset(t.endLine, t.endColumn);
-    if (isMetaHead) {
-      // meta rule parsed
-      return new Rule(id, metaLiteralHead, ruleSep, list, offset);
-    } else {
-      // normal rule parsed
-      return new Rule(id, negSymbolHead, literalHead, ruleSep, list, offset);
-    }
-  }
-}
-
-Object LiteralOrMetaLiteralOrComplexTerm() :
-{
-  StringDescription negSymbol = null;
-  Object obj = null;
-  Term value = null;
-  StringDescription attribute = null;
-  boolean isMetaLiteral = false;
-  StringDescription variable = null;
-  Literal literal = null;
-}
-{
-  (
-    LOOKAHEAD( (NegSymbol())? Literal() )
-    (
-      (
-        negSymbol = NegSymbol()
-        {isMetaLiteral = true;}
-      )?
-      literal = Literal()
-      (
-        LOOKAHEAD( <DOT> Constant() <SEMICOLON> )
-        (
-          <DOT>
-          attribute = Constant()
-          <SEMICOLON>
-          value = Term()
-          {isMetaLiteral = true;}
-        )
-      )?
-      {
-        if (isMetaLiteral) {
-          obj = new MetaLiteral(negSymbol, literal, attribute, value);
-        } else {
-          obj = literal;
-        }
-      }
-    )
-    |
-    (
-      (
-        variable = Variable()
-        <DOT>
-        attribute = Constant()
-        <SEMICOLON>
-        value = Term()
-        {obj = new ComplexTerm(variable, attribute, value);}
-      )
-    )
-  )
-  {return obj;}
-}
-
-StringDescription StringConstant() :
+StringDescription Comment() :
 {
   StringBuffer buff = new StringBuffer();
-  char c;
-  Token t = null;
+  Token t;
   int beginOffset, endOffset;
 }
 {
-  t = <LOWER_CASE>
-  {
-    buff.append((char)t.image.charAt(0));
-    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
-  }
   (
-   ( 
-     ( t=<DIGIT> ) 
-   | ( t=<LOWER_CASE> ) 
-   | ( t=<UPPER_CASE> ) 
-   | ( t=<UNDERSCORE> ) 
-   )
-   { 
-     if (t.specialToken != null) {
-       throw new ParseException("whitespace(s) in a string");
-     }
-     c = (char)t.image.charAt(0);
-     buff.append(c);
-   }
-  )*
-  {
-    endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(buff.toString(), beginOffset, endOffset));
-  }
+    (
+      t = <START_SINGLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_SINGLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+      }
+    )
+    |
+    (
+      t = <START_SINGLE_LINE_COMMENT2>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_SINGLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+      }
+    )
+    |
+    (
+      t = <START_MULTIPLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHARACTER>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_MULTIPLE_LINE_COMMENT>
+      {
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+        buff.append(t.image);
+      }
+    )
+  )
+  {return new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.COMMENT_TYPE);}
 }
 
-StringDescription StringDigit() :
+HeadLiteral HeadLiteral() :
+{
+  StringDescription stringDescription;
+  ArrayList list = null;
+}
+{
+  (
+    (
+      stringDescription = Variable()
+      <OPENING_SQUARE_BRACKET>
+      list = FieldList()
+      <CLOSING_SQUARE_BRACKET>
+      {return new HeadLiteral(new ComplexTerm(stringDescription, list));}
+    )
+    |
+    (
+      stringDescription = StringConstant()
+      (
+        (
+          <OPENING_SQUARE_BRACKET>
+          list = FieldList()
+          <CLOSING_SQUARE_BRACKET>
+          {return new HeadLiteral(new ComplexTerm(stringDescription, list));}
+        )
+        |
+        (
+          <OPENING_BRACKET>
+          (
+            list = ArgumentList()
+          )?
+          <CLOSING_BRACKET>
+        )
+      )?
+      {return new HeadLiteral(new PredicateLiteral(stringDescription, list));}
+    )
+  )
+}
+
+Argument Argument() :
+{
+  StringDescription stringDescription;
+  ArrayList list = null;
+}
+{
+  (
+    (
+      stringDescription = StringConstant()
+      (
+        (
+          <OPENING_BRACKET>
+          (
+            list = ArgumentList()
+          )?
+          <CLOSING_BRACKET>
+          {return new Argument(new PredicateLiteral(stringDescription, list));}
+        )
+        |
+        (
+          <OPENING_SQUARE_BRACKET>
+          list = FieldList()
+          <CLOSING_SQUARE_BRACKET>
+          {
+            if (list != null) return new Argument(new AnyTerm(new ComplexTerm(stringDescription, list)));
+            else return new Argument(new AnyTerm(stringDescription));
+          }
+        )
+      )?
+      {return new Argument(new AnyTerm(stringDescription));}
+    )
+    |
+    (
+      (
+        (
+          stringDescription = Number()
+        )
+        |
+        (
+          stringDescription = Variable()
+        )
+      )
+      (
+        <OPENING_SQUARE_BRACKET>
+        list = FieldList()
+        <CLOSING_SQUARE_BRACKET>
+      )?
+      {
+        if (list != null) return new Argument(new AnyTerm(new ComplexTerm(stringDescription, list)));
+        else return new Argument(new AnyTerm(stringDescription));
+      }
+    )
+  )
+}
+
+ArrayList ArgumentList() :
+{
+  ArrayList list = new ArrayList();
+  Argument argument;
+}
+{
+  argument = Argument()
+  {list.add(argument);}
+  (
+    <COMMA>
+    argument = Argument()
+    {list.add(argument);}
+  )*
+  {return list;}
+}
+
+PredicateLiteral PredicateLiteral() :
+{
+  StringDescription predicate;
+  ArrayList argumentList = null;
+}
+{
+  predicate = Predicate()
+  (
+    <OPENING_BRACKET>
+    (
+      argumentList = ArgumentList()
+    )?
+    <CLOSING_BRACKET>
+  )
+  {return(new PredicateLiteral(predicate, argumentList));}
+}
+
+StringDescription Number() :
 {
   StringBuffer buff = new StringBuffer();
-  char c;
-  Token t = null;
+  Token t;
   int beginOffset, endOffset;
 }
 {
@@ -424,80 +891,144 @@ StringDescription StringDigit() :
     beginOffset = calculateOffset(t.beginLine, t.beginColumn);
   }
   (
-   ( 
-     ( t=<DIGIT> ) 
-   | ( t=<LOWER_CASE> ) 
-   | ( t=<UPPER_CASE> ) 
-   | ( t=<UNDERSCORE> ) 
-   )
-   { 
-     if (t.specialToken != null) {
-       throw new ParseException("whitespace(s) in a string");
-     }
-     c = (char)t.image.charAt(0);
-     buff.append(c);
-   }
+    t = <DIGIT>
+    { 
+      if (t.specialToken != null) {
+        throw new ParseException("whitespace(s) in a number");
+      }
+      buff.append((char)t.image.charAt(0));
+    }
   )*
   {
     endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(buff.toString(), beginOffset, endOffset));
+    return(new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.NUMBER_TYPE));
   }
+}
+
+StringDescription StringConstant() :
+{
+  Token t = null;
+  StringBuffer buff = new StringBuffer();
+  int beginOffset;
+  StringDescription stringDescription = null;
+}
+{
+  (
+    (
+      stringDescription = StringQuoted()
+      {
+    	stringDescription.addType(StringDescription.STRING_CONSTANT_TYPE);
+    	return stringDescription;
+      }
+    )
+    |
+    (    
+      (
+        t = <LOWER_CASE>
+      )
+      {
+        buff.append((char)t.image.charAt(0));
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        (
+          (
+            t = <LOWER_CASE>
+          )
+          |
+          (
+            t = <UPPER_CASE>
+          )
+          |
+          (
+            t = <UNDERSCORE>
+          )
+          |
+          (
+            //ignore choice conflict message here
+            (
+              t = <DIGIT>
+              { 
+                if (t.specialToken != null) {
+                  throw new ParseException("whitespace(s) in a string");
+              }
+              buff.append((char)t.image.charAt(0));
+              }
+            )+
+            {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.STRING_CONSTANT_TYPE);}
+          )
+        )
+        {
+          if (t.specialToken != null) {
+            throw new ParseException("whitespace(s) in a string");
+          }
+          buff.append((char)t.image.charAt(0));
+        }
+      )*
+      {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.STRING_CONSTANT_TYPE);}
+    )
+  )
 }
 
 StringDescription Variable() :
 {
-  StringBuffer buff = new StringBuffer();
-  char c;
   Token t = null;
-  int beginOffset, endOffset;
-}
-{
-  ( (t = <UPPER_CASE>) | (t = <UNDERSCORE>) )
-  {
-    buff.append((char)t.image.charAt(0));
-    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
-  }
-  (
-   ( 
-     ( t=<DIGIT> ) 
-   | ( t=<LOWER_CASE> ) 
-   | ( t=<UPPER_CASE> ) 
-   | ( t=<UNDERSCORE> ) 
-   )
-   { 
-     if (t.specialToken != null) {
-       throw new ParseException("whitespace(s) in a string");
-     }
-     c = (char)t.image.charAt(0);
-     buff.append(c);
-   }
-  )*
-  {
-    endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(buff.toString(), beginOffset, endOffset));
-  }
-}
-
-VariableBinding VariableBinding() :
-{
-  StringDescription variable = null;
-  StringDescription constant = null;
+  StringBuffer buff = new StringBuffer();
+  int beginOffset;
+  StringDescription stringDescription = null;
 }
 {
   (
     (
-      variable = Variable()
-      <EQUAL>
-      constant = Constant()
+      (
+        t = <UPPER_CASE>
+      )
+      |
+      (
+        t = <UNDERSCORE>
+      )
     )
-    |
+    {
+      buff.append((char)t.image.charAt(0));
+      beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    }
     (
-      constant = Constant()
-      <EQUAL>
-      variable = Variable()
-    )
+      (
+        (
+          t = <LOWER_CASE>
+        )
+        |
+        (
+          t = <UPPER_CASE>
+        )
+        |
+        (
+          t = <UNDERSCORE>
+        )
+        |
+        (
+          //ignore choice conflict message here 
+          (
+            t = <DIGIT>
+            { 
+              if (t.specialToken != null) {
+                throw new ParseException("whitespace(s) in a string");
+            }
+            buff.append((char)t.image.charAt(0));
+            }
+          )+
+          {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.VARIABLE_TYPE);}
+        )
+      )
+      {
+        if (t.specialToken != null) {
+          throw new ParseException("whitespace(s) in a string");
+        }
+        buff.append((char)t.image.charAt(0));
+      }
+    )*
+    {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.VARIABLE_TYPE);}
   )
-  {return new VariableBinding(variable, constant);}
 }
 
 StringDescription Operator() :
@@ -510,7 +1041,7 @@ StringDescription Operator() :
   {
     beginOffset = calculateOffset(t.beginLine, t.beginColumn);
     endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(t.image, beginOffset, endOffset));
+    return(new StringDescription(t.image, beginOffset, endOffset, StringDescription.OPERATOR_TYPE));
   }
 }
 
@@ -524,7 +1055,7 @@ StringDescription NegSymbol() :
   {
     beginOffset = calculateOffset(t.beginLine, t.beginColumn);
     endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(t.image, beginOffset, endOffset));
+    return(new StringDescription(t.image, beginOffset, endOffset, StringDescription.NEG_SYMBOL_TYPE));
   }
 }
 
@@ -538,45 +1069,28 @@ StringDescription RuleSeparator() :
   {
     beginOffset = calculateOffset(t.beginLine, t.beginColumn);
     endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(t.image, beginOffset, endOffset));
+    return(new StringDescription(t.image, beginOffset, endOffset, StringDescription.RULE_SEPARATOR_TYPE));
   }
-}
-
-ArrayList VariableBindingList() :
-{
-  ArrayList list = new ArrayList();
-  VariableBinding binding = null;
-}
-{
-  binding = VariableBinding()
-  {list.add(binding);}
-  (
-    <COMMA>
-    binding = VariableBinding()
-    {list.add(binding);}
-  )*
-  {return list;}
 }
 
 StringDescription Constant() :
 {
-  StringDescription str = null;
+  StringDescription stringDescription = null;
 }
 {
   (
     (
-      str = StringDigit()
+      stringDescription = StringConstant()
     )
     |
     (
-      str = StringQuoted()
-    )
-    |
-    (
-      str = StringConstant()
+      stringDescription = Number()
     )
   )
-  {return str;}
+  {
+    stringDescription.addType(StringDescription.CONSTANT_TYPE);
+    return stringDescription;
+  }
 }
 
 StringDescription StringQuoted() :
@@ -621,213 +1135,211 @@ StringDescription StringQuoted() :
       }
     )
   )
-  {return new StringDescription(buff.toString(), beginOffset, endOffset);}
+  {return new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.QUOTED_TYPE);}
 }
 
-Literal Literal() :
+StringDescription Attribute() :
 {
-  Literal literal = null;
-  ArrayList list = null;
-  StringDescription str = null;
-  boolean isVariable = false;
-  Term termBefore = null;
-  Term termAfter = null;
-  StringDescription operator = null;
-  Arguments arguments = null;
-  Token t = null;
-  StringDescription commandWord = null;
+  StringDescription stringDescription = null;
+}
+{
+  stringDescription = StringConstant()
+  {
+    stringDescription.addType(StringDescription.ATTRIBUTE_TYPE);
+    return stringDescription;
+  }
+}
+
+StringDescription Value() :
+{
+  StringDescription stringDescription = null;
+}
+{
+  stringDescription = Term()
+  {
+    stringDescription.addType(StringDescription.VALUE_TYPE);
+    return stringDescription;
+  }
+}
+
+StringDescription Predicate() :
+{
+  StringDescription stringDescription = null;
+}
+{
+  stringDescription = StringConstant()
+  {
+    stringDescription.addType(StringDescription.PREDICATE_TYPE);
+    return stringDescription;
+  }
+}
+
+StringDescription Package() :
+{
+  StringDescription stringDescription = null;
+}
+{
+  stringDescription = StringConstant()
+  {
+    stringDescription.addType(StringDescription.PACKAGE_TYPE);
+    return stringDescription;
+  }
+}
+
+StringDescription Term() :
+{
+  StringDescription stringDescription;
 }
 {
   (
     (
-      (
-        t = <DECLARATION>
-        {
-          commandWord = new StringDescription(t.image, 
-                                   calculateOffset(t.beginLine, t.beginColumn),
-                                   calculateOffset(t.endLine, t.endColumn));
-        }
-        <OPENING_BRACKET>
-        <OPENING_SQUARE_BRACKET>
-        list = VariableBindingList()
-        {literal = new Literal(commandWord, list);}
-        <CLOSING_SQUARE_BRACKET>
-        <CLOSING_BRACKET>
-      )
-      |
-      (
-        str = StringConstant()
-        (
-          (
-            operator = Operator()
-            termAfter = Term()
-            {literal = new Literal(new Term(false, str), operator, termAfter);}
-          )
-          |
-          (
-            arguments = Arguments()
-            {literal = new Literal(str, arguments);}
-          )
-        )
-      )
+      stringDescription = Variable()
     )
     |
     (
-      // ignore warning messsage about choice conflict here:
-      termBefore = Term()
-      operator = Operator()
-      termAfter = Term()
-      {literal = new Literal(termBefore, operator, termAfter);}
+      stringDescription = Constant()
     )
   )
-  {return literal;}
+  {
+    stringDescription.addType(StringDescription.TERM_TYPE);
+    return stringDescription;
+  }
 }
 
-Term Term() :
+StringDescription Id() :
+{
+  StringDescription stringDescription = null;
+}
+{
+  stringDescription = Constant()
+  {
+    stringDescription.addType(StringDescription.ID_TYPE);
+    return stringDescription;
+  }
+}
+
+Field Field() :
+{
+  StringDescription attribute;
+  StringDescription value;
+}
+{
+  attribute = Attribute()
+  <SEMICOLON>
+  value = Value()
+  {return new Field(attribute, value);}
+}
+
+ArrayList FieldList() :
 {
   ArrayList list = new ArrayList();
-  Term term = null;
-  StringDescription str = null;
+  Field field;
 }
 {
+  field = Field()
+  {list.add(field);}
   (
+    <COMMA>
+    field = Field()
+    {list.add(field);}
+  )*
+  {return list;}
+}
+
+ArrayList TermList() :
+{
+  ArrayList list = new ArrayList();
+  StringDescription term;
+}
+{
+  term = Term()
+  {list.add(term);}
+  (
+    <COMMA>
+    term = Term()
+    {list.add(term);}
+  )*
+  {return list;}
+}
+
+Function Function() :
+{
+  StringDescription predicate;
+  boolean hasBrackets = false;
+  ArrayList termList = null;
+}
+{
+  predicate = Predicate()
+  (
+    <OPENING_BRACKET>
+    {hasBrackets = true;}
     (
-      <OPENING_SQUARE_BRACKET>
-      (
-        term = Term()
-        {list.add(term);}
-        (
-          <COMMA>
-          term = Term()
-          {list.add(term);}
-        )*
-      )?
-      <CLOSING_SQUARE_BRACKET>
-      {term = new Term(list);}
-    )
-    |
-    (
-      str = Variable()
-      {term = new Term(true, str);}
-    )
-    |
-    (
-      str = Constant()
-      {term = new Term(false, str);}
-    )
-  )
-  {return term;}
+      termList = TermList()
+    )?
+    <CLOSING_BRACKET>
+  )?
+  {return(new Function(predicate, hasBrackets, termList));}
 }
 
 ComplexTerm ComplexTerm() :
 {
-  StringDescription variable = null;
-  StringDescription attribute = null;
-  Term value = null;
-}
-{
-  variable = Variable()
-  <DOT>
-  attribute = Constant()
-  <SEMICOLON>
-  value = Term()
-  {return new ComplexTerm(variable, attribute, value);}
-}
-
-Argument Argument() :
-{
-  Token t = null;
-  StringDescription str = null;
-  StringDescription function = null;
-  Term term = null;
-  ArrayList list = new ArrayList();
-  Arguments arguments = null;
-  Argument argument = null;
-  boolean isVariable = false;
+  ArrayList fieldList;
+  StringDescription stringDescription;
 }
 {
   (
     (
-      str = StringConstant()
-      (
-        (
-          <SEMICOLON>
-          function = StringConstant()
-          <OPENING_BRACKET>
-          term = Term()
-          <CLOSING_BRACKET>
-          {argument = new Argument(str, function, term);}
-        )
-        |
-        (
-          arguments = Arguments()
-          {argument = new Argument(str, arguments);}
-        )
-      )
+      stringDescription = Variable()
     )
     |
     (
-      (
-        (
-          str = StringQuoted()
-        )
-        |
-        (
-          str = Variable()
-          {isVariable = true;}
-        )
-        |
-        (
-          str = StringDigit()
-        )
-      )
-      {argument = new Argument(new Term(isVariable, str));}
-    )
-    |
-    (
-      <OPENING_SQUARE_BRACKET>
-      term = Term()
-      {list.add(term);}
-      (
-        <COMMA>
-        term = Term()
-        {list.add(term);}
-      )*
-      <CLOSING_SQUARE_BRACKET>
-      {argument = new Argument(new Term(list));}
+      stringDescription = StringConstant()
     )
   )
-  {return argument;}
+  <OPENING_SQUARE_BRACKET>
+  fieldList = FieldList()
+  <CLOSING_SQUARE_BRACKET>
+  {return new ComplexTerm(stringDescription, fieldList);}
 }
 
-Arguments Arguments() :
+AnyTerm AnyTerm() :
 {
-  ArrayList list = new ArrayList();
-  Argument argument = null;
-  boolean exists = false;
+  StringDescription term = null;
+  ArrayList fieldList = null;
 }
 {
   (
-    <OPENING_BRACKET>
+    // ignore choice conflict here
     (
-      argument = Argument()
-      {list.add(argument);}
+      term = Number()
+      {return new AnyTerm(term);}
+    )
+    |
+    (
+      term = Term()
       (
-        <COMMA>
-        argument = Argument()
-        {list.add(argument);}
-      )*
-    )?
-    <CLOSING_BRACKET>
-    {exists = true;}
-  )?
-  {
-    if (exists) {
-      return new Arguments(list);
-    } else {
-      return new Arguments();
-    }
-  }
+        <OPENING_SQUARE_BRACKET>
+        fieldList = FieldList()
+        <CLOSING_SQUARE_BRACKET>
+      )?
+      {
+        if (fieldList != null) return new AnyTerm(new ComplexTerm(term, fieldList));
+        else return new AnyTerm(term);
+      }
+    )
+  )
+}
+
+PackageCall PackageCall() :
+{
+  StringDescription packageName;
+  Function function;
+}
+{
+  packageName = Package()
+  <SEMICOLON>
+  function = Function()
+  {return new PackageCall(packageName, function);}
 }
 
 SPECIAL_TOKEN :
@@ -841,25 +1353,34 @@ SPECIAL_TOKEN :
 TOKEN :
 {
     <DIGIT : ["0"-"9"]>
-  | <INCLUDE : "include">
-  | <DECLARATION : "declaration">
   | <LOWER_CASE : ["a"-"z"]>
   | <UPPER_CASE : ["A"-"Z"]>
   | <UNDERSCORE : "_">
+  | <INCLUDE : "include">
+  | <DECLARATION : "declaration">
+  | <CREDENTIAL : "credential">
+  | <IN : "in">
   | <OPENING_BRACKET : "(">
   | <CLOSING_BRACKET : ")">
   | <OPENING_SQUARE_BRACKET : "[">
   | <CLOSING_SQUARE_BRACKET : "]">
-  | <NEG_SYMBOL : "not" | "\\=">
+  | <NEG_SYMBOL : "not" | "\\+">
   | <RULE_SEPARATOR : "<-" | ":-">
   | <COMMA : ",">
   | <SEMICOLON : ":">
   | <DOT : ".">
-  | <OPERATOR : "<=" | ">=" | "!=" | "<" | ">" | "==">
-  | <EQUAL : "=">
+  | <OPERATOR : "<=" | ">=" | "!=" | "<" | ">" | "=" | "is">
   | <START_SINGLE_QUOTE : "'"> : IN_SINGLE_QUOTE 
   | <START_DOUBLE_QUOTE : "\""> : IN_DOUBLE_QUOTE 
-  | <ANY_CHARACTER : ~[]>
+  | <START_SINGLE_LINE_COMMENT : "//"> : IN_SINGLE_LINE_COMMENT 
+  | <START_SINGLE_LINE_COMMENT2 : "%"> : IN_SINGLE_LINE_COMMENT 
+  | <START_MULTIPLE_LINE_COMMENT : "/*"> : IN_MULTIPLE_LINE_COMMENT 
+}
+
+<IN_SINGLE_LINE_COMMENT>
+TOKEN : 
+{
+    <END_SINGLE_LINE_COMMENT: "\n" | "\r"> : DEFAULT 
 }
 
 <IN_SINGLE_QUOTE>
@@ -874,8 +1395,20 @@ TOKEN :
     <END_DOUBLE_QUOTE: "\""> : DEFAULT 
 }
 
-<IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE>
+<IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE, IN_SINGLE_LINE_COMMENT>
 TOKEN :
 {
-    <ANY_CHAR : ~[]> 
+    <ANY_CHAR : ~["\n","\r"]> 
+}
+
+<IN_MULTIPLE_LINE_COMMENT>
+TOKEN : 
+{
+    <END_MULTIPLE_LINE_COMMENT: "*/"> : DEFAULT 
+}
+
+<IN_MULTIPLE_LINE_COMMENT>
+TOKEN :
+{
+    <ANY_CHARACTER : ~[]> 
 }
