@@ -261,7 +261,7 @@ public class ResourcePolicyView extends ViewPart
 		removeAction.setText("Action 2");
 		removeAction.setToolTipText("Action 2 tooltip");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
 //		doubleClickAction = new Action() {
 //			public void run() {
 //				ISelection selection = viewer.getSelection();

@@ -131,7 +131,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			new Label(
 					headerContainer,
 					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
-		header.setText("Overridding");
+		header.setText("Edit Filter");
 		
 		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		headerdd= new Label(

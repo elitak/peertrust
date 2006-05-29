@@ -151,7 +151,9 @@ public class PSResourceView extends ViewPart
 		removeAction.setText("remove");
 		removeAction.setToolTipText("remove");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+				getImageDescriptor(ISharedImages.IMG_TOOL_DELETE)
+				/*getImageDescriptor(ISharedImages.IMG_TOOL_CUT)*/
+				);
 		
 		protectAction = new Action() {
 			public void run() {

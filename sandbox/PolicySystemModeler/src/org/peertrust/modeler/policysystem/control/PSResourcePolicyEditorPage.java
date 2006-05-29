@@ -340,7 +340,7 @@ public class PSResourcePolicyEditorPage
 		removeAction.setText("Action 2");
 		removeAction.setToolTipText("Remove Policy");
 		removeAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_TOOL_CUT));
+				getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
 		toolBarMng.add(removeAction);
 		
 		parent.setLayout(new GridLayout());

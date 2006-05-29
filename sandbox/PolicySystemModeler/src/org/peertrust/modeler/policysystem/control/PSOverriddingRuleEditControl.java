@@ -128,7 +128,7 @@ public class PSOverriddingRuleEditControl
 			new Label(
 					headerContainer,
 					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
-		header.setText("Overridding");
+		header.setText("Edit Overridding Rule");
 		
 		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		headerdd= new Label(
@@ -260,7 +260,6 @@ public class PSOverriddingRuleEditControl
 			String ruleLabel=labelFieldEditor.getStringValue();
 			if(ruleLabel!=null || !"".equals(ruleLabel))
 			{
-				System.out.println("WWWWWWWWWWWWWWWWW0");
 				overridingRule.setLabel(ruleLabel);
 			}
 			
@@ -286,7 +285,6 @@ public class PSOverriddingRuleEditControl
 			
 			if(overriddenLabel==null || overridderLabel==null)
 			{
-				System.out.println("WWWWWWWWWWWWWWWWW");
 				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
 			}
 			
@@ -409,7 +407,7 @@ public class PSOverriddingRuleEditControl
 						logger.info("Selected:"+sel);
 						return label;
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.warn(e);
 						return null;
 					}
 				}

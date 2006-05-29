@@ -122,7 +122,7 @@ public class PSPolicyEditorControl implements PSModelObjectEditControl
 			new Label(
 					headerContainer,
 					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
-		header.setText("Overridding");
+		header.setText("Edit Policy");
 		
 		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		headerdd= new Label(
@@ -154,33 +154,6 @@ public class PSPolicyEditorControl implements PSModelObjectEditControl
 				}
 			});
 		}
-//		top = new Composite(parent, SWT.LEFT);
-//		//top.setLayout(new GridLayout());
-//		///////////////////////////////////////////////////////
-//		Label headerdd= new Label(top,SWT.NONE);		
-//		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
-//		header.setText("Policy");
-//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//		///
-//		
-//		labelFiledEditor=
-//			new StringFieldEditor("labelFieldEditor","Label",top);
-//		valueFieldEditor=
-//			new StringFieldEditor("valueFieldEditor","Value",top);
-//		headerdd= new Label(top,SWT.NONE);
-//		
-//		
-//		if(doConstructSetButton)
-//		{
-//			setButton= new Button(top,SWT.NONE);
-//			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//			setButton.setText("set");
-//			setButton.addSelectionListener(new SelectionAdapter() {
-//				public void widgetSelected(SelectionEvent e) {	
-//					saveEdit();
-//				}
-//			});
-//		}
 	}
 
 	/* (non-Javadoc)
@@ -268,8 +241,7 @@ public class PSPolicyEditorControl implements PSModelObjectEditControl
 	{
 		if(modelCheckStore==null)
 		{
-			//TODO modelc heck for policy editing
-			//return false actualy
+
 		}
 		return true;
 	}
