@@ -6,8 +6,8 @@ import java.util.Vector;
 public interface PSFilter extends PSModelObject 
 {
 
-	public Vector getHasCondition();
-	public void addHasCondition(String condition);
+	public String getCondition();
+	public void setHasCondition(String condition);
 	public boolean containsCondition(String condition);
 	public void removeCondition(String condition);
 	public void removeAllConditions();
@@ -15,5 +15,4 @@ public interface PSFilter extends PSModelObject
 	public Vector getIsprotectedBy();
 	public void addIsProtectedBy(PSPolicy policy) ;
 	public void removeIsProtectedBy(PSPolicy policy);
-	//public String getLabel();
 }

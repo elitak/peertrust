@@ -39,6 +39,8 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	 */
 	public Vector getApplyingPolicies(PSResource psResource) 
 	{
+		System.out.println(
+				"DADDADADADADADDDDDDDDDDADADADADDADADADAD:"+psResource);
 		Vector protections= new Vector();
 		if(psResource==null)
 		{
@@ -51,16 +53,21 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 		for(Iterator it=path.iterator();it.hasNext();)
 		{
 			curRes=(PSResource)it.next();
-			protections.addAll(PSProtectionImpl.makeProtections(curRes));
-			///override
+//			/override
 			applyORules(protections,curRes);
+			protections.addAll(PSProtectionImpl.makeProtections(curRes));
+			
 		}
+		System.out.println(
+				"DADDADADADADADDDDDDDDDDADADADADDADADADAD_END:"+protections);
 		return protections;
 	}
 
 	private static void applyORules(Vector protections, PSResource psRes)
 	{
 		Vector oRules=psRes.getIsOverrindingRule();
+		System.out.println(
+				"DADDADADADADADDDDDDDDDDADADADADDADADADADor:"+oRules);
 		if(oRules!=null)
 		{
 			PSOverridingRule oRule;
@@ -68,11 +75,21 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 			for(Iterator it=oRules.iterator();it.hasNext();)
 			{
 				oRule=(PSOverridingRule)it.next();
-				for(Iterator ptsIt=protections.iterator();it.hasNext();)
-				{
-					protection=(PSProtection)ptsIt.next();
-					protection.override(oRule);
+				System.out.println(
+						"DADDADADADADADDDDDDDDDDADADADADDADADADADor1:"+
+						oRule+" size="+protections);
+				try {
+					for(Iterator ptsIt=protections.iterator();ptsIt.hasNext();)
+					{
+						System.out.println(
+								"DADDADADADADADDDDDDDDDDADADADADDADADADADoRule2");
+						protection=(PSProtection)ptsIt.next();
+						protection.override(oRule);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+				
 			}
 		}
 	}

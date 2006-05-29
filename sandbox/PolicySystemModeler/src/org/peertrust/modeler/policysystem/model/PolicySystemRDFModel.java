@@ -515,6 +515,9 @@ public class PolicySystemRDFModel
 								PSModelObject modelObjectWrapper, 
 								Property prop) 
 	{
+		logger.info(
+				"\n\tGetting "+prop +" for "+
+				modelObjectWrapper.getModelObject());
 		if(modelObjectWrapper ==null || prop==null)
 		{
 			logger.warn(
@@ -1214,7 +1217,7 @@ public class PolicySystemRDFModel
 	{
 		PSModelObject curParent;
 		Vector completedPath=new Vector();
-		curParent=getDirectParent(node);
+		curParent=node;//getDirectParent(node);
 		
 		while(curParent!=null)
 		{
@@ -2146,7 +2149,8 @@ public class PolicySystemRDFModel
 			logger.warn("Property is null for property:"+propertyKey);
 			return null;
 		}
-			
+		//logger.info("Getting "+prop+" for "+modelObject);
+		System.out.println("\n\tGettingx "+prop);
 		return getMultipleProperty(modelObject,prop);
 	}
 	

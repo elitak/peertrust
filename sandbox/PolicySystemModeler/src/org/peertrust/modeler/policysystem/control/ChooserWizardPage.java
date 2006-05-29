@@ -18,7 +18,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
@@ -265,7 +264,7 @@ public class ChooserWizardPage extends WizardPage
 		 * @param shell -- the parent shell for creating the wizard
 		 * @return the chosen poly or null if no policy was selected
 		 */
-		public static PSPolicy choosePlicy(Shell  shell)
+		public static PSPolicy choosePolicy(Shell  shell)
 		{
 			//DialogPage p;
 			final PSPolicy selPol[]={null};

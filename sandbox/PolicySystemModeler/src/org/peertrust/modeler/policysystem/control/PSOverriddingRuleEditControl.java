@@ -9,7 +9,6 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -21,7 +20,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.peertrust.modeler.policysystem.PolicysystemPlugin;
-import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
@@ -340,9 +338,10 @@ public class PSOverriddingRuleEditControl
 				{
 					try {
 						DialogPage p;
-						ChooserWizard wiz=new ChooserWizard();
+						String pageName="choose policy";
+						ChooserWizard wiz=new ChooserWizard(pageName);
 						ChooserWizardPage page=
-							new ChooserWizardPage("choose policy",PSPolicy.class);
+							new ChooserWizardPage(pageName,PSPolicy.class);
 						wiz.addPage(page);
 						logger.info("SHELLLLLLLLLLLLLL:"+parent.getShell());
 						WizardDialog dlg=
@@ -384,7 +383,8 @@ public class PSOverriddingRuleEditControl
 				{
 					try {
 						DialogPage p;
-						ChooserWizard wiz=new ChooserWizard();
+						String pageName="choose policy";
+						ChooserWizard wiz=new ChooserWizard(pageName);
 						ChooserWizardPage page=
 							new ChooserWizardPage("choose policy",PSPolicy.class);
 						wiz.addPage(page);
@@ -418,48 +418,6 @@ public class PSOverriddingRuleEditControl
 		return pv;
 	}
 	
-	public class ChooserWizard extends Wizard
-	{
-		private Object selected;
-		public ChooserWizard()
-		{
-			
-		}
-		public boolean performFinish() 
-		{
-			selected=((ChooserWizardPage)
-						getPage("choose policy")).getSelected();;
-			return true;
-		}
-		public Object getSelected() {
-			return selected;
-		}
-		
-	}
-	
-	private StringButtonFieldEditor createLabelEditor(
-							String name,//"labelFieldEditor",
-							String labelStext,//"Label",
-							Composite parent//panel
-							)
-	{
-		StringButtonFieldEditor ed= 
-			new StringButtonFieldEditor(name,labelStext,parent)
-			{
-	
-				protected String changePressed() {
-					String label=labelFieldEditor.getStringValue();
-					if(label!=null)
-					{
-						overridingRule.setLabel(label);
-					}
-					return label;
-				}
-				
-			};
-		return ed;
-	}
-
 	/**
 	 * @see org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.eclipse.jface.viewers.DoubleClickEvent)
 	 */

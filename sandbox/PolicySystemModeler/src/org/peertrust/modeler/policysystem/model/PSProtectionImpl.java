@@ -81,20 +81,22 @@ public class PSProtectionImpl implements PSProtection
 	 */
 	public void override(PSOverridingRule oRule) 
 	{
+		System.out.println("oooooooooooooooRule:"+oRule);
 		if(oRule==null)
 		{
 			return;
 		}
 		
 		PSPolicy overridden=oRule.getHasOverridden();
-		if(overridden==null)
+		PSPolicy overridder=oRule.getHasOverridder();
+		if(overridden==null || overridder==null)
 		{
 			return;
 		}
 		
 		if(overridden.equals(policy))
 		{//override
-			this.policy=oRule.getHasOverridder();
+			this.policy=overridder;
 		}
 	}
 
@@ -135,15 +137,10 @@ public class PSProtectionImpl implements PSProtection
 			
 			identity=endsWithSep(identity);
 			
-			Vector condValues=filter.getHasCondition();
+			//Vector condValues=filter.getCondition();
 			//make full path condition
-			Vector conditions= new Vector();
-			for(Iterator condValueIt=condValues.iterator();
-				condValueIt.hasNext();)
-			{
-				conditions.add(identity+condValueIt.next());
-			}
-						
+			String conditions= identity+filter.getCondition();
+					
 			Vector policies=filter.getIsprotectedBy();
 			if(policies!=null)
 			{
@@ -152,12 +149,15 @@ public class PSProtectionImpl implements PSProtection
 				for(Iterator itPol=policies.iterator();itPol.hasNext();)
 				{
 					curPol=(PSPolicy)itPol.next();
-					for(Iterator itCond=conditions.iterator();itCond.hasNext();)
-					{
-						curCond=(String)itCond.next();
-						protections.add(
-								new PSProtectionImpl(curPol,curCond));
-					}
+					protections.add(
+							new PSProtectionImpl(curPol,conditions));
+//					
+//					for(Iterator itCond=conditions.iterator();itCond.hasNext();)
+//					{
+//						curCond=(String)itCond.next();
+//						protections.add(
+//								new PSProtectionImpl(curPol,curCond));
+//					}
 				}
 			}
 			

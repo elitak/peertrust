@@ -355,13 +355,14 @@ public class ResourcePolicyContentProvider
 				PSModelObject guarded=policy.getGuarded();
 				if(guarded instanceof PSFilter)
 				{
-					StringBuffer strBuf= new StringBuffer(512);
-					Iterator it=((PSFilter)guarded).getHasCondition().iterator();
-					for(;it.hasNext();)
-					{
-						strBuf.append(it.next());
-					}
-					return strBuf.toString();
+//					StringBuffer strBuf= new StringBuffer(512);
+//					Iterator it=((PSFilter)guarded).getCondition().iterator();
+//					for(;it.hasNext();)
+//					{
+//						strBuf.append(it.next());
+//					}
+//					return strBuf.toString();
+					return ((PSFilter)guarded).getCondition();
 				}
 				else if(guarded instanceof PSResource)
 				{
@@ -399,13 +400,14 @@ public class ResourcePolicyContentProvider
 			}
 				case 2:/// filter for policy is *
 			{
-					StringBuffer strBuf= new StringBuffer(512);
-					Iterator it=filter.getHasCondition().iterator();
-					for(;it.hasNext();)
-					{
-						strBuf.append(it.next());
-					}
-					return strBuf.toString();
+//					StringBuffer strBuf= new StringBuffer(512);
+//					Iterator it=filter.getCondition().iterator();
+//					for(;it.hasNext();)
+//					{
+//						strBuf.append(it.next());
+//					}
+//					return strBuf.toString();
+					return filter.getCondition();
 			}
 			default:
 			{

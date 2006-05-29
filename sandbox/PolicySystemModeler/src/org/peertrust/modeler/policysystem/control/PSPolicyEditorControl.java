@@ -6,6 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -103,25 +104,48 @@ public class PSPolicyEditorControl implements PSModelObjectEditControl
 	 */
 	public void createControl(Composite parent) 
 	{
+		Label headerdd;
 		top = new Composite(parent, SWT.LEFT);
-		//top.setLayout(new GridLayout());
-		///////////////////////////////////////////////////////
-		Label headerdd= new Label(top,SWT.NONE);		
-		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
-		header.setText("Policy");
+		top.setLayout(new GridLayout());
+		top.setLayoutData(new GridData(GridData.FILL_BOTH));
+		///header
+		Composite headerContainer= 
+						new Composite(top,SWT.LEFT);
+		Composite panel=
+						new Composite(top,SWT.LEFT);
+		
+		headerContainer.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		headerContainer.setLayout(new GridLayout());
+		headerdd= new Label(headerContainer,SWT.NONE);
+		
+		Label header= 
+			new Label(
+					headerContainer,
+					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
+		header.setText("Overridding");
+		
 		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		headerdd= new Label(
+					headerContainer,
+					SWT.NONE|SWT.SEPARATOR|SWT.HORIZONTAL);
+		headerdd.setLayoutData(
+					new GridData(GridData.FILL_HORIZONTAL));
+		
+		////editor
+		///////////////////////////////////////////////////////
+		panel.setLayoutData(new GridData(GridData.FILL_BOTH));
 		///
 		
 		labelFiledEditor=
-			new StringFieldEditor("labelFieldEditor","Label",top);
+			new StringFieldEditor("labelFieldEditor","Label",panel);
 		valueFieldEditor=
-			new StringFieldEditor("valueFieldEditor","Value",top);
-		headerdd= new Label(top,SWT.NONE);
+			new StringFieldEditor("valueFieldEditor","Value",panel);
+		headerdd= new Label(panel,SWT.NONE);
 		
 		
 		if(doConstructSetButton)
 		{
-			setButton= new Button(top,SWT.NONE);
+			setButton= new Button(panel,SWT.NONE);
 			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			setButton.setText("set");
 			setButton.addSelectionListener(new SelectionAdapter() {
@@ -130,6 +154,33 @@ public class PSPolicyEditorControl implements PSModelObjectEditControl
 				}
 			});
 		}
+//		top = new Composite(parent, SWT.LEFT);
+//		//top.setLayout(new GridLayout());
+//		///////////////////////////////////////////////////////
+//		Label headerdd= new Label(top,SWT.NONE);		
+//		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
+//		header.setText("Policy");
+//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		///
+//		
+//		labelFiledEditor=
+//			new StringFieldEditor("labelFieldEditor","Label",top);
+//		valueFieldEditor=
+//			new StringFieldEditor("valueFieldEditor","Value",top);
+//		headerdd= new Label(top,SWT.NONE);
+//		
+//		
+//		if(doConstructSetButton)
+//		{
+//			setButton= new Button(top,SWT.NONE);
+//			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//			setButton.setText("set");
+//			setButton.addSelectionListener(new SelectionAdapter() {
+//				public void widgetSelected(SelectionEvent e) {	
+//					saveEdit();
+//				}
+//			});
+//		}
 	}
 
 	/* (non-Javadoc)

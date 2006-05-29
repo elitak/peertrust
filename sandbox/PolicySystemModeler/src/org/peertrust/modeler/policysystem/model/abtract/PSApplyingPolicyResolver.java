@@ -6,7 +6,7 @@ package org.peertrust.modeler.policysystem.model.abtract;
 import java.util.Vector;
 
 /**
- * The interface to implement to privide a mechanism to find 
+ * The interface to implement to provide a mechanism to find 
  * all Policies that applies to a resource
  *  
  * @author Patrice Congo

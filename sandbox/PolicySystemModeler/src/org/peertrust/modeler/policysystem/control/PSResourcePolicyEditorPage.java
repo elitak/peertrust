@@ -499,7 +499,7 @@ public class PSResourcePolicyEditorPage
 				PSResource psRes=
 					psModel.getPSResource(identity,true);
 				PSPolicy pol=
-					ChooserWizardPage.choosePlicy(
+					ChooserWizardPage.choosePolicy(
 							composite.getShell());
 							
 				if(pol!=null)
@@ -515,7 +515,7 @@ public class PSResourcePolicyEditorPage
 		{
 			PSResource psRes= (PSResource)input;
 			PSPolicy pol=
-				ChooserWizardPage.choosePlicy(
+				ChooserWizardPage.choosePolicy(
 						composite.getShell());
 						
 			if(pol!=null)

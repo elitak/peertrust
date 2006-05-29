@@ -4,11 +4,14 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -20,11 +23,16 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 public class PSFilterEditorControl implements PSModelObjectEditControl {
 
 	
-	public PSFilterEditorControl() 
+	public PSFilterEditorControl(boolean showOwnSetButton) 
 	{
-		super();
+		this.showOwnSetButton=showOwnSetButton;
 	}
 
+	public PSFilterEditorControl() 
+	{
+		this(false);
+	}
+	
 	public void dispose() 
 	{
 		
@@ -71,7 +79,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 	/**
 	 * Used to show the filter label
 	 */
-	private StringFieldEditor labelFiledEditor;
+	private StringFieldEditor labelFieldEditor;
 	
 	/**
 	 * Used to shows the filter condition
@@ -88,6 +96,10 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 	 */
 	private PSModelWrapperListEditor filterPolicyListEditor;
 	
+	private StringButtonFieldEditor filterPolicyFieldEditor;
+	private PSPolicy actualPolicy;
+	private PSPolicy selectedPolicy;
+	
 	/**
 	 * Logger for the PSFilterEditorPage class
 	 */
@@ -100,41 +112,108 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 	 */
 	public void createControl(Composite parent) 
 	{
+		//this.parent=parent;
+		Label headerdd;
 		top = new Composite(parent, SWT.LEFT);
-		//top.setLayout(new GridLayout());
-		///////////////////////////////////////////////////////
+		top.setLayout(new GridLayout());
+		top.setLayoutData(new GridData(GridData.FILL_BOTH));
+		///header
+		Composite headerContainer= 
+						new Composite(top,SWT.LEFT);
+		Composite panel=
+						new Composite(top,SWT.LEFT);
 		
-		Label headerdd= new Label(top,SWT.NONE);		
-		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
-		header.setText("Filter");
+		headerContainer.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		headerContainer.setLayout(new GridLayout());
+		headerdd= new Label(headerContainer,SWT.NONE);
+		
+		Label header= 
+			new Label(
+					headerContainer,
+					SWT.LEFT|SWT.BORDER|SWT.HORIZONTAL);
+		header.setText("Overridding");
+		
 		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		///
+		headerdd= new Label(
+					headerContainer,
+					SWT.NONE|SWT.SEPARATOR|SWT.HORIZONTAL);
+		headerdd.setLayoutData(
+					new GridData(GridData.FILL_HORIZONTAL));
 		
-		labelFiledEditor=
-			new StringFieldEditor("labelFieldEditor","Label",top);
+		////editor
+		panel.setLayoutData(new GridData(GridData.FILL_BOTH));
+		//labelFieldEditor=createLabelEditor("labelFieldEditor","Label",panel);
+		labelFieldEditor= new StringFieldEditor("labelFieldEditor","Label",panel);		
+		headerdd= new Label(panel,SWT.NONE);
+		//conditions field
 		valueFieldEditor=
-			new StringFieldEditor("valueFieldEditor","Value",top);
-		headerdd= new Label(top,SWT.NONE);
-		headerdd.setText("Policies");
-		Composite com= new Composite(top,SWT.NONE);
-		headerdd= new Label(com,SWT.NONE);
-		headerdd.setText(
-				"                                            ");
-		headerdd= new Label(com,SWT.NONE);
-		filterPolicyListEditor=
-			new PSModelWrapperListEditor("namele","",com,PSPolicy.class);
-		headerdd= new Label(top,SWT.NONE);
+			new StringFieldEditor("valueFieldEditor","Value",panel);
+		headerdd= new Label(panel,SWT.NONE);
+		//
+		filterPolicyFieldEditor=
+			new StringButtonFieldEditor(
+					"filterPolicyEditor",
+					"Policy",
+					panel);
+		filterPolicyFieldEditor.setFieldValueProvider(
+									createOverriderProvider());
+		
+		headerdd= new Label(panel,SWT.NONE);
 		if(showOwnSetButton)
 		{
-			setButton= new Button(top,SWT.NONE);
+			setButton= new Button(panel,SWT.NONE);
 			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			setButton.setText("set");
-			setButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {	
-					saveEdit();
-				}
-			});
+			setButton.addSelectionListener(new SelectionAdapter() 
+					{
+						public void widgetSelected(SelectionEvent e) 
+						{	
+							saveEdit();
+						}
+					});
 		}
+//		top = new Composite(parent, SWT.LEFT);
+//		//top.setLayout(new GridLayout());
+//		///////////////////////////////////////////////////////
+//		
+//		Label headerdd= new Label(top,SWT.NONE);		
+//		Label header= new Label(top,SWT.BORDER|SWT.HORIZONTAL|SWT.FILL);
+//		header.setText("Filter");
+//		header.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//		///
+//		
+//		labelFieldEditor=
+//			new StringFieldEditor("labelFieldEditor","Label",top);
+//		valueFieldEditor=
+//			new StringFieldEditor("valueFieldEditor","Value",top);
+//		headerdd= new Label(top,SWT.NONE);
+//		headerdd.setText("Policies");
+//		Composite com= new Composite(top,SWT.NONE);
+//		headerdd= new Label(com,SWT.NONE);
+//		headerdd.setText(
+//				"                                            ");
+//		headerdd= new Label(com,SWT.NONE);
+//		
+//		filterPolicyFieldEditor=
+//			new StringButtonFieldEditor(
+//					"filterPolicy",
+//					"Policy",
+//					top);
+//		///
+//		filterPolicyListEditor=
+//			new PSModelWrapperListEditor("namele","",com,PSPolicy.class);
+//		headerdd= new Label(top,SWT.NONE);
+//		if(showOwnSetButton)
+//		{
+//			setButton= new Button(top,SWT.NONE);
+//			setButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+//			setButton.setText("set");
+//			setButton.addSelectionListener(new SelectionAdapter() {
+//				public void widgetSelected(SelectionEvent e) {	
+//					saveEdit();
+//				}
+//			});
+//		}
 	}
 
 	/**
@@ -170,26 +249,42 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 		this.psFilter = psFilter;
 		if(psFilter!=null)
 		{
-			labelFiledEditor.setStringValue(
+			labelFieldEditor.setStringValue(
 							psFilter.getLabel().getValue());
 			String conditionsAsString=
-				conditionsToString(psFilter.getHasCondition());
+				psFilter.getCondition();//conditionsToString(psFilter.getCondition());
 			valueFieldEditor.setStringValue(
 									conditionsAsString);
 		}
 		else
 		{
-			labelFiledEditor.setStringValue("");
+			labelFieldEditor.setStringValue("");
 			valueFieldEditor.setStringValue("");
 		}
 		Vector filterPolicies=psFilter.getIsprotectedBy();
-		filterPolicyListEditor.clear();
-		final int MAX=filterPolicies.size();
-		if(MAX>0)
+		if(filterPolicyListEditor!=null)
 		{
-			PSModelObject modelObjects[]= new PSModelObject[MAX];
-			filterPolicies.toArray(modelObjects);
-			filterPolicyListEditor.addList(modelObjects);
+			filterPolicyListEditor.clear();
+			final int MAX=filterPolicies.size();
+			if(MAX>0)
+			{
+				PSModelObject modelObjects[]= new PSModelObject[MAX];
+				filterPolicies.toArray(modelObjects);
+				filterPolicyListEditor.addList(modelObjects);
+			}
+		}
+		else if(filterPolicyFieldEditor!=null)
+		{
+			if(!filterPolicies.isEmpty())
+			{
+				actualPolicy=(PSPolicy)filterPolicies.elementAt(0);
+				selectedPolicy=null;
+				filterPolicyFieldEditor.setStringValue(actualPolicy.getLabel().toString());
+			}
+		}
+		else
+		{
+			throw new RuntimeException("Filter policy editor control not available");
 		}
 		
 	}
@@ -243,7 +338,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			}
 			
 			String newLabel=
-				labelFiledEditor.getStringValue();
+				labelFieldEditor.getStringValue();
 			String newValue=
 				valueFieldEditor.getStringValue();
 			if(newLabel==null || newValue==null)
@@ -256,14 +351,28 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			String[] conditions=stringToCondition(newValue);
 			for(int i=0; i<conditions.length;i++)
 			{
-				psFilter.addHasCondition(conditions[i]);
+				psFilter.setHasCondition(conditions[i]);
 			}
 			
-			Vector policies=filterPolicyListEditor.getListModelObject();
-			logger.info("\n\nFilter Policies:"+policies);
-			for(Iterator it=policies.iterator();it.hasNext();)
+			if(filterPolicyListEditor!=null)
 			{
-				psFilter.addIsProtectedBy((PSPolicy)it.next());
+				Vector policies=filterPolicyListEditor.getListModelObject();
+				logger.info("\n\nFilter Policies:"+policies);
+				for(Iterator it=policies.iterator();it.hasNext();)
+				{
+					psFilter.addIsProtectedBy((PSPolicy)it.next());
+				}
+			}
+			else if(filterPolicyFieldEditor!=null)
+			{
+				psFilter.removeIsProtectedBy(actualPolicy);
+				psFilter.addIsProtectedBy(selectedPolicy);
+				actualPolicy=selectedPolicy;
+				selectedPolicy=null;
+			}
+			else
+			{
+				logger.warn("not Filter policy editor set");
 			}
 			return SAVE_RESULT_OK;
 		} 
@@ -272,6 +381,50 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			logger.warn("Error while saving filter changes",e);
 			return SAVE_RESULT_FAILURE_EXCEPTION;			
 		}
+	}
+	
+	private FieldValueProvider createOverriderProvider()
+	{
+		FieldValueProvider pv=
+			new FieldValueProvider()
+			{
+
+				public String getFieldValue() 
+				{
+					try {
+						DialogPage p;
+						String pageName="Choose new filter policy";
+						ChooserWizard wiz=new ChooserWizard(pageName);
+						ChooserWizardPage page=
+							new ChooserWizardPage(pageName,PSPolicy.class);
+						wiz.addPage(page);
+						WizardDialog dlg=
+							new WizardDialog(
+									top.getParent().getShell(),//parent.getShell(),
+									wiz);
+						
+						int resp=dlg.open();
+						PSPolicy sel=
+							(PSPolicy)wiz.getSelected();
+						if(sel==null)
+						{
+							logger.warn("nothing selected returning null");
+							return null;
+						}
+						//overridingRule.setHasOverrider(sel);
+						///selectedOverridderOld=selectedOverridder;
+						selectedPolicy=sel;
+						String label=sel.getLabel().getValue();
+						logger.info("Selected:"+sel);
+						return label;
+					} catch (Exception e) {
+						e.printStackTrace();
+						return null;
+					}
+				}
+			
+			};
+		return pv;
 	}
 
 }

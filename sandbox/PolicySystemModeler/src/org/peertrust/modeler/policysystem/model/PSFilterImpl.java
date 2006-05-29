@@ -55,9 +55,9 @@ public class PSFilterImpl implements PSFilter
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getHasCondition()
+	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getCondition()
 	 */
-	public Vector getHasCondition() 
+	public String getCondition() 
 	{
 		if(filter==null)
 		{
@@ -68,16 +68,30 @@ public class PSFilterImpl implements PSFilter
 //		return PolicySystemRDFModel.getInstance().getMultipleProperty(
 //										this,
 //										PolicySystemRDFModel.PROP_HAS_CONDITION);
-		return psModel.getModelObjectProperties(
+		
+		Vector conds=
+			psModel.getModelObjectProperties(
 				this,
 				Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION //PolicySystemRDFModel.PROP_HAS_CONDITION
 				);
+		if(conds==null)
+		{
+			return "*";
+		}
+		else if(conds.size()>0)
+		{
+			return (String)conds.get(0);
+		}
+		else
+		{
+			return "*";
+		}
 	}
 	
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#addHasCondition(java.lang.String)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#setHasCondition(java.lang.String)
 	 */
-	public void addHasCondition(String condition) 
+	public void setHasCondition(String condition) 
 	{
 		if(condition==null)
 		{
@@ -227,14 +241,14 @@ public class PSFilterImpl implements PSFilter
 			return false;
 		}
 		
-		Vector conds=getHasCondition();
+		String conds=getCondition();
 		if(conds==null)
 		{
 			return false;
 		}
 		else
 		{
-			return conds.contains(condition);
+			return conds.equals(condition);
 		}
 //		return PolicySystemRDFModel.getInstance().getRdfModel().contains(
 //										filter,
@@ -291,12 +305,9 @@ public class PSFilterImpl implements PSFilter
 	 */
 	public void removeAllConditions() 
 	{
-		Vector oldCond=
-			getHasCondition();
-		for(Iterator it=oldCond.iterator();it.hasNext();)
-		{
-			removeCondition((String)it.next());
-		}
+		String oldCond=
+			getCondition();
+		removeCondition(oldCond);		
 	}
 
 	/**

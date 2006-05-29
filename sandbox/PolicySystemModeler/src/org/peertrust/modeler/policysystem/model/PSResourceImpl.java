@@ -19,6 +19,12 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+/**
+ * The default implementation for the PSResource interface.
+ * It wrapps a Jana resource that represents a policy system resource
+ *  
+ * @author Patrice Congo
+ */
 class PSResourceImpl implements PSResource
 {
 	

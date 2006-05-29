@@ -36,7 +36,6 @@ import org.eclipse.ui.internal.ViewSite;
 import org.eclipse.ui.part.ViewPart;
 import org.peertrust.modeler.policysystem.ApplicationWorkbenchAdvisor;
 import org.peertrust.modeler.policysystem.control.ChooserWizardPage;
-import org.peertrust.modeler.policysystem.control.PSOverriddingRuleEditorPage.ChooserWizard;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
@@ -103,7 +102,7 @@ public class PSResourceView extends ViewPart
 		
 		///toolbar
 		makeToolBarActions();
-		System.out.println("PARENT="+parent.getClass());
+		//System.out.println("PARENT="+parent.getClass());
 		//PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView();
 		//Workbench.getInstance().getElementFactory();
 		//MenuBarCreator creator= new MenuBarCreator();
@@ -111,7 +110,7 @@ public class PSResourceView extends ViewPart
 				//getViewSite().getPart(),
 				this.getViewSite(),
 				(IDoubleClickListener)null,
-				new Action[]{	addAction,removeAction,protectAction,
+				new Action[]{	addAction,removeAction,/**protectAction,*/
 								addPRuleAction,addFilterAction},
 				treeView,
 				treeView.getControl(),
@@ -219,7 +218,7 @@ public class PSResourceView extends ViewPart
 						PSResource psRes=
 							psModel.getPSResource(sel0,true);
 						PSPolicy pol=
-							ChooserWizardPage.choosePlicy(
+							ChooserWizardPage.choosePolicy(
 									treeView.getControl().getShell());
 						if(pol!=null)
 						{
@@ -494,6 +493,9 @@ public class PSResourceView extends ViewPart
 						treeView.setInput(el);//new File(rootDir));
 						addAction.setEnabled(false);
 						removeAction.setEnabled(false);
+						protectAction.setEnabled(false);
+						addFilterAction.setEnabled(true);
+						addPRuleAction.setEnabled(true);
 					}
 					else if(el.equals(
 							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_POLICIES))
@@ -501,6 +503,9 @@ public class PSResourceView extends ViewPart
 						treeView.setInput(el);
 						addAction.setEnabled(true);
 						removeAction.setEnabled(true);
+						protectAction.setEnabled(false);
+						addFilterAction.setEnabled(false);
+						addPRuleAction.setEnabled(false);
 					}
 					else if(el.equals(
 							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
@@ -508,6 +513,9 @@ public class PSResourceView extends ViewPart
 						treeView.setInput(el);
 						addAction.setEnabled(true);
 						removeAction.setEnabled(true);
+						protectAction.setEnabled(false);
+						addFilterAction.setEnabled(false);
+						addPRuleAction.setEnabled(false);
 					}
 					else if(el.equals(
 							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
@@ -515,12 +523,18 @@ public class PSResourceView extends ViewPart
 						treeView.setInput(el);
 						addAction.setEnabled(true);
 						removeAction.setEnabled(true);
+						protectAction.setEnabled(false);
+						addFilterAction.setEnabled(false);
+						addPRuleAction.setEnabled(false);
 					}
 					else
 					{
 						treeView.setInput(null);
 						addAction.setEnabled(false);
 						removeAction.setEnabled(false);
+						protectAction.setEnabled(false);
+						addFilterAction.setEnabled(false);
+						addPRuleAction.setEnabled(false);
 					}
 				}
 				
@@ -606,7 +620,7 @@ public class PSResourceView extends ViewPart
 	{
 		try {
 			Object oldInput=treeView.getInput();
-			System.out.println("input="+oldInput);
+			logger.info("input="+oldInput);
 			if(oldInput instanceof String)
 			{
 				if(oldInput.equals(
@@ -629,7 +643,7 @@ public class PSResourceView extends ViewPart
 		} 
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			logger.warn("Error while consuming PSModelEvent",e);
 		}
 	}
     
