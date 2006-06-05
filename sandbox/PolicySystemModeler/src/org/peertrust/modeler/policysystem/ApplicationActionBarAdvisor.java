@@ -42,13 +42,13 @@ import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.part.services.PluginResources;
 import org.eclipse.ui.wizards.newresource.BasicNewFileResourceWizard;
 import org.osgi.framework.Bundle;
-import org.peertrust.modeler.policysystem.actions.NewAction;
-import org.peertrust.modeler.policysystem.actions.OpenAction;
-import org.peertrust.modeler.policysystem.actions.RecentlyOpenContributionItem;
-import org.peertrust.modeler.policysystem.actions.SaveAction;
-import org.peertrust.modeler.policysystem.control.NewProjectDlg;
+import org.peertrust.modeler.policysystem.gui.actions.NewAction;
+import org.peertrust.modeler.policysystem.gui.actions.OpenAction;
+import org.peertrust.modeler.policysystem.gui.actions.RecentlyOpenContributionItem;
+import org.peertrust.modeler.policysystem.gui.actions.SaveAction;
+import org.peertrust.modeler.policysystem.gui.control.NewProjectDlg;
+import org.peertrust.modeler.policysystem.gui.views.PolicySystemView;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
-import org.peertrust.modeler.policysystem.views.PolicySystemView;
 
 
 

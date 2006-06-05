@@ -26,34 +26,34 @@
             name="policy system view"/>
       <view
             category="policysystem"
-            class="org.peertrust.modeler.policysystem.views.PolicySystemView"
+            class="org.peertrust.modeler.policysystem.gui.views.PolicySystemView"
             icon="icons/sample.gif"
-            id="org.peertrust.modeler.policysystem.views.PolicySystemView"
+            id="org.peertrust.modeler.policysystem.gui.views.PolicySystemView"
             name="PolicySystemView"/>
       <category
             id="policy system view"
             name="policy system view"/>
       <view
             category="policy system view"
-            class="org.peertrust.modeler.policysystem.views.PolicySystemGraphView"
+            class="org.peertrust.modeler.policysystem.gui.views.PolicySystemGraphView"
             icon="icons/sample.gif"
-            id="org.peertrust.modeler.policysystem.views.PolicySystemGraphView"
+            id="org.peertrust.modeler.policysystem.gui.views.PolicySystemGraphView"
             name="Policy System Graph View"/>
       <view
-            class="org.peertrust.modeler.policysystem.views.MesgView"
+            class="org.peertrust.modeler.policysystem.gui.views.MesgView"
             id="org.peertrust.modeler.policysystem.MesgView"
             name="policysystem.MesgView"/>
       <view
-            class="org.peertrust.modeler.policysystem.views.WarningsView"
+            class="org.peertrust.modeler.policysystem.gui.views.WarningsView"
             id="org.peertrust.modeler.policysystem.WarningsView"
             name="policysystem.WarningsView"/>
       <view
-            class="org.peertrust.modeler.policysystem.views.PSResourceView"
+            class="org.peertrust.modeler.policysystem.gui.views.PSResourceView"
             id="FileSystemView"
             name="FileSystemView"/>
       <view
             allowMultiple="false"
-            class="org.peertrust.modeler.policysystem.views.ResourcePolicyView"
+            class="org.peertrust.modeler.policysystem.gui.views.PSResourcePolicyView"
             id="org.peertrust.modeler.policysystem.ResourcePolicyView"
             name="policysystem.ResourcePolicyView"/>
    </extension>

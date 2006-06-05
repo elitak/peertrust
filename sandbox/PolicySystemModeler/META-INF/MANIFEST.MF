@@ -230,7 +230,7 @@ Export-Package: EDU.oswego.cs.dl.util.concurrent,
  org.xml.sax.ext,
  org.xml.sax.helpers,
  org.peertrust.modeler.policysystem,
- org.peertrust.modeler.policysystem.control,
+ org.peertrust.modeler.policysystem.gui.control,
  org.peertrust.modeler.policysystem.model,
  org.peertrust.modeler.policysystem.model.abtract,
- org.peertrust.modeler.policysystem.views
+ org.peertrust.modeler.policysystem.gui.views

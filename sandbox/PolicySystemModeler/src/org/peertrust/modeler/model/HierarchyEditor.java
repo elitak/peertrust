@@ -1,14 +1,11 @@
 package org.peertrust.modeler.model;
 
 import java.awt.geom.Point2D;
-import java.net.URL;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
-import org.jgraph.example.GraphEd;
 import org.jgraph.graph.DefaultGraphCell;
-import org.peertrust.modeler.policysystem.views.GraphEditor;
+import org.peertrust.modeler.policysystem.gui.views.GraphEditor;
 
 
 public class HierarchyEditor extends GraphEditor {

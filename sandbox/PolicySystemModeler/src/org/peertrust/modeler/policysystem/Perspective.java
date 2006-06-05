@@ -3,12 +3,12 @@ package org.peertrust.modeler.policysystem;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.peertrust.modeler.policysystem.views.MesgView;
-import org.peertrust.modeler.policysystem.views.PSResourceView;
-import org.peertrust.modeler.policysystem.views.PolicySystemGraphView;
-import org.peertrust.modeler.policysystem.views.PolicySystemView;
-import org.peertrust.modeler.policysystem.views.ResourcePolicyView;
-import org.peertrust.modeler.policysystem.views.WarningsView;
+import org.peertrust.modeler.policysystem.gui.views.MesgView;
+import org.peertrust.modeler.policysystem.gui.views.PSResourceView;
+import org.peertrust.modeler.policysystem.gui.views.PolicySystemGraphView;
+import org.peertrust.modeler.policysystem.gui.views.PolicySystemView;
+import org.peertrust.modeler.policysystem.gui.views.PSResourcePolicyView;
+import org.peertrust.modeler.policysystem.gui.views.WarningsView;
 
 
 public class Perspective implements IPerspectiveFactory {
@@ -30,7 +30,7 @@ public class Perspective implements IPerspectiveFactory {
 //		IFolderLayout top = 
 //			layout.createFolder("top", IPageLayout.RIGHT, 0.2f, "left");
 //		//top.addView(PolicySystemGraphView.ID);
-//		top.addView(ResourcePolicyView.ID);
+//		top.addView(PSResourcePolicyView.ID);
 //		top.addView(PolicySystemGraphView.ID);
 //		IFolderLayout leftTop = 
 //			layout.createFolder("topLeft", IPageLayout.RIGHT, 0.7f, "top");
@@ -68,7 +68,7 @@ public class Perspective implements IPerspectiveFactory {
 			layout.createFolder(
 					"centerTopLeft", IPageLayout.TOP, 0.8f, "centerBottom");
 		//centerTopLeft.addView(PolicySystemGraphView.ID);
-		centerTopLeft.addView(ResourcePolicyView.ID);
+		centerTopLeft.addView(PSResourcePolicyView.ID);
 		IFolderLayout centerTopRight = 
 			layout.createFolder(
 					"centerTopRight", IPageLayout.RIGHT, 0.8f, "centerTopLeft");
@@ -77,7 +77,7 @@ public class Perspective implements IPerspectiveFactory {
 //		IFolderLayout top = 
 //			layout.createFolder("top", IPageLayout.RIGHT, 0.2f, "left");
 //		//top.addView(PolicySystemGraphView.ID);
-//		top.addView(ResourcePolicyView.ID);
+//		top.addView(PSResourcePolicyView.ID);
 //		top.addView(PolicySystemGraphView.ID);
 //		IFolderLayout leftTop = 
 //			layout.createFolder("topLeft", IPageLayout.RIGHT, 0.7f, "top");
