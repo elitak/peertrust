@@ -21,7 +21,6 @@ public class PeerTrustColorManager {
 	
 	public PeerTrustColorManager() {
 		colorTable = new Hashtable();
-		Color currentLineBackgroundColor = new Color(Display.getCurrent(), 232, 242, 254);
 		Color backgroundColor = new Color(Display.getCurrent(), 255, 255, 255);
 		Color defaultColor = new Color(Display.getCurrent(), 0, 0, 0);
 		Color constantColor = new Color(Display.getCurrent(), 63, 95, 191); 

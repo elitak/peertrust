@@ -19,9 +19,18 @@ public interface PeerTrustParserConstants {
   int COMMA = 17;
   int VERTICAL_SLASH = 18;
   int DOT = 19;
-  int ANY_CHARACTER = 20;
+  int START_SINGLE_LINE_COMMENT = 20;
+  int START_SINGLE_LINE_COMMENT2 = 21;
+  int START_MULTIPLE_LINE_COMMENT = 22;
+  int ANY_CHARACTER = 23;
+  int END_SINGLE_LINE_COMMENT = 24;
+  int ANY_CHAR = 25;
+  int END_MULTIPLE_LINE_COMMENT = 26;
+  int _ANY_CHARACTER = 27;
 
   int DEFAULT = 0;
+  int IN_SINGLE_LINE_COMMENT = 1;
+  int IN_MULTIPLE_LINE_COMMENT = 2;
 
   String[] tokenImage = {
     "<EOF>",
@@ -44,7 +53,14 @@ public interface PeerTrustParserConstants {
     "\",\"",
     "\"|\"",
     "\".\"",
+    "\"//\"",
+    "\"%\"",
+    "\"/*\"",
     "<ANY_CHARACTER>",
+    "<END_SINGLE_LINE_COMMENT>",
+    "<ANY_CHAR>",
+    "\"*/\"",
+    "<_ANY_CHARACTER>",
   };
 
 }

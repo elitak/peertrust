@@ -35,8 +35,6 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 	private TextAttribute metaReservedWordTA;
 	private TextAttribute commentTA;
 	private TextAttribute errorTA;
-	private static long timeOfLastUpdate = 0;
-	private static final long MINIMAL_UPDATE_TIME = 2000;
 	public ProtuneRepairer(ProtuneColorManager colorManager) {
 		defaultTA = colorManager.getTextAttribute(ProtuneColorManager.DEFAULT_COLOR);
 		constantTA = colorManager.getTextAttribute(ProtuneColorManager.CONSTANT_COLOR);
@@ -119,30 +117,32 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 			} else if (obj instanceof MetaRule) {
 				MetaRule metaRule = (MetaRule) obj;
 				offset = metaRule.offsetInInput;
-				decorateMetaRule(styleRanges, metaRule, totalLength, rangeOffset);
-				/*
-				if (knownHeadLiterals.contains(rule.getMetaHead()
-						.getLiteral().getImage())) {
-					decorateRule(styleRanges, rule, totalLength,
-							rangeOffset);
-				} else if (knownIds.contains(rule.getMetaHead()
-						.getLiteral().getImage())) {
-					decorateRule(styleRanges, rule, totalLength,
-							rangeOffset);
+				if (metaRule.getMetaHeadLiteral().hasId()) {
+					if (knownIds.contains(metaRule.getMetaHeadLiteral().getId().getStr())) {
+						decorateMetaRule(styleRanges, metaRule, totalLength, rangeOffset);
+					} else {
+						// meta rule must have the same id or the same
+						// literal in head as some rule above,
+						// otherwise it is marked as a damaged part
+						length = offset - previousOffset;
+						addRange(styleRanges, rangeOffset, length, errorTA,
+								totalLength);
+					}
 				} else {
-					// meta rule must have the same id or the same
-					// literal in head as some rule above,
-					// otherwise it is marked as a damaged part
-					length = offset - previousOffset;
-					addRange(styleRanges, rangeOffset, length, errorTA,
-							totalLength);
+					if (knownHeadLiterals.contains(getHeadLiteralImage(metaRule.getMetaHeadLiteral().getHeadLiteral()))) {
+						decorateMetaRule(styleRanges, metaRule, totalLength, rangeOffset);
+					} else {
+						// meta rule must have the same id or the same
+						// literal in head as some rule above,
+						// otherwise it is marked as a damaged part
+						length = offset - previousOffset;
+						addRange(styleRanges, rangeOffset, length, errorTA,
+								totalLength);
+					}
 				}
-				*/
 			} else if (obj instanceof Rule) {
 				Rule rule = (Rule) obj;
 				offset = rule.offsetInInput;
-				decorateRule(styleRanges, rule, totalLength);
-				/*
 				if (rule.hasId()) {
 					if (knownIds.contains(rule.getId().getStr())) {
 						// duplicated id, marking the rule as a damaged part
@@ -151,16 +151,13 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 								totalLength);
 					} else {
 						knownIds.add(rule.getId().getStr());
-						decorateRule(styleRanges, rule, totalLength,
-								rangeOffset);
-						knownHeadLiterals.add(rule.getHead().getImage());
+						decorateRule(styleRanges, rule, totalLength);
+						knownHeadLiterals.add(getHeadLiteralImage(rule.getHeadLiteral()));
 					}
 				} else {
-					decorateRule(styleRanges, rule, totalLength,
-							rangeOffset);
-					knownHeadLiterals.add(rule.getHead().getImage());
+					decorateRule(styleRanges, rule, totalLength);
+					knownHeadLiterals.add(getHeadLiteralImage(rule.getHeadLiteral()));
 				}
-				*/
 			} else {
 				Directive directive = (Directive) obj;
 				offset = directive.offsetInInput;
@@ -168,6 +165,14 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 			}
 			previousOffset = offset;
 		}
+		// debug
+		for (int i = 0; i < knownIds.size(); i++) {
+			logger.debug("konwnId = " + (String)knownIds.get(i));
+		}
+		for (int i = 0; i < knownHeadLiterals.size(); i++) {
+			logger.debug("konwnHeadLiteral = " + (String)knownHeadLiterals.get(i));
+		}
+		// debug
 		StyleRange[] temp = new StyleRange[styleRanges.size()];
 		for (int i = 0; i < styleRanges.size(); i++) {
 			temp[i] = (StyleRange) styleRanges.get(i);
@@ -184,20 +189,13 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 		logger.info("createPresentation() : EXIT");
 	}
 	protected void decorateTerm(ArrayList styleRanges, StringDescription term, int totalLength, boolean isMetaRule) {
-		// remove this workaround
-		if ( (term.getStr().charAt(0) >= 'A' && term.getStr().charAt(0) <= 'Z') || term.getStr().charAt(0) == '_') {
-			TextAttribute ta = isMetaRule ? metaVariableTA : variableTA;
-			addRange(styleRanges, term.getBeginOffset(), term.getStr().length(), ta, totalLength);
-		}
-		/*
 		if (term.isVariable()) {
 			TextAttribute ta = isMetaRule ? metaVariableTA : variableTA;
 			addRange(styleRanges, term.getBeginOffset(), term.getStr().length(), ta, totalLength);
-		}// else if (term.isConstant()) {
-		//	TextAttribute ta = isMetaRule ? metaConstantTA : constantTA;
-		//	addRange(styleRanges, term.getBeginOffset(), term.getStr().length(), ta, totalLength);
-		//}
-		 */
+		} else if (term.isConstant() || term.isStringConstant() || term.isQuoted()) {
+			TextAttribute ta = isMetaRule ? metaConstantTA : constantTA;
+			addRange(styleRanges, term.getBeginOffset(), term.getStr().length(), ta, totalLength);
+		}
 	}
 	protected void decorateField(ArrayList styleRanges, Field field, int totalLength, boolean isMetaRule) {
 		decorateTerm(styleRanges, field.getAttribute(), totalLength, isMetaRule);
@@ -336,5 +334,72 @@ public class ProtuneRepairer  implements IPresentationDamager, IPresentationRepa
 			logger.warning("addRange() : corrupted range was not added : offset; length; RGB; Bold?; Italic? : " 
 					+ offset + "; " + length + "; " + attr.getForeground() + "; " + bold + "; " + italic);
 		}
+	}
+	private String getHeadLiteralImage(HeadLiteral headLiteral) {
+		StringBuffer image = new StringBuffer();
+		if (headLiteral.isStringConstant()) {
+			image.append(headLiteral.getStringConstant().getStr());
+		} else if (headLiteral.isComplexTerm()) {
+			ComplexTerm complexTerm = headLiteral.getComplexTerm();
+			image.append(complexTerm.getVariableOrConstant().getStr());
+			image.append(Constants.OPENING_SQUARE_BRACKET);
+			ArrayList fieldList = complexTerm.getFieldList();
+			if (fieldList != null) {
+				for (int i = 0; i < fieldList.size(); i++) {
+					Field field = (Field)fieldList.get(i);
+					image.append(field.getAttribute().getStr());
+					image.append(Constants.SEMICOLON);
+					image.append(field.getValue().getStr());
+					if (i != fieldList.size() - 1) {
+						image.append(Constants.COMMA);
+					}
+				}
+			}
+			image.append(Constants.CLOSING_SQUARE_BRACKET);
+		} else {
+			image.append(getPredicateLiteralImage(headLiteral.getPredicateLiteral()));
+		}
+		return image.toString();
+	}
+	private String getPredicateLiteralImage(PredicateLiteral predicateLiteral) {
+		StringBuffer image = new StringBuffer();
+		image.append(predicateLiteral.getPredicate().getStr());
+		image.append(Constants.OPENING_BRACKET);
+		ArrayList argumentList = predicateLiteral.getArguments();
+		if (argumentList != null) {
+			for (int i = 0; i < argumentList.size(); i++) {
+				Argument argument = (Argument)argumentList.get(i);
+				if (!argument.hasPredicateLiteral()) {
+					AnyTerm anyTerm = argument.getAnyTerm();
+					if (anyTerm.isComplex()) {
+						ComplexTerm complexTerm = anyTerm.getComplexTerm();
+						image.append(complexTerm.getVariableOrConstant().getStr());
+						image.append(Constants.OPENING_SQUARE_BRACKET);
+						ArrayList fieldList = complexTerm.getFieldList();
+						if (fieldList != null) {
+							for (int j = 0; j < fieldList.size(); j++) {
+								Field field = (Field)fieldList.get(j);
+								image.append(field.getAttribute().getStr());
+								image.append(Constants.SEMICOLON);
+								image.append(field.getValue().getStr());
+								if (j != fieldList.size() - 1) {
+									image.append(Constants.COMMA);
+								}
+							}
+						}
+						image.append(Constants.CLOSING_SQUARE_BRACKET);
+					} else {
+						image.append(anyTerm.getTerm().getStr());
+					}
+				} else {
+					image.append(getPredicateLiteralImage(argument.getPredicateLiteral()));
+				}
+				if (i != argumentList.size() - 1) {
+					image.append(Constants.COMMA);
+				}
+			}
+		}
+		image.append(Constants.CLOSING_BRACKET);
+		return image.toString();
 	}
 }

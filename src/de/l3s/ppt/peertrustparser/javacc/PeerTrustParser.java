@@ -90,8 +90,6 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         }
         offset++;
       }
-      //does not work with tabs:
-      //offset += column - 1;
       offset += commonOffset;
     }
     return offset;
@@ -111,6 +109,8 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     if (entries.size() != 0) {
       if (entries.get(entries.size() - 1) instanceof Rule) {
         offset = ((Rule)entries.get(entries.size() - 1)).offsetInInput;
+      } else if (entries.get(entries.size() - 1) instanceof StringDescription) {
+        offset = ((StringDescription)entries.get(entries.size() - 1)).getEndOffset();
       } else {
         offset = ((Integer)entries.get(entries.size() - 1)).intValue();
       }
@@ -202,6 +202,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
 
   final public ArrayList Input(ArrayList entries) throws ParseException {
   Rule rule = null;
+  StringDescription comment = null;
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -209,14 +210,34 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       case LOWER_CASE:
       case UPPER_CASE:
       case UNDERSCORE:
+      case START_SINGLE_LINE_COMMENT:
+      case START_SINGLE_LINE_COMMENT2:
+      case START_MULTIPLE_LINE_COMMENT:
         ;
         break;
       default:
         jj_la1[0] = jj_gen;
         break label_1;
       }
-      rule = Rule();
-     entries.add(rule);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case DIGIT:
+      case LOWER_CASE:
+      case UPPER_CASE:
+      case UNDERSCORE:
+        rule = Rule();
+         entries.add(rule);
+        break;
+      case START_SINGLE_LINE_COMMENT:
+      case START_SINGLE_LINE_COMMENT2:
+      case START_MULTIPLE_LINE_COMMENT:
+        comment = Comment();
+         entries.add(comment);
+        break;
+      default:
+        jj_la1[1] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
     }
     jj_consume_token(0);
    {if (true) return entries;}
@@ -255,19 +276,19 @@ public class PeerTrustParser implements PeerTrustParserConstants {
           body = RuleBody();
           break;
         default:
-          jj_la1[1] = jj_gen;
+          jj_la1[2] = jj_gen;
           ;
         }
        hasRuleSeparator = true;
         break;
       default:
-        jj_la1[2] = jj_gen;
+        jj_la1[3] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       ;
     }
     t = jj_consume_token(DOT);
@@ -300,7 +321,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
      list.add(body);
       break;
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[5] = jj_gen;
       ;
     }
     {if (true) return list;}
@@ -324,7 +345,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         t = jj_consume_token(LOWER_CASE);
         break;
       default:
-        jj_la1[5] = jj_gen;
+        jj_la1[6] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -343,7 +364,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         t = jj_consume_token(UNDERSCORE);
         break;
       default:
-        jj_la1[6] = jj_gen;
+        jj_la1[7] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -352,7 +373,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[8] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -366,7 +387,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         ;
         break;
       default:
-        jj_la1[8] = jj_gen;
+        jj_la1[9] = jj_gen;
         break label_2;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -383,7 +404,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         t = jj_consume_token(UNDERSCORE);
         break;
       default:
-        jj_la1[9] = jj_gen;
+        jj_la1[10] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -410,7 +431,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       issuer = Issuer();
       break;
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[11] = jj_gen;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -419,7 +440,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       requester = Requester();
       break;
     default:
-      jj_la1[11] = jj_gen;
+      jj_la1[12] = jj_gen;
       ;
     }
     extLiteral = new ExtendedLiteral(literal, issuer, requester);
@@ -487,24 +508,24 @@ public class PeerTrustParser implements PeerTrustParserConstants {
                 simpleRule = false;
             break;
           default:
-            jj_la1[12] = jj_gen;
+            jj_la1[13] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           break;
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[14] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         break;
       default:
-        jj_la1[14] = jj_gen;
+        jj_la1[15] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[15] = jj_gen;
+      jj_la1[16] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -527,7 +548,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         ;
         break;
       default:
-        jj_la1[16] = jj_gen;
+        jj_la1[17] = jj_gen;
         break label_3;
       }
       jj_consume_token(COMMA);
@@ -555,12 +576,12 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         afterSlash = ExtendedLiterals();
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[18] = jj_gen;
         ;
       }
       break;
     default:
-      jj_la1[18] = jj_gen;
+      jj_la1[19] = jj_gen;
       ;
     }
    {if (true) return new Guards(beforeSlash, afterSlash, true);}
@@ -582,7 +603,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       arguments = Arguments();
       break;
     default:
-      jj_la1[19] = jj_gen;
+      jj_la1[20] = jj_gen;
       ;
     }
     jj_consume_token(CLOSING_BRACKET);
@@ -610,7 +631,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
        arguments.add(internalArguments);
       break;
     default:
-      jj_la1[20] = jj_gen;
+      jj_la1[21] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -621,7 +642,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         ;
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[22] = jj_gen;
         break label_4;
       }
       jj_consume_token(COMMA);
@@ -640,7 +661,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
          arguments.add(internalArguments);
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[23] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -659,11 +680,100 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       additionalIssuer = Issuer();
       break;
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[24] = jj_gen;
       ;
     }
     issuer = new Issuer(primaryIssuer, additionalIssuer);
     {if (true) return issuer;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public StringDescription Comment() throws ParseException {
+  StringBuffer buff = new StringBuffer();
+  Token t;
+  int beginOffset, endOffset;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case START_SINGLE_LINE_COMMENT:
+      t = jj_consume_token(START_SINGLE_LINE_COMMENT);
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      label_5:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ANY_CHAR:
+          ;
+          break;
+        default:
+          jj_la1[25] = jj_gen;
+          break label_5;
+        }
+        t = jj_consume_token(ANY_CHAR);
+         buff.append((char)t.image.charAt(0));
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case END_SINGLE_LINE_COMMENT:
+        t = jj_consume_token(END_SINGLE_LINE_COMMENT);
+         buff.append(t.image);
+        break;
+      default:
+        jj_la1[26] = jj_gen;
+        ;
+      }
+      break;
+    case START_SINGLE_LINE_COMMENT2:
+      t = jj_consume_token(START_SINGLE_LINE_COMMENT2);
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      label_6:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ANY_CHAR:
+          ;
+          break;
+        default:
+          jj_la1[27] = jj_gen;
+          break label_6;
+        }
+        t = jj_consume_token(ANY_CHAR);
+         buff.append((char)t.image.charAt(0));
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case END_SINGLE_LINE_COMMENT:
+        t = jj_consume_token(END_SINGLE_LINE_COMMENT);
+         buff.append(t.image);
+        break;
+      default:
+        jj_la1[28] = jj_gen;
+        ;
+      }
+      break;
+    case START_MULTIPLE_LINE_COMMENT:
+      t = jj_consume_token(START_MULTIPLE_LINE_COMMENT);
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      label_7:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case _ANY_CHARACTER:
+          ;
+          break;
+        default:
+          jj_la1[29] = jj_gen;
+          break label_7;
+        }
+        t = jj_consume_token(_ANY_CHARACTER);
+         buff.append((char)t.image.charAt(0));
+      }
+      t = jj_consume_token(END_MULTIPLE_LINE_COMMENT);
+       buff.append(t.image);
+      break;
+    default:
+      jj_la1[30] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+        endOffset = calculateOffset(t.endLine, t.endColumn);
+    {if (true) return new StringDescription(buff.toString(), beginOffset, endOffset, false);}
     throw new Error("Missing return statement in function");
   }
 
@@ -677,7 +787,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
       additionalRequester = Requester();
       break;
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[31] = jj_gen;
       ;
     }
     requester = new Requester(primaryRequester, additionalRequester);
@@ -690,13 +800,13 @@ public class PeerTrustParser implements PeerTrustParserConstants {
   public Token token, jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[25];
+  final private int[] jj_la1 = new int[32];
   static private int[] jj_la1_0;
   static {
       jj_la1_0();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x3a0,0x3e0,0x10040,0x10040,0x3a0,0xa0,0x300,0x3a0,0x3a0,0x3a0,0x400,0x800,0x3e0,0x40040,0x40040,0x3e0,0x20000,0x3a0,0x40000,0x43a0,0x43a0,0x20000,0x43a0,0x400,0x800,};
+      jj_la1_0 = new int[] {0x7003a0,0x7003a0,0x3e0,0x10040,0x10040,0x3a0,0xa0,0x300,0x3a0,0x3a0,0x3a0,0x400,0x800,0x3e0,0x40040,0x40040,0x3e0,0x20000,0x3a0,0x40000,0x43a0,0x43a0,0x20000,0x43a0,0x400,0x2000000,0x1000000,0x2000000,0x1000000,0x8000000,0x700000,0x800,};
    }
 
   public PeerTrustParser(java.io.InputStream stream) {
@@ -708,7 +818,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(java.io.InputStream stream) {
@@ -720,7 +830,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   public PeerTrustParser(java.io.Reader stream) {
@@ -729,7 +839,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(java.io.Reader stream) {
@@ -738,7 +848,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   public PeerTrustParser(PeerTrustParserTokenManager tm) {
@@ -746,7 +856,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   public void ReInit(PeerTrustParserTokenManager tm) {
@@ -754,7 +864,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   final private Token jj_consume_token(int kind) throws ParseException {
@@ -801,15 +911,15 @@ public class PeerTrustParser implements PeerTrustParserConstants {
 
   public ParseException generateParseException() {
     jj_expentries.removeAllElements();
-    boolean[] la1tokens = new boolean[21];
-    for (int i = 0; i < 21; i++) {
+    boolean[] la1tokens = new boolean[28];
+    for (int i = 0; i < 28; i++) {
       la1tokens[i] = false;
     }
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 32; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -818,7 +928,7 @@ public class PeerTrustParser implements PeerTrustParserConstants {
         }
       }
     }
-    for (int i = 0; i < 21; i++) {
+    for (int i = 0; i < 28; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

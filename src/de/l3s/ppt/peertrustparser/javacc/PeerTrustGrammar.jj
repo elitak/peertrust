@@ -97,8 +97,6 @@ public class PeerTrustParser {
         }
         offset++;
       }
-      //does not work with tabs:
-      //offset += column - 1;
       offset += commonOffset;
     }
     return offset;
@@ -118,6 +116,8 @@ public class PeerTrustParser {
     if (entries.size() != 0) {
       if (entries.get(entries.size() - 1) instanceof Rule) {
         offset = ((Rule)entries.get(entries.size() - 1)).offsetInInput;
+      } else if (entries.get(entries.size() - 1) instanceof StringDescription) {
+        offset = ((StringDescription)entries.get(entries.size() - 1)).getEndOffset();
       } else {
         offset = ((Integer)entries.get(entries.size() - 1)).intValue();
       }
@@ -214,11 +214,21 @@ PARSER_END( PeerTrustParser )
 ArrayList Input( ArrayList entries ) :
 {
   Rule rule = null;
+  StringDescription comment = null;
 }
 {
   ( 
-    rule = Rule()
-    {entries.add(rule);}
+    (
+      (
+        rule = Rule()
+        {entries.add(rule);}
+      )
+      |
+      (
+        comment = Comment()
+        {entries.add(comment);}
+      )
+    )
   )* <EOF>
   {return entries;}
 }
@@ -553,6 +563,66 @@ Issuer Issuer() :
   }
 }
 
+StringDescription Comment() :
+{
+  StringBuffer buff = new StringBuffer();
+  Token t;
+  int beginOffset, endOffset;
+}
+{
+  (
+    (
+      t = <START_SINGLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      (
+        t = <END_SINGLE_LINE_COMMENT>
+        {buff.append(t.image);}
+      )?
+    )
+    |
+    (
+      t = <START_SINGLE_LINE_COMMENT2>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <ANY_CHAR>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      (
+        t = <END_SINGLE_LINE_COMMENT>
+        {buff.append(t.image);}
+      )?
+    )
+    |
+    (
+      t = <START_MULTIPLE_LINE_COMMENT>
+      {
+        buff.append(t.image);
+        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+      }
+      (
+        t = <_ANY_CHARACTER>
+        {buff.append((char)t.image.charAt(0));}
+      )*
+      t = <END_MULTIPLE_LINE_COMMENT>
+      {buff.append(t.image);}
+    )
+  )
+  {
+  	endOffset = calculateOffset(t.endLine, t.endColumn);
+    return new StringDescription(buff.toString(), beginOffset, endOffset, false);
+  }
+}
+
 Requester Requester() :
 {
   StringDescription primaryRequester = null;
@@ -595,5 +665,32 @@ TOKEN :
   | <COMMA : ",">
   | <VERTICAL_SLASH : "|">
   | <DOT : ".">
+  | <START_SINGLE_LINE_COMMENT : "//"> : IN_SINGLE_LINE_COMMENT 
+  | <START_SINGLE_LINE_COMMENT2 : "%"> : IN_SINGLE_LINE_COMMENT 
+  | <START_MULTIPLE_LINE_COMMENT : "/*"> : IN_MULTIPLE_LINE_COMMENT 
   | <ANY_CHARACTER : ~[]>
+}
+
+<IN_SINGLE_LINE_COMMENT>
+TOKEN : 
+{
+    <END_SINGLE_LINE_COMMENT: "\n" | "\r"> : DEFAULT 
+}
+
+<IN_SINGLE_LINE_COMMENT>
+TOKEN :
+{
+    <ANY_CHAR : ~["\n","\r"]> 
+}
+
+<IN_MULTIPLE_LINE_COMMENT>
+TOKEN : 
+{
+    <END_MULTIPLE_LINE_COMMENT: "*/"> : DEFAULT 
+}
+
+<IN_MULTIPLE_LINE_COMMENT>
+TOKEN :
+{
+    <_ANY_CHARACTER : ~[]> 
 }

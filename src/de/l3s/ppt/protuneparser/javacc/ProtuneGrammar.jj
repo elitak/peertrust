@@ -501,6 +501,7 @@ MetaLiteral MetaLiteral() :
             <CLOSING_BRACKET>
           )?
           (
+            LOOKAHEAD(<DOT> Field())
             <DOT>
             field = Field()
           )?
@@ -708,11 +709,10 @@ StringDescription Comment() :
         t = <ANY_CHAR>
         {buff.append((char)t.image.charAt(0));}
       )*
-      t = <END_SINGLE_LINE_COMMENT>
-      {
-        buff.append(t.image);
-        endOffset = calculateOffset(t.endLine, t.endColumn);
-      }
+      (
+        t = <END_SINGLE_LINE_COMMENT>
+        {buff.append(t.image);}
+      )?
     )
     |
     (
@@ -725,11 +725,10 @@ StringDescription Comment() :
         t = <ANY_CHAR>
         {buff.append((char)t.image.charAt(0));}
       )*
-      t = <END_SINGLE_LINE_COMMENT>
-      {
-        buff.append(t.image);
-        endOffset = calculateOffset(t.endLine, t.endColumn);
-      }
+      (
+        t = <END_SINGLE_LINE_COMMENT>
+        {buff.append(t.image);}
+      )?
     )
     |
     (
@@ -743,19 +742,20 @@ StringDescription Comment() :
         {buff.append((char)t.image.charAt(0));}
       )*
       t = <END_MULTIPLE_LINE_COMMENT>
-      {
-        endOffset = calculateOffset(t.endLine, t.endColumn);
-        buff.append(t.image);
-      }
+      {buff.append(t.image);}
     )
   )
-  {return new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.COMMENT_TYPE);}
+  {
+  	endOffset = calculateOffset(t.endLine, t.endColumn);
+    return new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.COMMENT_TYPE);
+  }
 }
 
 HeadLiteral HeadLiteral() :
 {
   StringDescription stringDescription;
   ArrayList list = null;
+  boolean isStringConstant = true;
 }
 {
   (
@@ -782,10 +782,17 @@ HeadLiteral HeadLiteral() :
           (
             list = ArgumentList()
           )?
+          {isStringConstant = false;}
           <CLOSING_BRACKET>
         )
       )?
-      {return new HeadLiteral(new PredicateLiteral(stringDescription, list));}
+      {
+      	if (isStringConstant) {
+      	  return new HeadLiteral(stringDescription);	
+      	} else {
+          return new HeadLiteral(new PredicateLiteral(stringDescription, list));
+      	}
+      }
     )
   )
 }
@@ -880,92 +887,36 @@ PredicateLiteral PredicateLiteral() :
 
 StringDescription Number() :
 {
-  StringBuffer buff = new StringBuffer();
   Token t;
-  int beginOffset, endOffset;
 }
 {
-  t = <DIGIT>
+  t = <NUMBER>
   {
-    buff.append((char)t.image.charAt(0));
-    beginOffset = calculateOffset(t.beginLine, t.beginColumn);
-  }
-  (
-    t = <DIGIT>
-    { 
-      if (t.specialToken != null) {
-        throw new ParseException("whitespace(s) in a number");
-      }
-      buff.append((char)t.image.charAt(0));
-    }
-  )*
-  {
-    endOffset = calculateOffset(t.endLine, t.endColumn);
-    return(new StringDescription(buff.toString(), beginOffset, endOffset, StringDescription.NUMBER_TYPE));
+    int beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    int endOffset = calculateOffset(t.endLine, t.endColumn);
+    return(new StringDescription(t.image, beginOffset, endOffset, StringDescription.NUMBER_TYPE));
   }
 }
 
 StringDescription StringConstant() :
 {
   Token t = null;
-  StringBuffer buff = new StringBuffer();
-  int beginOffset;
   StringDescription stringDescription = null;
 }
 {
   (
     (
       stringDescription = StringQuoted()
-      {
-    	stringDescription.addType(StringDescription.STRING_CONSTANT_TYPE);
-    	return stringDescription;
-      }
+      {return stringDescription;}
     )
     |
     (    
-      (
-        t = <LOWER_CASE>
-      )
+      t = <STRING_WITH_LC_AHEAD>
       {
-        buff.append((char)t.image.charAt(0));
-        beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+        int beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+        int endOffset = calculateOffset(t.endLine, t.endColumn);
+        return new StringDescription(t.image, beginOffset, endOffset, StringDescription.STRING_CONSTANT_TYPE);
       }
-      (
-        (
-          (
-            t = <LOWER_CASE>
-          )
-          |
-          (
-            t = <UPPER_CASE>
-          )
-          |
-          (
-            t = <UNDERSCORE>
-          )
-          |
-          (
-            //ignore choice conflict message here
-            (
-              t = <DIGIT>
-              { 
-                if (t.specialToken != null) {
-                  throw new ParseException("whitespace(s) in a string");
-              }
-              buff.append((char)t.image.charAt(0));
-              }
-            )+
-            {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.STRING_CONSTANT_TYPE);}
-          )
-        )
-        {
-          if (t.specialToken != null) {
-            throw new ParseException("whitespace(s) in a string");
-          }
-          buff.append((char)t.image.charAt(0));
-        }
-      )*
-      {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.STRING_CONSTANT_TYPE);}
     )
   )
 }
@@ -973,62 +924,23 @@ StringDescription StringConstant() :
 StringDescription Variable() :
 {
   Token t = null;
-  StringBuffer buff = new StringBuffer();
-  int beginOffset;
   StringDescription stringDescription = null;
 }
 {
   (
-    (
-      (
-        t = <UPPER_CASE>
-      )
-      |
-      (
-        t = <UNDERSCORE>
-      )
+    (    
+      t = <STRING_WITH_UC_AHEAD>
     )
-    {
-      buff.append((char)t.image.charAt(0));
-      beginOffset = calculateOffset(t.beginLine, t.beginColumn);
-    }
+    |
     (
-      (
-        (
-          t = <LOWER_CASE>
-        )
-        |
-        (
-          t = <UPPER_CASE>
-        )
-        |
-        (
-          t = <UNDERSCORE>
-        )
-        |
-        (
-          //ignore choice conflict message here 
-          (
-            t = <DIGIT>
-            { 
-              if (t.specialToken != null) {
-                throw new ParseException("whitespace(s) in a string");
-            }
-            buff.append((char)t.image.charAt(0));
-            }
-          )+
-          {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.VARIABLE_TYPE);}
-        )
-      )
-      {
-        if (t.specialToken != null) {
-          throw new ParseException("whitespace(s) in a string");
-        }
-        buff.append((char)t.image.charAt(0));
-      }
-    )*
-    {return new StringDescription(buff.toString(), beginOffset, calculateOffset(t.endLine, t.endColumn), StringDescription.VARIABLE_TYPE);}
+      t = <STRING_WITH_UNDERSCORE_AHEAD>
+    )
   )
+  {
+    int beginOffset = calculateOffset(t.beginLine, t.beginColumn);
+    int endOffset = calculateOffset(t.endLine, t.endColumn);
+    return new StringDescription(t.image, beginOffset, endOffset, StringDescription.VARIABLE_TYPE);
+  }
 }
 
 StringDescription Operator() :
@@ -1352,11 +1264,7 @@ SPECIAL_TOKEN :
 
 TOKEN :
 {
-    <DIGIT : ["0"-"9"]>
-  | <LOWER_CASE : ["a"-"z"]>
-  | <UPPER_CASE : ["A"-"Z"]>
-  | <UNDERSCORE : "_">
-  | <INCLUDE : "include">
+  <INCLUDE : "include">
   | <DECLARATION : "declaration">
   | <CREDENTIAL : "credential">
   | <IN : "in">
@@ -1370,6 +1278,12 @@ TOKEN :
   | <SEMICOLON : ":">
   | <DOT : ".">
   | <OPERATOR : "<=" | ">=" | "!=" | "<" | ">" | "=" | "is">
+  | <STRING_WITH_LC_AHEAD : ["a"-"z"] (<ACCEPTED_CHAR>)* (["0"-"9"])*>
+  | <STRING_WITH_UC_AHEAD : ["A"-"Z"] (<ACCEPTED_CHAR>)* (["0"-"9"])*>
+  | <STRING_WITH_UNDERSCORE_AHEAD : "_" (<ACCEPTED_CHAR>)* (["0"-"9"])*>
+  | <STRING_WITH_AC_AHEAD : (<ACCEPTED_CHAR>)+ (["0"-"9"])*>
+  | <NUMBER : (["0"-"9"])+>
+  | <ACCEPTED_CHAR : ["a"-"z"] | ["A"-"Z"] | "_">
   | <START_SINGLE_QUOTE : "'"> : IN_SINGLE_QUOTE 
   | <START_DOUBLE_QUOTE : "\""> : IN_DOUBLE_QUOTE 
   | <START_SINGLE_LINE_COMMENT : "//"> : IN_SINGLE_LINE_COMMENT 

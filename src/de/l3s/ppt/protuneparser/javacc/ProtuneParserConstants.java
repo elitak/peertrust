@@ -4,35 +4,37 @@ package de.l3s.ppt.protuneparser.javacc;
 public interface ProtuneParserConstants {
 
   int EOF = 0;
-  int DIGIT = 5;
-  int LOWER_CASE = 6;
-  int UPPER_CASE = 7;
-  int UNDERSCORE = 8;
-  int INCLUDE = 9;
-  int DECLARATION = 10;
-  int CREDENTIAL = 11;
-  int IN = 12;
-  int OPENING_BRACKET = 13;
-  int CLOSING_BRACKET = 14;
-  int OPENING_SQUARE_BRACKET = 15;
-  int CLOSING_SQUARE_BRACKET = 16;
-  int NEG_SYMBOL = 17;
-  int RULE_SEPARATOR = 18;
-  int COMMA = 19;
-  int SEMICOLON = 20;
-  int DOT = 21;
-  int OPERATOR = 22;
-  int START_SINGLE_QUOTE = 23;
-  int START_DOUBLE_QUOTE = 24;
-  int START_SINGLE_LINE_COMMENT = 25;
-  int START_SINGLE_LINE_COMMENT2 = 26;
-  int START_MULTIPLE_LINE_COMMENT = 27;
-  int END_SINGLE_LINE_COMMENT = 28;
-  int END_SINGLE_QUOTE = 29;
-  int END_DOUBLE_QUOTE = 30;
-  int ANY_CHAR = 31;
-  int END_MULTIPLE_LINE_COMMENT = 32;
-  int ANY_CHARACTER = 33;
+  int INCLUDE = 5;
+  int DECLARATION = 6;
+  int CREDENTIAL = 7;
+  int IN = 8;
+  int OPENING_BRACKET = 9;
+  int CLOSING_BRACKET = 10;
+  int OPENING_SQUARE_BRACKET = 11;
+  int CLOSING_SQUARE_BRACKET = 12;
+  int NEG_SYMBOL = 13;
+  int RULE_SEPARATOR = 14;
+  int COMMA = 15;
+  int SEMICOLON = 16;
+  int DOT = 17;
+  int OPERATOR = 18;
+  int STRING_WITH_LC_AHEAD = 19;
+  int STRING_WITH_UC_AHEAD = 20;
+  int STRING_WITH_UNDERSCORE_AHEAD = 21;
+  int STRING_WITH_AC_AHEAD = 22;
+  int NUMBER = 23;
+  int ACCEPTED_CHAR = 24;
+  int START_SINGLE_QUOTE = 25;
+  int START_DOUBLE_QUOTE = 26;
+  int START_SINGLE_LINE_COMMENT = 27;
+  int START_SINGLE_LINE_COMMENT2 = 28;
+  int START_MULTIPLE_LINE_COMMENT = 29;
+  int END_SINGLE_LINE_COMMENT = 30;
+  int END_SINGLE_QUOTE = 31;
+  int END_DOUBLE_QUOTE = 32;
+  int ANY_CHAR = 33;
+  int END_MULTIPLE_LINE_COMMENT = 34;
+  int ANY_CHARACTER = 35;
 
   int DEFAULT = 0;
   int IN_SINGLE_LINE_COMMENT = 1;
@@ -46,10 +48,6 @@ public interface ProtuneParserConstants {
     "\"\\t\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<DIGIT>",
-    "<LOWER_CASE>",
-    "<UPPER_CASE>",
-    "\"_\"",
     "\"include\"",
     "\"declaration\"",
     "\"credential\"",
@@ -64,6 +62,12 @@ public interface ProtuneParserConstants {
     "\":\"",
     "\".\"",
     "<OPERATOR>",
+    "<STRING_WITH_LC_AHEAD>",
+    "<STRING_WITH_UC_AHEAD>",
+    "<STRING_WITH_UNDERSCORE_AHEAD>",
+    "<STRING_WITH_AC_AHEAD>",
+    "<NUMBER>",
+    "<ACCEPTED_CHAR>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"//\"",

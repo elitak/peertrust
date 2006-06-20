@@ -47,67 +47,67 @@ public class StringDescription {
 	}
 	
 	public boolean isConstant() {
-		if ((type & CONSTANT_TYPE) == 1) return true;
+		if ((type & CONSTANT_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isVariable() {
-		if ((type & VARIABLE_TYPE) == 1) return true;
+		if ((type & VARIABLE_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isStringConstant() {
-		if ((type & STRING_CONSTANT_TYPE) == 1) return true;
+		if ((type & STRING_CONSTANT_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isRuleSeparator() {
-		if ((type & RULE_SEPARATOR_TYPE) == 1) return true;
+		if ((type & RULE_SEPARATOR_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isNegSymbol() {
-		if ((type & NEG_SYMBOL_TYPE) == 1) return true;
+		if ((type & NEG_SYMBOL_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isOperator() {
-		if ((type & OPERATOR_TYPE) == 1) return true;
+		if ((type & OPERATOR_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isValue() {
-		if ((type & VALUE_TYPE) == 1) return true;
+		if ((type & VALUE_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isId() {
-		if ((type & ID_TYPE) == 1) return true;
+		if ((type & ID_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isNumber() {
-		if ((type & NUMBER_TYPE) == 1) return true;
+		if ((type & NUMBER_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isPredicate() {
-		if ((type & PREDICATE_TYPE) == 1) return true;
+		if ((type & PREDICATE_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isPackage() {
-		if ((type & PACKAGE_TYPE) == 1) return true;
+		if ((type & PACKAGE_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isTerm() {
-		if ((type & TERM_TYPE) == 1) return true;
+		if ((type & TERM_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isReservedWord() {
-		if ((type & RESERVED_WORD_TYPE) == 1) return true;
+		if ((type & RESERVED_WORD_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isAttribute() {
-		if ((type & ATTRIBUTE_TYPE) == 1) return true;
+		if ((type & ATTRIBUTE_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isComment() {
-		if ((type & COMMENT_TYPE) == 1) return true;
+		if ((type & COMMENT_TYPE) != 0) return true;
 		else return false;
 	}
 	public boolean isQuoted() {
-		if ((type & QUOTED_TYPE) == 1) return true;
+		if ((type & QUOTED_TYPE) != 0) return true;
 		else return false;
 	}
 	public int getType() {

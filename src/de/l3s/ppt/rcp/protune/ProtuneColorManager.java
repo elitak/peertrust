@@ -22,12 +22,9 @@ public class ProtuneColorManager {
 	public static final String ERROR_COLOR = "error";
 	
 	protected Hashtable colorTable;
-	//protected Hashtable metaRulesColorTable;
 	
 	public ProtuneColorManager() {
 		colorTable = new Hashtable();
-		//metaRulesColorTable = new Hashtable();
-		Color currentLineBackgroundColor = new Color(Display.getCurrent(), 232, 242, 254);
 		Color backgroundColor = new Color(Display.getCurrent(), 255, 255, 255);
 		Color defaultColor = new Color(Display.getCurrent(), 0, 0, 0);
 		Color constantColor = new Color(Display.getCurrent(), 63, 95, 191); 
@@ -49,17 +46,6 @@ public class ProtuneColorManager {
 		colorTable.put(META_RESERVED_WORD_COLOR, new TextAttribute(reservedWordColor, backgroundColor, SWT.BOLD | SWT.ITALIC));
 		colorTable.put(COMMENT_COLOR, new TextAttribute(commentColor, backgroundColor, SWT.NORMAL));
 		colorTable.put(ERROR_COLOR, new TextAttribute(errorColor, backgroundColor, SWT.NORMAL));
-		
-//		metaRulesColorTable.put(new TextAttribute(defaultColor, backgroundColor, SWT.NORMAL),
-//				new TextAttribute(defaultColor, backgroundColor, SWT.ITALIC));
-//		metaRulesColorTable.put(new TextAttribute(constantColor, backgroundColor, SWT.NORMAL),
-//				new TextAttribute(constantColor, backgroundColor, SWT.ITALIC));
-//		metaRulesColorTable.put(new TextAttribute(variableColor, backgroundColor, SWT.BOLD),
-//				new TextAttribute(variableColor, backgroundColor, SWT.BOLD | SWT.ITALIC));
-//		metaRulesColorTable.put(new TextAttribute(idColor, backgroundColor, SWT.NORMAL),
-//				new TextAttribute(idColor, backgroundColor, SWT.ITALIC));
-//		metaRulesColorTable.put(new TextAttribute(reservedWordColor, backgroundColor, SWT.BOLD),
-//				new TextAttribute(reservedWordColor, backgroundColor, SWT.BOLD | SWT.ITALIC));
 	}
 	
 	public TextAttribute getTextAttribute(String color) {
@@ -69,11 +55,4 @@ public class ProtuneColorManager {
 			return (TextAttribute)colorTable.get(DEFAULT_COLOR);
 		}
 	}
-//	public TextAttribute getMetaTextAttribute(TextAttribute ta) {
-//		if (metaRulesColorTable.containsKey(ta)) {
-//			return (TextAttribute)metaRulesColorTable.get(ta);
-//		} else {
-//			return (TextAttribute)metaRulesColorTable.get(getTextAttribute(DEFAULT_COLOR));
-//		}
-//	}
 }

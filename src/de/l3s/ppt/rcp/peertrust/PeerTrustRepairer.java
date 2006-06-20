@@ -68,9 +68,11 @@ public class PeerTrustRepairer implements IPresentationDamager, IPresentationRep
 			Object obj = parsedEntries.get(i);
 			if (obj instanceof Integer) {
 				logger.info("createPresentation() : Integer entry, offset : " + ((Integer)obj).intValue());
-			} else {
+			} else if (obj instanceof Rule) {
 				logger.info("createPresentation() : Rule entry, offset : " + ((Rule)obj).offsetInInput);
-			} 
+			} else {
+				logger.info("createPresentation() : Comment entry, offset : " + ((StringDescription)obj).getEndOffset());
+			}
 		}
 		ArrayList styleRanges = new ArrayList();
 		int previousOffset = -1;
@@ -87,10 +89,15 @@ public class PeerTrustRepairer implements IPresentationDamager, IPresentationRep
 				offset = ((Integer)obj).intValue();
 				length = offset - previousOffset;
 				addRange(styleRanges, rangeOffset, length, errorTA, totalLength);
-			} else {
+			} else if (obj instanceof Rule) {
 				Rule rule = (Rule)obj;
 				offset = rule.offsetInInput;
 				decorateRule(styleRanges, rule, totalLength);
+			} else {
+				StringDescription comment = (StringDescription)obj;
+				offset = comment.getEndOffset();
+				length = offset - previousOffset;
+				addRange(styleRanges, rangeOffset, length, commentTA, totalLength);
 			}
 			previousOffset = offset;
 		}

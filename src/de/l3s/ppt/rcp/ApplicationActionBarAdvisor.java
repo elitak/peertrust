@@ -55,16 +55,11 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		MenuManager menu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE); //$NON-NLS-1$
 		
 		menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_START));
-//		MenuManager newMenu = new MenuManager("New", ActionFactory.NEW_EDITOR.getId());
-//		newMenu.add((ActionFactory.NEW.create(getActionBarConfigurer().getWindowConfigurer().getWindow())));
-//		newMenu.add(new GroupMarker(ActionFactory.NEW_EDITOR.getId()));
-//		menu.add(newMenu);
-//		menu.add(new Separator());
 		
 		menu.add(new GroupMarker(IWorkbenchActionConstants.NEW_EXT));
 		menu.add(getAction(ActionFactory.CLOSE.getId()));
 		menu.add(getAction(ActionFactory.CLOSE_ALL.getId()));
-		//		menu.add(closeAllSavedAction);
+		
 		menu.add(new GroupMarker(IWorkbenchActionConstants.CLOSE_EXT));
 		menu.add(new Separator());
 		menu.add(getAction(ActionFactory.SAVE.getId()));

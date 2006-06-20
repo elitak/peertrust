@@ -3,8 +3,8 @@ package de.l3s.ppt.protuneparser;
 import java.util.ArrayList;
 
 public class PredicateLiteral {
-	private StringDescription predicate;
-	private ArrayList arguments;
+	private StringDescription predicate = null;
+	private ArrayList arguments = null;
 
 	public PredicateLiteral(StringDescription predicate, ArrayList arguments) {
 		this.predicate = predicate;
