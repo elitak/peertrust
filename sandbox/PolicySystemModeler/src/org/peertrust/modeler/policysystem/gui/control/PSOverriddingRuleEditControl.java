@@ -27,7 +27,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
-import org.peertrust.modeler.policysystem.model.checks.CkeckOverridingRulePoliciesNeq;
+import org.peertrust.modeler.policysystem.model.checks.CheckOverridingRulePoliciesNeq;
 
 /**
  * Provide a panel for editing an overriding model object.
@@ -348,10 +348,10 @@ public class PSOverriddingRuleEditControl
 				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_NULL_POINTER;
 			}
 			
-			String overriddenLabel=
-				getSelectedPolicylabel(overriddenCombo);//overriddenFieldEditor.getStringValue();
-			String overridderLabel=
-				getSelectedPolicylabel(overriderCombo);//overridderFieldEditor.getStringValue();
+//			String overriddenLabel=
+//				getSelectedPolicylabel(overriddenCombo);//overriddenFieldEditor.getStringValue();
+//			String overridderLabel=
+//				getSelectedPolicylabel(overriderCombo);//overridderFieldEditor.getStringValue();
 			String ruleLabel=labelFieldEditor.getStringValue();
 			if(ruleLabel!=null || !"".equals(ruleLabel))
 			{
@@ -366,11 +366,18 @@ public class PSOverriddingRuleEditControl
 //						"\n\t:overridden:"+selectedOverridden);
 //				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
 //			}
+			IStructuredSelection sel=
+				(IStructuredSelection)overriderCombo.getSelection();
+			selectedOverridder=(PSPolicy)sel.getFirstElement();
 			
-			CkeckOverridingRulePoliciesNeq check=
-				new CkeckOverridingRulePoliciesNeq(
+			sel=(IStructuredSelection)overriddenCombo.getSelection();
+			selectedOverridden=(PSPolicy)sel.getFirstElement();
+			
+			CheckOverridingRulePoliciesNeq check=
+				new CheckOverridingRulePoliciesNeq(
 										selectedOverridder,
 										selectedOverridden);
+			System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
 			if(check.doCheck()==false)
 			{
 				PolicysystemPlugin.getDefault().showMessage(
@@ -378,10 +385,10 @@ public class PSOverriddingRuleEditControl
 				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_INTEGRITY_CHECK;
 			}
 			
-			if(overriddenLabel==null || overridderLabel==null)
-			{
-				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
-			}
+//			if(overriddenLabel==null || overridderLabel==null)
+//			{
+//				return PSModelObjectEditControl.SAVE_RESULT_FAILURE_ILLEGAL_VALUE;
+//			}
 			
 			if(selectedOverridden!=selectedOverriddenOld)
 			{

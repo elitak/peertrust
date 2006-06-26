@@ -2,53 +2,24 @@ package org.peertrust.modeler.policysystem;
 
 
 
-import java.util.ArrayList;
-
-import javax.management.openmbean.OpenDataException;
-
-import org.eclipse.core.internal.resources.Folder;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ControlContribution;
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ICoolBarManager;
-import org.eclipse.jface.action.IMenuCreator;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.osgi.framework.adaptor.BundleOperation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.HelpListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.activities.WorkbenchActivityHelper;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
-import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
-import org.eclipse.ui.internal.Workbench;
-import org.eclipse.ui.internal.part.services.PluginResources;
-import org.eclipse.ui.wizards.newresource.BasicNewFileResourceWizard;
-import org.osgi.framework.Bundle;
 import org.peertrust.modeler.policysystem.gui.actions.NewAction;
 import org.peertrust.modeler.policysystem.gui.actions.OpenAction;
 import org.peertrust.modeler.policysystem.gui.actions.RecentlyOpenContributionItem;
 import org.peertrust.modeler.policysystem.gui.actions.SaveAction;
-import org.peertrust.modeler.policysystem.gui.control.NewProjectDlg;
-import org.peertrust.modeler.policysystem.gui.views.PolicySystemView;
-import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+
 
 
 

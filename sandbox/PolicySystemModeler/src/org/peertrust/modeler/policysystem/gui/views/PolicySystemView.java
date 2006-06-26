@@ -1,6 +1,7 @@
 package org.peertrust.modeler.policysystem.gui.views;
 
 
+import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
@@ -44,7 +45,8 @@ public class PolicySystemView extends ViewPart
 	static final public String POLICY_SYSTEM_RES_CONFLICT_RESOLUTION=
 											"Inheritance Conflict Resolition";
 	static final public String POLICY_SYSTEM_FILTERS="Filters";
-	
+	private final static Logger logger=
+					Logger.getLogger(PolicySystemView.class);
 	
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
@@ -72,7 +74,7 @@ public class PolicySystemView extends ViewPart
 				}
 			}
 			
-			System.out.println("Platform.getInstanceLocation:"+
+			logger.info("Platform.getInstanceLocation:"+
 									Platform.getLocation());
 			return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
 		}
@@ -247,8 +249,8 @@ public class PolicySystemView extends ViewPart
 	}
 	
 	//////////////////////////////////////////////////////////////////////
-	public void setNewFile(String fileName)
-	{
-		System.out.println("FileName="+fileName);
-	}
+//	public void setNewFile(String fileName)
+//	{
+//		logger.info("FileName="+fileName);
+//	}
 }

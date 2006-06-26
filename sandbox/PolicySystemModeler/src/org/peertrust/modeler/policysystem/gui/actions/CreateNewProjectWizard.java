@@ -77,7 +77,7 @@ public class CreateNewProjectWizard extends Wizard
 			return true;
 		} catch (Exception e) {
 			PolicysystemPlugin.getDefault().showMessage(
-			"Exception while setting new project:"+e.getMessage());
+					"Exception while setting new project:"+e.getMessage());
 			return false;
 		}
 	}

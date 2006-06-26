@@ -1,10 +1,7 @@
 package org.peertrust.modeler.policysystem;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.internal.Platform;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
 import org.peertrust.modeler.policysystem.model.ProjectConfigChangeListener;
+import org.peertrust.modeler.policysystem.model.exceptions.BadConfigFileException;
 
 
 /**
@@ -30,35 +32,68 @@ public class RecentlyOpenContributionItem
     				implements ProjectConfigChangeListener,
     							SelectionListener
     {
+		/**
+		 * The logger for this class
+		 */
+		private static final Logger logger= 
+			Logger.getLogger(RecentlyOpenContributionItem.class);
+		
+    	/**
+    	 * Keys used to identified the recently open files
+    	 */
     	private final String KEYS[]= {"1","2","3","4"};
-    	private final String DEFAULT_IDS[]=
-    						{	"RECENTLY_OPENED_0",
-    							"RECENTLY_OPENED_1",
-    							"RECENTLY_OPENED_2",
-    							"RECENTLY_OPENED_3"}; 
+    	
     	//MenuItem mi;
+    	/**
+    	 * Used as default id for this contribution item
+    	 */
     	public static final String DEFAULT_ID="RECENTY_OPEN_PJT";
     	
+    	/**
+    	 * The name of the file which contains the properties
+    	 */
     	public static final String STORE_FILE_NAME="recently_opened.prop";
-    	public static final String STORE_FILE_PATH="/"+STORE_FILE_NAME;
+    	//private static final String STORE_FILE_PATH="/"+STORE_FILE_NAME;
     	
-    	private List list;
+    	//private List list;
+    	
+    	/**
+    	 * The url of the file, in which the properties will be stored
+    	 */
     	private URL storeURL;
+    	
+    	/**
+    	 * Contains the pairs (KEY[i],recently opened file)
+    	 */
     	private Properties recentlyOpened=new Properties();
     	
+    	/**
+    	 * The contribution menu items
+    	 */
     	private MenuItem menuItems[]= new MenuItem[4];
     	
+    	/**
+    	 * Construct a new RecentlyOpenContributionItem identified by
+    	 * DEFAULT_ID
+    	 */
     	public RecentlyOpenContributionItem() 
 		{
 			super(DEFAULT_ID);
 		}
     	
+    	/**
+    	 * Construct a new RecentlyOpenContributionItem identified by
+    	 * the given id
+    	 */
 		protected RecentlyOpenContributionItem(String id) 
 		{
 			super(id);
 		}
 
 		
+		/**
+		 * @see org.eclipse.jface.action.IContributionItem#fill(org.eclipse.swt.widgets.Menu, int)
+		 */
 		public void fill(Menu menu, int index) {
 			//super.fill(menu, index);
 			new MenuItem(menu,SWT.SEPARATOR);
@@ -91,13 +126,17 @@ public class RecentlyOpenContributionItem
 			doFillList();
 		}
 
-		protected Control createControl(Composite parent) 
-		{
-			list= new List(parent,SWT.NONE);
-			ProjectConfig.getInstance().addProjectConfigChangeListener(this);
-			loadRecentlyOpened();
-			return list;
-		}
+//		/**
+//		 * @param parent
+//		 * @return
+//		 */
+//		protected Control createControl(Composite parent) 
+//		{
+//			list= new List(parent,SWT.NONE);
+//			ProjectConfig.getInstance().addProjectConfigChangeListener(this);
+//			loadRecentlyOpened();
+//			return list;
+//		}
     	
 		
 		/**
@@ -120,9 +159,14 @@ public class RecentlyOpenContributionItem
 				storeURL=storeFile.toURL();
 				recentlyOpened.load(storeURL.openStream());
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				logger.warn(
+						"Exception while loading the recently opened files"+
+							"\n\tmalformed url:"+storeURL,
+						e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.warn(
+						"Exception while loading the recently opened files:\n"+storeURL,
+						e);
 			}
 			
 //			Bundle bundle=
@@ -170,7 +214,7 @@ public class RecentlyOpenContributionItem
 			
 			final int SIZE=KEYS.length;
 			
-	    	for( int i=0;i<KEYS.length;i++)
+	    	for( int i=0;i<SIZE;i++)
 	    	{
 	    		String filePath=recentlyOpened.getProperty(KEYS[i]);
 	    		if(filePath==null)
@@ -191,7 +235,7 @@ public class RecentlyOpenContributionItem
 		 * Gets the new loaded project and add the path of its config
 		 * file to the recently opened project files and update the
 		 * list.
-		 * @param projectConfig
+		 * @param projectConfig 
 		 */
 		private void doUpdate(ProjectConfig projectConfig)
 		{
@@ -200,7 +244,6 @@ public class RecentlyOpenContributionItem
 			String lastProjectFile=
 				currentProjectFile;
 			
-			System.out.println("lastPjtFile:"+lastProjectFile);
 			//remove old entry			
 			String nextProjectFile;
 			int size=recentlyOpened.size()+1;
@@ -227,7 +270,10 @@ public class RecentlyOpenContributionItem
 						new FileOutputStream(storeURL.getPath()),
 						"Recently opened Project Files");
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.warn(
+						"Exception while storing the properties"+
+						"representing the recently opened files into"+
+						"this loaction:\n"+storeURL,e);
 			}
 		}
 
@@ -245,30 +291,34 @@ public class RecentlyOpenContributionItem
 		
 		public void widgetSelected(SelectionEvent e) 
 		{
-			ProjectConfig projectConf=ProjectConfig.getInstance();
-			if(e.getSource()==menuItems[0])
-			{
-				projectConf.setProjectFile(
-						recentlyOpened.getProperty(KEYS[0]));
-			}
-			else if(e.getSource()==menuItems[1])
-			{
-				projectConf.setProjectFile(
-						recentlyOpened.getProperty(KEYS[1]));
-			}
-			else if(e.getSource()==menuItems[2])
-			{
-				projectConf.setProjectFile(
-						recentlyOpened.getProperty(KEYS[2]));
-			}
-			else if(e.getSource()==menuItems[3])
-			{
-				projectConf.setProjectFile(
-						recentlyOpened.getProperty(KEYS[3]));
-			}
-			else
-			{
-				System.out.println("SelectionEvent:"+e);
+			try {
+				ProjectConfig projectConf=ProjectConfig.getInstance();
+				if(e.getSource()==menuItems[0])
+				{
+					projectConf.setProjectFile(
+							recentlyOpened.getProperty(KEYS[0]));
+				}
+				else if(e.getSource()==menuItems[1])
+				{
+					projectConf.setProjectFile(
+							recentlyOpened.getProperty(KEYS[1]));
+				}
+				else if(e.getSource()==menuItems[2])
+				{
+					projectConf.setProjectFile(
+							recentlyOpened.getProperty(KEYS[2]));
+				}
+				else if(e.getSource()==menuItems[3])
+				{
+					projectConf.setProjectFile(
+							recentlyOpened.getProperty(KEYS[3]));
+				}
+				else
+				{
+					logger.info("SelectionEvent:"+e);
+				}
+			} catch (BadConfigFileException e1) {
+				e1.printStackTrace();
 			}
 		}
 

@@ -17,7 +17,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResource;
  *
  */
 public class CheckORulePoliciesInSamePath extends
-		CkeckOverridingRulePoliciesNeq 
+		CheckOverridingRulePoliciesNeq 
 {
 	private PSResource ruleResource;
 	/**

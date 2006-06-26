@@ -1,5 +1,6 @@
 package org.peertrust.modeler.policysystem.model.checks;
 
+import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelCheck;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
@@ -10,7 +11,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
  * @author pat_dev
  *
  */
-public class CkeckOverridingRulePoliciesNeq implements PSModelCheck 
+public class CheckOverridingRulePoliciesNeq implements PSModelCheck 
 {
 	public static final String MESG_UNEQUAL="Policies must be different";
 	
@@ -20,12 +21,15 @@ public class CkeckOverridingRulePoliciesNeq implements PSModelCheck
 	/** the overriden PSPolicy*/
 	protected PSPolicy overridden;
 	
+	static final private Logger logger=
+				Logger.getLogger(CheckOverridingRulePoliciesNeq.class);
+	
 	/**
-	 * Create a new CkeckOverridingRulePoliciesNeq
+	 * Create a new CheckOverridingRulePoliciesNeq
 	 * @param overridder -- the overriding policy
 	 * @param overridden -- the overriden Policy
 	 */
-	public CkeckOverridingRulePoliciesNeq(
+	public CheckOverridingRulePoliciesNeq(
 						PSPolicy overridder,
 						PSPolicy overridden)
 	{
@@ -39,26 +43,37 @@ public class CkeckOverridingRulePoliciesNeq implements PSModelCheck
 	 */
 	public boolean doCheck() 
 	{
+		System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+		logger.debug(
+				"\nCheck for"+
+				"\n\toverridden="+overridden+
+				"\n\toverridder="+overridder);
+		System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDSSSSSSSSSSSS"+
+				"\n\toverridden="+overridden+
+				"\n\toverridder="+overridder);
 		if(overridden==null || overridder ==null)
 		{
-			return false;
+			return overridden!=overridder;
 		}
 		PSModelLabel label1=overridden.getLabel();
 		PSModelLabel label2=overridder.getLabel();
 		if(label1==null || label2==null)
 		{
-			if(label1!=label2)
-			{
-				return true;
-			}
-			else
-			{//both equal null
-				return false;
-			}
+			return label1!=label2;
+//			if(label1!=label2)
+//			{
+//				return true;
+//			}
+//			else
+//			{//both equal null
+//				return false;
+//			}
 		}
 		else
 		{
-			return !label1.equals(label2);
+			String str1=label1.getValue();
+			String str2=label2.getValue();
+			return !str1.equals(str2);
 		}
 	}
 	

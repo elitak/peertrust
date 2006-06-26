@@ -9,6 +9,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeEvent;
@@ -25,6 +26,9 @@ public class SaveAction
 		extends Action
 		implements PSModelChangeEventListener
 {
+	/**
+	 * The ps model to save
+	 */
 	private PolicySystemRDFModel psModel;
 	
 	/** the default action id*/
@@ -76,16 +80,17 @@ public class SaveAction
 	} 
     catch (Exception e) 
 	{
-		e.printStackTrace();
+    	PolicysystemPlugin.getDefault().showMessage(
+				"Exception while saving the model:"+e.getMessage());
 	}
   }
   
-  private void registerForModelChange()
-  {
-	  //PolicySystemRDFModel.getInstance()
-	  psModel.addPSModelChangeEventListener(this);
-	  
-  }
+//  private void registerForModelChange()
+//  {
+//	  //PolicySystemRDFModel.getInstance()
+//	  psModel.addPSModelChangeEventListener(this);
+//	  
+//  }
 
 	/**
 	 * @see PSModelChangeEventListener#onPSModelChange(PSModelChangeEvent) 

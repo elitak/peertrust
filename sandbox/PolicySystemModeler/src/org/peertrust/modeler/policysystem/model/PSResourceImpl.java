@@ -3,6 +3,7 @@
  */
 package org.peertrust.modeler.policysystem.model;
 
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -87,6 +88,9 @@ class PSResourceImpl implements PSResource
 								label);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#getHasMapping()
+	 */
 	public String getHasMapping() 
 	{
 		//TODO check hasMapping
@@ -138,7 +142,7 @@ class PSResourceImpl implements PSResource
 //					(Resource)rule.getModelObject());
 	}
 
-	public PSResource getHasSuper() 
+	public PSResource getParent() 
 	{
 		Vector supers=
 			psModel.getModelObjectProperties(
@@ -162,7 +166,7 @@ class PSResourceImpl implements PSResource
 //							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
-	public void addHasSuper(PSModelObject parent) 
+	public void setParent(PSModelObject parent) 
 	{
 		PSModelStatement stm=
 			new PSModelStatementImpl(this,Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER,parent);
@@ -186,7 +190,7 @@ class PSResourceImpl implements PSResource
 		
 	}
 
-	public Vector getIsProtectedBy() 
+	public List getIsProtectedBy() 
 	{
 		return psModel.getModelObjectProperties(
 					this,Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY);
@@ -196,7 +200,7 @@ class PSResourceImpl implements PSResource
 //						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
 	}
 
-	public Vector getHasFilter()
+	public List getHasFilter()
 	{
 		return psModel.getModelObjectProperties(
 					this,Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER);
@@ -271,9 +275,23 @@ class PSResourceImpl implements PSResource
 		psModel.removeStatement(stm);
 	}
 
-	public Vector getChildren() 
+	public List getChildren() 
 	{
 		return psModel.getDirectChildren(this);
+		
+	}
+
+	public boolean canHaveChild() {
+		return PolicySystemRDFModel.getBooleanProperty(
+					resource,
+					PolicySystemRDFModel.PROP_CAN_HAVE_CHILD).booleanValue();
+	}
+
+	public void setCanHaveChild(boolean canHaveChild) {
+		PolicySystemRDFModel.setBooleanProperty(
+						resource,
+						PolicySystemRDFModel.PROP_CAN_HAVE_CHILD,
+						canHaveChild);
 		
 	}
 }

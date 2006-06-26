@@ -48,11 +48,15 @@ public class ChooserWizardPage extends WizardPage
 		 */
 		private Hashtable modelObjectTable;
 		
-		/**
-		 *The name resp. label of the model objects 
-		 */
-		private String[] names;
+//		/**
+//		 *The name resp. label of the model objects 
+//		 */
+//		private String[] names;
 		
+		/**
+		 * Holds name or label of the item which are not to be
+		 * displayed
+		 */
 		private java.util.List namesToIgnore;
 		/**
 		 * Logger for this class
@@ -220,7 +224,7 @@ public class ChooserWizardPage extends WizardPage
 					{
 						selections[i]=modelObjectTable.get(selItems[i]);
 					}
-					System.out.println(
+					logger.info(
 							"sel:"+Arrays.asList(selItems)+
 							"\nmodelObjects:"+modelObjectTable);
 					return selections;
@@ -268,7 +272,7 @@ public class ChooserWizardPage extends WizardPage
 			final PSPolicy selPol[]={null};
 			Wizard wiz=new Wizard()
 			{
-				private Object selected;
+				//private Object selected;
 				public boolean performFinish() 
 				{
 					selPol[0]=
@@ -287,9 +291,8 @@ public class ChooserWizardPage extends WizardPage
 			dlg.create();
 			dlg.setTitle("Select Policy");
 			dlg.setMessage("Select Policy");
-			int resp=dlg.open();
-			PSPolicy sel=
-				selPol[0];//(PSPolicy)page.getSelected();
+			/*int resp=*/dlg.open();
+			PSPolicy sel= selPol[0];//(PSPolicy)page.getSelected();
 			if(sel==null)
 			{
 				return null;
@@ -304,7 +307,7 @@ public class ChooserWizardPage extends WizardPage
 			final Object selPol[]={null};
 			Wizard wiz=new Wizard()
 			{
-				private Object selected;
+				//private Object selected;
 				public boolean performFinish() 
 				{
 					selPol[0]=((ChooserWizardPage)
@@ -327,8 +330,8 @@ public class ChooserWizardPage extends WizardPage
 			dlg.create();
 			dlg.setTitle("Select Policies");
 			dlg.setMessage("Select Policies");
-			int resp=dlg.open();
-			System.out.println("selPol[0]:"+selPol[0]);
+			/*int resp=*/dlg.open();
+			logger.info("selPol[0]:"+selPol[0]);
 			
 			return (PSPolicy[])selPol[0];
 		}
@@ -349,7 +352,7 @@ public class ChooserWizardPage extends WizardPage
 			final Object selPol[]={null};
 			Wizard wiz=new Wizard()
 			{
-				private Object selected;
+				//private Object selected;
 				public boolean performFinish() 
 				{
 					selPol[0]=((ChooserWizardPage)
@@ -373,7 +376,7 @@ public class ChooserWizardPage extends WizardPage
 			//dlg.setTitle(getWizardDlgTitle(modelObjectTypes,true));
 			dlg.setMessage(getWizardDlgTitle(modelObjectTypes,true));
 			dlg.getShell().setText(getWizardDlgTitle(modelObjectTypes,true));
-			int resp=dlg.open();
+			/*int resp=*/dlg.open();
 			if(selPol[0]==null)
 			{
 				return null;

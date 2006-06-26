@@ -9,14 +9,17 @@
 	 xmlns:rdf_s="&rdf_s;"
 	 xmlns:a="&a;"
 	 xmlns:rdfs="&rdfs;">
+
 <rdfs:Class rdf:about="&rdf_s;Filter"
 	 rdfs:label="Filter">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
+
 <rdfs:Class rdf:about="&rdf_s;OverridingRule"
 	 rdfs:label="OverridingRule">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
+
 <rdfs:Class rdf:about="&rdf_s;Policy"
 	 rdfs:label="Policy">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
@@ -24,6 +27,11 @@
 <rdf_s:Class rdf:about="&rdf_s;Resource"
 	 rdfs:label="Resource">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
+</rdf_s:Class>
+
+<rdf_s:Class rdf:about="&rdf_s;Root"
+         rdfs:label="Root">
+        <rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdf_s:Class>
 
 
@@ -37,6 +45,19 @@
 	<rdfs:range rdf:resource="&rdf_s;Filter"/>
 	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
 </rdf:Property>
+
+<rdf:Property rdf:about="&rdf_s;canHaveChild"
+	 rdfs:label="canHaveChild">
+	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
+	<rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+
+<rdf:Property rdf:about="&rdf_s;isVirtual"
+         rdfs:label="isVirtual">
+        <rdfs:domain rdf:resource="&rdf_s;Resource"/>
+        <rdfs:range rdf:resource="&rdfs;Literal"/>
+</rdf:Property>
+
 <rdf:Property rdf:about="&rdf_s;hasOverridden"
 	 rdfs:label="hasOverridden">
 	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>

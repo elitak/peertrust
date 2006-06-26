@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -386,10 +388,19 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			}
 			else if(filterPolicyCombo!=null)
 			{
-				psFilter.removeIsProtectedBy(actualPolicy);
-				psFilter.addIsProtectedBy(selectedPolicy);
-				actualPolicy=selectedPolicy;
-				selectedPolicy=null;
+				IStructuredSelection sel=
+					(IStructuredSelection)filterPolicyCombo.getSelection();
+				selectedPolicy=(PSPolicy)sel.getFirstElement();
+				if(selectedPolicy!=null)
+				{
+					if(actualPolicy!=selectedPolicy)
+					{
+						psFilter.removeIsProtectedBy(actualPolicy);
+						psFilter.addIsProtectedBy(selectedPolicy);
+						actualPolicy=selectedPolicy;
+						selectedPolicy=null;
+					}
+				}
 			}
 //			else if(filterPolicyFieldEditor!=null)
 //			{

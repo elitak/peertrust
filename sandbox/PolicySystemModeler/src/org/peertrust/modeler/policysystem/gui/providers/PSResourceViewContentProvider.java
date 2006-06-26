@@ -2,7 +2,11 @@ package org.peertrust.modeler.policysystem.gui.providers;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -23,6 +27,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResource;
  */
 public class PSResourceViewContentProvider implements ITreeContentProvider 
 {
+	
 	/** empty array*/
 	private  static final Object[] EMPTY = new Object[0];
 
@@ -117,7 +122,7 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         }
     	else if(parentElement instanceof PSResource)
     	{
-    		Vector children=((PSResource)parentElement).getChildren();
+    		List children=((PSResource)parentElement).getChildren();
     		if(children==null)
     		{
     			return EMPTY;
@@ -132,41 +137,70 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         	if(((String)parentElement).equals(
         			PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
         	{
-        		String rootDir=
-					ProjectConfig.getInstance().getProperty("rootDir");
-        		File rootDirFile= new File(rootDir);
-        		if(rootDirFile.exists())
+        		
+        		File[] roots=ProjectConfig.getInstance().getRoots();
+        		List diffRoots= new ArrayList();
+        		PSResource rootResource;
+        		logger.info("\nGetting children for:"+Arrays.asList(roots));
+        		for(int i=0;i<roots.length;i++)
         		{
-        			return new File[]{new File(rootDir)};
-        		}
-        		else
-        		{//return all ps resources without parent
-        			Vector ress=psModel.getResources();
-        			if(ress==null)
+        			System.out.println("\n\troot["+i+"]"+roots[i]);
+        			if(roots[i].exists())
         			{
-        				return null;
+        				diffRoots.add(roots[i]);
         			}
         			else
         			{
-        				PSResource psRes;
-        				PSResource resParent;
-        				Vector roots=new Vector();
-        				for(Iterator it=ress.iterator();it.hasNext();)
+        				rootResource=psModel.getPSResource(roots[i],true);
+        				logger.info("\n\tresource made from virtual root:"+rootResource);
+        				if(rootResource==null)
         				{
-        					psRes=(PSResource)it.next();
-        					resParent=psRes.getHasSuper();
-        					if(resParent==null)
-        					{//no super is a root
-        						roots.add(psRes);
-        					}
-        					else
-        					{
-        						//empty
-        					}        						
+        					logger.warn("Root does not exista in the model:"+roots[i]);
         				}
-        				return roots.toArray();
+        				else
+        				{
+        					diffRoots.add(rootResource);
+        				}
         			}
+        			
         		}
+        		logger.info("finalParents:"+diffRoots);
+        		return diffRoots.toArray();
+//        		String rootDir=
+//					ProjectConfig.getInstance().getProperty("rootDir");
+//        		File rootDirFile= new File(rootDir);
+//        		if(rootDirFile.exists())
+//        		{
+//        			return new File[]{new File(rootDir)};
+//        		}
+//        		else
+//        		{//return all ps resources without parent
+//        			Vector ress=psModel.getResources();
+//        			if(ress==null)
+//        			{
+//        				return null;
+//        			}
+//        			else
+//        			{
+//        				PSResource psRes;
+//        				PSResource resParent;
+//        				Vector roots=new Vector();
+//        				for(Iterator it=ress.iterator();it.hasNext();)
+//        				{
+//        					psRes=(PSResource)it.next();
+//        					resParent=psRes.getHasSuper();
+//        					if(resParent==null)
+//        					{//no super is a root
+//        						roots.add(psRes);
+//        					}
+//        					else
+//        					{
+//        						//empty
+//        					}        						
+//        				}
+//        				return roots.toArray();
+//        			}
+//        		}
         	}
         	else if(
         			((String)parentElement).equals(
@@ -215,7 +249,7 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         }
         else if(element instanceof PSResource)
         {
-        	PSResource parent=((PSResource)element).getHasSuper();
+        	PSResource parent=((PSResource)element).getParent();
         	if(parent==null)
         	{//no parent a root
         		return root;
@@ -256,7 +290,14 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
     public Object[] getElements(Object element) 
     {
     	root=element;
-        return getChildren(element);
+    	if(root instanceof File[])
+    	{
+    		return (File[])root; 
+    	}
+    	else
+    	{
+    		return getChildren(element);
+    	}
     }
 
     /**

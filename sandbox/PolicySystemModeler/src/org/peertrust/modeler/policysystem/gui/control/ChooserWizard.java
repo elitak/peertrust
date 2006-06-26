@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.peertrust.modeler.policysystem.gui.control;
 
 import org.eclipse.jface.wizard.Wizard;

@@ -1,6 +1,9 @@
 package org.peertrust.modeler.policysystem.gui.views;
 
 import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -23,6 +26,8 @@ import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
+
+import com.sun.corba.se.spi.orbutil.fsm.Input;
 
 
 public class WarningsView 	extends ViewPart 
@@ -279,58 +284,67 @@ public class WarningsView 	extends ViewPart
 			if(sel instanceof File)
 			{
 				//TODO check algorithm
-				
+				//TODO use uri 
 				try {
-					File file=(File)sel;
-					String root=
-						projectConfig.getProperty(ProjectConfig.ROOT_DIR);
-					if(root==null)
-					{
-						return;
-					}
-					File rootFile=new File(root);
-					root=rootFile.getAbsolutePath();					
-					File parentFile=file;
-					logger.info("parentFile:"+parentFile+
-								"\n....root:"+rootFile);
-					Vector path=new Vector();
-					PSResource pRes=null,tmpRes;
-					while(parentFile.getAbsolutePath().startsWith(root))
-					{
-						logger.info("parentFile:"+parentFile+
-									"\nroot+++++:"+rootFile);
-						parentFile=parentFile.getParentFile();
-						
-						tmpRes= 
-							psSystem.getPSResource(parentFile,true);
-						if(pRes!=null)
-						{
-							if(tmpRes!=null)
-							{
-								if(tmpRes.getHasSuper()!=null && !(parentFile.equals(root)))
-								{//no super set yet and not roo
-									tmpRes.addHasSuper(pRes);
-								}
-							}
-						}
-						pRes=tmpRes;
-						if(pRes!=null)
-						{
-							path.add(0,pRes);
-						}
-						
-					}
-					logger.info("Pathhh:"+path);
-					
-					PSResource res=
-						psSystem.getPSResource(file,true);
-					path.addElement(res);
+//					File file=(File)sel;
+//					URI root=
+//						projectConfig.getRootFor(file.toURI());//getProperty(ProjectConfig.ROOT_DIR);
+//					if(root==null)
+//					{
+//						return;
+//					}
+//					//File rootFile=new File(root);
+//					//root=rootFile.getAbsolutePath();					
+//					File parentFile=file;
+//					logger.info("\n\tparentFile:"+parentFile/*+
+//								"\n\t....root:"+rootFile*/);
+//					Vector path=new Vector();
+//					PSResource pRes=null,tmpRes;
+//					while(!root.relativize(parentFile.toURI()).isAbsolute())//parentFile.getAbsolutePath().startsWith(root))
+//					{
+//						logger.info("parentFile:"+parentFile/*+
+//									"\nroot+++++:"+rootFile*/);
+//						parentFile=parentFile.getParentFile();
+//						
+//						tmpRes= 
+//							psSystem.getPSResource(parentFile,true);
+//						if(pRes!=null)
+//						{
+//							if(tmpRes!=null)
+//							{
+//								if(tmpRes.getHasSuper()!=null && !(parentFile.equals(root)))
+//								{//no super set yet and not roo
+//									tmpRes.addHasSuper(pRes);
+//								}
+//							}
+//						}
+//						pRes=tmpRes;
+//						if(pRes!=null)
+//						{
+//							path.add(0,pRes);
+//						}
+//						
+//					}
+//					logger.info("Pathhh:"+path);
+//					
+//					PSResource res=
+//						psSystem.getPSResource(file,true);
+//					path.addElement(res);
+					PSResource res=psSystem.getPSResource(sel,true);;
+//					List path= new ArrayList();
+//					while(res!=null)
+//					{
+//						path.add(0,res);
+//					}
 					//listViewer.setInput(path);
 					//TODO remove path computation
 					listViewer.setInput(res);
 					
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.info(
+						"\nError while setting new input"+
+						"\n\tselection="+sel,
+						e);
 				}
 			}
 			else if(sel instanceof PSPolicy)

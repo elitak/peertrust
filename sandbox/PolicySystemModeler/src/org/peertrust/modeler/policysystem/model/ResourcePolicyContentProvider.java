@@ -4,21 +4,18 @@
 package org.peertrust.modeler.policysystem.model;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.internal.filebuffers.ResourceFileBuffer;
-import org.eclipse.core.internal.runtime.Log;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.jface.viewers.ILabelProvider;
+
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.internal.registry.StickyViewDescriptor;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
@@ -28,7 +25,6 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 /**
@@ -68,26 +64,29 @@ public class ResourcePolicyContentProvider
 //			psRes.setHasMapping(identityMaker.makeIdentity(file));
 //		}
 		//test for allready set parent
-		PSResource aParent=psRes.getHasSuper();
+		PSResource aParent=psRes.getParent();
 		if(aParent!=null)
 		{
 			logger.warn("parent res allready set");
 			return;
 		}
 		
-		File parentFile=file.getParentFile();		
-		String rootFileName=
-			ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+		File parentFile=file.getParentFile();
+		//TODO change root 
+		/*String rootFileName=*/
+		URI root=	ProjectConfig.getInstance().getRootFor(parentFile.toURI());
+			//ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
 		logger.info("setting parent res; res="+psRes+
 				"\n\tparentFile:"+parentFile+
-				"\n\trootFile:"+rootFileName);
+				"\n\trootFile:"+root/*rootFileName*/);
 		File rootFile=null;
 		PSResource parentRes=null;
-		if(rootFileName!=null)
+		if(/*rootFileName*/root!=null)
 		{
-			rootFile= new File(rootFileName);
-			if(parentFile.getAbsolutePath().startsWith(
-								rootFile.getAbsolutePath()))
+			//rootFile= new File(rootFileName);
+			URI relFile=root.relativize(parentFile.toURI());
+			if(!relFile.isAbsolute()/*parentFile.getAbsolutePath().startsWith(
+								rootFile.getAbsolutePath())*/)
 			{
 				//String identity=identityMaker.makeIdentity(parentFile);
 				parentRes=
@@ -97,7 +96,7 @@ public class ResourcePolicyContentProvider
 						);
 				if(parentRes!=null)
 				{
-					psRes.addHasSuper(parentRes);
+					psRes.setParent(parentRes);
 				}
 				else
 				{
@@ -141,8 +140,8 @@ public class ResourcePolicyContentProvider
 						true);//new FileResourceSelector(file));
 				System.out.println("pres:"+res);
 				addParentResource(file,res);
-				Vector dirPolicies=res.getIsProtectedBy();
-				Vector filters = res.getHasFilter();
+				List dirPolicies=res.getIsProtectedBy();
+				List filters = res.getHasFilter();
 				Vector allPolicies= new Vector();
 				
 				
@@ -184,8 +183,8 @@ public class ResourcePolicyContentProvider
 		{
 			try {
 				PSResource res=(PSResource)inputElement;
-				Vector dirPolicies=res.getIsProtectedBy();
-				Vector filters = res.getHasFilter();
+				List dirPolicies=res.getIsProtectedBy();
+				List filters = res.getHasFilter();
 				Vector allPolicies= new Vector();
 				
 				

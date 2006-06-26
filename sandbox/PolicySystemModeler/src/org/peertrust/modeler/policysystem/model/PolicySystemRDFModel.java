@@ -2,21 +2,18 @@ package org.peertrust.modeler.policysystem.model;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.PropertyResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.peertrust.modeler.model.RDFModelManipulator;
 import org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelElementIDGenerator;
@@ -107,7 +104,8 @@ public class PolicySystemRDFModel
 	public static final String LNAME_PROP_IS_PROTECTED_BY="isProtectedBy";
 	static Property PROP_IS_PROTECTED_BY=null;
 	
-	public static final String LNAME_PROP_HAS_OVERRINDING_RULES="hasOverridingRule";
+	public static final String LNAME_PROP_HAS_OVERRINDING_RULES=
+													"hasOverridingRule";
 	static Property PROP_HAS_OVERRIDING_RULES=null;
 	
 	////filter
@@ -123,6 +121,19 @@ public class PolicySystemRDFModel
 	public static final String LNAME_CLASS_FILTER="Filter";
 	public static Resource CLASS_FILTER=null;
 	
+	/**
+	 * A resource property that specifies whether a given resource
+	 * may havechild (e.g. a directory) or not (e.g. a file) 
+	 */
+	static Property PROP_CAN_HAVE_CHILD=null;
+	public static final String LNAME_PROP_CAN_HAVE_CHILD="canHaveChild";
+	
+	/**
+	 * A resource property which specifies whether the resource is virtual
+	 * or not
+	 */
+	static Property PROP_IS_VIRTUAL=null;
+	public static final String LNAME_PROP_IS_VIRTUAL="isVirtual";
 	
 	private static final PolicySystemRDFModel 
 			policySystemRDFModel= new PolicySystemRDFModel();
@@ -132,7 +143,8 @@ public class PolicySystemRDFModel
 	
 	private Model schema = null;//ModelLoader.loadModel("file:data/rdfsDemoSchema.rdf");
 	private String rdfSchemaFile;
-	private Logger  logger;
+	private static final  Logger  logger=
+				Logger.getLogger(PolicySystemRDFModel.class);
 	private Vector modelChangeListeners;
 	private ModelEventAdapter modelEventAdapter;
 	private boolean blockModelEvent;
@@ -147,7 +159,7 @@ public class PolicySystemRDFModel
 		rdfModel=ModelFactory.createDefaultModel();
 		schema=ModelFactory.createDefaultModel();
 		ProjectConfig.getInstance().addProjectConfigChangeListener(this);
-		logger=Logger.getLogger(PolicySystemRDFModel.class);
+		//logger=Logger.getLogger(PolicySystemRDFModel.class);
 		modelChangeListeners= new Vector();
 		modelEventAdapter= new ModelEventAdapter(this);
 		blockModelEvent=false;
@@ -226,6 +238,10 @@ public class PolicySystemRDFModel
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_OVERRIDDEN);
 		PROP_HAS_OVERRIDDER=
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_OVERRIDDER);
+		PROP_CAN_HAVE_CHILD=
+			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_CAN_HAVE_CHILD);
+		PROP_IS_VIRTUAL=
+			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_IS_VIRTUAL);
 		
 		if(	PROP_HAS_CONDITION==null ||
 				PROP_HAS_FILTER==null ||	
@@ -236,7 +252,8 @@ public class PolicySystemRDFModel
 				PROP_HAS_OVERRIDDEN==null ||
 				PROP_HAS_OVERRIDDER==null ||
 				PROP_HAS_SUPER==null ||
-				PROP_HAS_VALUE==null )
+				PROP_HAS_VALUE==null ||
+				PROP_CAN_HAVE_CHILD==null )
 		{
 			RuntimeException ex = 
 				new RuntimeException("model error all prop must be non null");
@@ -350,7 +367,7 @@ public class PolicySystemRDFModel
 						targetResource==null ||
 						PROP_HAS_SUPER==null)
 					{
-						System.out.println("PSModelStatement:model="+rdfModel+ 
+						logger.info("PSModelStatement:model="+rdfModel+ 
 										" res1="+startResource +
 										" res2:"+targetResource);
 						return null;
@@ -375,9 +392,10 @@ public class PolicySystemRDFModel
 		if(	resource ==null || 
 			prop==null)
 		{
-			getInstance().logger.warn(
-					"param resource or prop is null: resource="+resource+
-					"prop="+prop);
+			logger.warn(
+					"\nparam resource or prop is null:"+
+					"\n\tresource="+resource+
+					"\n\tprop="+prop);
 			return null;
 		}
 		
@@ -389,6 +407,7 @@ public class PolicySystemRDFModel
 		}
 		return stm.getString();
 	}
+	
 	
 	static final public PSModelObject getResourceProperty(
 									Resource resource, 
@@ -864,6 +883,10 @@ public class PolicySystemRDFModel
 						Object realResource,//String identity,  
 						boolean forceCreation) 
 	{
+		logger.info(
+				"\ncall getPSResource:"+
+				"\n\trealResource="+realResource+
+				"\n\tforceCreation="+forceCreation);
 		if(realResource==null)
 		{
 			logger.warn(
@@ -885,7 +908,8 @@ public class PolicySystemRDFModel
 		{			
 			return null;
 		}
-		String identity=iMaker.makeIdentity(realResource);
+		
+		URI identity=iMaker.makeIdentity(realResource);
 		Selector psSel=
 			new SimpleSelector(
 					(Resource)null,
@@ -901,19 +925,122 @@ public class PolicySystemRDFModel
 		{
 			stm=it.nextStatement();
 			res=stm.getSubject();
+			if(it.hasNext())
+			{
+				logger.warn(
+					"Model contents several resources with this identity:"+
+					identity);
+			}
 		}
-				
-		if(it.hasNext())
+		else
 		{
-			logger.warn(
-				"Model contents several resources with this identity:"+
+			if(res==null && forceCreation==true)
+			{
+				//TODO use uri
+				/*String*/URI root=
+					ProjectConfig.getInstance().getRootFor(identity);
+					//ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+				if(root==null)
+				{
+					logger.warn("root is null file resource creation skipped:"+
+						identity);
+					blockModelEvent=false;
+					return null;
+				}
+					String label=iMaker.makeLabel(realResource);
+					res=
+						rdfModel.createResource(
+							idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
+					res.addProperty(RDFS.label,label);
+					res.addProperty(
+						PROP_HAS_IDENTITY,identity);
+					res.addProperty(
+							PROP_CAN_HAVE_CHILD,
+							iMaker.canHaveChild(realResource));
+					
+					logger.info(
+						"New PSResource:"+
+						"\n\tidentity......:"+identity+
+						" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
+					res.addProperty(RDF.type,CLASS_RESOURCE);
+				}
+		}
+			blockModelEvent=false;
+			if(res==null)
+			{
+				logger.warn(
+						"\nCould not create or selectresource:"+
+						"\n\tidentity="+identity+
+						"\n\trealResource="+realResource);
+				return null;
+			}
+			else
+			{
+				PSResource psRes=new PSResourceImpl(res,this);
+				if(!iMaker.isRoot(realResource))
+				{
+					PSResource parentRes= 
+						getPSResource(iMaker.getParent(realResource),false);
+					psRes.setParent(parentRes);
+				}
+				return psRes;
+			}
+		}
+	
+	public PSResource createPSResource(Object realResource) 
+	{
+		if(realResource==null)
+		{
+			throw new IllegalArgumentException(
+							"argument realResource must not be null");
+		}
+	
+		if(policySystemRDFModel==null)
+		{
+			throw new RuntimeException("model instance not created");
+		}
+	
+	
+		PSResourceIdentityMaker iMaker=
+		(PSResourceIdentityMaker)
+				identityMakers.get(realResource.getClass());
+		if(iMaker==null)
+		{			
+			throw new RuntimeException(
+					"No PSResourceIdentityMaker for this class:"+
+					"\n\rclass="+realResource.getClass());
+		}
+	
+		URI identity=iMaker.makeIdentity(realResource);
+		Selector psSel=
+		new SimpleSelector(
+				(Resource)null,
+				PROP_HAS_IDENTITY,
 				identity);
-		}
 		
-		if(res==null && forceCreation==true)
-		{
-			String root=
-				ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
+		blockModelEvent=true;
+		StmtIterator it=rdfModel.listStatements(psSel);
+	
+		Statement stm;
+		Resource res=null;
+		if(it.hasNext())
+		{//already in the model
+			stm=it.nextStatement();
+			res=stm.getSubject();
+			if(it.hasNext())
+			{
+				logger.warn(
+					"Model contents several resources with this identity:"+
+					identity);
+			}
+			return new PSResourceImpl(res,this);
+		}
+		else
+		{//need to be created
+			ProjectConfig projectConfig=ProjectConfig.getInstance();
+			URI root=
+				projectConfig.getRootFor(iMaker.toURI(realResource));
+				//ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
 			if(root==null)
 			{
 				logger.warn("root is null file resource creation skipped:"+
@@ -921,22 +1048,26 @@ public class PolicySystemRDFModel
 				blockModelEvent=false;
 				return null;
 			}
-				String label=iMaker.makeLabel(realResource);
-				res=
+			String label=iMaker.makeLabel(realResource);
+			res=
 					rdfModel.createResource(
 						idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
 				res.addProperty(RDFS.label,label);
 				res.addProperty(
 					PROP_HAS_IDENTITY,identity);
+				res.addProperty(
+						PROP_CAN_HAVE_CHILD,
+						iMaker.canHaveChild(realResource));
 				logger.info(
 					"New PSResource:"+
 					"\n\tidentity......:"+identity+
 					" PROP_HAS_IDENTITY:"+PROP_HAS_IDENTITY);
 				res.addProperty(RDF.type,CLASS_RESOURCE);
-			}
+			
 			blockModelEvent=false;
 			return new PSResourceImpl(res,this);
 		}
+	}
 	
 /////////////////////////////////////////////////////////////////////////////
 ////////////////////PROJECT CHANGED LISTENER/////////////////////////////////
@@ -1902,10 +2033,18 @@ public class PolicySystemRDFModel
 				rdfModel.add(subject,prop,object);
 				return null;
 			}
+//			if(psObject instanceof PSFilter)
+//			{
+//				Resource object = 
+//					(Resource)((PSModelObject)psObject).getModelObject();
+//				rdfModel.add(subject,prop,object);
+//				return null;
+//			}
 			else
 			{
-				logger.warn("Cannot protect with a "+psObject.getClass());
-				return null;
+				/*logger.warn*/throw new RuntimeException(
+						"\n\tCannot protect with a "+(psObject==null?null:psObject.getClass()));
+				//return null;
 			}
 		}
 		else if((prop==PROP_HAS_CONDITION) || 
@@ -2150,7 +2289,11 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		//logger.info("Getting "+prop+" for "+modelObject);
-		System.out.println("\n\tGettingx "+prop);
+		logger.info(
+				"\nGetting property"+
+				"\n\tResource:"+res+
+				"\n\tpropertyKey"+propertyKey+
+				"\n\tproperty:"+prop);
 		return getMultipleProperty(modelObject,prop);
 	}
 	

@@ -1,12 +1,13 @@
 package org.peertrust.modeler.policysystem.gui.views;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -15,16 +16,17 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.peertrust.modeler.policysystem.gui.control.ChooserWizardPage;
+import org.peertrust.modeler.policysystem.gui.control.NewPSResourceEditorPage;
 import org.peertrust.modeler.policysystem.gui.providers.PSResourceViewContentProvider;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.PolicySystemResTreeContentProvider;
-import org.peertrust.modeler.policysystem.model.ProjectConfig;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
@@ -286,7 +288,7 @@ public class PSResourceView extends ViewPart
 //							identityMaker.makeIdentity(sel0);
 						PSResource psRes=
 							psModel.getPSResource(sel0,true);
-						Vector resFilters=psRes.getHasFilter();
+						List resFilters=psRes.getHasFilter();
 						String[] resFiltersNames=null;
 						logger.info("Resource filters:"+
 								"\n\tResource:"+psRes+
@@ -298,7 +300,7 @@ public class PSResourceView extends ViewPart
 							PSFilter curFilter;
 							for(int i=0; i<size; i++)
 							{
-								curFilter=(PSFilter)resFilters.elementAt(i);
+								curFilter=(PSFilter)resFilters.get(i);
 								resFiltersNames[i]=curFilter.getLabel().getValue();
 							}
 						}
@@ -420,7 +422,7 @@ public class PSResourceView extends ViewPart
 										"value"+time);
 					//treeView.refresh();
 				} catch (RuntimeException e) {
-					e.printStackTrace();
+					logger.warn("Exception while creating policy",e);
 				}
 			}
 			else if(((String)input).equals(
@@ -434,7 +436,7 @@ public class PSResourceView extends ViewPart
 									new PSPolicy[]{});
 					//treeView.refresh();
 				} catch (RuntimeException e) {
-					e.printStackTrace();
+					logger.warn("Exception while creating filter",e);
 				}
 			}
 			else if(((String)input).equals(
@@ -448,7 +450,44 @@ public class PSResourceView extends ViewPart
 											(PSPolicy)null);
 					//treeView.refresh();
 				} catch (RuntimeException e) {
-					e.printStackTrace();
+					logger.warn("Exception while creating overriding rule",e);
+				}
+			}
+			else if(((String)input).equals(
+					PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
+			{
+				try {
+					IStructuredSelection selection=
+						(IStructuredSelection)treeView.getSelection();
+					Object sel0=selection.getFirstElement();
+					if(sel0 instanceof PSResource)
+					{
+						//TODO create psresource
+						Shell parent=getSite().getShell();//treeView.getControl().getParent().getShell();
+						System.out.println("SHEEEEEEEEEEEELLLLLL:"+parent);
+						Object[] props=NewPSResourceEditorPage.helpCreateNewResource(parent);
+						if(props!=null)
+						{
+							
+						}
+						else
+						{
+							logger.info(
+									"\nNo property selected");
+						}
+						//long time=System.currentTimeMillis();
+						//psModel.createPSResource();
+					}
+					else
+					{
+						logger.warn(
+								"\nCan only add child to virtual PSResource:"+
+								"\n\tclass actual resource="+(sel0!=null?sel0.getClass():null));
+					}
+				} catch (RuntimeException e) {
+					logger.warn(
+							"\nException while creating new Resource",
+							e);
 				}
 			}
 			else
@@ -482,7 +521,7 @@ public class PSResourceView extends ViewPart
 				PSModelChangeVeto veto=psModel.removeModelObject((PSModelObject)sel0);
 				if(veto!=null)
 				{
-					System.out.println("veto:"+veto);
+					logger.info("veto:"+veto);
 					treeView.setInput(treeView.getInput());
 				}
 				else
@@ -514,14 +553,16 @@ public class PSResourceView extends ViewPart
 					if(el.equals(
 							PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_RESOURCES))
 					{
-						String rootDir=
-							ProjectConfig.getInstance().getProperty("rootDir");
-						if(rootDir==null)
-						{
-							return;
-						}
+						//TODO
+//						String rootDir=
+//							ProjectConfig.getInstance().getProperty("rootDir");
+//						if(rootDir==null)
+//						{
+//							return;
+//						}
+
 						treeView.setInput(el);//new File(rootDir));
-						addAction.setEnabled(false);
+						addAction.setEnabled(true);
 						removeAction.setEnabled(false);
 //						protectAction.setEnabled(false);
 						addFilterAction.setEnabled(true);
@@ -571,7 +612,7 @@ public class PSResourceView extends ViewPart
 				//System.out.println("dadadadad:"+el);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("Exception while handling selection change",e);
 		}
 	}
 	

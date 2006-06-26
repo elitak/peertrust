@@ -1,8 +1,9 @@
-package org.peertrust.modeler.policysystem.gui.control;
+package org.peertrust.modeler.policysystem.gui.control; 
 
 import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -190,9 +191,9 @@ public class PSResourcePolicyEditorPage
 			if(input instanceof File)
 			{
 				//String identity=((File)input).getCanonicalPath();
-				String identity=identityMaker.makeIdentity((File)input);
+				URI identity=identityMaker.makeIdentity((File)input);
 				PSResource psResource=
-					psModel.getPSResource(identity,true);
+					psModel.getPSResource(input,true);
 				oRulesTree.setInput(psResource);
 				psResourceLabel.setText(
 						PSRESOURCE_LABEL_PREFIX+
@@ -214,7 +215,7 @@ public class PSResourcePolicyEditorPage
 				//empty
 			}
 		} catch (Exception e) {
-			logger.error("Exception while setting new input:"+input);
+			logger.error("Exception while setting new input:"+input,e);
 		}
 		
 		
@@ -368,7 +369,7 @@ public class PSResourcePolicyEditorPage
 		}
 		else if(tabItemText.equals(TAB_ITEM_POLICIES_AND_FILTERS))//localPolicyView.getControl().getVisible())
 		{
-			System.out.println("localPolicyView visible");
+			logger.info("localPolicyView visible");
 			selection=(IStructuredSelection)localPolicyView.getSelection();
 			sel0=selection.getFirstElement();
 		}
@@ -389,7 +390,7 @@ public class PSResourcePolicyEditorPage
 		}
 		
 		//Object sel0=selection.getFirstElement();
-		System.out.println("sel0:"+sel0);
+		logger.info("sel0:"+sel0);
 		if(sel0==null)
 		{
 			logger.info("selection is null");
@@ -406,18 +407,40 @@ public class PSResourcePolicyEditorPage
 			{
 				try 
 				{
-					String identity=identityMaker.makeIdentity(input);
+					//URI identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getPSResource(identity,true);
-					psRes.removePolicy((PSPolicy)sel0);
+						psModel.getPSResource(input,true);
+					PSFilter filter=(PSFilter)((PSPolicy)sel0).getGuarded();
+					if(filter!=null)
+					{
+						psRes.removeFilter(filter);
+					}
+					else
+					{
+						logger.warn(
+								"\nPolicy not assosiated to a filter:"+
+								"\n\tpolicy="+sel0+
+								"\n\tresource="+psRes);
+					}
+					//psRes.removePolicy((PSPolicy)sel0);
 				} catch (Exception e) {
-					logger.warn("Exception while removing a policy",e);
+					logger.warn("Exception while removing a filter guarded by a policy",e);
 				}
 				return;
 			}
 			else if(input instanceof PSResource)
 			{
-				((PSResource)input).removePolicy((PSPolicy)sel0);
+				PSFilter filter=(PSFilter)((PSPolicy)sel0).getGuarded();
+				if(filter!=null)
+				{
+					((PSResource)input).removeFilter(filter);
+				}
+				else
+				{
+					logger.warn(
+							"\nNo filter associated to the policy"+
+							"\n\tpolicy="+sel0);
+				}
 			}
 			else
 			{
@@ -435,9 +458,9 @@ public class PSResourcePolicyEditorPage
 			else if(input instanceof File)
 			{
 				try {
-					String identity=identityMaker.makeIdentity(input);
+					//URI identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
-						psModel.getPSResource(identity,true);
+						psModel.getPSResource(input,true);
 					psRes.removeOverriddingRule((PSOverridingRule)sel0);
 				} catch (Exception e) {
 					//TODO remove try catch
@@ -445,9 +468,16 @@ public class PSResourcePolicyEditorPage
 				}
 				return;
 			}
+			else if(input instanceof PSResource)
+			{
+				((PSResource)input).removeOverriddingRule((PSOverridingRule)sel0);
+			}
 			else
 			{
-				logger.warn("can only remove policies from a psresource");
+				logger.warn(
+						"\ncan only remove overriding rules from a psresource"+
+						"\n\tresource="+input+
+						"\n\ttoremove="+sel0);
 				return;
 			}
 		}
@@ -461,19 +491,26 @@ public class PSResourcePolicyEditorPage
 			else if(input instanceof File)
 			{
 				try {
-					String identity=identityMaker.makeIdentity(input);
+					URI identity=identityMaker.makeIdentity(input);
 					PSResource psRes=
 						psModel.getPSResource(identity,true);
 					psRes.removeFilter((PSFilter)sel0);
 				} catch (Exception e) {
 					//TODO remove try catch
-					logger.warn("Exception while removing a policy",e);
+					logger.warn("Exception while removing a filter",e);
 				}
 				return;
 			}
+			else if(input instanceof PSResource)
+			{
+				((PSResource)input).removeFilter((PSFilter)sel0);
+			}
 			else
 			{
-				logger.warn("can only remove policies from a psresource");
+				logger.warn(
+						"\ncan only remove policies from a psresource"+
+						"\n\tresource="+input+
+						"\n\tto remove="+sel0);
 				return;
 			}
 		}
@@ -548,7 +585,7 @@ public class PSResourcePolicyEditorPage
 		else if(input instanceof File)
 		{
 			try {
-				String identity= identityMaker.makeIdentity(input);
+				URI identity= identityMaker.makeIdentity(input);
 				PSResource psRes=
 					psModel.getPSResource(identity,true);
 				PSOverridingRule oRules[]=
@@ -581,12 +618,12 @@ public class PSResourcePolicyEditorPage
 						
 				if(oRules!=null)
 				{
-					System.out.println("ORules:"+Arrays.asList(oRules));
+					logger.info("ORules:"+Arrays.asList(oRules));
 					for(int i=oRules.length-1;i>=0;i--)
 					{
 						if(oRules[i] instanceof PSOverridingRule)
 						{
-							System.out.println("mo:"+oRules[i].getModelObject());
+							logger.info("mo:"+oRules[i].getModelObject());
 							psRes.addIsOverrindingRule((PSOverridingRule)oRules[i]);
 						}
 						else
@@ -621,13 +658,16 @@ public class PSResourcePolicyEditorPage
 		}
 		else if(input instanceof File)
 		{
+			URI identity=null;
+			PSResource psRes=null;
 			try {
-					String identity=identityMaker.makeIdentity(input);
-					PSResource psRes=
-						psModel.getPSResource(identity,true);
-					Vector resFilters=psRes.getHasFilter();
+					identity=identityMaker.makeIdentity(input);
+					psRes=
+						psModel.getPSResource((File)input,true);
+					List resFilters=psRes.getHasFilter();
 					String[] resFiltersNames=null;
-					logger.info("Resource filters:"+
+					logger.info(
+							"\nResource filters:"+
 							"\n\tResource:"+psRes+
 							"\n\tFilters:"+resFilters);
 					if(resFilters!=null)
@@ -637,7 +677,7 @@ public class PSResourcePolicyEditorPage
 						PSFilter curFilter;
 						for(int i=0; i<size; i++)
 						{
-							curFilter=(PSFilter)resFilters.elementAt(i);
+							curFilter=(PSFilter)resFilters.get(i);
 							resFiltersNames[i]=curFilter.getLabel().getValue();
 						}
 					}
@@ -655,7 +695,12 @@ public class PSResourcePolicyEditorPage
 					}
 				return;	
 			} catch (Exception e) {
-				logger.warn("error while trying to add filter to the resource");
+				logger.warn(
+						"\nError while trying to add filter to the resource"+
+						"\n\tinput="+input+
+						"\n\tidentity="+identity+
+						"\n\tgot PSResource="+psRes,						
+						e);
 				return;
 			}
 		}
@@ -663,7 +708,7 @@ public class PSResourcePolicyEditorPage
 		{
 			try {
 					PSResource psRes= (PSResource)input;
-					Vector resFilters=psRes.getHasFilter();
+					List resFilters=psRes.getHasFilter();
 					String[] resFiltersNames=null;
 					logger.info("Resource filters:"+
 							"\n\tResource:"+psRes+
@@ -675,7 +720,7 @@ public class PSResourcePolicyEditorPage
 						PSFilter curFilter;
 						for(int i=0; i<size; i++)
 						{
-							curFilter=(PSFilter)resFilters.elementAt(i);
+							curFilter=(PSFilter)resFilters.get(i);
 							resFiltersNames[i]=curFilter.getLabel().getValue();
 						}
 					}

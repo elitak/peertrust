@@ -13,8 +13,14 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.ProjectConfig;
+import org.peertrust.modeler.policysystem.model.exceptions.BadConfigFileException;
 
 
+/**
+ * This action provides a dialog to open a model
+ * 
+ * @author Patrice Congo
+ */
 public class OpenAction extends Action {
     	final static String DEFAULT_ID="OpenAction";
     	  /**
@@ -43,16 +49,21 @@ public class OpenAction extends Action {
     	   * Opens an existing file
     	   */
     	  public void run() {
-    	    // Use the file dialog
-    		IWorkbench wb=PlatformUI.getWorkbench();
-    		Shell shell=
-    			wb.getActiveWorkbenchWindow().getShell();
-    	    FileDialog dlg = 
-    	    	new FileDialog(shell,SWT.OPEN);
-			String fileName = dlg.open();
-			if (fileName != null) {
-				PolicySystemRDFModel.getInstance().clearRDFModel();
-				ProjectConfig.getInstance().setProjectFile(fileName);				
+    	    try {
+				// Use the file dialog
+				IWorkbench wb=PlatformUI.getWorkbench();
+				Shell shell=
+					wb.getActiveWorkbenchWindow().getShell();
+				FileDialog dlg = 
+					new FileDialog(shell,SWT.OPEN);
+				String fileName = dlg.open();
+				if (fileName != null) {
+					PolicySystemRDFModel.getInstance().clearRDFModel();
+					ProjectConfig.getInstance().setProjectFile(fileName);				
+				}
+			} catch (BadConfigFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
     	  }
     	}

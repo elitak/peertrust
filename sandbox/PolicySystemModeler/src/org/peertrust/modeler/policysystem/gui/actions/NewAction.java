@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 import org.peertrust.modeler.policysystem.gui.control.CreateNewProjectPage;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 
@@ -74,7 +75,8 @@ public class NewAction extends Action
 		} 
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			PolicysystemPlugin.getDefault().showMessage(
+					"Exception while creating a new project:"+e.getMessage());
 		}
   }
 }

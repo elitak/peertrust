@@ -1,10 +1,8 @@
-/**
- * 
- */
 package org.peertrust.modeler.policysystem.model;
 
-import java.io.File;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
@@ -81,7 +79,7 @@ public class PSProtectionImpl implements PSProtection
 	 */
 	public void override(PSOverridingRule oRule) 
 	{
-		System.out.println("oooooooooooooooRule:"+oRule);
+		
 		if(oRule==null)
 		{
 			return;
@@ -145,7 +143,7 @@ public class PSProtectionImpl implements PSProtection
 			if(policies!=null)
 			{
 				PSPolicy curPol;
-				String curCond;
+				//String curCond;
 				for(Iterator itPol=policies.iterator();itPol.hasNext();)
 				{
 					curPol=(PSPolicy)itPol.next();
@@ -172,7 +170,7 @@ public class PSProtectionImpl implements PSProtection
 		{
 			return protections;
 		}
-		Vector filters=psRes.getHasFilter();
+		List filters=psRes.getHasFilter();
 		if(filters==null)
 		{
 			return protections;

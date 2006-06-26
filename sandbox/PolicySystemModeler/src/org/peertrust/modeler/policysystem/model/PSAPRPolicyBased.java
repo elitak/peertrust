@@ -4,6 +4,7 @@
 package org.peertrust.modeler.policysystem.model;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -94,7 +95,7 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 		
 		Vector policies= new Vector();
 		Vector oRules;
-		Vector lPolicies;
+		List lPolicies;
 		///add root policies
 //		policies.addAll(
 //				psSystem.getLocalPolicies(
