@@ -365,7 +365,8 @@ public class ProjectConfig
 			
 			PolicysystemPlugin.getDefault().copyModelfilesTo(rdfsFile,rdfFile);
 			
-			properties.setProperty(ROOT_DIR,rootDir.getCanonicalPath());
+			//properties.setProperty(ROOT_DIR,rootDir.getCanonicalPath());
+			addRoot(rootDir.getCanonicalPath());
 			properties.setProperty(RDF_MODEL_FILE,rdfFile.getCanonicalPath());
 			properties.setProperty(RDF_SCHEMA_FILE,rdfsFile.getCanonicalPath());
 			FileOutputStream outStream= new FileOutputStream(projectFile);
