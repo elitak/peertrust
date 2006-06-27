@@ -786,7 +786,7 @@ String MetaLiteral():
 			term=Term() t=<OPERATOR> s=Term() 
 			{return "not("+term+" "+t.image+" "+s+")";}
 			|
-			head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
+			head=Head() ( LOOKAHEAD(3) "." field=Field(false,(String)head.elementAt(0)) )?
 			{
 				sb=new StringBuffer();
 		
@@ -863,7 +863,7 @@ String MetaLiteral():
 	term=Term() t=<OPERATOR> s=Term() 
 	{return term+" "+t.image+" "+s;}
 	|
-	head=Head() ( LOOKAHEAD(2) "." field=Field(false,(String)head.elementAt(0)) )?
+	head=Head() ( LOOKAHEAD(3) "." field=Field(false,(String)head.elementAt(0)) )?
 	{
 		sb=new StringBuffer();
 		
