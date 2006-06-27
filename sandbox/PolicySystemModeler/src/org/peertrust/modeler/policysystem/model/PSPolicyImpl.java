@@ -3,8 +3,7 @@
  */
 package org.peertrust.modeler.policysystem.model;
 
-import java.util.Vector;
-
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
@@ -13,7 +12,6 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 
 
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * An implementation of PSPolicy
@@ -88,7 +86,7 @@ class PSPolicyImpl implements PSPolicy
 //												resource,
 //												RDFS.label);
 //		return new PSModelLabelImpl(this,labelValue);
-		Vector props=
+		List props=
 			psModel.getModelObjectProperties(
 							this,Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME);
 		if(props==null)
@@ -99,7 +97,7 @@ class PSPolicyImpl implements PSPolicy
 		{
 			if(props.size()==1)
 			{
-				String labelValue= (String) props.elementAt(0);
+				String labelValue= (String) props.get(0);
 				return new PSModelLabelImpl(this,labelValue);
 			}
 			else

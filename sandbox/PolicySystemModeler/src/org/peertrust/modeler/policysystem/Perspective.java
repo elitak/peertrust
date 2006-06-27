@@ -5,7 +5,6 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.peertrust.modeler.policysystem.gui.views.MesgView;
 import org.peertrust.modeler.policysystem.gui.views.PSResourceView;
-import org.peertrust.modeler.policysystem.gui.views.PolicySystemGraphView;
 import org.peertrust.modeler.policysystem.gui.views.PolicySystemView;
 import org.peertrust.modeler.policysystem.gui.views.PSResourcePolicyView;
 import org.peertrust.modeler.policysystem.gui.views.WarningsView;

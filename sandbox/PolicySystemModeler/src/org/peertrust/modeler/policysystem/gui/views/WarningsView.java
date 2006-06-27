@@ -1,8 +1,6 @@
 package org.peertrust.modeler.policysystem.gui.views;
 
 import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -27,7 +25,6 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
-import com.sun.corba.se.spi.orbutil.fsm.Input;
 
 
 public class WarningsView 	extends ViewPart 
@@ -127,7 +124,7 @@ public class WarningsView 	extends ViewPart
 				}
 				else if(inputElement instanceof PSResource)
 				{
-					Vector pols=
+					List pols=
 						//PolicySystemRDFModel.getInstance()
 						psSystem.getInheritedPolicies(
 											(PSResource)inputElement);
@@ -201,7 +198,7 @@ public class WarningsView 	extends ViewPart
 				}
 				else if(inputElement instanceof PSResource)
 				{
-					Vector pols=
+					List pols=
 						psSystem.getInheritedPolicies(
 										(PSResource)inputElement);
 					return pols.toArray();

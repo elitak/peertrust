@@ -1,12 +1,11 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 import java.util.List;
-import java.util.Vector;
 
 
 
 /**
- * The interface to implement to abtract a policy system resource
+ * The interface to implement by classes that abtracts a policy system resource
  *  
  * @author Patrice Congo
  *
@@ -27,9 +26,9 @@ public interface PSResource extends PSModelObject {
 	
 	/**
 	 * To get the overriding rules linked to a resource
-	 * @return a vector of overriding rules
+	 * @return a list of overriding rules
 	 */
-	public Vector getIsOverrindingRule();
+	public List getIsOverrindingRule();
 	
 	/**
 	 * To add an overridingrule to this resource
@@ -56,26 +55,26 @@ public interface PSResource extends PSModelObject {
 	
 	/**
 	 * To get the children of the resource
-	 * @return the children 
+	 * @return a list containing the children of this resource 
 	 */
 	public List getChildren();
 	
-	/**
-	 * To get the PSModelObjects protecting this resource 
-	 * @return a vector of protecting PSModelObject
-	 */
-	public List getIsProtectedBy();
+//	/**
+//	 * To get the PSModelObjects protecting this resource 
+//	 * @return a vector of protecting PSModelObject
+//	 */
+//	public List getIsProtectedBy();
 	
-	/**
-	 * Protect with the given policy 
-	 * @param policy
-	 */
-	public void addIsProtectedBy(PSPolicy policy);
-	/**
-	 * Remove a protecting policy
-	 * @param policyToDel -- the plicy to remove
-	 */
-	public void removePolicy(PSPolicy policyToDel);
+//	/**
+//	 * Protect with the given policy 
+//	 * @param policy
+//	 */
+//	public void addIsProtectedBy(PSPolicy policy);
+//	/**
+//	 * Remove a protecting policy
+//	 * @param policyToDel -- the plicy to remove
+//	 */
+//	public void removePolicy(PSPolicy policyToDel);
 	
 	/**
 	 * Gets all filters linked to this resource

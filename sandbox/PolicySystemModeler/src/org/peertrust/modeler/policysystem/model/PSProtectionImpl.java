@@ -27,12 +27,16 @@ public class PSProtectionImpl implements PSProtection
 	private PSPolicy policy;
 	
 	/**
-	 * The condition for the protection
+	 * The condition for the protection to apply
 	 */
 	private String condition;
 	
+	
 	/**
-	 * 
+	 * Create a PSProtectionImpl with the given policy and the condition
+	 *  
+	 * @param policy -- the protecting policy
+	 * @param condition -- the condition for the protection to apply
 	 */
 	public PSProtectionImpl(PSPolicy policy, String condition) 
 	{
@@ -121,7 +125,7 @@ public class PSProtectionImpl implements PSProtection
 				
 	}
 	
-	public static Vector makeProtections(PSResource  psRes,PSFilter filter)
+	public static List makeProtections(PSResource  psRes,PSFilter filter)
 	{
 		Vector protections=new Vector();
 		if(filter!=null || psRes!=null)
@@ -139,7 +143,7 @@ public class PSProtectionImpl implements PSProtection
 			//make full path condition
 			String conditions= identity+filter.getCondition();
 					
-			Vector policies=filter.getIsprotectedBy();
+			List policies=filter.getIsprotectedBy();
 			if(policies!=null)
 			{
 				PSPolicy curPol;
@@ -163,7 +167,7 @@ public class PSProtectionImpl implements PSProtection
 		return protections;
 	}
 	
-	static public Vector makeProtections(PSResource psRes)
+	static public List makeProtections(PSResource psRes)
 	{
 		Vector protections= new Vector();
 		if(psRes==null)

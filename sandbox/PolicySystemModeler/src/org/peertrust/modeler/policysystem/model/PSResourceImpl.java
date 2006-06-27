@@ -4,8 +4,6 @@
 package org.peertrust.modeler.policysystem.model;
 
 import java.util.List;
-import java.util.Vector;
-
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
@@ -45,14 +43,26 @@ class PSResourceImpl implements PSResource
 	 */
 	private String role;
 	
+	/**
+	 * the model that contains the wrapped resource
+	 */
 	private PSPolicySystem psModel;//PolicySystemRDFModel psModel;
 	
+	/**
+	 * Create a PSResource that wrapps the given resource from the
+	 * given model
+	 * @param resource -- the original resource 
+	 * @param psModel -- the model containing the resouce
+	 */
 	public PSResourceImpl(Resource resource, PSPolicySystem psModel)
 	{
 		this.resource=resource;
 		this.psModel=psModel;//PolicySystemRDFModel.getInstance();
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getLabel()
+	 */
 	public PSModelLabel getLabel() 
 	{
 		if(resource==null)
@@ -68,6 +78,9 @@ class PSResourceImpl implements PSResource
 		return new PSModelLabelImpl(this,labelValue);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setLabel(java.lang.String)
+	 */
 	public void setLabel(String label) 
 	{
 		if(label==null)
@@ -100,6 +113,9 @@ class PSResourceImpl implements PSResource
 				resource,PolicySystemRDFModel.PROP_HAS_IDENTITY);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#setHasMapping(java.lang.String)
+	 */
 	public void setHasMapping(String mapping) 
 	{
 		if(mapping==null)
@@ -115,7 +131,10 @@ class PSResourceImpl implements PSResource
 //				resource,PolicySystemRDFModel.PROP_HAS_IDENTITY,mapping);
 	}
 
-	public Vector getIsOverrindingRule() 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#getIsOverrindingRule()
+	 */
+	public List getIsOverrindingRule() 
 	{
 		return psModel.getModelObjectProperties(
 				this,Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE);
@@ -125,6 +144,9 @@ class PSResourceImpl implements PSResource
 //						PolicySystemRDFModel.PROP_HAS_OVERRIDING_RULES);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#addIsOverrindingRule(org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule)
+	 */
 	public void addIsOverrindingRule(PSOverridingRule rule) 
 	{
 //		resource.addProperty(
@@ -142,9 +164,12 @@ class PSResourceImpl implements PSResource
 //					(Resource)rule.getModelObject());
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#getParent()
+	 */
 	public PSResource getParent() 
 	{
-		Vector supers=
+		List supers=
 			psModel.getModelObjectProperties(
 						this,Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER);
 		if(supers==null)
@@ -153,7 +178,7 @@ class PSResourceImpl implements PSResource
 		}
 		else if(supers.size()==1)
 		{
-			return (PSResource)supers.elementAt(0);
+			return (PSResource)supers.get(0);
 		}
 		else
 		{
@@ -166,6 +191,9 @@ class PSResourceImpl implements PSResource
 //							PolicySystemRDFModel.PROP_HAS_SUPER);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#setParent(org.peertrust.modeler.policysystem.model.abtract.PSModelObject)
+	 */
 	public void setParent(PSModelObject parent) 
 	{
 		PSModelStatement stm=
@@ -177,29 +205,29 @@ class PSResourceImpl implements PSResource
 //				(Resource)parent.getModelObject());
 	}
 
-	public void addIsProtectedBy(PSPolicy policy) 
-	{
-		PSModelStatement stm= 
-			new PSModelStatementImpl(
-					this, Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,policy);
-		psModel.addStatement(stm);
-//		psModel.addMultipleProperty(
-//				resource,
-//				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
-//				(Resource)policy.getModelObject());
-		
-	}
+//	public void addIsProtectedBy(PSPolicy policy) 
+//	{
+//		PSModelStatement stm= 
+//			new PSModelStatementImpl(
+//					this, Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,policy);
+//		psModel.addStatement(stm);
+////		psModel.addMultipleProperty(
+////				resource,
+////				PolicySystemRDFModel.PROP_IS_PROTECTED_BY,
+////				(Resource)policy.getModelObject());
+//		
+//	}
 
-	public List getIsProtectedBy() 
-	{
-		return psModel.getModelObjectProperties(
-					this,Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY);
-//		return 
-//			psModel.getMultipleProperty(
-//						this,//resource,
-//						PolicySystemRDFModel.PROP_IS_PROTECTED_BY);
-	}
+//	public List getIsProtectedBy() 
+//	{
+//		return getHasFilter();
+////		return psModel.getModelObjectProperties(
+////					this,Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY);
+//	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#getHasFilter()
+	 */
 	public List getHasFilter()
 	{
 		return psModel.getModelObjectProperties(
@@ -209,27 +237,42 @@ class PSResourceImpl implements PSResource
 //					PolicySystemRDFModel.PROP_HAS_FILTER);
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getModelObject()
+	 */
 	public Object getModelObject() 
 	{
 		return resource;
 	}
 	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() 
 	{
 		return " "+getHasMapping(); 
 		//return "   "+getLabel()+"  ";
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getRole()
+	 */
 	public String getRole() 
 	{
 		return role;
 	}
 
+	/*
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setRole(java.lang.String)
+	 */
 	public void setRole(String role) 
 	{
 		this.role=role;
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#addHasFilter(org.peertrust.modeler.policysystem.model.abtract.PSFilter)
+	 */
 	public void addHasFilter(PSFilter filter) 
 	{
 		PSModelStatement stm= 
@@ -245,16 +288,20 @@ class PSResourceImpl implements PSResource
 		
 	}
 
-	public void removePolicy(PSPolicy policyToDel) 
-	{
-		PSModelStatement stm= 
-			new PSModelStatementImpl(
-						this,
-						Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
-						policyToDel); 
-		psModel.removeStatement(stm);
-	}
+	
+//	public void removePolicy(PSPolicy policyToDel) 
+//	{
+//		PSModelStatement stm= 
+//			new PSModelStatementImpl(
+//						this,
+//						Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+//						policyToDel); 
+//		psModel.removeStatement(stm);
+//	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#removeFilter(org.peertrust.modeler.policysystem.model.abtract.PSFilter)
+	 */
 	public void removeFilter(PSFilter filterToRemove) 
 	{
 		PSModelStatement stm= 
@@ -265,6 +312,9 @@ class PSResourceImpl implements PSResource
 		psModel.removeStatement(stm);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#removeOverriddingRule(org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule)
+	 */
 	public void removeOverriddingRule(PSOverridingRule ruleToDel) 
 	{
 		PSModelStatement stm= 
@@ -275,18 +325,27 @@ class PSResourceImpl implements PSResource
 		psModel.removeStatement(stm);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#getChildren()
+	 */
 	public List getChildren() 
 	{
 		return psModel.getDirectChildren(this);
 		
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#canHaveChild()
+	 */
 	public boolean canHaveChild() {
 		return PolicySystemRDFModel.getBooleanProperty(
 					resource,
 					PolicySystemRDFModel.PROP_CAN_HAVE_CHILD).booleanValue();
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResource#setCanHaveChild(boolean)
+	 */
 	public void setCanHaveChild(boolean canHaveChild) {
 		PolicySystemRDFModel.setBooleanProperty(
 						resource,

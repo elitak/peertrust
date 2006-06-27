@@ -3,8 +3,7 @@
  */
 package org.peertrust.modeler.policysystem.model.checks;
 
-import java.util.Vector;
-
+import java.util.List;
 import org.peertrust.modeler.policysystem.model.PolicySystemRDFModel;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -51,7 +50,7 @@ public class CheckORulePoliciesInSamePath extends
 			mesgKey=0;
 			return false;
 		}
-		Vector parentPolicies=
+		List parentPolicies=
 			PolicySystemRDFModel.getInstance().getInheritedPolicies(
 														ruleResource);
 		if(parentPolicies.contains(super.overridden))

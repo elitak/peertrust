@@ -44,7 +44,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(org.peertrust.modeler.policysystem.model.abtract.PSResource)
 	 */
-	public Vector getApplyingPolicies(PSResource psResource) 
+	public List getApplyingPolicies(PSResource psResource) 
 	{
 		
 		logger.debug(
@@ -56,7 +56,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 			return protections;
 		}
 		
-		Vector path=psModel.getPathToAncestorRoots(psResource);//psModel.getDirectParent(psResource);
+		List path=psModel.getPathToAncestorRoots(psResource);//psModel.getDirectParent(psResource);
 		PSResource curRes;
 		
 		for(Iterator it=path.iterator();it.hasNext();)
@@ -133,7 +133,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	 */
 	private static void applyORules(Vector protections, PSResource psRes)
 	{
-		Vector oRules=psRes.getIsOverrindingRule();
+		List oRules=psRes.getIsOverrindingRule();
 		logger.debug("\noverriding rule to apply:"+oRules);
 		if(oRules!=null)
 		{
@@ -165,7 +165,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(java.lang.String)
 	 */
-	public Vector getApplyingPolicies(String identity) 
+	public List getApplyingPolicies(String identity) 
 	{
 		logger.debug(
 				"\nCall getApplyingPolicies(String identity)"+

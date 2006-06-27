@@ -6,11 +6,6 @@ package org.peertrust.modeler.policysystem.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.log4j.Logger;
-
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -19,8 +14,8 @@ public class FileResourceSelector extends SimpleSelector
 {
 	
 	
-	final static private Logger logger= 
-				Logger.getLogger(FileResourceSelector.class);
+//	final static private Logger logger= 
+//				Logger.getLogger(FileResourceSelector.class);
 	
 //	/**
 //	 * A URI representing the resource

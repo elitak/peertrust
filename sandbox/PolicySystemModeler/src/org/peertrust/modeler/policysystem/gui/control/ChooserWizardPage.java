@@ -128,7 +128,7 @@ public class ChooserWizardPage extends WizardPage
 					list= new List(parent,SWT.FILL);
 				}
 				setControl(list);
-				Vector modelObjects;
+				java.util.List modelObjects;
 				if(type.equals(PSPolicy.class))
 				{
 					modelObjects =

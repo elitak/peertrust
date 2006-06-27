@@ -96,7 +96,8 @@ public class ModelObjectArrayViewContentProvider
 		}
 		else if(childrenClass.equals(PSPolicy.class))
 		{
-			return psResource.getIsProtectedBy().toArray();
+			//return psResource.getIsProtectedBy().toArray();
+			return psResource.getHasFilter().toArray();
 		}
 		else
 		{

@@ -140,7 +140,8 @@ public class ResourcePolicyContentProvider
 						true);//new FileResourceSelector(file));
 				System.out.println("pres:"+res);
 				addParentResource(file,res);
-				List dirPolicies=res.getIsProtectedBy();
+				//TODO check effect of not getting ProtectedBy
+				List dirPolicies=null;//res.getIsProtectedBy();
 				List filters = res.getHasFilter();
 				Vector allPolicies= new Vector();
 				
@@ -183,7 +184,8 @@ public class ResourcePolicyContentProvider
 		{
 			try {
 				PSResource res=(PSResource)inputElement;
-				List dirPolicies=res.getIsProtectedBy();
+				//TODO check effect of not getting protectedBy
+				List dirPolicies=null;//res.getIsProtectedBy();
 				List filters = res.getHasFilter();
 				Vector allPolicies= new Vector();
 				

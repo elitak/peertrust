@@ -1,9 +1,9 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
- * Represents a label for a model object
+ * Interface to implement by classes abtracting model object label or name
+ * 
  * @author Patrice Congo
- *
  */
 public interface PSModelLabel extends PSModelPrimitive 
 {

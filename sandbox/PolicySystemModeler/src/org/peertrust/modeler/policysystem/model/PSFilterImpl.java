@@ -3,7 +3,7 @@
  */
 package org.peertrust.modeler.policysystem.model;
 
-import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -12,11 +12,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
-
-
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * An implementation of PSFilter
@@ -69,7 +65,7 @@ public class PSFilterImpl implements PSFilter
 //										this,
 //										PolicySystemRDFModel.PROP_HAS_CONDITION);
 		
-		Vector conds=
+		List conds=
 			psModel.getModelObjectProperties(
 				this,
 				Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION //PolicySystemRDFModel.PROP_HAS_CONDITION
@@ -122,7 +118,7 @@ public class PSFilterImpl implements PSFilter
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getIsprotectedBy()
 	 */
-	public Vector getIsprotectedBy() 
+	public List getIsprotectedBy() 
 	{
 		if(filter==null)
 		{
@@ -171,7 +167,7 @@ public class PSFilterImpl implements PSFilter
 			logger.warn("Filter is null cannot returned label is null");
 			return null;
 		}
-		Vector props=
+		List props=
 			psModel.getModelObjectProperties(
 							this,Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME);
 		if(props==null)
@@ -182,7 +178,7 @@ public class PSFilterImpl implements PSFilter
 		{
 			if(props.size()==1)
 			{
-				String labelValue= (String) props.elementAt(0);
+				String labelValue= (String) props.get(0);
 //					PolicySystemRDFModel.getStringProperty(
 //													filter,
 //													RDFS.label);

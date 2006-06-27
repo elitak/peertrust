@@ -1,13 +1,13 @@
 package org.peertrust.modeler.policysystem.gui.control;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -272,7 +272,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			labelFieldEditor.setStringValue("");
 			valueFieldEditor.setStringValue("");
 		}
-		Vector filterPolicies=psFilter.getIsprotectedBy();
+		List filterPolicies=psFilter.getIsprotectedBy();
 		if(filterPolicyListEditor!=null)
 		{
 			filterPolicyListEditor.clear();
@@ -289,7 +289,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			filterPolicyCombo.setInput(psModel.getPolicies());
 			if(!filterPolicies.isEmpty())
 			{
-				actualPolicy=(PSPolicy)filterPolicies.elementAt(0);
+				actualPolicy=(PSPolicy)filterPolicies.get(0);
 				selectedPolicy=null;
 				//filterPolicyFieldEditor.setStringValue(actualPolicy.getLabel().toString());
 				filterPolicyCombo.setSelection(

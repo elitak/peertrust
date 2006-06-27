@@ -32,12 +32,12 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 		this.psSystem=psSystem;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(org.peertrust.modeler.policysystem.model.abtract.PSResource)
 	 */
-	public Vector getApplyingPolicies(PSResource psResource) 
+	public List getApplyingPolicies(PSResource psResource) 
 	{
-		Vector aps= getInheritedPolicies(psResource);
+		List aps= getInheritedPolicies(psResource);
 		
 		return aps;		
 	}
@@ -45,12 +45,12 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 	/* (non-Javadoc)
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(java.lang.String)
 	 */
-	public Vector getApplyingPolicies(String identity) 
+	public List getApplyingPolicies(String identity) 
 	{
 		return null;
 	}
 	
-	private Vector getInheritedPolicies(PSResource psResource) 
+	private List getInheritedPolicies(PSResource psResource) 
 	{
 		if(psResource==null)
 		{
@@ -58,8 +58,8 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 			return new Vector(); 
 		}
 		
-		Vector policies=new Vector();
-		Vector paths=psSystem.getPathToAncestorRoots(psResource);
+		List policies=new Vector();
+		List paths=psSystem.getPathToAncestorRoots(psResource);
 		logger.info("PATHS:"+paths);
 		for(int i=paths.size()-1;i>=0;i--)
 		{
@@ -68,7 +68,7 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 			policies.addAll(computePathPolicies(path));
 		}
 		
-		Vector localORules=psResource.getIsOverrindingRule();
+		List localORules=psResource.getIsOverrindingRule();
 		logger.info("\n\tlocalOrules:"+localORules);
 		PSOverridingRule oRule;
 		for(Iterator it=localORules.iterator();it.hasNext();)
@@ -79,7 +79,8 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 		return policies;
 	}
 	
-	private final Vector computePathPolicies(Vector path)
+	//TODO remove because replacing getProtectedBy with getHasFilter
+	private final List computePathPolicies(Vector path)
 	{
 		logger.info("getting policies for path:"+path);
 		if(path==null)
@@ -93,15 +94,15 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 			return new Vector();
 		}
 		
-		Vector policies= new Vector();
-		Vector oRules;
+		List policies= new Vector();
+		List oRules;
 		List lPolicies;
 		///add root policies
 //		policies.addAll(
 //				psSystem.getLocalPolicies(
 //						(PSResource)path.get(0)));
 		policies.addAll(
-				((PSResource)path.get(0)).getIsProtectedBy());
+				((PSResource)path.get(0)).getHasFilter()/*getIsProtectedBy()*/);
 		logger.info("Policy at 0:"+policies);
 		///follow path; add polcies and do overriding
 		PSResource curRes;
@@ -117,7 +118,7 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 					(PSOverridingRule)it.next();
 				rule.performOverridding(policies);
 			}
-			lPolicies=curRes.getIsProtectedBy();//getLocalPolicies(curRes);
+			lPolicies=curRes.getHasFilter();//getIsProtectedBy();//getLocalPolicies(curRes);
 			logger.info("Policy at "+i+" for "+curRes+" "+lPolicies);
 			policies.addAll(lPolicies);
 			

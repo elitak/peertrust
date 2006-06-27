@@ -2,13 +2,9 @@ package org.peertrust.modeler.policysystem.gui.providers;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -212,7 +208,7 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         			((String)parentElement).equals(
         				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_OVERRIDDING_RULES))
         	{
-        		Vector oRules=psModel.getOverriddingRules(null);
+        		List oRules=psModel.getOverriddingRules(null);
         		
         		return oRules.toArray();
         	}
@@ -220,7 +216,7 @@ public class PSResourceViewContentProvider implements ITreeContentProvider
         			((String)parentElement).equals(
         				PolicySystemResTreeContentProvider.POLICY_SYSTEM_RES_FILTERS))
         	{
-        		Vector oRules=psModel.getFilters(null);
+        		List oRules=psModel.getFilters(null);
         		
         		return oRules.toArray();
         	}

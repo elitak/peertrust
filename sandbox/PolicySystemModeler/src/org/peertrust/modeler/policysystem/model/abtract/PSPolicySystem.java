@@ -1,8 +1,8 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
+import java.util.List;
 import java.util.Vector;
 
-import com.hp.hpl.jena.ontology.ObjectProperty;
 
 /**
  * This is the interface a policy system must implement.
@@ -17,7 +17,7 @@ public interface PSPolicySystem
 	 * returns the resource in the policy system model
 	 * @return all resource in the policy system model
 	 */
-	public Vector getResources();
+	public List getResources();
 	
 //	/**
 //	 * Returns the Policies define at this Resource
@@ -36,28 +36,28 @@ public interface PSPolicySystem
 	 * @param resource -- the resource which inherited policy is to be returned
 	 * @return the inherited policies for the given resource
 	 */
-	public Vector getInheritedPolicies(PSResource resource);
+	public List getInheritedPolicies(PSResource resource);
 	
 	/**
 	 * Get the  filters defined under the given resource
 	 * @param resource  -- the resource which filter is to be retrieved
 	 * @return the filters for the given resource
 	 */
-	public Vector getFilters(PSResource resource);
+	public List getFilters(PSResource resource);
 	
 	/**
 	 * To get the overriding rules defined for this resource
 	 * @param resource
 	 * @return
 	 */
-	public Vector getOverriddingRules(PSResource resource);
+	public List getOverriddingRules(PSResource resource);
 	
 	/**
 	 * 
 	 * @param modelObjectWrapper
 	 * @return
 	 */
-	public Vector getRoots(Class modelObjectWrapper);
+	public List getRoots(Class modelObjectWrapper);
 	
 	/**
 	 * To get the direct children of the a model object if applyable; 
@@ -67,7 +67,7 @@ public interface PSPolicySystem
 	 * @param parent -- the model object which chids are to be returned
 	 * @return
 	 */
-	public Vector getDirectChildren(PSModelObject parent);
+	public List getDirectChildren(PSModelObject parent);
 	
 	/**
 	 * Get the direct parents of a ps model object if applyable e.g. 
@@ -78,7 +78,7 @@ public interface PSPolicySystem
 	 */
 	public PSModelObject getDirectParent(PSModelObject child);
 	
-	public Vector getPathToAncestorRoots(PSModelObject node);
+	public List getPathToAncestorRoots(PSModelObject node);
 	
 	/**
 	 * creates a resource with the provided label and identity.
@@ -170,18 +170,58 @@ public interface PSPolicySystem
 						PSModelObject psModelObject, 
 						Class linkedObectjType);
 	
+	/**
+	 * Removes a PSModelStatement fro the model
+	 * 
+	 * @param psStm -- the statement to remove
+	 * 
+	 * @return returns null if success a veto object 
+	 */
 	public PSModelChangeVeto removeStatement(PSModelStatement psStm);
+	
+	/**
+	 * Add a statement to the policy system model
+	 * 
+	 * @param stm -- the statement to add 
+	 * 
+	 * @return null if success or a veto object
+	 */
 	public PSModelChangeVeto addStatement(PSModelStatement stm);
 	
+	/**
+	 * Removes a model object from the model
+	 * 
+	 * @param psModelObject -- the model object to remove
+	 * @return null if success or a veto object explaining why removing is not possible
+	 */
 	public PSModelChangeVeto removeModelObject(PSModelObject psModelObject);
 	
-	public Vector getModelObjectProperties(
+	/**
+	 * Gets the property of a model object 
+	 * @param modelObject -- the model object for which the property is being retrive
+	 * @param PropertyKey -- the key of the property
+	 * @return a list containing the properties
+	 */
+	public List getModelObjectProperties(
 							PSModelObject modelObject,
 							String PropertyKey);
-	public PSModelChangeVeto alterModelObjectProperty(
-							PSModelObject modelObject,
-							String propertyKey,
-							Object object);
 	
+	/**
+	 * change a model object property
+	 * @param modelObject -- the model object which property is to be changed
+	 * @param propertyKey -- the key of property to change
+	 * @param object -- the new property
+	 * @return
+	 */
+	public PSModelChangeVeto alterModelObjectProperty(
+									PSModelObject modelObject,
+									String propertyKey,
+									Object object);
+	
+	/**
+	 * Retrieves the identity maker for the specified kind of resources
+	 * @param type -- the class of resources 
+	 * @return the identity make associated with this kind of resources
+	 */
 	public PSResourceIdentityMaker getPSResourceIdentityMaker(Class type);
 }

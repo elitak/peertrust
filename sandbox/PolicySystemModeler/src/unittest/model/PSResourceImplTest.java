@@ -1,14 +1,5 @@
 package unittest.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
-
-import org.eclipse.core.internal.localstore.FileSystemStore;
 
 import junit.framework.TestCase;
 

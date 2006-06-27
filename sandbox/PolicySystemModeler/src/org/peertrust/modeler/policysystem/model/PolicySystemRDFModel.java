@@ -402,7 +402,7 @@ public class PolicySystemRDFModel
 		Statement stm=resource.getProperty(prop);
 		if(stm==null)
 		{
-			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			logger.info("no statement ["+resource+"; "+prop+";?]");
 			return null;
 		}
 		return stm.getString();
@@ -416,7 +416,7 @@ public class PolicySystemRDFModel
 		if(	resource ==null || 
 				prop==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"param resource or prop is null: resource="+resource+
 					"prop="+prop);
 			return null;
@@ -425,7 +425,7 @@ public class PolicySystemRDFModel
 		Statement stm=resource.getProperty(prop);
 		if(stm==null)
 		{
-			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			logger.info("no statement ["+resource+"; "+prop+";?]");
 			return null;
 		}
 		Resource res=(Resource)stm.getObject();
@@ -438,7 +438,7 @@ public class PolicySystemRDFModel
 		if(	resource ==null || 
 			prop==null)
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"params must not be null: res="+resource+
 					" prop:"+prop);
 			return null;
@@ -447,7 +447,7 @@ public class PolicySystemRDFModel
 		Statement stm=resource.getProperty(prop);
 		if(stm==null)
 		{
-			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			logger.info("no statement ["+resource+"; "+prop+";?]");
 			return null;
 		}
 		
@@ -461,7 +461,7 @@ public class PolicySystemRDFModel
 	{
 		if(resource ==null || prop==null )
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"params must not be null: res="+resource+
 					" prop:"+prop+ " objValue="+objValue);
 			return;
@@ -470,7 +470,7 @@ public class PolicySystemRDFModel
 		Statement stm=resource.getProperty(prop);
 		if(stm==null)
 		{
-			getInstance().logger.info("no statement ["+resource+"; "+prop+";?]");
+			logger.info("no statement ["+resource+"; "+prop+";?]");
 			return;
 		}
 		stm.changeObject(objValue);
@@ -513,7 +513,7 @@ public class PolicySystemRDFModel
 		{
 		if(resource ==null || prop==null )
 		{
-			getInstance().logger.warn(
+			logger.warn(
 					"params must not be null: res="+resource+
 					" prop:"+prop);
 			return ;
@@ -671,15 +671,15 @@ public class PolicySystemRDFModel
 			return new Vector();//new PSPolicy[]{};
 		}
 	
-		Selector polSel=
-			new SimpleSelector(
-			null,
-			RDF.type,//PROP_IS_PROTECTED_BY,
-			CLASS_POLICY);
+//		Selector polSel=
+//			new SimpleSelector(
+//			null,
+//			RDF.type,//PROP_IS_PROTECTED_BY,
+//			CLASS_POLICY);
 		//StmtIterator it=rdfModel.listStatements(polSel);
 		ResIterator it=rdfModel.listSubjectsWithProperty(RDF.type,CLASS_POLICY);
 		Vector policies=new Vector();
-		Statement stm;
+		//Statement stm;
 		while(it.hasNext())
 		{
 			//stm=it.nextStatement();
@@ -839,7 +839,7 @@ public class PolicySystemRDFModel
 	{
 		if(res==null || cls==null || policySystemRDFModel==null)
 		{
-			getInstance().logger.warn("A param is null:res="+res+" cls="+cls);
+			logger.warn("A param is null:res="+res+" cls="+cls);
 			return false;
 		}
 		return rdfModel.contains(res,RDF.type,cls);
@@ -1082,7 +1082,7 @@ public class PolicySystemRDFModel
 		} 
 		catch (IOException e) 
 		{
-			getInstance().logger.error("Error while creating the model",e);
+			logger.error("Error while creating the model",e);
 		}
 	}
 ////////////////////////////////////////////////////////////////////////////////
@@ -1230,7 +1230,7 @@ public class PolicySystemRDFModel
 		
 	}
 
-	public Vector getDirectChildren(PSModelObject parent) 
+	public List getDirectChildren(PSModelObject parent) 
 	{
 		if(parent ==null)
 		{
@@ -1280,7 +1280,7 @@ public class PolicySystemRDFModel
 			SimpleSelector sel=
 				new SimpleSelector(res,PROP_HAS_SUPER,(Resource)null);
 			StmtIterator it=rdfModel.listStatements(sel);
-			Vector p=new Vector();
+			//Vector p=new Vector();
 			PSModelObject mow;
 			if(it.hasNext())//while(it.hasNext())
 			{
@@ -1301,7 +1301,7 @@ public class PolicySystemRDFModel
 
 	}
 
-	public Vector getFilters(PSResource resource) 
+	public List getFilters(PSResource resource) 
 	{
 		Resource res;
 		if(resource==null)
@@ -1344,7 +1344,7 @@ public class PolicySystemRDFModel
 		return f;		
 	}
 
-	public Vector getPathToAncestorRoots(PSModelObject node)
+	public List getPathToAncestorRoots(PSModelObject node)
 	{
 		PSModelObject curParent;
 		Vector completedPath=new Vector();
@@ -1358,18 +1358,18 @@ public class PolicySystemRDFModel
 		return completedPath;
 	}
 	
-	public Vector getInheritedPolicies(PSResource psResource) 
+	public List getInheritedPolicies(PSResource psResource) 
 	{
 		return apResolver.getApplyingPolicies(psResource);
 	}
 
 
-	public Vector getOverriddingRules(PSResource resource) 
+	public List getOverriddingRules(PSResource resource) 
 	{
 		return getOverriddingRule(resource);
 	}
 
-	public Vector getRoots(Class modelObjectWrapperClass) 
+	public List getRoots(Class modelObjectWrapperClass) 
 	{
 		if(modelObjectWrapperClass==null)
 		{
@@ -1403,7 +1403,7 @@ public class PolicySystemRDFModel
 			return new Vector();
 		}
 	}
-	public Vector getResources()
+	public List getResources()
 	{
 		ResIterator it=
 			rdfModel.listSubjectsWithProperty(RDF.type,CLASS_RESOURCE);
@@ -1465,57 +1465,57 @@ public class PolicySystemRDFModel
 		
 		public void addedStatement(Statement arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void addedStatements(List arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void addedStatements(Model arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void addedStatements(Statement[] arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void addedStatements(StmtIterator arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void notifyEvent(Model arg0, Object arg1) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void removedStatement(Statement arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void removedStatements(List arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void removedStatements(Model arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void removedStatements(Statement[] arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 
 		public void removedStatements(StmtIterator arg0) 
 		{
-			firePSModelChangeEvent(null);
+			psModel.firePSModelChangeEvent(null);
 		}
 		
 	}
@@ -1905,7 +1905,7 @@ public class PolicySystemRDFModel
 									String psProp, 
 									Object psObject)
 	{
-		Statement stm= null;
+//		Statement stm= null;
 		Resource subject= (Resource)psResource.getModelObject();
 		//Resource object = (Resource)psObject.getModelObject();
 		
@@ -2260,7 +2260,7 @@ public class PolicySystemRDFModel
 		return null;
 	}
 
-	public Vector getModelObjectProperties(
+	public List getModelObjectProperties(
 						PSModelObject modelObject, 
 						String propertyKey) 
 	{

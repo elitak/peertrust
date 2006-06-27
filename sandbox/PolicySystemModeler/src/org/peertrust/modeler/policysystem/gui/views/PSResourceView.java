@@ -239,7 +239,10 @@ public class PSResourceView extends ViewPart
 									treeView.getControl().getShell());
 						if(pol!=null)
 						{
-							psRes.addIsProtectedBy(pol);
+							//psRes.addIsProtectedBy(pol);
+							//TODO check remove addIsPortedBy
+							throw new RuntimeException(
+									"\nDoes not add policy directely anymore");
 						}
 					}
 					else

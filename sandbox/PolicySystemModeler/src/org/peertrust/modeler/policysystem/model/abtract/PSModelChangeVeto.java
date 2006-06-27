@@ -12,6 +12,30 @@ package org.peertrust.modeler.policysystem.model.abtract;
 public interface PSModelChangeVeto 
 {
 	/**
+	 * A flag veto that means there was no vetoing
+	 */
+	public static final PSModelChangeVeto NO_VETO=
+		new PSModelChangeVeto()
+		{
+
+			public PSModelStatement[] getVetoingStatements() {
+				return new PSModelStatement[0];
+			}
+
+			public void addPSModelStatement(PSModelStatement statement) {
+				//empty
+			}
+
+			public void removePSModelStatement(PSModelStatement statement) {
+				//empty
+			}
+
+			public void clear() {
+				//empty				
+			}
+		
+		};
+	/**
 	 * Returns the statement which veto the modification of the
 	 * model.
 	 * 

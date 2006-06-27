@@ -18,10 +18,11 @@ import org.peertrust.modeler.policysystem.model.abtract.PSResource;
  */
 public class PSModelElementIDGeneratorImpl implements PSModelElementIDGenerator {
 
-	private Hashtable prefixes;
 	/**
-	 * 
+	 * Map of prefixes 
 	 */
+	private Hashtable prefixes;
+	
 	public PSModelElementIDGeneratorImpl() 
 	{
 		super();

@@ -3,13 +3,14 @@
  */
 package org.peertrust.modeler.policysystem.model;
 
-import java.util.Vector;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelChangeVeto;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 
 /**
- * Implements the PSModelChangeVeto interface
+ * Default implemention of the <code>PSModelChangeVeto</code> interface
+ * 
  * @author Patrice Congo
  *
  */
@@ -18,7 +19,7 @@ public class PSModelChangeVetoImpl implements PSModelChangeVeto
 	/**
 	 * The vector holding the vetoing statements
 	 */
-	Vector vetoingObject;
+	List vetoingObject;
 	
 	/**
 	 *To create an empty model change veto   
@@ -26,7 +27,7 @@ public class PSModelChangeVetoImpl implements PSModelChangeVeto
 	public PSModelChangeVetoImpl() 
 	{
 		super();
-		vetoingObject=new Vector();
+		vetoingObject=new ArrayList();
 	}
 
 	/**
