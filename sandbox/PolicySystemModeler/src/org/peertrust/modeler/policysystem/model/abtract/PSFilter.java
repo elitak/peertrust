@@ -1,6 +1,5 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
-import java.util.List;
 
 
 /**
@@ -45,10 +44,22 @@ public interface PSFilter extends PSModelObject
 	 */
 	public void removeAllConditions();
 	
-	//TODO change filter kann only have only policy now
-	public List getIsprotectedBy();
+	/**
+	 * Return the policy which protect this filter
+	 * @return the PSPolicy protection this flter
+	 */
+	public PSPolicy getIsProtectedBy();
 	
-	public void addIsProtectedBy(PSPolicy policy) ;
+	/**
+	 * Sets the protecting policy for this filter
+	 * @param policy -- the new protecting policy for this filter
+	 */
+	public void setIsProtectedBy(PSPolicy policy) ;
 	
+	/**
+	 * Remove the given protected filter provided it is attached to this filter
+	 * 
+	 * @param policy -- the policy to remove for this filter
+	 */
 	public void removeIsProtectedBy(PSPolicy policy);
 }

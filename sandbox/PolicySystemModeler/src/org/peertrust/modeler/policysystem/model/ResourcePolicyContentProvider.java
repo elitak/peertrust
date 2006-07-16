@@ -160,7 +160,8 @@ public class ResourcePolicyContentProvider
 						{
 							filter=(PSFilter)it.next();
 							
-							allPolicies.addAll(filter.getIsprotectedBy());
+							//allPolicies.addAll(filter.getIsprotectedBy());
+							allPolicies.add(filter.getIsProtectedBy());
 						}
 				}
 				if(allPolicies.size()>0)
@@ -185,9 +186,9 @@ public class ResourcePolicyContentProvider
 			try {
 				PSResource res=(PSResource)inputElement;
 				//TODO check effect of not getting protectedBy
-				List dirPolicies=null;//res.getIsProtectedBy();
-				List filters = res.getHasFilter();
-				Vector allPolicies= new Vector();
+				List<PSPolicy> dirPolicies=null;//res.getIsProtectedBy();
+				List<PSFilter> filters = res.getHasFilter();
+				List<PSPolicy> allPolicies= new Vector();
 				
 				
 				if(dirPolicies!=null)
@@ -197,14 +198,14 @@ public class ResourcePolicyContentProvider
 				
 				if(filters!=null)
 				{
-						Iterator it=filters.iterator();
-						PSFilter filter;
+						Iterator<PSFilter> it=filters.iterator();
+						//PSFilter filter;
 					
 						for(;it.hasNext();)
 						{
-							filter=(PSFilter)it.next();
-							
-							allPolicies.addAll(filter.getIsprotectedBy());
+							//filter=it.next();
+							//allPolicies.addAll(filter.getIsprotectedBy());
+							allPolicies.add(it.next().getIsProtectedBy());
 						}
 				}
 				if(allPolicies.size()>0)

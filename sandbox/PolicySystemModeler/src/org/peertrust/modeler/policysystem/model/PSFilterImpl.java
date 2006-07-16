@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.dnd.FileTransfer;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
@@ -116,19 +117,48 @@ public class PSFilterImpl implements PSFilter
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getIsprotectedBy()
+	 * @see org.peertrust.modeler.policysystem.model.PSFilter#getIsProtectedBy()
 	 */
-	public List getIsprotectedBy() 
+	public PSPolicy getIsProtectedBy() 
 	{
 		if(filter==null)
 		{
-			logger.warn("filter is null returning empty vector");
-			return new Vector();
+			logger.debug("filter is null returning empty vector");
+			return null;//new Vector();
 		}
-		
-		return psModel.getModelObjectProperties(
+		//a filter is now supposed to habe at most one protecting policy 
+		List filterPolicies=
+			psModel.getModelObjectProperties(
 				this,
 				Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY);
+		if(filterPolicies==null)
+		{
+			return null;
+		}
+		else
+		{
+			int size=filterPolicies.size();
+			if(size==1)
+			{
+				return (PSPolicy)filterPolicies.get(0);
+			}
+			else if(size==0)
+			{
+				return null;
+			}
+			else// if(filterPolicies.size()>1)
+			{
+					logger.error(
+							"\nFilter  must not contain more than one protecting policy policy"+
+							"\n\tsize="+size+
+							"\n\tfilterPolicies="+filterPolicies);
+					return (PSPolicy)filterPolicies.get(0);
+			}
+				
+			
+		}
+
+		
 //		return 
 //			PolicySystemRDFModel.getInstance().getMultipleProperty(
 //						this,//filter,
@@ -136,9 +166,9 @@ public class PSFilterImpl implements PSFilter
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#addIsProtectedBy(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSFilter#setIsProtectedBy(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
 	 */
-	public void addIsProtectedBy(PSPolicy policy) 
+	public void setIsProtectedBy(PSPolicy policy) 
 	{
 		if(filter==null)
 		{

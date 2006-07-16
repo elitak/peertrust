@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -135,6 +136,13 @@ public class PolicySystemRDFModel
 	static Property PROP_IS_VIRTUAL=null;
 	public static final String LNAME_PROP_IS_VIRTUAL="isVirtual";
 	
+	/**
+	 * A resource property which specifies the root
+	 */
+	static Property PROP_HAS_ROOT=null;
+	public static final String LNAME_PROP_HAS_ROOT="hasRoot";
+	
+	
 	private static final PolicySystemRDFModel 
 			policySystemRDFModel= new PolicySystemRDFModel();
 	
@@ -153,6 +161,7 @@ public class PolicySystemRDFModel
 	private PSModelElementIDGenerator idGenerator;
 	private PSApplyingPolicyResolver apResolver;
 	
+	private final Map propMap;
 	private PolicySystemRDFModel()
 	{
 		super();
@@ -172,6 +181,12 @@ public class PolicySystemRDFModel
 		
 		//applying policy resolver
 		this.apResolver= new PSFilterBasedAPR(this);
+		
+		
+		
+		//property map
+		propMap= new Hashtable();
+		//makePropertyLookupTable(propMap);
 	}
 	
 	
@@ -212,6 +227,7 @@ public class PolicySystemRDFModel
 		schema.write(System.out);
 		createPropertyTypes();
 		createResourceTypes();
+		makePropertyLookupTable(propMap);
 		
 	}
 	synchronized public void createPropertyTypes()
@@ -242,8 +258,10 @@ public class PolicySystemRDFModel
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_CAN_HAVE_CHILD);
 		PROP_IS_VIRTUAL=
 			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_IS_VIRTUAL);
+		PROP_HAS_ROOT=
+			schema.getProperty(NS_KB_SCHEMA,LNAME_PROP_HAS_ROOT);
 		
-		if(	PROP_HAS_CONDITION==null ||
+		if(		PROP_HAS_CONDITION==null ||
 				PROP_HAS_FILTER==null ||	
 				PROP_HAS_IDENTITY==null ||
 				PROP_HAS_MAPPING==null ||
@@ -253,7 +271,9 @@ public class PolicySystemRDFModel
 				PROP_HAS_OVERRIDDER==null ||
 				PROP_HAS_SUPER==null ||
 				PROP_HAS_VALUE==null ||
-				PROP_CAN_HAVE_CHILD==null )
+				PROP_CAN_HAVE_CHILD==null ||
+				PROP_HAS_ROOT==null||
+				PROP_IS_PROTECTED_BY==null)
 		{
 			RuntimeException ex = 
 				new RuntimeException("model error all prop must be non null");
@@ -281,6 +301,45 @@ public class PolicySystemRDFModel
 		return;
 	}
 	
+	private void makePropertyLookupTable(Map propMap)
+	{
+		if(propMap==null)
+		{
+			throw new IllegalArgumentException(
+					"Argument propMap must not be null");
+		}
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY,
+				PROP_IS_PROTECTED_BY);
+		
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION,
+				PROP_HAS_CONDITION);
+		
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER,
+				PROP_HAS_FILTER);
+		
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME,
+				PROP_HAS_NAME);
+		
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN,
+				PROP_HAS_OVERRIDDEN);
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER,
+				PROP_HAS_OVERRIDDER);
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE,
+				PROP_HAS_OVERRIDING_RULES);
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER,
+				PROP_HAS_SUPER);
+		propMap.put(
+				Vocabulary.PS_MODEL_PROP_NAME_HAS_ROOT,
+				PROP_HAS_ROOT);
+	}
 	
 	
 	public Model getRdfModel() {
@@ -2304,48 +2363,58 @@ public class PolicySystemRDFModel
 	 */
 	private Property lookupModelProperty(String propKey)
 	{
-		//TODO use a hastable initialized at constructor
-		if(propKey==null)
+		Property prop=null;
+		if(propKey!=null)
 		{
-			return null;
+			prop=(Property)propMap.get(propKey);
 		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY))
-		{
-			return PROP_IS_PROTECTED_BY;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION))
-		{
-			return PROP_HAS_CONDITION;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER))
-		{
-			return PROP_HAS_FILTER;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME))
-		{
-			return PROP_HAS_NAME;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN))
-		{
-			return PROP_HAS_OVERRIDDEN;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER))
-		{
-			return PROP_HAS_OVERRIDDER;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE))
-		{
-			return PROP_HAS_OVERRIDING_RULES;
-		}
-		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER))
-		{
-			return PROP_HAS_SUPER;
-		}
-		else
-		{
-			logger.warn("unknown property");
-			return null;
-		}
+		logger.debug(
+				"\nlookupModelProperty(String propKey)"+
+				"\n\tpropKey="+propKey+
+				"\n\treturne property="+prop);
+		return prop;
+
+//		if(propKey==null)
+//		{
+//			return null;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_IS_PROTECTED_BY))
+//		{
+//			return PROP_IS_PROTECTED_BY;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION))
+//		{
+//			return PROP_HAS_CONDITION;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_FILTER))
+//		{
+//			return PROP_HAS_FILTER;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_NAME))
+//		{
+//			return PROP_HAS_NAME;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDEN))
+//		{
+//			return PROP_HAS_OVERRIDDEN;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDDER))
+//		{
+//			return PROP_HAS_OVERRIDDER;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_OVERRIDING_RULE))
+//		{
+//			return PROP_HAS_OVERRIDING_RULES;
+//		}
+//		else if(propKey.equals(Vocabulary.PS_MODEL_PROP_NAME_HAS_SUPER))
+//		{
+//			return PROP_HAS_SUPER;
+//		}
+//		else
+//		{
+//			logger.warn("unknown property");
+//			return null;
+//		}
 	}
 
 	public PSModelChangeVeto alterFilterProperty(

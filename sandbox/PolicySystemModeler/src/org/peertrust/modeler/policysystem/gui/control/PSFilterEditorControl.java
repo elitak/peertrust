@@ -272,24 +272,29 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 			labelFieldEditor.setStringValue("");
 			valueFieldEditor.setStringValue("");
 		}
-		List filterPolicies=psFilter.getIsprotectedBy();
+		//List filterPolicies=psFilter.getIsprotectedBy();
+		PSPolicy filterPolicy=psFilter.getIsProtectedBy();
 		if(filterPolicyListEditor!=null)
 		{
 			filterPolicyListEditor.clear();
-			final int MAX=filterPolicies.size();
-			if(MAX>0)
+//			final int MAX=filterPolicies.size();
+//			if(MAX>0)
+//			{
+//				PSModelObject modelObjects[]= new PSModelObject[MAX];
+//				filterPolicies.toArray(modelObjects);
+//				filterPolicyListEditor.addList(modelObjects);
+//			}
+			if(filterPolicy!=null)
 			{
-				PSModelObject modelObjects[]= new PSModelObject[MAX];
-				filterPolicies.toArray(modelObjects);
-				filterPolicyListEditor.addList(modelObjects);
+				filterPolicyListEditor.addList(new PSModelObject[]{filterPolicy});
 			}
 		}
 		else if(filterPolicyCombo!=null)
 		{
 			filterPolicyCombo.setInput(psModel.getPolicies());
-			if(!filterPolicies.isEmpty())
+			if(filterPolicy!=null/*!filterPolicies.isEmpty()*/)
 			{
-				actualPolicy=(PSPolicy)filterPolicies.get(0);
+				actualPolicy=filterPolicy;//(PSPolicy)filterPolicies.get(0);
 				selectedPolicy=null;
 				//filterPolicyFieldEditor.setStringValue(actualPolicy.getLabel().toString());
 				filterPolicyCombo.setSelection(
@@ -383,7 +388,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 				logger.info("\n\nFilter Policies:"+policies);
 				for(Iterator it=policies.iterator();it.hasNext();)
 				{
-					psFilter.addIsProtectedBy((PSPolicy)it.next());
+					psFilter.setIsProtectedBy((PSPolicy)it.next());
 				}
 			}
 			else if(filterPolicyCombo!=null)
@@ -396,7 +401,7 @@ public class PSFilterEditorControl implements PSModelObjectEditControl {
 					if(actualPolicy!=selectedPolicy)
 					{
 						psFilter.removeIsProtectedBy(actualPolicy);
-						psFilter.addIsProtectedBy(selectedPolicy);
+						psFilter.setIsProtectedBy(selectedPolicy);
 						actualPolicy=selectedPolicy;
 						selectedPolicy=null;
 					}

@@ -10,24 +10,65 @@
 	 xmlns:a="&a;"
 	 xmlns:rdfs="&rdfs;">
 
+<!--
+	Defines a filter a policy system context.
+	A filter adds the concept of condition to the application
+	of policies to a resource children 
+-->
 <rdfs:Class rdf:about="&rdf_s;Filter"
 	 rdfs:label="Filter">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
 
+<!--
+	Defines an overriding rule in the policy system context.
+	An overriding rule specifies the overring scheme for policies, 
+	which are inherited 
+-->
 <rdfs:Class rdf:about="&rdf_s;OverridingRule"
 	 rdfs:label="OverridingRule">
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
 
-<rdfs:Class rdf:about="&rdf_s;Policy"
-	 rdfs:label="Policy">
+
+<!--
+	Defines a policy in the policy system context.
+	a policy has a name which must be unique in a policy system
+	and a value. 
+-->
+<rdfs:Class 
+	rdf:about="&rdf_s;Policy"
+	rdfs:label="Policy">
+	<rdfs:comment>Defines a policy in a policy system context</rdfs:comment>
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdfs:Class>
-<rdf_s:Class rdf:about="&rdf_s;Resource"
+
+<!--
+	Define a resource.
+	In a policy system a OverridingRules and Filters.
+	These concepts gouvern the way policy are attached to resource
+	and are inherited.
+	i) 	if 	res1 hasFilter filetr1
+			and filter1 hasCondition *res12
+			and filter1 isProtectedBy pol1
+			res12 hasParent res1 
+			res.pdf hasParent res1
+		then 	 
+			pol1 "protects" res1
+			pol1 "protecst2 res12 throw inheritance and successfull condition evaluation
+			pol1 "does not protect" res.pdf since the condition does not apply
+	A resource is identify in the context a the policy system by a root and and identity, which is 
+	a relative path to the root.		
+			
+-->
+
+<rdf_s:Class 
+	rdf:about="&rdf_s;Resource"
 	 rdfs:label="Resource">
+	<rdfs:comment>defines a resouce in the policy system context</rdfs:comment>
 	<rdfs:subClassOf rdf:resource="&rdfs;Resource"/>
 </rdf_s:Class>
+
 
 <rdf_s:Class rdf:about="&rdf_s;Root"
          rdfs:label="Root">
@@ -35,56 +76,155 @@
 </rdf_s:Class>
 
 
+<!--
+	To define a condifion for a filter
+	if 
+		filter1 hasCondition *.pdf
+		filter1 isProtectedby pol1
+	then 
+		protection is only apply if condition is evaluated
+		to true; i.e. in this case the file name ends with
+		".pdf"
+-->
+
 <rdf:Property rdf:about="&rdf_s;hasCondition"
 	 rdfs:label="hasCondition">
+	<rdfs:comment>Define a condition for a filter</rdfs:comment>
 	<rdfs:domain rdf:resource="&rdf_s;Filter"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
-<rdf:Property rdf:about="&rdf_s;hasFilter"
-	 rdfs:label="hasFilter">
+
+<!--
+	To associated a filter to a resource
+	if 
+		res1 hasFilter filter1
+		filter1 hasCondition *.pdf
+		filter1 isProtectedBy pol1
+	then policies child resources matching *.pdf will be protected by pol1 
+-->
+<rdf:Property 
+	rdf:about="&rdf_s;hasFilter"
+	rdfs:label="hasFilter">
+	<rdfs:comment>Associates a filter to a resource</rdfs:comment>
 	<rdfs:range rdf:resource="&rdf_s;Filter"/>
 	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
 </rdf:Property>
 
-<rdf:Property rdf:about="&rdf_s;canHaveChild"
-	 rdfs:label="canHaveChild">
+<!--
+	Tags a resource as beeing able to have children.
+	A folder resource can have a children, but a "file" cannot
+	
+-->
+<rdf:Property 
+	rdf:about="&rdf_s;canHaveChild"
+	rdfs:label="canHaveChild">
+	<rdfs:comment>Tags a resource as beeing able to have child resources</rdfs:comment>
 	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
 
-<rdf:Property rdf:about="&rdf_s;isVirtual"
-         rdfs:label="isVirtual">
+<!--
+	A predicate to state that a resource is virtual and does not
+	exists the file system. 
+	This may be need in the contex of resources that are created
+	at runtime on demand using e.g. jsp 
+-->
+<rdf:Property 
+	rdf:about="&rdf_s;isVirtual"
+        rdfs:label="isVirtual">
+	<rdfs:comment>Tags a resource as virtual</rdfs:comment>
         <rdfs:domain rdf:resource="&rdf_s;Resource"/>
         <rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
 
+<!--
+        hasOverridden defines the policy playing the overridden role
+        in an OverridingrulOverridingrule
+        The 3 statements
+                oRule1 hasOverrider pol1
+                oRule1 hasOverrider pol2
+                Res1 hasOverridingRule oRule1
+        mean the child resources of Res1 when inheriting pol2 will replace
+        it with pol1
+
+-->
 <rdf:Property rdf:about="&rdf_s;hasOverridden"
 	 rdfs:label="hasOverridden">
 	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
 	<rdfs:range rdf:resource="&rdf_s;Policy"/>
 </rdf:Property>
+
+<!--
+	hasOverrider defines the policy playing the overrider role
+	in an overriding rule.
+	The 3 statements 
+		oRule1 hasOverrider pol1
+		oRule1 hasOverrider pol2
+		Res1 hasOverridingRule oRule1	
+	mean the child resources of Res1 when inheriting pol2 will replace
+	it with pol1 
+	 
+-->
 <rdf:Property rdf:about="&rdf_s;hasOverrider"
 	 rdfs:label="hasOverrider">
 	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
 	<rdfs:range rdf:resource="&rdf_s;Policy"/>
 </rdf:Property>
+
+<!--
+	A predicate to attached a overridingrule at a resource.
+	A resource may habe several overriding rules attached.
+-->
 <rdf:Property rdf:about="&rdf_s;hasOverridingRule"
 	 rdfs:label="hasOverridingRule">
+	<rdfs:comment>Attached an OverridingRule at a resource</rdfs:comment>
 	<rdfs:range rdf:resource="&rdf_s;OverridingRule"/>
 	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
 </rdf:Property>
-<rdf:Property rdf:about="&rdf_s;hasValue"
-	 rdfs:label="hasValue">
+
+<!--
+	Praticate to define the root for a  resource
+	A resource will can be identify in a context of a policy system
+	by its root and its identity
+-->
+<rdf:Property 
+	rdf:about="&rdf_s;hasRoot"
+	rdfs:label="hasRoot">
+	<rdfs:comment>defines a root for a resource</rdfs:comment>
+	<rdfs:range rdf:resource="&rdf_s;Resource"/>
+	<rdfs:domain rdf:resource="&rdf_s;Root"/>
+</rdf:Property>
+
+<!--
+	Predicate to define the value of a policy.
+-->
+<rdf:Property 
+	rdf:about="&rdf_s;hasValue"
+	rdfs:label="hasValue">
+	<rdfs:comment>To define the value for a policy<rdfs:comment>
+	<rdfs:comment></rdfs:comment>
 	<rdfs:domain rdf:resource="&rdf_s;Policy"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
-<rdf:Property rdf:about="&rdf_s;isInheritable"
+
+<rdf:Property 
+	rdf:about="&rdf_s;isInheritable"
 	 rdfs:label="isInheritable">
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
 
-<rdf:Property rdf:about="&rdf_s;isProtectedBy"
-	 rdfs:label="isProtectedBy">
+<!--
+	This property links a policy to a resource.
+	"filter1 isProtectedby policy1" means that resource to which which filter1 
+	is attached will be protected by policy1 if the filter condition is evaluated
+	to true.
+	Filter must have at most 1 policy
+-->
+
+<rdf:Property 
+	rdf:about="&rdf_s;isProtectedBy"
+	rdfs:label="isProtectedBy">
+	<rdfs:comment>Defines a policy contributing to a filter</rdfs:comment>
 	<rdfs:domain rdf:resource="&rdf_s;Filter"/>
 	<rdfs:range rdf:resource="&rdf_s;Policy"/>
 	<rdfs:domain rdf:resource="&rdf_s;Resource"/>
@@ -98,8 +238,11 @@
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>
 
-<rdf:Property rdf:about="&rdf_s;identity"
-	 rdfs:label="Identity">
+
+<rdf:Property 
+	rdf:about="&rdf_s;identity"
+	rdfs:label="Identity">
+	<rdfs:comment>The relative uri referred to a root of a resource </rdfs:comment>
 	<rdfs:domain rdf:resource="&rdf_s;OverridingRule"/>
 	<rdfs:range rdf:resource="&rdfs;Literal"/>
 </rdf:Property>

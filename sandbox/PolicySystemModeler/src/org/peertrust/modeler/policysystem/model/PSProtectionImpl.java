@@ -142,26 +142,21 @@ public class PSProtectionImpl implements PSProtection
 			//Vector condValues=filter.getCondition();
 			//make full path condition
 			String conditions= identity+filter.getCondition();
-					
-			List policies=filter.getIsprotectedBy();
-			if(policies!=null)
-			{
-				PSPolicy curPol;
-				//String curCond;
-				for(Iterator itPol=policies.iterator();itPol.hasNext();)
-				{
-					curPol=(PSPolicy)itPol.next();
-					protections.add(
-							new PSProtectionImpl(curPol,conditions));
-//					
-//					for(Iterator itCond=conditions.iterator();itCond.hasNext();)
-//					{
-//						curCond=(String)itCond.next();
-//						protections.add(
-//								new PSProtectionImpl(curPol,curCond));
-//					}
-				}
-			}
+			PSPolicy filterPolicy=filter.getIsProtectedBy();
+			protections.add(
+					new PSProtectionImpl(filterPolicy,conditions));
+//			List policies=filter.getIsprotectedBy();
+//			if(policies!=null)
+//			{
+//				PSPolicy curPol;
+//				//String curCond;
+//				for(Iterator itPol=policies.iterator();itPol.hasNext();)
+//				{
+//					curPol=(PSPolicy)itPol.next();
+//					protections.add(
+//							new PSProtectionImpl(curPol,conditions));
+//				}
+//			}
 			
 		}		
 		return protections;

@@ -57,15 +57,17 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 		}
 		
 		List path=psModel.getPathToAncestorRoots(psResource);//psModel.getDirectParent(psResource);
-		PSResource curRes;
+		PSResource curRes=null;
 		
 		for(Iterator it=path.iterator();it.hasNext();)
 		{
+			
 			curRes=(PSResource)it.next();
+			applyConditions(protections,curRes);
 //			/override
 			applyORules(protections,curRes);
 			protections.addAll(PSProtectionImpl.makeProtections(curRes));
-			applyConditions(protections,curRes);
+//			applyConditions(protections,curRes);
 		}
 		logger.info(
 				"\nApplying policies"+
@@ -92,12 +94,12 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 			return;
 		}
 		
-		if(resource.canHaveChild())
-		{//do not filter for directories
-			//TODO ask for it: applying to the folders
-			//TODO ask for regular expression \. .* and so on
-			return;
-		}
+//		if(resource.canHaveChild())
+//		{//do not filter for directories
+//			//TODO ask for it: applying to the folders
+//			//TODO ask for regular expression \. .* and so on
+//			return;
+//		}
 		
 		List toRemove= new ArrayList();
 		PSProtection protection;
@@ -123,6 +125,12 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 		}
 		
 		protections.removeAll(toRemove);
+		//prevent further filtering 
+		for(Iterator it=protections.iterator();it.hasNext();)
+		{
+			protection=(PSProtection)it.next();
+			protection.setCondition("*");
+		}
 	}
 	
 	/**

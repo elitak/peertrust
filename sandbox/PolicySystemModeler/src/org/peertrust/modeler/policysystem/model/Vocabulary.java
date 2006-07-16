@@ -22,5 +22,6 @@ public class Vocabulary
 	
 	public static final String PS_MODEL_PROP_NAME_HAS_SUPER=
 													"HAS_SUPER";
+	public static final String PS_MODEL_PROP_NAME_HAS_ROOT="hasRoot";
 
 }
