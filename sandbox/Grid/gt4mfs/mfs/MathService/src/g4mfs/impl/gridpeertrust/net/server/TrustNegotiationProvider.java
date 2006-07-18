@@ -37,6 +37,7 @@ import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.MessageContext;
 
 
+import org.apache.log4j.Logger;
 import org.globus.gsi.jaas.GlobusPrincipal;
 import org.globus.gsi.jaas.JaasSubject;
 import org.globus.wsrf.Constants;
@@ -55,7 +56,7 @@ import org.ietf.jgss.GSSException;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- * Provides the functionality of Trust Negotiation if a provider for a service
+ * Provider for the trust negotiation. Implements the operations in TustNegotiation.wsdl
  * 
  */
 
@@ -63,66 +64,72 @@ public class TrustNegotiationProvider
 {
 	
 	Hashtable ht; 
-	  
-	private static final String LOG_CONFIG_FILE = "/home/ionut/PeertrustFiles/demoClient/.logconfig" ;
+	SyncQueue syncQueue = new SyncQueue(); // the messages received from the client are put in this queue. The message is poped out 
+											// from the queue in GridNetServer and returned by the listen method
+	private SendHelper sendHelper = new SendHelper(); // used to store the SendWrappers needed to communicate with peers over the Grid
 	
-	SyncQueue syncQueue = new SyncQueue();
-	// the messages received from the client are put in this queue. The message is poped out 
-	// from the queue in GridNetServer and returned by the listen method
-	private SendHelper sendHelper = new SendHelper();
-	
-	
-
 	InitializeNegotiationEngine initializeNegotiationEngine;  //for initializing the negotiation engine
 	ClientManager clientManager;
+	private static Logger logger = Logger.getLogger(TrustNegotiationProvider.class.getName());
+	private String serviceURI = "https://127.0.0.1:8443/wsrf/services/ionut/services/MathService"; // the TrustNegotiationProvider should be initialized with the serviceURI
+																									// to which its functionality is plugged in our case MathService						
+	
+	private String serviceNamespace = MathQNames.NS; // the TrustNegotiationProvider should be initialized with the serviceNamespace
+													// to which its functionality is plugged in our case MathQNames.NS
 	
 	
 	public TrustNegotiationProvider()
 	{
 		ht = new Hashtable();
-		System.out.println("\n\n********am fost apelat constructor TNP******\n\n");	
+		logger.info("TrustNegotiationProvider initialized");	
 		init();
 	}
 
 	
-	// init the whole Trust Negotiation Engine
+	// init the Peertrust Engine
 	public void init()
 	{
 		 initializeNegotiationEngine = new InitializeNegotiationEngine(
-				"hpclinuxcluster","/home/globus/PeertrustFiles/demoServer/entities.dat2",syncQueue,sendHelper,"demo",
-				"/home/globus/PeertrustFiles/demoServer/","demoPolicies.eLearn1","minervagui.mca",false,false);
+				"hpclinuxcluster","PeertrustFiles/demoServer/entities.dat2",syncQueue,sendHelper,"demo",
+				"PeertrustFiles/demoServer/","demoPolicies.eLearn1","minervagui.mca",false,false);
 		 InitializationHolder.setInitializeNegotiationEngine(initializeNegotiationEngine);
 		 
 		 clientManager = new ClientManager();
 		 InitializationHolder.setClientManager(clientManager);
 	}
 	
+	/**
+	 * operation called in order to push from the client to the service trust negotiation messages
+	 * @param request
+	 * @return
+	 */
+	
 	public NegotiateTrustResponse negotiateTrust(NegotiateTrust request)
 	{
-		System.out.println("\n\nTrust Negotiation Provider negotiateTrust am primit mesaj");
 		
+		logger.info("negotiateTrust called");
+		logger.info("received from source "+request.getSource().getAddress()+" "+request.getSource().getAlias()+" "+request.getSource().getPort()+
+				" for target "+request.getTarget().getAddress()+" "+request.getTarget().getAlias()+" "+request.getTarget().getPort());
+		logger.info("Goal: "+request.getGoal());
 		
-		
-		System.out.println("TrustNegotiationProvider primit de la sursa "+request.getSource().getAddress()+" "+request.getSource().getAlias()+" "+request.getSource().getPort()+
-				" pentru target "+request.getTarget().getAddress()+" "+request.getTarget().getAlias()+" "+request.getTarget().getPort());
-		System.out.println("Goal: "+request.getGoal());
-		System.out.println("Trace: ");
+		String deliveredTrace = "Trace: ";
 		String[] a = request.getTrace();		
+		
 		for(int i=0;i<a.length;i++)
-			System.out.println(a[i]);		
+			deliveredTrace = deliveredTrace + a[i];
+		
+		logger.info(deliveredTrace);
+				
 		if(request.getMessageType() == SuperMessage.ANSWER_TYPE)
 		{
-			System.out.println("Proof: "+request.getProof()+" Statrus: "+request.getStatus());
+			logger.info("Proof: "+request.getProof()+" Status: "+request.getStatus());
 		}
-		System.out.println("\n\n");
-		
 		
 		
 		Message mesg = ConverterClass.negotiateTrustToPtMessage(request);
 		
-		System.out.println("TrustNegotiationProvider mesajul este:");
-		System.out.println(mesg);
-		System.out.println("\n\n");
+		logger.info ("TrustNegotiationProvider the received message is: "+mesg);
+		
 		
 		syncQueue.push(mesg); //put the received message in the gridNetServeQueue for being procesed by the negotiation engine
 	
@@ -131,19 +138,25 @@ public class TrustNegotiationProvider
 	
 	}
 	
-	
+	/**
+	 * return to the client the notification URI where to register for receiving trust negotiation messages from the service side
+	 * @param u
+	 * @return
+	 */
 	public GetNotificationURIResponse getNotificationURI(GetNotificationURI u)
 	{
-		QName response = null; // = MathQNames.RP_TRUST_NEGOTIATION;
-		NotificationSendWrapper nsw = new NotificationSendWrapper();
+		QName response = null; 
+		NotificationSendWrapper nsw = new NotificationSendWrapper(); // create the NotificationSendWrapper used to notify 
+																	 // the client of the trust negotiation messages
 		Topic negotiationTopic = null;
 		TopicList topicList = null;
-		CertificateExtractor certificateExtractor = null;
+		CertificateExtractor certificateExtractor = null;  // used to obtain client DN, issuer DN and expiration date of the client
 		
 		try
 		{
 				
 		 org.apache.axis.MessageContext messageContext = org.apache.axis.MessageContext.getCurrentContext();
+		 // get Peer subject
 		 Subject sub = (Subject) messageContext.getProperty(org.globus.wsrf.impl.security.authentication.Constants.PEER_SUBJECT);
 			 
 		 Set pc = sub.getPublicCredentials();
@@ -156,7 +169,6 @@ public class TrustNegotiationProvider
 		 while(it.hasNext())
 		 {
 			Object o = it.next();
-			System.out.println("ObjectPublicCredentials "+o+" class "+o.getClass().getName());
 				
 			X509Certificate[] tab = (X509Certificate[]) o;
 			
@@ -177,50 +189,42 @@ public class TrustNegotiationProvider
 		 String subjectDN = certificateExtractor.getSubjectDN();
 		 String issuerDN = certificateExtractor.getIssuerDN();
 		 Date expirationDate = certificateExtractor.getExpirationDate();
-		 System.out.println("in getNotificationURI "+" subject DN "+subjectDN + " issuerDN " + issuerDN + " date "+expirationDate);
+		 logger.info("getNotificationURI called by "+" subject DN "+subjectDN + " issuerDN " + issuerDN + " with certificate expiration date "+expirationDate);
 			
 		 
 		 try
 		 {
+		 	// obtain the topic list of the current client
 		 	Resource resource = ResourceContext.getResourceContext().getResource();
-		 
-		 	topicList = ((TopicListAccessor)resource).getTopicList();  //this section should be synchronized
+		 	topicList = ((TopicListAccessor)resource).getTopicList();  
 		 }
 		 catch(Exception ex)
 		 {
 		 	ex.printStackTrace();
 		 }
-		  //add a new topic for this client
-		  
-		  //compute the local part for a qname used by the new topic for the client
+		 
+		 
+		 // add a new topic for this client - each client will receive a QNAMR where to listen for notifications with 
+		 // the trust negotiation messages
+		 // compute the local part for a qname used by the new topic for the client
 		 String localPart = TopicHelper.getUniqueLocal(subjectDN,issuerDN);
 		  
-		  // obtain the namespace of the service -> this should be set through the initiailize negotiation
-		 response = new QName(MathQNames.NS,localPart);
-		 negotiationTopic = new SimpleTopic(response); //new topic for client
+		  // obtain the namespace of the service 
+		 response = new QName(serviceNamespace,localPart);
+		 negotiationTopic = new SimpleTopic(response); //new topic for client - the address of the topic
 			
 		 topicList.addTopic(negotiationTopic); //test if a topic for this client already exists
 		  
-		 
-		 //add subjectDN issuerDN topic date to CientManager
+		 //add subjectDN issuerDN topic date to ClientManager
 		 clientManager.addTopicClient(subjectDN,issuerDN,negotiationTopic,expirationDate);
 		 
-		 
+		 // associate this sendwrapper with the notification topic URI
 		 nsw.setNegotiationTopic(negotiationTopic);
-		 // associate this sendwrapper with the local part of the notification topic URI
 		 sendHelper.putSendWrapper(response.getNamespaceURI()+response.getLocalPart(),nsw); 
 		
-		 
+		 // the service identifies to the remote peer with its address   
 		 LocalPeer localPeer = initializeNegotiationEngine.getMetaInterpreter().getLocalPeer();
-		 
-		 
-		 //
-		 //System.out.println("in getNotificationURI "+response.getNamespaceURI()+"____"+response.getLocalPart());
-		 localPeer.add(response.getNamespaceURI()+response.getLocalPart(),"https://127.0.0.1:8443/wsrf/services/ionut/services/MathService");
-		 
-		 
-		 
-		 
+		 localPeer.add(response.getNamespaceURI()+response.getLocalPart(),serviceURI);
 		 
 		 String callerIdentity = SecurityManager.getManager().getCaller(); 
 		 System.out.println("Caller identity "+callerIdentity);
@@ -229,7 +233,7 @@ public class TrustNegotiationProvider
 		 GetNotificationURIResponse resp = new GetNotificationURIResponse();
 		 resp.setLocalPart(response.getLocalPart());
 		 resp.setNamespaceURI(response.getNamespaceURI());
-		 return resp;
+		 return resp;  // return to the client the notificationURI where to listen for the status of the negotiation
 	}
 	
 }//inchide clasa

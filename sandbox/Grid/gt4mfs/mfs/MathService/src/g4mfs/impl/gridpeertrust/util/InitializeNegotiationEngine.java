@@ -23,7 +23,7 @@ import g4mfs.impl.org.peertrust.tnviz.app.TNVizListener;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- * Class used for starting the reasoning engine
+ * Class used for initializing the reasoning engine
  */
 public class InitializeNegotiationEngine 
 {
@@ -78,7 +78,7 @@ public class InitializeNegotiationEngine
 	public void initialize1EntitiesTable(String filename)
 	{
 		entitiesTable = new EntitiesTable();
-		entitiesTable.setEntitiesFile(filename); // ?????? set the file
+		entitiesTable.setEntitiesFile(filename); 
 		try
 		{
 			entitiesTable.init();
@@ -168,8 +168,8 @@ public class InitializeNegotiationEngine
 	public void initialize6MinervaProlog(String baseFolder, String policyFile,String license, boolean debugMode)
 	{
 		minervaProlog = new MinervaProlog();
-		minervaProlog.setBaseFolder(baseFolder); //????????????????????????
-		minervaProlog.setPrologFiles(policyFile); // ??????????????????????
+		minervaProlog.setBaseFolder(baseFolder); 
+		minervaProlog.setPrologFiles(policyFile); 
 		minervaProlog.setLicense(license);
 		minervaProlog.setDebugMode(debugMode);
 		try
@@ -307,10 +307,9 @@ public class InitializeNegotiationEngine
 	public void sendQuery(String query)
 	{
 		TrustClient tc = new TrustClient(ptEventDispatcher) ;
+		tc.sendQuery(query);
 		
-		System.out.println("\n\nClientCreate initializeNegotiationEngine trimit mesaj\n\n");
-		//tc.sendQuery("request(add,Session) @ elearn") ;
-		tc.sendQuery("request(add,Session) @ hpclinuxcluster") ;
+		//tc.sendQuery("request(add,Session) @ hpclinuxcluster") ;
 	}	
 	
 

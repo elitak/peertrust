@@ -14,7 +14,7 @@ import java.util.HashMap;
  * @author ionut constandache ionut_con@yahoo.com
  * Class used for finding the local peer(source) associated with a destination
  * the source address of a source peer may differ depending on the destination entity with which the peer interacts
- * for an usual client the source address assoicated with the address of the destination service would the address of a notification
+ * for an usual client the source address assoicated with the address of the destination service would be the address of a notification
  * for a service the source address associated with a client would be the service address
  * for a service acting as a client to a second service the source address associated with the second service would be the address of a notification
   */

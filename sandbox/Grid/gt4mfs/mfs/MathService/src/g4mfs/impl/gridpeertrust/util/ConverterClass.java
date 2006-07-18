@@ -18,9 +18,8 @@ import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.TrustNegotiationNotificatio
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * class used to convert to and from Peertrust peer/message representation to NegotiateTrust / Peer / TrustNegotiationNotificationMessageType 
+ * which are the message/peer representations traversing the Grid 
  */
 public class ConverterClass 
 {
@@ -73,7 +72,6 @@ public class ConverterClass
 			else
 			{
 				nt.setMessageType(SuperMessage.MESSAGE_TYPE);
-				System.out.println("ConverterClass ptMessageToNegotiatiateTrust mesaj de tipul Message nu eok?");
 			}
 		
 		return nt;
@@ -97,7 +95,6 @@ public class ConverterClass
 				return query;
 			}
 		
-		System.out.println("ConverterClass negotiateTrustToPtMessage reurnez message e ok?");	
 		Message mesg = new Message(source,target,new Trace(trace));
 		return mesg;	
 	}
@@ -135,7 +132,7 @@ public class ConverterClass
 			else
 			{
 				tnnmt.setMessageType(SuperMessage.MESSAGE_TYPE);
-				System.out.println("ConverterClass ptMessageToTrustNegotiationNotificationMessage mesaj de tipul Message e ok?");
+				
 			}
 		
 		return tnnmt;
@@ -159,7 +156,6 @@ public class ConverterClass
 				return query;
 			}
 		
-		System.out.println("ConverterClass trustNegotiationNotificationMessageToPtMessage returnez message e ok?");	
 		Message message = new Message(source,target,new Trace(trace));
 		return message;
 		

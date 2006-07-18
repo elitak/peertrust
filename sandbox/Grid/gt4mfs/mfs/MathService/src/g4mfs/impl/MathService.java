@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import javax.xml.soap.SOAPMessage;
 
 import org.apache.axis.MessageContext;
+import org.apache.log4j.Logger;
 import org.globus.wsrf.ResourceContext;
 import org.globus.wsrf.TopicList;
 import org.globus.wsrf.TopicListAccessor;
@@ -13,9 +14,24 @@ import g4mfs.stubs.AddResponse;
 import g4mfs.stubs.GetValueRP;
 import g4mfs.stubs.SubstractResponse;
 
-public class MathService //extends GridServiceTrustNegotiation 
-{
+/**
+ * 
+ * @author ionut constandache ionut_con@yahoo.com
+ * Math Service implements the logic of the MathService
+ */
 
+
+public class MathService  
+{
+	
+	private static Logger logger = Logger.getLogger(MathService.class.getName());
+
+	/**
+	 * obtain the resource associated with this client
+	 * @return
+	 * @throws RemoteException
+	 */
+	
 	private MathResource getResource() throws RemoteException 
 	{
 		MathResource resource = null;
@@ -47,28 +63,36 @@ public class MathService //extends GridServiceTrustNegotiation
 		return null;
 	}
 	
+	/**
+	 * add operation implemented by the service
+	 * @param a
+	 * @return
+	 * @throws RemoteException
+	 */
 	public AddResponse add (int a) throws RemoteException
 	{
 		
 		MessageContext msgContext = MessageContext.getCurrentContext();
-		
 		SOAPMessage soap = msgContext.getMessage();
-		
 		String str = soap.toString();
 		
-		
-		
-		System.out.println("valoarea sosita este "+a);
+		logger.info("add operation invoked with parameter "+a);
 		MathResource mathResource = getResource();
 		
 		int valInit = mathResource.getValue();
-		//System.out.println("valoarea initiala "+valInit);
 		mathResource.setValue(mathResource.getValue()+a);
 		mathResource.setLastOp("ADDITION");
 		
 		return new AddResponse();
 	}
 
+	/**
+	 * substract operation implemented by the service
+	 * @param a
+	 * @return
+	 * @throws RemoteException
+	 */
+	
 	public SubstractResponse substract(int a) throws RemoteException 
 	{
 	
@@ -78,6 +102,13 @@ public class MathService //extends GridServiceTrustNegotiation
 		
 		return new SubstractResponse();
 	}
+	
+	/**
+	 * getValueRP operation implemented by the service
+	 * @param params
+	 * @return
+	 * @throws RemoteException
+	 */
 	
 	public int getValueRP(GetValueRP params) throws RemoteException
 	{

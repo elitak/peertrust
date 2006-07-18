@@ -1,0 +1,75 @@
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+% example(access(url)).
+
+rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+rule(validClient(localhost,'http://result1'), [],[]).
+rule(validClient(localhost,'http://result2'), [],[]).
+
+% ---------------------------------------
+% query, rules and facts for example 7
+
+rule(document(Project, Document, Employer),
+     [policy1(document(Project, Document, Employer)), 
+      policy2(document(Project, Document, Employer))],
+     [get_record(Project, Document)]).
+
+rule(policy1(document(_, _, Employer)),
+     [],
+     []).
+
+internal(policy2(document(_, _, Employer)),
+     [],
+     [constraint(Employer = ibm)]).
+
+internal(policy2(document(_, _, Employer)),
+     [],
+     [constraint(Employer = microsoft)]).
+
+internal(get_record(project7, document_data), [], []).
+
+% ---------------------------------------
+% Semantic Web paper example
+
+rule(request(Operation,Session) $ Requester,
+     [policy2(request(Operation),Requester)],
+     [get(Operation,Session)]).
+
+rule(request(Operation,Session) $ Requester,
+     [policy1(request(Operation),Requester)],
+     [get(Operation,Session)]).
+
+rule(policy1(request(add),Requester),
+     [drivingLicense(Requester) @ caState @ Requester,
+      policy3(request(Operation),Requester)],
+     []).
+
+rule(policy1(request(germanCourse),_),
+     [],
+     []).
+
+rule(policy2(request(Operation),Requester),
+     [student(Requester) @ naplesUniversity @ Requester],
+     []).
+
+rule(policy2(request(Operation),Requester),
+     [student(Requester) @ hanoverUniversity @ Requester],
+     []).
+
+rule(policy3(request(Operation),Requester),
+     [manager(Requester) @ ibm @ Requester],
+     []).
+
+rule(policy3(request(Operation),Requester),
+     [employee(Requester) @ ibm @ Requester],
+     []).
+
+signed(rule(bbbMember(hpclinuxcluster) @ bbb, [], []),
+            bbb, signature(bbb)).
+
+
+internal(get(add,session1),[],[]).
+
+internal(get(substract,session2),[],[]).

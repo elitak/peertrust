@@ -1,0 +1,3 @@
+INFO main org.peertrust.config.PTConfigurator - Log4j configured based on file ".logconfig"
+DEBUG main org.peertrust.config.PTConfigurator - $Id: PTConfigurator.java,v 1.7 2005/05/22 17:56:48 dolmedilla Exp $
+INFO main org.peertrust.config.PTConfigurator - Current directory: /home/ionut/Eclipse/eclipse/workspace/gt4mfs/mfs/peertrust/src/testenv/demoClient

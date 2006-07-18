@@ -1,7 +1,0 @@
-<ns1:MathResourceReference xsi:type="ns2:EndpointReferenceType" xmlns:ns1="http://www.globus.org/gt4ide/example/MathService" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns2="http://schemas.xmlsoap.org/ws/2004/03/addressing">
- <ns2:Address xsi:type="ns2:AttributedURI">https://127.0.0.1:8443/wsrf/services/ionut/services/MathService</ns2:Address>
- <ns2:ReferenceProperties xsi:type="ns2:ReferencePropertiesType">
-  <ns1:MathResourceKey>7871956</ns1:MathResourceKey>
- </ns2:ReferenceProperties>
- <ns2:ReferenceParameters xsi:type="ns2:ReferenceParametersType"/>
-</ns1:MathResourceReference>

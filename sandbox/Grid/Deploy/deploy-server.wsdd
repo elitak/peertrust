@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment name="defaultServerConfig" xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<service name="ionut/services/MathService" provider="Handler" use="literal" style="document">
+<parameter name="className" value="g4mfs.impl.MathService"/>
+<parameter name="allowedMethods" value="*"/>
+<parameter name="handlerClass" value="org.globus.axis.providers.RPCProvider"/>
+<parameter name="scope" value="Application"/>
+<parameter name="providers" value="GetRPProvider GetMRPProvider SetRPProvider QueryRPProvider SubscribeProvider g4mfs.impl.gridpeertrust.net.server.TrustNegotiationProvider GetCurrentMessageProvider"/>
+
+<parameter name="securityDescriptor" value="share/schema/gt4ide/MathService/mysec.xml"/>
+<parameter name="foo1-operations" value="func1 func2 func3"/>
+
+
+<wsdlFile>share/schema/gt4ide/MathService/Math_service.wsdl</wsdlFile>
+</service>
+
+
+
+
+<service name="ionut/services/MathFactoryService" provider="Handler" use="literal" style="document">
+<parameter name="className" value="g4mfs.impl.MathFactoryService"/>
+<parameter name="allowedMethods" value="*"/>
+<parameter name="handlerClass" value="org.globus.axis.providers.RPCProvider"/>
+<parameter name="scope" value="Application"/>
+<parameter name="instance" value="ionut/services/MathService"/>
+<parameter name="providers" value="GetRPProvider"/>
+
+
+<typeMapping
+	name="TrustNegotiationNotificationMessageWrapperType"
+	qname="ns1:TrustNegotiationNotificationMessageWrapperType"
+	xmlns:ns1="http://www.globus.org/gt4ide/example/MathFactoryService"
+	type="java:ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.TrustNegotiationNotificationMessageWrapperType"
+	serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+    deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+    encodingStyle=""/>
+
+<wsdlFile>share/schema/gt4ide/MathService/MathFactory_service.wsdl</wsdlFile>
+</service>
+</deployment>

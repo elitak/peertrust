@@ -1,0 +1,34 @@
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+% example(access(url)).
+
+rule(access(Url) $ Requester,[],[validClient(Requester,Url)]).
+%rule(validClient(alice,'http://result1'), [],[]).
+%rule(validClient(alice,'http://result2'), [],[]).
+rule(validClient(alice,result1), [],[]).
+rule(validClient(alice,result2), [],[]).
+
+
+% ---------------------------------------
+% query, rules and facts for example 7
+
+% alice has an employee ID
+
+signed(rule(employee(alice, microsoft) @ microsoft, [], []),
+            microsoft, signature(microsoft)).
+
+% ---------------------------------------
+% Semantic Web paper example
+
+policy(manager(alice) @ ibm $ Requester,
+            [bbbMember(Requester) @ bbb @ Requester]).
+
+
+signed(rule(drivingLicense(alice) @ caState, [], []),
+            caState, signature(caState)).
+
+signed(rule(manager(alice) @ ibm, [], []),
+            ibm, signature(ibm)).
+

@@ -1,0 +1,173 @@
+<project name="TrustNegotiationMathService" default="build" basedir=".">
+	<description>
+		Builds, Deploys and Runs a grid service and a client, both enhanced with trust negotiation capabilities! 
+	</description>
+
+
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="servicedir" location="build/service" />
+	<property name="clientdir" location="build/client" />
+	<property name="servicesrc" location="gt4mfs/mfs/MathService/src/" />
+	<property name="deployfiles" location="Deploy/" />
+	<property name="schemafiles" location="gt4mfs/mfs/MathService/schema/" />
+	<property name="argline" value="globus-build-service.sh -d g4mfs/ -s schema/gt4ide/MathService/Math.wsdl -fs schema/gt4ide/MathService/MathFactory.wsdl" />
+	<property name="clientsrc" location="gt4mfs/mfs/Client/" />
+	<property name="peertrustfiles" location="PeertrustFiles/" />
+	<property environment="envvar" />
+
+	
+
+	<target name="createdir">
+		<mkdir dir="${build}" />
+		<mkdir dir="${servicedir}" />
+		<mkdir dir="${servicedir}/schema" />
+		<mkdir dir="${servicedir}/tmp" />
+		<mkdir dir="${clientdir}" />
+		<mkdir dir="${clientdir}/lib" />
+		<mkdir dir="${clientdir}/build" />
+		<mkdir dir="${clientdir}/build/PeertrustFiles/demoClient" />
+	</target>
+
+	<target name="copyprojectfiles">		
+		<copy todir="${servicedir}">
+			<fileset dir="${servicesrc}"> 
+				<exclude name="lib/commons-logging.jar" />
+				<exclude name="lib/icu4j.jar" />
+				<exclude name="lib/interprolog.jar" />
+				<exclude name="lib/jdepend.jar" />
+				<exclude name="lib/jsse.jar" />
+				<exclude name="lib/junit.jar" />
+				<exclude name="lib/peertrust-applet.jar" />
+				<exclude name="lib/xercesImpl.jar" />
+			</fileset>
+			<fileset dir="${deployfiles}">
+				<exclude name="**/deploy*" />
+			</fileset>
+		</copy>
+		<copy todir="${servicedir}/schema">
+			<fileset dir="${schemafiles}" />
+		</copy>
+		<copy todir="${servicedir}/g4mfs">
+			<fileset dir="${deployfiles}">
+				<include name="**/deploy*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${clientdir}">
+			<fileset dir="${clientsrc}"/>
+		</copy>
+	</target>
+
+
+	<target name="compileservice" description="compile the service and obtain the gar file">
+		<exec executable="bash" dir="${servicedir}" resolveexecutable="true" os="Linux" newenvironment="true">
+  		  	<arg line="${argline}"/>
+		</exec>
+	</target>
+
+
+	<target name="copyclientjars">
+		<copy todir="${clientdir}/lib">
+			<fileset dir="${servicedir}/build/lib" />
+		</copy>
+	</target>
+
+	<target name="copyclientpeertrustfiles">
+		<copy todir="${clientdir}/build/PeertrustFiles/demoClient">
+			<fileset dir="${peertrustfiles}/demoClient" />
+		</copy>
+	</target>
+
+	<target name="compileclient" depends="copyclientjars,copyclientpeertrustfiles" description="compile the client">
+		<javac srcdir="${clientdir}/g4clifs/impl" destdir="${clientdir}/build"> 
+			<classpath>
+				<pathelement path="${envvar.GLOBUS_LOCATION}" />
+				<fileset dir="${clientdir}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${envvar.GLOBUS_LOCATION}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+
+	<target name="testglobusinstall" description="tests whether the GLOBUS_LOCATION environment variable is set">
+		<available file="${envvar.GLOBUS_LOCATION}/bin/globus-start-container" type="file" property="globusavailable"/>
+		<fail unless="globusavailable">
+			Globus installation/GLOBUS_LOCATION environment variable could not be located
+		</fail>		
+	</target>
+
+
+	<target name="build" depends="testglobusinstall,createdir,copyprojectfiles,compileservice,compileclient" description="compile service and client">
+		<echo> 
+		Build successful! 
+		Run ant deployservice as user globus to install the service into the Globus container.
+		Run ant undeployservice as user globus to uninstall the service from the Globus container.
+		Run ant runClient as another user to run the client (don't forget to obtain a valid proxy certificate).
+		</echo>
+	</target>
+	
+
+	<target name="runClient">
+		<java classname="g4clifs.impl.ClientCreate" fork="true">
+    			<jvmarg value="-DGLOBUS_LOCATION=${envvar.GLOBUS_LOCATION}"/> 
+			<classpath>
+				<pathelement path="${envvar.CLASSPATH}"/>
+				<pathelement path="${clientdir}/build" />
+				<pathelement path="${envvar.GLOBUS_LOCATION}" />
+				<fileset dir="${clientdir}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${envvar.GLOBUS_LOCATION}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+			<arg value="https://127.0.0.1:8443/wsrf/services/ionut/services/MathFactoryService"/>
+    		</java>
+	</target>
+	
+	<target name="clean" description="clean build">
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build}" />
+		</delete>
+	</target>
+
+
+	<!-- the following targets should be run as the globus user -->
+
+
+	<!-- Create the PeertrustFiles folder containing policies, minerva ... -->
+	<target name="createservicepeertrustfilesdir">
+		<mkdir dir="${envvar.GLOBUS_LOCATION}/bin/PeertrustFiles/demoServer" />
+	</target>
+
+	<target name="copyservicepeertrustfiles" depends="createservicepeertrustfilesdir">
+		<copy todir="${envvar.GLOBUS_LOCATION}/bin/PeertrustFiles/demoServer">
+			<fileset dir="${peertrustfiles}/demoServer" />
+		</copy>
+	</target>
+
+	<target name="deployservice" depends="copyservicepeertrustfiles" description="Deploys the Math Factory - Service">
+		<exec executable="bash" dir="${servicedir}" resolveexecutable="true" os="Linux" newenvironment="true">
+  		  	<arg line="${envvar.GLOBUS_LOCATION}/bin/globus-deploy-gar g4mfs.gar"/>
+		</exec>		
+	</target>
+
+
+	<target name="deleteservicepeertrustfiles">
+		<delete includeEmptyDirs="true">
+			<fileset dir="${envvar.GLOBUS_LOCATION}/bin/PeertrustFiles/" />
+		</delete>
+	</target>
+
+	<target name="undeployservice" depends="deleteservicepeertrustfiles" description="Undeploys the Math Factory - Service">
+		<exec executable="bash" dir="${servicedir}" resolveexecutable="true" os="Linux" newenvironment="true">
+  		  	<arg line="${envvar.GLOBUS_LOCATION}/bin/globus-undeploy-gar g4mfs"/>
+		</exec>				
+	</target>
+		
+</project>

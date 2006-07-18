@@ -41,11 +41,11 @@ import org.apache.log4j.Logger;
  * <p>
  * This class queries a Minerva Prolog inference engine.
  * </p><p>
- * $Id: MinervaProlog.java,v 1.1 2005/11/30 10:35:13 ionut_con Exp $
+ * $Id: MinervaProlog.java,v 1.2 2006/07/18 17:42:16 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:13 $
+ * Last changed: $Date: 2006/07/18 17:42:16 $
  * by $Author: ionut_con $
  * </p>
  * @author olmedilla
@@ -77,7 +77,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	public MinervaProlog ()
 	{
 		super() ;
-		log.debug("$Id: MinervaProlog.java,v 1.1 2005/11/30 10:35:13 ionut_con Exp $");
+		log.debug("$Id: MinervaProlog.java,v 1.2 2006/07/18 17:42:16 ionut_con Exp $");
 	}
 		
 	public void setApplet (Applet applet)
@@ -128,7 +128,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			String tmp ;
 			
 			
-			System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!   redfFiles  "+_rdfFiles +"\n\n");
+			log.debug("rdfFiles  "+_rdfFiles);
 			
 			
 			if (_rdfFiles != null)
@@ -156,7 +156,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 			_engine.load(_baseFolder + PROLOG_PARSER_FILENAME) ;
 			
 			
-			System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!   prologFiles  "+_prologFiles +"\n\n");
+			log.debug("prologFiles  "+_prologFiles);
 			
 			
 			if (_prologFiles != null)
@@ -166,7 +166,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 				{
 					tmp = _baseFolder + filesString.nextToken() ;
 
-					System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!   prologFiles  tmp "+tmp +"\n\n");
+					log.debug("tmp "+tmp);
 					
 					MinervaAtom atom ;
 					if (isApplet())
@@ -615,7 +615,7 @@ public class MinervaProlog implements InferenceEngine, Configurable
 	static void parseTest () throws ConfigurationException
 	{
 		MinervaProlog engine = new MinervaProlog () ;
-		engine.setBaseFolder("/home/ionut/PeertrustFiles/demoClient/");
+		engine.setBaseFolder("PeertrustFiles/demoClient/");
 		
 		//engine.setBaseFolder("/home/olmedilla/workspace/peertrust/") ;
 		//engine.setLicense("config/prolog/minerva/minervagui.mca") ;

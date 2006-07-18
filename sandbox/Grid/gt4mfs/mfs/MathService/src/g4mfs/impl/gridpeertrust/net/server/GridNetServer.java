@@ -6,6 +6,8 @@
  */
 package g4mfs.impl.gridpeertrust.net.server;
 
+import org.apache.log4j.Logger;
+
 import g4mfs.impl.gridpeertrust.util.SyncQueue;
 import g4mfs.impl.org.peertrust.net.Message;
 
@@ -13,13 +15,13 @@ import g4mfs.impl.org.peertrust.net.NetServer;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * GridNetServer receives messages through a SyncQueue. The SyncQueue is loaded through the trustNegotiate call on the service side and
+ * through the GridClientNotificationThread on the client side
  */
 public class GridNetServer implements NetServer
 {
 	SyncQueue queue;
+	private static Logger logger = Logger.getLogger(GridNetServer.class.getName());
 	
 	public GridNetServer()
 	{
@@ -40,14 +42,13 @@ public class GridNetServer implements NetServer
 	
 	public Message listen()
 	{
-		// the service will listen for trustNegotiatie calls - every time such a call is made a new Message is put in the SyncQueue
-		// and will be read from there by this function
+		// the service will listen for trustNegotiatie (TrustNegotiationProvider)/deliver (GridClientNotificationThread) calls - every time such a call is made a new Message is put in the SyncQueue
+		// and it will be read this function
 	
-		System.out.println("\n\nGridNetServer listen astept sa iau ceva din coada\n\n");
+		logger.info("GridNetServer listening for messages / waiting on the SyncQueue");
 		Message mesg = (Message) queue.pop();
-		System.out.println("\n\nGridNetServer am scos mesaj din coada "+mesg+"\n\n");
+		logger.info("GridNetServer retrieved the message "+mesg+" from the SyncQueue");
 		return mesg;
-	
 	}
 		
 }

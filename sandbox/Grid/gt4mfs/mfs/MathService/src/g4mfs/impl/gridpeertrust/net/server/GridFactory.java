@@ -16,22 +16,28 @@ import g4mfs.impl.org.peertrust.net.NetServer;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+ * GridFactory class is used to instantiate NetClient and NetServer objects used by the Peertrust Engine
+ *  */
 public class GridFactory implements AbstractFactory
 {
 
 	SyncQueue syncQueue;  //wiating queue used in listen call
 	SendHelper sendHelper;
 	
+	// never used - however it should have a setter in the AbstractFactory class
 	public Peer getServerPeer (String alias) 
 	{
-		System.out.println("\n\nGridFactory intreb alias "+alias+"\n\n");
+		System.out.println("\n\nGridFactory ask for alias "+alias+"\n\n");
 		//return new Peer(alias, "localhost", 0) ;
 		return new Peer(alias,"https://127.0.0.1:8443/wsrf/services/ionut/services/MathService",0);
 	}
+	
+	
+	
+	/**
+	 * creates a NetClient object used to send negotation messagess through a SendHelper holding peer ports/addresses
+	 * @return
+	 */
 	
 	public NetClient createNetClient()
 	{	
@@ -44,6 +50,11 @@ public class GridFactory implements AbstractFactory
 	{
 		
 	}
+	
+	/**
+	 * creates a NetServer object used to receive messages through a synchronization queue
+	 * @return
+	 */
 	
 	public NetServer createNetServer()
 	{		

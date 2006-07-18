@@ -1,7 +1,11 @@
 package g4mfs.impl;
 
 import javax.xml.namespace.QName;
-
+/**
+ * 
+ * @author ionut constandache ionut_con@yahoo.com
+ * Qualified Namespaces for the Resource Properties including the TrustNegotiation URI
+ */
 public interface MathQNames 
 {
 	public static final String NS = "http://www.globus.org/gt4ide/example/MathService";

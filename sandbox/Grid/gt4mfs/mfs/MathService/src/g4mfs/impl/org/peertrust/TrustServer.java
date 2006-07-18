@@ -19,6 +19,8 @@
 */
 package g4mfs.impl.org.peertrust;
 
+import org.apache.log4j.Logger;
+
 import g4mfs.impl.org.peertrust.config.PTConfigurator;
 import g4mfs.impl.org.peertrust.config.Vocabulary;
 import g4mfs.impl.org.peertrust.exception.ConfigurationException;
@@ -28,11 +30,11 @@ import g4mfs.impl.org.peertrust.exception.ConfigurationException;
  * <p>
  * Simple server.
  * </p><p>
- * $Id: TrustServer.java,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+ * $Id: TrustServer.java,v 1.2 2006/07/18 17:42:16 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:17 $
+ * Last changed: $Date: 2006/07/18 17:42:16 $
  * by $Author: ionut_con $
  * </p>
  * @author olmedilla
@@ -40,7 +42,8 @@ import g4mfs.impl.org.peertrust.exception.ConfigurationException;
 public class TrustServer
 {
 	public static final String PREFIX = "Server app.: " ;
-
+	private static Logger logger = Logger.getLogger(TrustServer.class.getName());
+	
 	public static void main(String[] args) throws ConfigurationException
 	{
 		final String PREFIX = TrustServer.PREFIX ;
@@ -55,8 +58,6 @@ public class TrustServer
 		
 		if (args.length < 1)
 		{
-			System.out.println ("Args: <configFile.rdf>") ;
-			//return ;
 			newArgs[0] = defaultConfigFile ; 
 		}
 		else
@@ -69,6 +70,6 @@ public class TrustServer
 		String[] components = { defaultComponent } ;
 		config.startApp(newArgs, components) ;
 
-		System.out.println(PREFIX + "Started") ;
+		logger.info(PREFIX + "Started") ;
 	}
 }

@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- * extracts from a chain of X509 Certificates the Subject DN, Issuer(CA) DN (first certificate),expiration date of last certificate (proxy)  
+ * extracts from a chain of X509 Certificates the Subject DN, Issuer(CA) DN (first certificate) and expiration date of last certificate (proxy)  
  */
 public class CertificateExtractor 
 {

@@ -1,0 +1,9 @@
+#MathService
+http\://www.globus.org/gt4ide/example/MathService=g4mfs.stubs
+http\://www.globus.org/gt4ide/example/MathService/bindings=g4mfs.stubs.bindings
+http\://www.globus.org/gt4ide/example/MathService/service=g4mfs.stubs.service
+
+http\://www.globus.org/gt4ide/example/MathFactoryService=g4mfs.stubs
+http\://www.globus.org/gt4ide/example/MathFactoryService/bindings=g4mfs.stubs.bindings
+http\://www.globus.org/gt4ide/example/MathFactoryService/service=g4mfs.stubs.service
+

@@ -8,17 +8,21 @@ package g4mfs.impl.gridpeertrust.util;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+ * SyncQueue implements a synchronization queue. Messages delivered from peers are placed in a SyncQueue from where they are processed by the
+ * MetaInterpreterListener. The MetaInterpreterListener sleeps on the queue in case there is no message for processing. On the client side
+ * a SyncQueue is loaded by the GridClientNotificationThread. On the service side the a SyncQueue is loaded by the TrustNegotiationProvider
+  */
 public class SyncQueue 
 {
 	private ArrayList queue;
-	private boolean isAsleep = false;
+	private boolean isAsleep = false;  //if there is a thread (MetaInterpreterListener) asleep on the queue
 	private boolean finish = false;
+	private static Logger logger = Logger.getLogger(SyncQueue.class.getName());
+	
 	
 	public SyncQueue()
 	{
@@ -35,6 +39,11 @@ public class SyncQueue
 			notify();
 		}
 	}
+	
+	/**
+	 * retrieve a message for processing by the PeertrustEngine, if there is no message in the queue wait until it is loaded
+	 * @return
+	 */
 	
 	public synchronized Object pop()
 	{
@@ -57,18 +66,18 @@ public class SyncQueue
 				try
 				{
 					isAsleep = true;
-					System.out.println("\n\nSyncQueue adorm nu e nimic in coada\n\n");
+					logger.info("Sleep in SyncQueue, there are no messages to process");
 					wait();
-					System.out.println("\n\nSyncQueue am fost trezit\n\n");
+					logger.info("Awoke from SyncQueue");
 					isAsleep = false;
-					if(finish)
+					if(finish) // check if the processing is done - exit
 					{
 						return null;
 					}
 										
 					if(queue.size()>0)
 					{
-						System.out.println("\n\nSyncQueue fac return am ceva in coada\n\n");
+						logger.info("Return one message from the SyncQueue");
 						return queue.remove(0);
 					}
 				}
@@ -81,15 +90,19 @@ public class SyncQueue
 		}
 	}
 	
+	/**
+	 * messages from grid peers are pushed in the queue either by the GridClientNotificationThread (client side) or TrustNegotiationProvider (server side)
+	 * @param o
+	 */
 	
 	public synchronized void push(Object o)
 	{
 		
-		System.out.println("\n\nSyncQueue push in coada\n\n");
+		logger.info("Message pushed in the SyncQueue");
 		queue.add(o);
 		if(isAsleep == true)
 		{
-			System.out.println("\n\nSyncQueue push fir adormit trimit notify\n\n");
+			logger.info("There is a thread sleeping on the SyncQueue, notify it");
 			notify();
 		}		
 	}	

@@ -16,42 +16,51 @@ import org.globus.wsrf.ResourceKey;
 import org.globus.wsrf.ResourceProperties;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.MessageContext;
+import org.apache.log4j.Logger;
 import org.globus.wsrf.utils.AddressingUtils;
 import org.globus.wsrf.container.ServiceHost;
 
+
+/**
+ * 
+ * @author ionut constandache ionut_con@yahoo.com
+ *
+ * Math Factory Service responsible for creating WSRF resources for the Math Service
+  */
+
+
 public class MathFactoryService implements MathQNames  {
 
-	String yo = "mama";
-	//GridServiceTrustNegotiation tn = new GridServiceTrustNegotiation();
+	private static Logger logger = Logger.getLogger(MathFactoryService.class.getName()); 
 	
 	
 	public MathFactoryService()
 	{
-		
-		//TrustNegotiation tn = new TrustNegotiation();
-		
-		super();
-		MessageContext messageContext = MessageContext.getCurrentContext();
-		messageContext.setProperty("Mama","Tata nu e aici");
-		System.out.println("\n\n constructor MathFactoryService am fost initializat "+yo+"\n\n");
-		
+		logger.info("MathFactoryService initialized");	
 	}
 	
+	
+	/**
+	 * function called by a client to the MathFactoryService in order to create a resource
+	 * @param request
+	 * @return
+	 * @throws RemoteException
+	 */
 	public CreateResourceResponse createResource(CreateResource request) throws RemoteException 
 	{
 		ResourceContext ctx = null;
 		MathResourceHome home = null;
 		ResourceKey key = null;
-		/* Create resource */
+		
 		try 
 		{
 			ctx = ResourceContext.getResourceContext();
 			home = (MathResourceHome) ctx.getResourceHome();
-			key = home.create();
+			key = home.create();  //the resource is identified by a key
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("\n\n****** Arunc exceptie ******\n\n");
+			System.out.println("Exception thrown at create Resource");
 			throw new RemoteException("", e);
 		}
 		
@@ -67,7 +76,7 @@ public class MathFactoryService implements MathQNames  {
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("\n\n****** Arunc exceptie 2 ******\n\n");
+			System.out.println("Exception thrown while obtaining the service instance");
 			throw new RemoteException("", e);
 		}
 		CreateResourceResponse response = new CreateResourceResponse();

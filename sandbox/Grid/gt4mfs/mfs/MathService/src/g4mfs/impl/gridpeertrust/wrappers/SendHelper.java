@@ -11,14 +11,14 @@ package g4mfs.impl.gridpeertrust.wrappers;
 import java.util.HashMap;
 
 /**
- * @author ionut
- * Holds all the known SendWrappers associated with their address
- * When a message is delivered to the cliend for sending the client would look here to see for stored SendWrapper pick the one 
- * associated with the destination address and send the data
+ * @author ionut constandache ionut_con@yahoo.com
+ * Holds all the known SendWrappers associated with their addresses (SendWrappers are used for sending data to a peer over the Grid)
+ * In order to deliver a Peertrust message to a peer, the peer associated SendWrapper is retrieved using the peer(destination) address 
  */
+
 public class SendHelper 
 {
-	private HashMap portTypesHashMap = new HashMap();
+	private HashMap portTypesHashMap = new HashMap();  //holds pairs of (address, SendWrapper)
 	
 	
 	public SendHelper()

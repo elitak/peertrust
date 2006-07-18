@@ -12,9 +12,8 @@ import org.globus.wsrf.Topic;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * class TopicClient is used to hold the association of a client through its subjectDN, issuerDN, certificate expirationDate and
+ * the topic it received in order to negotiate trust
  */
 public class TopicClient 
 {

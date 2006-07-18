@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jndiConfig xmlns="http://wsrf.globus.org/jndi/config">
+
+
+<service name="ionut/services/MathService">
+<resource name="home" type="g4mfs.impl.MathResourceHome">
+<resourceParams>
+<parameter>
+<name>factory</name>
+<value>org.globus.wsrf.jndi.BeanFactory</value>
+</parameter>
+<parameter>
+<name>resourceClass</name>
+<value>g4mfs.impl.MathResource</value>
+</parameter>
+<parameter>
+<name>resourceKeyType</name>
+<value>java.lang.Integer</value>
+</parameter>
+<parameter>
+<name>resourceKeyName</name>
+<value>{http://www.globus.org/gt4ide/example/MathService}MathResourceKey</value>
+</parameter>
+</resourceParams>
+</resource>
+</service>
+
+<service name="ionut/services/MathFactoryService">
+	<resourceLink name="home" target="java:comp/env/services/ionut/services/MathService/home"/>
+<!--	
+	<resource name="home" type="org.globus.wsrf.impl.ServiceResourceHome">
+		<resourceParams>
+			<parameter>
+				<name>factory</name>
+				<value>org.globus.wsrf.jndi.BeanFactory</value>
+			</parameter>
+		</resourceParams>
+	</resource>
+-->
+</service>
+</jndiConfig>

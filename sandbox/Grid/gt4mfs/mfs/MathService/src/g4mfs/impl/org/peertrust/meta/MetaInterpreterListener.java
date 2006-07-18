@@ -41,11 +41,11 @@ import g4mfs.impl.org.peertrust.strategy.Queue;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreterListener.java,v 1.1 2005/11/30 10:35:09 ionut_con Exp $
+ * $Id: MetaInterpreterListener.java,v 1.2 2006/07/18 17:42:15 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:09 $
+ * Last changed: $Date: 2006/07/18 17:42:15 $
  * by $Author: ionut_con $
  * </p>
  * @author olmedilla 
@@ -68,7 +68,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 
 	public MetaInterpreterListener ()
 	{
-		log.debug("$Id: MetaInterpreterListener.java,v 1.1 2005/11/30 10:35:09 ionut_con Exp $");
+		log.debug("$Id: MetaInterpreterListener.java,v 1.2 2006/07/18 17:42:15 ionut_con Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -93,9 +93,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			throw new ConfigurationException(msg) ;
 		}
 		
-		//AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
 		
-		System.out.println("\n\nMetaInterpreter init urmeaza sa pornesc\n\n");
 		_netServer = _commChannelFactory.createNetServer() ;
 	
 		_metaIThread = new Thread(this, "MetaInterpreterListener") ;
@@ -108,35 +106,16 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		log.debug("start") ;
 		Thread myThread = Thread.currentThread();
 		
-//		System.runFinalizersOnExit(true) ;
-		
-		// closing the socket
-//		Runtime.getRuntime().addShutdownHook (new Thread() {
-//					public void run() {
-//						try {  
-//							System.out.println("closing opened socket") ;
-//							if (serverSocket != null)
-//							{							
-//									serverSocket.close() ;
-//									serverSocket = null ;
-//							}
-//						} catch (IOException e)
-//						{
-//							System.out.println ("Error closing the server socket") ;
-//							e.printStackTrace();
-//						}
-//					}
-//				});
 		
 		log.info("System ready") ;
-		System.out.println("\n\nMetaInterpreterListener run ascult pornesc\n\n");
+		log.info("MetaInterpreterListener listens from netServer");
 		
 		while (_metaIThread == myThread) {  
 			Message message = _netServer.listen();
-			System.out.println("\n\nMetaInterpreterListener run _netServer mi-a intors mesaj\n\n");
+			log.info("MetaInterpreterListener netServer returned a message");
 			if (message != null)
 			{
-				System.out.println("\n\nMetaInterpreterListener message != null il bag in processReceivedTree\n\n");
+				log.info("MetaInterpreterListener message != null goes to processReceivedTree");
 				processReceivedTree(message);
  			}
 		}
@@ -152,7 +131,6 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	private void processReceivedTree (Message message)
 	{	
 		// check if the message is a query or an answer
-		System.out.println("\n\nMetaInterpreterListener in processReceivedTree\n\n");
 		if (message instanceof Query)
 		{
 			Query query = (Query) message ;
@@ -161,14 +139,14 @@ public class MetaInterpreterListener implements Runnable, Configurable
 			if (_entities.get(alias) == null)
 			{
 				_entities.put(query.getSource().getAlias(), query.getSource()) ;
-				System.out.println("Added peer '" + alias + "' to the entities table") ;
+				log.info("Added peer '" + alias + "' to the entities table") ;
 			}
 			
 			_dispatcher.event(new QueryEvent(this, query)) ;
 			
 			//Tree tree = new Tree (query.getGoal(), query.getOrigin(), query.getReqQueryId()) ;
 			
-			System.out.println("New query received from " + query.getSource().getAlias() + ": " + query.getGoal()) ;
+			log.info("New query received from " + query.getSource().getAlias() + ": " + query.getGoal()) ;
 			//_queue.add(tree) ;
 
 		}
@@ -265,24 +243,10 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		}
 		else
 		{
-			System.out.println("\n\nMetaInterpreterListener processReceivedTree unknown message "+message.getClass()+"\n\n");
+			log.debug("Unknown message of type "+message.getClass());
 			log.error("Unknown message type") ;
 		}	
 	}
-	
-//	/**
-//	 * @return Returns the _configurator.
-//	 */
-//	public PTConfigurator getConfigurator() {
-//		return _configurator;
-//	}
-//	
-//	/**
-//	 * @param _configurator The _configurator to set.
-//	 */
-//	public void setConfigurator(PTConfigurator _configurator) {
-//		this._configurator = _configurator;
-//	}
 
 	/**
 	 * @return Returns the _engine.
@@ -296,12 +260,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 	public void setInferenceEngine(InferenceEngine _engine) {
 		this._inferenceEngine = _engine;
 	}
-//	/**
-//	 * @return Returns the _queue.
-//	 */
-//	public Queue getQueue() {
-//		return _queue;
-//	}
+
 	/**
 	 * @param _queue The _queue to set.
 	 */
@@ -309,12 +268,7 @@ public class MetaInterpreterListener implements Runnable, Configurable
 		this._queue = _queue;
 	}
 
-//	/**
-//	 * @return Returns the _commChannelFactory.
-//	 */
-//	public AbstractFactory getCommChannelFactory() {
-//		return _commChannelFactory;
-//	}
+
 	/**
 	 * @param channelFactory The _commChannelFactory to set.
 	 */

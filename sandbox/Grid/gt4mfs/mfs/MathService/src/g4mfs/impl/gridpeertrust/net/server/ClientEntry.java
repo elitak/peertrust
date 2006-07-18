@@ -10,9 +10,7 @@ import java.util.Date;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * the ClientEntry class holds the subjectDN, issuerDN, operation and expirationDate of client procy certificate for an authorized client
  */
 public class ClientEntry 
 {

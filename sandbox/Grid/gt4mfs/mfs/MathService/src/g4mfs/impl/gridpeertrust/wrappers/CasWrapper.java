@@ -103,12 +103,12 @@ public class CasWrapper
 		{
 			CasProxyHelper casProxyHelper = new CasProxyHelper(instanceURL);
 			String casProxyFilename = casProxyHelper.getCasProxy(clientParams);
-			System.out.println("Am obtinut cas proxy si l-am salvat in "+casProxyFilename);
+			System.out.println("Cas proxy saved in "+casProxyFilename);
 			return casProxyFilename;
 		}
 		catch(CasClientException ex)
 		{
-			System.out.println("CasWrapper am prins CasClientException");
+			System.out.println("CasWrapper CasClientException");
 			ex.printStackTrace();
 		}
 		
@@ -152,7 +152,7 @@ public class CasWrapper
 	     } 
 	     catch (SAMLException exp) 
 		 {
-	         String err = "Cannot constrct SAML Subject";
+	         String err = "Cannot construct SAML Subject";
 	         exp.printStackTrace();
 		 }
 			
@@ -261,8 +261,7 @@ public class CasWrapper
         	}        	
         }
         
-        System.out.println("asta e");
-        //System.out.println("SAML ASSERTION ESTE: "+samlAssertion.toString());
+        //System.out.println("SAML ASSERTION IS: "+samlAssertion.toString());
         
         boolean critical = false;
         X509ExtensionSet extensionSet = new X509ExtensionSet();
@@ -395,13 +394,11 @@ public class CasWrapper
         			
         			ByteArrayInputStream bais = new ByteArrayInputStream(b); 
         			String str = new String(b);
-        			System.out.println("rez final "+str);
         			org.opensaml.SAMLAssertion samlAss = new org.opensaml.SAMLAssertion(bais);
         			
         			Iterator it5 = samlAssertion.getStatements();
         	        
-        			System.out.println("\n\nDe aici incep rezultatele\n\n");
-        	        while(it5.hasNext())
+        			while(it5.hasNext())
         	        {
         	           	SAMLAuthorizationDecisionStatement sads2 = (SAMLAuthorizationDecisionStatement) it5.next();
         	        	System.out.println("decision2: "+sads2.getDecision()+" resource2 "+sads2.getResource());

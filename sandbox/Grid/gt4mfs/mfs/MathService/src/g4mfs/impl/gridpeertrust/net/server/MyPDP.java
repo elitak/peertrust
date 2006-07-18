@@ -23,6 +23,7 @@ import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.MessageContext;
 
+import org.apache.log4j.Logger;
 import org.globus.gsi.jaas.GlobusPrincipal;
 import org.globus.gsi.jaas.SimplePrincipal;
 import org.globus.wsrf.impl.security.authorization.exceptions.CloseException;
@@ -31,23 +32,27 @@ import org.globus.wsrf.impl.security.authorization.exceptions.InvalidPolicyExcep
 import org.globus.wsrf.security.authorization.PDP;
 import org.globus.wsrf.security.authorization.PDPConfig;
 import org.w3c.dom.Node;
+import org.globus.wsrf.impl.security.authorization.exceptions.AuthorizationException;
 
 import java.util.StringTokenizer;
 
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * MyPDP protects the MathService from unauthorized calls (it requires for a successful trust negotiation process in order to allow
+ * operation invocation). In case the invocation requires a trust negotiation it throws an exception indicating that a trust negotiation 
+ * is required  
  */
+
 public class MyPDP implements PDP
 {
 
-	Vector permittedOperations = new Vector();
-	InitializeNegotiationEngine initializeNegotiationEngine = InitializationHolder.initializeNegotiationEngine;
-	ClientManager clientManager = InitializationHolder.clientManager;
-	
+	Vector permittedOperations = new Vector();  // which operations are permite
+	InitializeNegotiationEngine initializeNegotiationEngine = InitializationHolder.initializeNegotiationEngine; //intializationEngine
+	ClientManager clientManager = InitializationHolder.clientManager; // the ClientManager holds information about previous successful trust negotiation
+	                                                                  // in order to implement the caching mechanism
+
+	private static Logger logger = Logger.getLogger(MyPDP.class.getName());
 	
 	
 	public String[] getPolicyNames()
@@ -65,7 +70,7 @@ public class MyPDP implements PDP
 		return null;
 	}
 
-	public boolean isPermitted(Subject peerSubject, MessageContext context, QName operation) throws MyAuthorizationException 
+	public boolean isPermitted(Subject peerSubject, MessageContext context, QName operation) throws AuthorizationException 
 	{
 		
 		if(clientManager == null)
@@ -73,22 +78,22 @@ public class MyPDP implements PDP
 			if(InitializationHolder.clientManager != null)
 			{
 				clientManager = InitializationHolder.clientManager;
-				System.out.println("MyPDP am setat clientManager");
+				logger.info("MyPDP sets the clientManager");
 			}
 		}
 		
-		System.out.println("\n\n ********** in isPermitted " +operation +" **********\n\n");
+		logger.info("isPermitted called for operation " +operation);
 		String subjectDN = null;
 		String issuerDN = null;
 		String clientOperation = operation.getLocalPart();
 		
 		
-		
+		// the negotiateTrust operation is permitted as it allows the client to send his trust negotiation messages to the service
+		// the getNotificationURI operation is permitted as it allows the client to find out the notification URI where to listen for 
+		// trust negotiation messages from the service
 		if(operation.toString().endsWith("negotiateTrust") || operation.toString().endsWith("getNotificationURI"))
 		{
-			System.out.println("\n\n***isPemited am intors true la "+operation+"\n\n");
-			
-			
+			logger.info("isPemited returned true for operation "+operation);
 			return true;
 		}
 		else
@@ -99,8 +104,7 @@ public class MyPDP implements PDP
 			while(it.hasNext()) // it should be only one entry
 			{
 				Object o = it.next();
-				System.out.println("ObjectPublicCredentials "+o+" class "+o.getClass().getName());
-			
+				
 				if(i == 0)
 				{
 					X509Certificate[] tab = (X509Certificate[]) o;
@@ -109,11 +113,8 @@ public class MyPDP implements PDP
 					issuerDN = tab[tab.length-1].getIssuerDN().getName();
 					Date expirationDate = tab[0].getNotAfter();
 					
-					
-					System.out.println("MyPDP userDN "+subjectDN);
-					System.out.println("MyPDP issuerDN "+issuerDN);
-					System.out.println("MyPDP date "+expirationDate);
-					
+					logger.info("isPermitted invoked by client DN "+subjectDN+" issuer DN "+issuerDN+" expiration date "+expirationDate);
+										
 				}
 				i++;
 			}
@@ -121,27 +122,25 @@ public class MyPDP implements PDP
 			
 			if(clientManager != null)
 			{
-				System.out.println("MyPDP verific daca client este autorizat "+subjectDN+" "+issuerDN+" "+clientOperation);
+				logger.info("checking if the client DN "+subjectDN+" issuer DN "+issuerDN+" operation "+clientOperation+" is authorized");
 				if(clientManager.isAuthorized(subjectDN, issuerDN,clientOperation))
 				{
-					System.out.println("MyPDP client este autorizat "+subjectDN+" "+issuerDN+" "+clientOperation);
+					logger.info("Client DN "+subjectDN+" issuer DN "+issuerDN+" operation "+clientOperation+" is authorized");
 					return true;
 				}
 				else
 				{
-					MyAuthorizationException e = new MyAuthorizationException("e clar ceva in neregula");
-					System.out.println("\n\n********* isPermitted arunc exceptie s-a apelat "+operation.toString()+" *******");
-					e.setReason("caca");
+					AuthorizationException e = new AuthorizationException("Authorization not allowed! Trust Negotiation required!");
+					logger.info("isPermitted throws exceptions as operation "+operation.toString()+" attempted");
 					throw e;
 				}
 			}
 			else
 			{
-				System.out.println("MyPDP clientManager e null");
+				logger.info("clientManager is null");
 				
-				MyAuthorizationException e = new MyAuthorizationException("e clar ceva in neregula");
-				System.out.println("\n\n********* isPermitted arunc exceptie s-a apelat "+operation.toString()+" *******");
-				e.setReason("caca");
+				AuthorizationException e = new AuthorizationException("Authorization not allowed! Trust Negotiation required!");
+				logger.info("isPermitted throws exception as operation "+operation.toString()+" attempted");
 				throw e;
 			}
 		}
@@ -151,10 +150,14 @@ public class MyPDP implements PDP
 
 	public void initialize(PDPConfig config, String name, String id) throws InitializeException 
 	{
-		System.out.println("\n\n***************MyPDP Am fost initializat **********************\n\n");
+		logger.info("MyPDP initialized");
+		// get the property operations from deploy-server.wsdd
+		// by setting properties in the  deploy-server.wsdd service operation that are allowed/or not to be invoked can be set
+		// the default allowed operations (trustNegotiate/getNotificationURI are hardcoded as they are the enter points for the trust negotation
+		// messages)
 		String value = (String) config.getProperty(name,"operations");
 		
-		System.out.println("\n\n******MyPDP am citit valoarea "+ value+" *******n\n");
+		logger.info("read for property operations the following values "+ value);
 		StringTokenizer st = new StringTokenizer(value," ");
 		String s;
 		while(st.hasMoreTokens())

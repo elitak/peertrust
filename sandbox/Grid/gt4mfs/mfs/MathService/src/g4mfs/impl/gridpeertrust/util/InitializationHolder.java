@@ -26,11 +26,13 @@ public class InitializationHolder
 		initializeNegotiationEngine = eng;
 	}
 	
+	//used by the server to store the clientManager
 	public static void setClientManager(ClientManager man)
 	{
 		clientManager = man;
 	}
 	
+	// used by the client to store the gridClientTrustNegotiation
 	public static void setGridClientTrustNegotiation(GridClientTrustNegotiation gctn)
 	{
 		gridClientTrustNegotiation = gctn;

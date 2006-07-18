@@ -7,6 +7,8 @@
 package g4clifs.impl;
 
 
+import org.apache.log4j.Logger;
+
 import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.NegotiateTrust;
 import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.Peer;
 import g4mfs.impl.gridpeertrust.util.ConverterClass;
@@ -18,8 +20,8 @@ import g4mfs.stubs.MathPortType;
 /**
  * @author ionut constandache ionut_con@yahoo.com
  *
- * SendWrapper for MathPortType. The Peer attribute must contain the address of the service which is to be invocked through this SendWrapper
- * the message sent is of type NegotiateTrust and the mport inside is a MathPortType
+ * SendWrapper used to communicate with a port of type MathPortType. The Peer attribute must contain the address of the service which is to be invocked through this SendWrapper
+ * the message sent is of type NegotiateTrust and the mport attribute is a MathPortType
  * 
  */
 public class MathServiceSendWrapper implements SendWrapper
@@ -27,7 +29,7 @@ public class MathServiceSendWrapper implements SendWrapper
 	Peer peer;
 	NegotiateTrust message;
 	MathPortType mport;
-	
+	private static Logger logger = Logger.getLogger(MathServiceSendWrapper.class.getName());
 	
 	public void setPeer(Object peer)
 	{
@@ -54,29 +56,34 @@ public class MathServiceSendWrapper implements SendWrapper
 		this.mport = mport;
 	}
 	
-	/* (non-Javadoc)
+	/** 
 	 * @see g4clifs.impl.net.SendWrapper#sendMessage()
-	 * this function should be called only after the setMessage one. First the setMessage functions sets the message to be transmitted and then call sendMessage
-	 * which using its attributes will send the message to the intended port
+	 * this function should be called only after message has been set (the setMessage function called). 
+	 * First the setMessage functions sets the message to be transmitted and thenthe sendMessage function
+	 * using its attributes can deliver the message to the MathPort 
 	 */
 	public void sendMessage()
 	{
 		
 		
-		System.out.println("MathServiceSendWrapper trimit de la sursa "+message.getSource().getAddress()+" "+message.getSource().getAlias()+" "+message.getSource().getPort()+
-				" pentru target "+message.getTarget().getAddress()+" "+message.getTarget().getAlias()+" "+message.getTarget().getPort());
-		System.out.println("Goal: "+message.getGoal());
-		System.out.println("Trace: ");
+		logger.info("Send from source "+message.getSource().getAddress()+" "+message.getSource().getAlias()+" "+message.getSource().getPort()+
+				" to target "+message.getTarget().getAddress()+" "+message.getTarget().getAlias()+" "+message.getTarget().getPort());
+		logger.info("Goal: "+message.getGoal());
+		
+		String deliveredTrace = "Trace: ";
+		
+		
 		String[] a = message.getTrace();
 		for(int i=0;i<a.length;i++)
-			System.out.println(a[i]);
+			deliveredTrace = deliveredTrace + a[i];
+		
+		logger.info(deliveredTrace);
+		
 		if(message.getMessageType() == SuperMessage.ANSWER_TYPE)
 		{
-			System.out.println("Proof: "+message.getProof()+" Statrus: "+message.getStatus());
+			logger.info("Proof: "+message.getProof()+" Status: "+message.getStatus());
 		}
-		System.out.println("\n\n");
-
-		
+			
 		
 		try
 		{
@@ -84,7 +91,7 @@ public class MathServiceSendWrapper implements SendWrapper
 		}
 		catch(Exception e)
 		{
-			System.out.println("MathServiceSendWrapper exceptie la negotiateTrust");
+			System.out.println("MathServiceSendWrapper Exception at negotiateTrust");
 			e.printStackTrace();
 		}
 	}

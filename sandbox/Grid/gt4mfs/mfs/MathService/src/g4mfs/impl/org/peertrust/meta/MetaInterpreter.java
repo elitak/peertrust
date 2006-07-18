@@ -55,12 +55,12 @@ import g4mfs.impl.org.peertrust.strategy.*;
  * <p>
  * 
  * </p><p>
- * $Id: MetaInterpreter.java,v 1.1 2005/11/30 10:35:09 ionut_con Exp $
+ * $Id: MetaInterpreter.java,v 1.2 2006/07/18 17:42:15 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:09 $
- * by $Author: ionut_con $
+ * Last changed: $Date: 2006/07/18 17:42:15 $
+ * by $Author: ionut_con $ added the localPeer attribute due to the identities of the local peer which could differ either a service address or notification URI
  * </p>
  * @author olmedilla 
  */
@@ -93,9 +93,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 
 	boolean isDemoMode = false ;
 	
-	
-	
-	// keep track of localPeer identity
+		
+	// keep track of localPeer identity - it could be the address of a service or a notification URI
 	private LocalPeer localPeer;
 	
 	
@@ -106,15 +105,13 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public MetaInterpreter ()
 	{
 		super() ;
-		log.debug("$Id: MetaInterpreter.java,v 1.1 2005/11/30 10:35:09 ionut_con Exp $");
+		log.debug("$Id: MetaInterpreter.java,v 1.2 2006/07/18 17:42:15 ionut_con Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
 		
 		
-		System.out.println("\n\nMetaInterpreter log este true sau false "+log.isDebugEnabled()+"\n\n");
-		System.out.println("sunt in MetaInterpreter in init");
 		
 		String msg = null ;
 		if (_dispatcher == null)
@@ -142,12 +139,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		
 		log.info("PeerName = " + _alias) ;
 		log.debug("(Init) PeerName = " + _alias) ;
-		
-//		_queue = (Queue) _configurator.createComponent(Vocabulary.Queue, true) ;
-
-//		_inferenceEngine = (InferenceEngine) _configurator.createComponent(Vocabulary.InferenceEngine, true) ;
-//		_inferenceEngine.init() ;
-		
+				
 		
 		try {
 			_inferenceEngine.insert(PEERNAME_PREDICATE + "(" + _alias + ")") ;
@@ -172,21 +164,12 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			}
 		}
 
-//		AbstractFactory _commChannelFactory = (AbstractFactory) _configurator.createComponent(Vocabulary.CommunicationChannel, true) ;
+
 		_netClient = _commChannelFactory.createNetClient() ;
 		_localPeer = _commChannelFactory.getServerPeer(_alias);	
 		
-		System.out.println("Local Peer: alias = " + _localPeer.getAlias() + " - host = " + _localPeer.getAddress() + " - port = " + _localPeer.getPort()) ;
+		//System.out.println("Local Peer: alias = " + _localPeer.getAlias() + " - host = " + _localPeer.getAddress() + " - port = " + _localPeer.getPort()) ;
 		
-//		_metaInterpreterListener = (MetaInterpreterListener) _configurator.createComponent(Vocabulary.MetaInterpreterListener, true) ; 
-//		_metaInterpreterListener.setConfigurator(_configurator) ;
-//		_metaInterpreterListener.setEngine(_inferenceEngine) ;
-//		_metaInterpreterListener.setEntities(_entities) ;
-//		_metaInterpreterListener.setQueue(_queue) ;
-//		_metaInterpreterListener.setCommChannelFactory(_commChannelFactory) ;
-//		_metaInterpreterListener.init() ;
-//		
-//		PTEngine.getDispatcher().register(this, QueryEvent.class) ;
 
 		_dispatcher.register(this, QueryEvent.class) ;
 		
@@ -209,7 +192,6 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 	public void stop()
 	{
 		_metaIThread = null ;
-//		_metaInterpreterListener.stop() ;
 	}
 		
 	/* (non-Javadoc)
@@ -250,13 +232,12 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		// if the query is a failure, we forward the failure to the requester
 		if (selectedTree.getStatus() == Tree.FAILED)
 		{
-			//Answer failure = new Answer(selectedTree.getGoal(), null, Answer.FAILURE, selectedTree.getReqQueryId(), _localPeer, selectedTree.getRequester(), trace.addFailure(Trace.FAILURE)) ; 
 			
 			Peer srcPeer = localPeer.get(selectedTree.getRequester().getAddress());
 			if(srcPeer == null)
 			{
-				System.out.println("\n\nAm intrebat adresa " +selectedTree.getRequester().getAddress());
-				System.out.println("!!!!! srcPeer e null Tree.FAILED\n\n");
+				log.debug("Asked for address " +selectedTree.getRequester().getAddress());
+				log.debug("srcPeer is null Tree.FAILED");
 			}
 			else 
 			{
@@ -284,15 +265,15 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 			Peer srcPeer = localPeer.get(selectedTree.getRequester().getAddress());
 			if(srcPeer == null)
 			{
-				System.out.println("\n\nAm intrebat adresa " +selectedTree.getRequester().getAddress()+" requester "+selectedTree.getRequester());
-				System.out.println("!!!!! srcPeer e null ANSWER OR LAST_ANSWER "+status+"\n\n");
+				log.debug("Asked for address " +selectedTree.getRequester().getAddress()+" requester "+selectedTree.getRequester());
+				log.debug("srcPeer is null ANSWER OR LAST_ANSWER "+status);
 				if(selectedTree.getRequester().getAlias().compareTo("client") == 0)
 				{
-					System.out.println("negociere cu succes pentru client");
+					log.info("Negotiation successed for client");
 					if(InitializationHolder.gridClientTrustNegotiation != null)
 					{
+						// in order to inform that the negotiation was successful 
 						InitializationHolder.gridClientTrustNegotiation.setSucces(true);
-						System.out.println("am trimis la gridclienttrustnegotiation success");
 					}
 				}
 			}
@@ -402,8 +383,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						log.debug("Trace is:" + newTrace.printTrace()) ;
 						
 						
-						System.out.println("Initial requester: " + selectedTree.getRequester().getAlias()) ;
-						System.out.println("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
+						log.debug("Initial requester: " + selectedTree.getRequester().getAlias()) ;
+						log.debug("Delegated to: " + delegatedTree.getDelegator().getAlias()) ;
 						
 						log.debug("Trace is:" + newTrace.printTrace()) ;
 						// and send query to remote delegator
@@ -412,8 +393,8 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 						Peer srcPeer = localPeer.get(delegatedTree.getDelegator().getAddress());
 						if(srcPeer == null)
 						{
-							System.out.println("\n\nAm intrebat adresa" +delegatedTree.getDelegator().getAddress());
-							System.out.println("!!!!! srcPeer e null delegator\n\n");
+							log.debug("Asked for address " +delegatedTree.getDelegator().getAddress());
+							log.debug("srcPeer is null");
 						}
 						else 
 						{	
@@ -570,9 +551,7 @@ public class MetaInterpreter implements Configurable, Runnable, PTEventListener
 		return _runTimeOptions.getRunningMode() == RunTimeOptions.DEMO_MODE ;
 	}
 
-	
-	
-	
+		
 	
 	public void setLocalPeer(LocalPeer localPeer)
 	{

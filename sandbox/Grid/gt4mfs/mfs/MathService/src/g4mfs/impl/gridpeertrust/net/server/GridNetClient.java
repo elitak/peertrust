@@ -6,6 +6,8 @@
  */
 package g4mfs.impl.gridpeertrust.net.server;
 
+import org.apache.log4j.Logger;
+
 import g4mfs.impl.gridpeertrust.wrappers.SendHelper;
 import g4mfs.impl.gridpeertrust.wrappers.SendWrapper;
 import g4mfs.impl.org.peertrust.net.Message;
@@ -15,19 +17,22 @@ import g4mfs.impl.org.peertrust.net.NetClient;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Called by the MetaInterpreter in order to deliver a message to a grid peer. The GridNetClient object locates the SendWrapper associated
+ * with a destination/port/address and calls the sendMessage function of the SendWrapper with the message to be delivered as parameter
  */
 public class GridNetClient implements NetClient
 {
 	
-	SendHelper sendHelper;
+	SendHelper sendHelper;  // holds the SendWrappers for the grid peers
+	private static Logger logger = Logger.getLogger(GridNetClient.class.getName());
+	
 	
 	public GridNetClient()
 	{
 		
 	}
+	
+	
 	
 	public SendHelper getSendHelper()
 	{
@@ -40,22 +45,26 @@ public class GridNetClient implements NetClient
 	}
 	
 	
+	/**
+	 * delivers a message to a grid peer with the help of a SendWrapper
+	 * @param message
+	 * @param destination
+	 */
 	public void send(Message message, Peer destination)
 	{
 		SendWrapper sw = sendHelper.getSendWrapper(destination.getAddress());	
-		// in case destination is a Client for notifications getAddress would return the address of the notification topic for
-		// which the Peer subscribed
-		// otherwise would return a wrapper for contacting the destination service
+		// in case destination is a client for notifications getAddress would return a wrapper for the address of the notification topic for
+		// which the Peer subscribed, otherwise it would return a wrapper for contacting the destination service
 		
-		System.out.println("GridNetClient trimit mesaj "+message.getSource()+" "+message.getTarget());
+		logger.info("Send message from "+message.getSource()+" to "+message.getTarget());
 		
 		if(sw == null)
 		{
-			System.out.println("\n\nGridNetClient send message destination sw e null\n\n");
-			System.out.println("GridNetClient mesaj si destinatie");
-			System.out.println(message);
-			System.out.println(destination);
-			System.out.println("\n\n");
+			logger.info("Send message to a destiantion with no registered SendWrapper");
+			logger.info("Message can not be delivered");
+			logger.info("The message is: "+message);
+			logger.info("The message destination is: "+destination);
+			return;
 		}
 		sw.setMessage(message);
 		sw.sendMessage();

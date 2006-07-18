@@ -33,6 +33,8 @@ import g4mfs.impl.org.peertrust.net.Peer;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
+
 import g4mfs.impl.org.peertrust.net.Answer;
 import g4mfs.impl.org.peertrust.net.Query ;
 
@@ -40,11 +42,11 @@ import g4mfs.impl.org.peertrust.net.Query ;
  * <p>
  * Simple client
  * </p><p>
- * $Id: TrustClient.java,v 1.1 2005/11/30 10:35:17 ionut_con Exp $
+ * $Id: TrustClient.java,v 1.2 2006/07/18 17:42:16 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:17 $
+ * Last changed: $Date: 2006/07/18 17:42:16 $
  * by $Author: ionut_con $
  * </p>
  * @author olmedilla
@@ -62,6 +64,8 @@ public class TrustClient implements PTEventListener
 	private Hashtable _queries ;
 	
 	private Peer _peer ;
+	
+	private static Logger logger = Logger.getLogger(TrustClient.class.getName());
 	
 //	private String localAlias ;
 	
@@ -98,16 +102,16 @@ public class TrustClient implements PTEventListener
 		{
 			QueryEvent qe = (QueryEvent) event ;
 			Query q = qe.getQuery() ;
-			System.out.println (PREFIX + "Query sent " + q.getReqQueryId() + ": " + q.getGoal()) ;
+			logger.info(PREFIX + "Query sent " + q.getReqQueryId() + ": " + q.getGoal()) ;
 		}
 		else if (event instanceof AnswerEvent)
 		{
 			AnswerEvent ae = (AnswerEvent) event ;
 			Answer a = ae.getAnswer() ;
-			System.out.println (PREFIX + "Answer to query " + a.getReqQueryId() + ": " + a.getGoal()) ;
+			logger.info(PREFIX + "Answer to query " + a.getReqQueryId() + ": " + a.getGoal()) ;
 		}
 		else
-			System.out.println (PREFIX + "Unknown event of class " + event.getClass().getName()) ;
+			logger.info(PREFIX + "Unknown event of class " + event.getClass().getName()) ;
 	}
 
 	public static void main(String[] args) throws ConfigurationException
@@ -123,21 +127,15 @@ public class TrustClient implements PTEventListener
 		String newArgs[] = new String[1] ;
 		
 		
-		System.out.println("TrustClient am pornit");
-		System.out.println("TrustCLient am pornit cu nr arg "+args.length);
-		
-		
+				
 		
 		if (args.length < 1)
 		{
-			System.out.println ("Args: <configFile.rdf>") ;
-			//return ;
 			newArgs[0] = defaultConfigFile ; 
 		}
 		else 
 		{
 			newArgs[0] = args[0] ;
-			System.out.println("TrustClient argumentele cu care pornesc "+args[0]);
 		}
 		
 		
@@ -149,23 +147,19 @@ public class TrustClient implements PTEventListener
 		String[] components = { defaultComponent } ;
 		
 		
-		System.out.println("TrustCLient defaultComponent "+defaultComponent);
+		logger.info("TrustClient defaultComponent "+defaultComponent);
 		
 		
 		
 		config.startApp(newArgs, components) ;
 		
 		
-		System.out.println("TrustCLient inainte de exit "+defaultComponent);
-		
-		//System.exit(1);
-	
 		PTEngine engine = (PTEngine) config.getComponent(Vocabulary.PeertrustEngine) ;
 		EventDispatcher dispatcher = engine.getEventDispatcher() ;
 		if (dispatcher == null)
 		{
-			System.out.println ("No event dispatcher has been found") ;
-			System.out.println (PREFIX + "No event dispatcher has been found") ;
+			logger.info("No event dispatcher has been found") ;
+			logger.info(PREFIX + "No event dispatcher has been found") ;
 		}
 		
 		TrustClient tc = new TrustClient(dispatcher) ;
@@ -181,7 +175,7 @@ public class TrustClient implements PTEventListener
 				// ignore
 			}
 
-		System.out.println (PREFIX + "Stopping") ;
+		logger.info(PREFIX + "Stopping") ;
 		engine.stop() ;
 
 //		tc.sendQuery("employee(alice, microsoft) @ microsoft") ;

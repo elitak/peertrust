@@ -15,24 +15,25 @@ import org.globus.wsrf.impl.ReflectionResourceProperty;
 import org.globus.wsrf.impl.SimpleTopic;
 import org.globus.wsrf.impl.SimpleTopicList;
 
+/**
+ * 
+ * @author ionut constandache ionut_con@yahoo.com
+ * the WSRF resource of the MathService
+ * it will expose a Topic the TrustNegotiationTopic used for pushing negotiation messages as notifications to the client
+ * the client will have to register for notifications with the TrustNegotiation topic 
+ */
+
+
 public class MathResource implements Resource, ResourceIdentifier, ResourceProperties, TopicListAccessor 
 {
 
 	private ResourcePropertySet propSet;
 	private Object key;
-
-	/* Insert resource properties here. For example: */
-	/*private int value; //Resource property
-	private String lastOp;  //Reosurce property*/
-	
-	// in order to use Notifications SimpleResourceProperty
 	
 	private ResourceProperty valueRP;
 	private ResourceProperty lastOpRP;
 	private TopicList topicList;   //keep track of all the topics published by our resource
 
-	//private SimpleTopic trustNegotiationTopic;
-	
 	
 	public TopicList getTopicList()
 	{
@@ -41,27 +42,20 @@ public class MathResource implements Resource, ResourceIdentifier, ResourcePrope
 	
 	public int getValue() 
 	{
-		//System.out.println("\n\n*******A fot apelat getvalue \n\n");
-		//if (valu
 		Integer value_obj = (Integer) valueRP.get(0);
 		int val = value_obj.intValue();
-		//System.out.println("getValue val este "+val);
-		//return value_obj.intValue();
-		//return 10;
 		return val;
 	}
 
 	public void setValue(int value) 
 	{
-		System.out.println("\n\n*******A fot apelat setvalue "+value+"\n\n");
-		
+		System.out.println("Setvalue called with "+value);
 		Integer value_obj = new Integer(value);
 		valueRP.set(0,value_obj);
 	}
 
 	public String getLastOp()
 	{
-		
 		String lastOp_obj = (String) lastOpRP.get(0);
 		return lastOp_obj;
 	}	
@@ -79,13 +73,6 @@ public class MathResource implements Resource, ResourceIdentifier, ResourcePrope
 
 		try 
 		{
-			/*ResourceProperty valueRP = new ReflectionResourceProperty(MathQNames.RP_VALUE,"Value",this);
-			this.propSet.add(valueRP);
-			setValue(0);
-			ResourceProperty lastOpRP = new ReflectionResourceProperty(MathQNames.RP_LASTOP,"LastOp",this);
-			this.propSet.add(lastOpRP);
-			setLastOp("NONE");*/
-			
 			// in order to use notifications SimpleResourceProperty
 			valueRP = new SimpleResourceProperty(MathQNames.RP_VALUE);
 			valueRP.add(new Integer(0));
@@ -101,6 +88,8 @@ public class MathResource implements Resource, ResourceIdentifier, ResourcePrope
 		}
 
 		
+		
+		// add to the topicList the resource properties - they can also be topics of interest for the client
 		this.topicList = new SimpleTopicList(this);
 		
 		valueRP = new ResourcePropertyTopic(valueRP);
@@ -109,8 +98,7 @@ public class MathResource implements Resource, ResourceIdentifier, ResourcePrope
 		lastOpRP = new ResourcePropertyTopic(lastOpRP);
 		((ResourcePropertyTopic) lastOpRP).setSendOldValue(true);
 		
-		
-		
+				
 		this.topicList.addTopic((Topic) valueRP);
 		this.topicList.addTopic((Topic) lastOpRP);
 		//this.topicList.addTopic(trustNegotiationTopic);

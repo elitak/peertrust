@@ -32,11 +32,11 @@ import org.apache.log4j.Logger;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: PTEventDispatcher.java,v 1.1 2005/11/30 10:35:13 ionut_con Exp $
+ * $Id: PTEventDispatcher.java,v 1.2 2006/07/18 17:42:17 ionut_con Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/11/30 10:35:13 $
+ * Last changed: $Date: 2006/07/18 17:42:17 $
  * by $Author: ionut_con $
  * </p>
  * @author olmedilla 
@@ -49,7 +49,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
 	
 	public PTEventDispatcher() {
 		super();
-		log.debug("$Id: PTEventDispatcher.java,v 1.1 2005/11/30 10:35:13 ionut_con Exp $");
+		log.debug("$Id: PTEventDispatcher.java,v 1.2 2006/07/18 17:42:17 ionut_con Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -162,7 +162,7 @@ public class PTEventDispatcher implements EventDispatcher, Configurable {
             	}
             	catch(Exception ex)
 				{
-            		System.out.println("ECEPTIE:         PTEventDispatcher am prins exceptie la listener.event");
+            		log.debug("Exception at PTEventDispatcher");
 				}
 /*            	try {
                     if ( service != event.getSource() ) {

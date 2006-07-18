@@ -7,8 +7,8 @@
 package g4mfs.impl.gridpeertrust.wrappers;
 
 
+import org.apache.log4j.Logger;
 import org.globus.wsrf.Topic;
-
 import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.Peer;
 import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.TrustNegotiationNotificationMessageType;
 import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.TrustNegotiationNotificationMessageWrapperType;
@@ -22,9 +22,8 @@ import g4mfs.impl.org.peertrust.net.Message;
 
 /**
  * @author ionut constandache ionut_con@yahoo.com
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * the NotificationSendWrapper class is used to send negotiation messages to a client listening fot notifications
+ * the NotificationSendWrapper has to receive the negotiationTopic of the client in order to know where to send the message
  */
 public class NotificationSendWrapper implements SendWrapper
 {
@@ -33,8 +32,10 @@ public class NotificationSendWrapper implements SendWrapper
 	Topic negotiationTopic;
 	AuthorizedClient authorizedClient = new AuthorizedClient(); 
 	ClientManager clientManager = InitializationHolder.clientManager;
+	private static Logger logger = Logger.getLogger(NotificationSendWrapper.class.getName());
 	
-	/* 
+	
+	/** 
 	 * receive a peer argument of type org.peetrust.net.Peer and convert it to a gridPeer
 	 */
 	public void setPeer(Object peer)
@@ -72,43 +73,41 @@ public class NotificationSendWrapper implements SendWrapper
 	{
 		
 		String operation = authorizedClient.isAuthorized(message);
-		if(operation!=null)
+		if(operation!=null) // if the operation is authorized - if the negotiation ended successfull then mark the client as authorized
 		{
-			System.out.println("NotificationSendWrapper  Client autorizat "+operation);
+			logger.info("Client has been authorized for operation "+operation);
 			TopicClient topicClient = clientManager.getTopicClient(negotiationTopic);
 			clientManager.addAuthorizedClient(topicClient.getSubjectDN(),topicClient.getIssuerDN(),operation,topicClient.getExpirationDate());
-			System.out.println("NotificationSendWrapper  Client autorizat: ");
-			System.out.println(topicClient.getSubjectDN()+" "+topicClient.getIssuerDN()+" "+operation+" "+topicClient.getExpirationDate());
+			logger.info("Client registered as authorized with subjectDN "+topicClient.getSubjectDN()+" issuerDN "+topicClient.getIssuerDN()+" operation "+operation+" expirationDate "+topicClient.getExpirationDate());
 		}
 		
 		
 		TrustNegotiationNotificationMessageWrapperType msgWrapper = new TrustNegotiationNotificationMessageWrapperType(message);
 		
+		logger.info("Sending from source "+message.getSource().getAddress()+" "+message.getSource().getAlias()+" "+message.getSource().getPort()+
+				" for target "+message.getTarget().getAddress()+" "+message.getTarget().getAlias()+" "+message.getTarget().getPort());
+		logger.info("Goal: "+message.getGoal());
 		
-		
-		System.out.println("NotificationSendWrapper trimit de la sursa "+message.getSource().getAddress()+" "+message.getSource().getAlias()+" "+message.getSource().getPort()+
-				" pentru target "+message.getTarget().getAddress()+" "+message.getTarget().getAlias()+" "+message.getTarget().getPort());
-		System.out.println("Goal: "+message.getGoal());
-		System.out.println("Trace: ");
+		String deliveredTrace = "Trace: ";
 		String[] a = message.getTrace();
 		for(int i=0;i<a.length;i++)
-			System.out.println(a[i]);
+			deliveredTrace = deliveredTrace + a[i];
+		logger.info(deliveredTrace);
+		
 		if(message.getMessageType() == SuperMessage.ANSWER_TYPE)
 		{
-			System.out.println("Proof: "+message.getProof()+" Statrus: "+message.getStatus());
-		}
-		System.out.println("\n\n");
-
-		
+			logger.info("Proof: "+message.getProof()+" Status: "+message.getStatus());
+		}		
 		
 		try
 		{
+			// send the message to the client
 			negotiationTopic.notify(msgWrapper);
-			System.out.println("\n\n******TNP am trimis notificare******\n\n");	
+			logger.info("Notification sent");	
 		}
 		catch(Exception e)
 		{
-			System.out.println("Am prins exceptie la notify NotificationSendWrapper");
+			System.out.println("Exception caught at NotificationSendWrapper");
 			e.printStackTrace();
 		}
 		

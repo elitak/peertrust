@@ -18,6 +18,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.log4j.Logger;
 import org.globus.wsrf.NotificationConsumerManager;
 import org.globus.wsrf.NotifyCallback;
 import org.globus.wsrf.WSNConstants;
@@ -34,19 +35,19 @@ import ro.pub.egov.linux.ionut.TrustNegotiation_wsdl.TrustNegotiationNotificatio
 /**
  * @author ionut constandache ionut_con@yahoo.com
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Thread used to listen for notifications received from the service side
  */
 public class GridClientNotificationThread extends Thread implements NotifyCallback
 {
 	
-	String serviceURI;
-	EndpointReferenceType epr;
-	QName notificationURI;
-	SyncQueue queue;
-	GridClientTrustNegotiation gridClientTrustNegotiation;
+	String serviceURI;    // service URI
+	EndpointReferenceType epr;   // service endPoint
+	QName notificationURI;  // notification URI - where to listen for notifications
+	SyncQueue queue;   // synchronization queue 
+	GridClientTrustNegotiation gridClientTrustNegotiation;  // this object is used to start the thread
 	boolean exitFlag = false;
 	
+	private static Logger logger = Logger.getLogger(GridClientNotificationThread.class.getName());
 	
 	public GridClientNotificationThread()
 	{
@@ -58,25 +59,38 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 		this.gridClientTrustNegotiation = gridClientTrustNegotiation;
 	}
 
+	/**
+	 * set the notification URI
+	 */
 	public void setNotificationURI(QName notificationURI)
 	{
 		this.notificationURI = notificationURI;
-		System.out.println("\n\nGridClientNotificationThread setNotificationURI am setat urmatorul notificationURI "+notificationURI.getNamespaceURI()+" "+notificationURI.getLocalPart()+" \n\n");
+		logger.info("the notification URI is: "+notificationURI.getNamespaceURI()+" "+notificationURI.getLocalPart());
 	}
 	
+	/**
+	 * set the synchronization queue
+	 */
 	public void setSyncQueue(SyncQueue q)
 	{
 		queue = q;
 	}
+	
+	
 	
 	public void setGridClientTrustNegotiation(GridClientTrustNegotiation gridClientTrustNegotiation)
 	{
 		this.gridClientTrustNegotiation = gridClientTrustNegotiation;	
 	}
 
+	/**
+	 * called when notifications are delivered
+	 * 
+	 */
+	
 	public void deliver(List topicPath, EndpointReferenceType producer, Object message)
 	{
-		System.out.println("\n\nGridClientNotificationThread s-a apelat deliver");
+		logger.info("deliver was called");
 		try
 		{
 			TrustNegotiationNotificationMessageType notif;
@@ -86,63 +100,61 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 				
 				
 				
-				System.out.println("GridClientNotificationThread s-a primit de la sursa "+notif.getSource().getAddress()+" "+notif.getSource().getAlias()+" "+notif.getSource().getPort()+
-						" pentru target "+notif.getTarget().getAddress()+" "+notif.getTarget().getAlias()+" "+notif.getTarget().getPort());
-				System.out.println("Goal: "+notif.getGoal());
-				System.out.println("Trace: ");
+				logger.info("From source "+notif.getSource().getAddress()+" "+notif.getSource().getAlias()+" "+notif.getSource().getPort()+
+						" for target "+notif.getTarget().getAddress()+" "+notif.getTarget().getAlias()+" "+notif.getTarget().getPort());
+				logger.info("Goal: "+notif.getGoal());
+				
+				String deliveredTrace = "Trace: ";
+				
 				String[] a = notif.getTrace();
 				for(int i=0;i<a.length;i++)
-					System.out.println(a[i]);
+					deliveredTrace = deliveredTrace + a[i];
 				
+				logger.info(deliveredTrace);
+					
 				
 				if(notif.getMessageType() == SuperMessage.ANSWER_TYPE)
 				{
-					System.out.println("Proof: "+notif.getProof()+" Statrus: "+notif.getStatus());				
+					logger.info("Proof: "+notif.getProof()+" Status: "+notif.getStatus());				
 				}
-				System.out.println("\n\n");
 				
-				
-				//System.out.println("GridClientNotificationThread asta a fost in deliver");
-				
-				
+								
+				// use the ConverterClass to convert between  
+				// g4mfs.impl.org.peertrust.net.Peer and org.peertrust.Peer
 				
 				Message mesg = ConverterClass.trustNegotiationNotificationMessageToPtMessage(notif);
 				if (mesg instanceof Answer)
 				{
-					if (((Answer) mesg).getStatus() == Answer.LAST_ANSWER) // negotiation is finished with success
+					if (((Answer) mesg).getStatus() == Answer.LAST_ANSWER) // negotiation successful
 					{
-						System.out.println("GridClientNotificationThread negocierea s-a incheiat cu succes");
-						exitFlag = true;
+						logger.info("Negotiation successful");
+						exitFlag = true; // we can exit
 						gridClientTrustNegotiation.setSucces(true);
 						
 					}
 					else
-						if(((Answer) mesg).getStatus() == Answer.FAILURE) // negotiation is finished without success
+						if(((Answer) mesg).getStatus() == Answer.FAILURE) // negotiation failed
 						{
-							System.out.println("GridClientNotificationThread negocierea s-a incheiat cu insucces");
+							logger.info("Negociation failed");
 							exitFlag = true;
 							gridClientTrustNegotiation.setSucces(false);
 						}
 				}
-				/*if(queue == null)
-				{
-					System.out.println("GridClientNotificationThread queue este null in deliver");
-				}*/
 				
-				
-				System.out.println("GridClientNotificationThread am facut push la mesaj");
+				// push the message for further processing 
+				logger.info("Message pushed in the queue");
 				queue.push(mesg);
 				
 			}
 			else
 			{
-				System.out.println("GridClientNotificationThread notif null in deliver");
+				System.out.println("GridClientNotificationThread notification null in deliver");
 			}
 	
 		}
 		catch(Exception e)
 		{
-			System.out.println("GridClientNotificationThread exceptie in deliver");
+			System.out.println("GridClientNotificationThread exception in deliver");
 			e.printStackTrace();
 		}
 	
@@ -160,19 +172,15 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 	
 	public void run()
 	{
-		System.out.println("Client GridClientNotificationThread started of course !!!!!");
 		try
 		{
-			System.out.println("\n\n************aici0******************\n\n");
-			
-			
+					
 			// the notifficationconsumer sets up an endpoint where notifications will be delivered
 			NotificationConsumerManager consumer;
 			consumer = NotificationConsumerManager.getInstance();
 			consumer.startListening();
 			EndpointReferenceType consumerEPR = consumer.createNotificationConsumer(this);
 			
-			System.out.println("aici1");
 			
 			//create the request to the remote Subscribe() call 
 			Subscribe request = new Subscribe();
@@ -183,44 +191,33 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 			//Indicate what the client's EPR is
 			request.setConsumerReference(consumerEPR);
 			
-			System.out.println("aici2");
-			
-			
+					
 			//The TopicExpressionType specifies what topic we want to subscribe to
 			TopicExpressionType topicExpression = new TopicExpressionType();
 			topicExpression.setDialect(WSNConstants.SIMPLE_TOPIC_DIALECT);
 			topicExpression.setValue(notificationURI);
 			request.setTopicExpression(topicExpression);
 			
-			System.out.println("GridClientNotificationThread am setat notificationURI "+notificationURI);
-			
-			
+				
 			//Get a reference to the NotificationProducer portType
 			WSBaseNotificationServiceAddressingLocator notifLocator = new WSBaseNotificationServiceAddressingLocator();
-			//EndpointReferenceType endpoint = new EndpointReferenceType();
-			//endpoint.setAddress(new Address(serviceURI));
-			//NotificationProducer producerPort = notifLocator.getNotificationProducerPort(endpoint);
+		
 			
 			NotificationProducer producerPort = notifLocator.getNotificationProducerPort(epr);
-			System.out.println("Notification Producer port "+producerPort.toString());
+			logger.info("Notification Producer port "+producerPort.toString());
 			
-			// 
 			if(producerPort == null)
 			{
-				System.out.println("producerPort e null");
+				logger.info("producerPort is null");
 			}
 			else
 			{
-				System.out.println("producerPort e ok");
+				logger.info("producerPort ok");
 			}
 			
 			producerPort.subscribe(request);
 			
-			System.out.println("GridClientNotificationThread a intors subscribe");
-			
-			
-			
-			System.out.println("GridClientNotificationThread Waiting for notifications");
+			logger.info("GridClientNotificationThread Waiting for notifications");
 			
 			while(true)
 			{
@@ -230,6 +227,7 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 					return;
 				} 
 				
+				// when notifications are delivered the thread is automatically awaken
 				try
 				{
 					Thread.sleep(30000);
@@ -243,7 +241,7 @@ public class GridClientNotificationThread extends Thread implements NotifyCallba
 		}
 		catch(Exception e)
 		{
-			System.out.println("GridClientNotificationThread exceptie in run");
+			System.out.println("GridClientNotificationThread exception in run");
 			e.printStackTrace();
 		}
 	}
