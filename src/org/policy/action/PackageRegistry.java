@@ -1,10 +1,5 @@
-/**
- * @(#) PackageRegistry.java
- */
-
 package org.policy.action;
 
-public class PackageRegistry
-{
-	
+public class PackageRegistry {
+
 }

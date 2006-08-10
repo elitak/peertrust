@@ -135,7 +135,7 @@ You need to set ANT_HOME in your shell.
 
 <!-- ======================================================================
      'build.xml' for Peertrust...
-     $Id: build.xml,v 1.10 2006/04/24 12:04:36 dolmedilla Exp $
+     $Id: build.xml,v 1.11 2006/08/10 10:10:35 dolmedilla Exp $
      ====================================================================== -->
 
 <project name="peertrust" default="jar" basedir=".">
@@ -587,15 +587,15 @@ ${Name} Build file
   </description>
   <property name="docdir" value="${basedir}/doc/javadoc"/>
     <javadoc
-      packagenames="org.peertrust.*"
+      packagenames="org.*"
       classpathref="build.classpath"
       defaultexcludes="yes"
       destdir="${docdir}"
       author="true"
       version="true"
       use="true"
-      source="1.4"
-      windowtitle="Peertrust API"
+      source="1.5"
+      windowtitle="Policy API"
       charset="iso-8859-1"
       breakiterator="yes"
       stylesheetfile="${basedir}/doc/stylesheet.css">
