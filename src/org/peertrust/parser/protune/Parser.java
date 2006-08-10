@@ -991,7 +991,7 @@ public class Parser implements ParserConstants {
           case IDENTIFIER:
           case STRING_QUOTED:
             head = Head();
-            if (jj_2_6(2)) {
+            if (jj_2_6(3)) {
               jj_consume_token(22);
               field = Field(false,(String)head.elementAt(0));
             } else {
@@ -1135,7 +1135,7 @@ public class Parser implements ParserConstants {
         case IDENTIFIER:
         case STRING_QUOTED:
           head = Head();
-          if (jj_2_8(2)) {
+          if (jj_2_8(3)) {
             jj_consume_token(22);
             field = Field(false,(String)head.elementAt(0));
           } else {
