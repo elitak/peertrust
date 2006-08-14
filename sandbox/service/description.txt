@@ -1,0 +1,7 @@
+Provide authentication and authorization as a service in Edutella. That allows
+broadcasting of requests in order to find out if any peer in the network grants
+access to the requester. The service also can ask one peer in particular (no
+broadcasting). Some examples include:
+- Authorization and Authentication in a P2P network based on policies
+- Requests asking neighbours (or the whole network) about whether a requester
+should be granted access. The policy checks if more than N peers grant access.

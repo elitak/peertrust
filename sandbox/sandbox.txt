@@ -4,4 +4,8 @@ service - An Edutella service to enable Peertrust to be used with Edutella
 Mailrank - An implementation of the Mailrank algorithm used for classifying mails
 securityExt - Security extensions (implementation of the authenticatesTo-predicate, verification of the proof tree and credentials)
 ProtegePolicyPlugin plugin for protege to model policy aware ontologies
+PolicySystemModeler
+Grid - Integration of policy engines in Globus Toolkit 4.0
+DistributedTabling - Implementation in Prolog of a distributed tabling algorithm
+
  
