@@ -1,81 +1,75 @@
 package org.policy.filtering;
 
-/*
 import ubc.cs.JLog.Foundation.*;
 import org.apache.log4j.*;
 import org.peertrust.exception.*;
-*/
+import org.policy.action.*;
 
-//import org.policy.action.*;
-
-//import java.io.*;
-//import java.util.*;
+import java.io.*;
+import java.util.*;
 
 //implementation of the prolog api for JLog
-public class JLogPrologApi //implements PrologApi
-{
-/*
+public class JLogPrologApi implements PrologApi{
+	
 	private jPrologAPI jlog=null;
 	private Logger logger=null;
 	
 	//-------------------------------------------------------------------------------------------
 	public void init() throws ConfigurationException{
 
-		jlog=new jPrologAPI(null);
+		jlog=new jPrologAPI("");
 		jlog.setFailUnknownPredicate(true);
 		
 		logger = Logger.getLogger("JLogPrologApi");
 		logger.setLevel(Level.ALL);
 		
-		logger.debug("init: Jlog engine succesfull initialized.");
+		logger.debug("init: Jlog engine succesfully initialized.");
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-//
-	public void load( String source) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public void load( String source) throws PrologEngineException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		jlog.consultSource(source);
+		
+		logger.debug("load: Source string consulted succesfully.");
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public void load( File file) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public void load( File file) throws PrologEngineException, IOException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
+		BufferedReader br=new BufferedReader(new FileReader(file));
 		StringBuffer sb=new StringBuffer();
-		
-		try{
-			
-			BufferedReader br=new BufferedReader(new FileReader(file));
-			
-			String line;
-			while(true){
+
+		String line=null;
+		while(true){
 				
-				line=br.readLine();
-				if(line==null)
-					break;
+			line=br.readLine();
+			if(line==null)
+				break;
 				
-				sb.append(line+"\n");
-			}
-			
-		}catch(Exception e){
-			new Exception("Exceptie la citirea din fisier", e.getCause());
+			sb.append(line+"\n");
 		}
 		
 		load(sb.toString());
+		
+		logger.debug("load: Source file consulted succesfully.");
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public boolean execute( String command) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public boolean execute( String command) throws PrologEngineException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		Hashtable result=jlog.query(command);
+		
+		logger.debug("execute: Query \""+command+"\" executed.");
 		
 		if(result==null)
 			return false;
@@ -83,9 +77,11 @@ public class JLogPrologApi //implements PrologApi
 		return true;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------
+	//transform objects returned by the prolog engine in strings
 	private String transform(Object o){
 		
+		//object is a string stored as a vector
 		if(o instanceof Vector){
 			
 			Vector v=(Vector)o;
@@ -98,8 +94,9 @@ public class JLogPrologApi //implements PrologApi
 		
 		return o.toString();
 	}
-	
-	/*-------------------------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------------------------
+	//transform an enumeration of objects into a vector of strings
 	private String[] transform( Enumeration e, int size){
 		
 		String[] sv=new String[size];
@@ -114,8 +111,9 @@ public class JLogPrologApi //implements PrologApi
 		return sv;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	private ActionResult getActionResult(Hashtable result) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	//creates an ActionResult from a hashtable returned by jlog as a query result
+	private ActionResult getActionResult(Hashtable result) throws FunctionFailureException{
 		
 		if(result==null)
 			return new ActionResult(false);
@@ -132,15 +130,17 @@ public class JLogPrologApi //implements PrologApi
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	private ActionResult getActionResult( Hashtable result, String[] vars) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	private ActionResult getActionResult( Hashtable result, String[] vars) throws FunctionFailureException{
 		
 		if(result==null)
 			return new ActionResult(false);
 		
 		Vector v=new Vector();
 		Vector b=new Vector();
+		
 		for(int i=0;i<vars.length;i++){
+			
 			if(result.containsKey(vars[i])){
 				v.add(vars[i]);
 				b.add(transform(result.get(vars[i])));
@@ -153,41 +153,55 @@ public class JLogPrologApi //implements PrologApi
 		
 		return ar;
 	}
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult queryOnce( String command) throws Exception{
+	
+	//-------------------------------------------------------------------------------------------
+	public ActionResult queryOnce( String command) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		Hashtable result=jlog.queryOnce(command);
+		
+		logger.debug("queryOnce: Query \""+command+"\" executed.");
+		
 		return getActionResult(result);
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult queryOnce( String command, String[] vars) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult queryOnce( String command, String[] vars) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		Hashtable result=jlog.queryOnce(command);
+		
+		logger.debug("queryOnce: Query \""+command+"\" executed.");
+		
 		return getActionResult(result,vars);
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult query( String command) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult query( String command) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		Hashtable result=jlog.query(command);
 		ActionResult ar=getActionResult(result);
 		
+		logger.debug("query: Execute query \""+command+"\" first time.");
+		
 		if(ar.getExecutionResult()==false)
 			return ar;
 		
+		int count=2;
 		while(true){
 			
 			result=jlog.retry();
+			
+			logger.debug("query: Retry query \""+command+"\" "+count+" time.");
+			count++;
+			
 			if(result==null)
 				break;
 			
@@ -201,21 +215,28 @@ public class JLogPrologApi //implements PrologApi
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult query( String command, String[] vars) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult query( String command, String[] vars) throws PrologEngineException, FunctionFailureException{
 	
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
 		Hashtable result=jlog.query(command);
 		ActionResult ar=getActionResult(result,vars);
 		
+		logger.debug("query: Execute query \""+command+"\" first time.");
+		
 		if(ar.getExecutionResult()==false)
 			return ar;
 		
+		int count=2;
 		while(true){
 			
 			result=jlog.retry();
+			
+			logger.debug("query: Retry query \""+command+"\" "+count+" time.");
+			count++;
+			
 			if(result==null)
 				break;
 			
@@ -228,182 +249,148 @@ public class JLogPrologApi //implements PrologApi
 		
 		return ar;
 	}
+	//-------------------------------------------------------------------------------------------
+	private String processRule(String rule){
+		
+		for(int i=rule.length()-1;i>=0;i--){
+			
+			if(rule.charAt(i)=='.')
+				return rule.substring(0,i);
+			
+			if(rule.charAt(i)!=' ' && rule.charAt(i)!='\t' )
+				break;
+		}
+		
+		return rule;
+	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public boolean add( String fact) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public boolean assertRule( String rule) throws PrologEngineException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
-		Hashtable result=jlog.queryOnce("assert("+fact+").");
+		String s=processRule(rule);
+		Hashtable result=jlog.queryOnce("assert("+s+").");
+		
+		logger.debug("assertRule: Assertion of rule \""+s+"\" executed.");
+		
 		if(result==null)
 			return false;
 		
 		return true;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult retract( String fact) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult retract( String rule) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
-		ActionResult ar=queryOnce("retract("+fact+").");
+		String s=processRule(rule);
+		ActionResult ar=queryOnce("retract("+s+").");
+		
+		logger.debug("retract: Retraction of rule \""+s+"\" executed.");
+		
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult retract( String fact, String[] vars) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult retract( String rule, String[] vars) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
-		ActionResult ar=queryOnce("retract("+fact+").",vars);
+		String s=processRule(rule);
+		ActionResult ar=queryOnce("retract("+s+").",vars);
+		
+		logger.debug("retract: Retraction of rule \""+s+"\" executed.");
+		
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult retractall( String fact) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult retractall( String rule) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
-		ActionResult ar=query("retract("+fact+").");
+		String s=processRule(rule);
+		ActionResult ar=query("retract("+s+").");
+		
+		logger.debug("retractall: Retraction of rules matching \""+s+"\" executed.");
+		
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public ActionResult retractall( String fact, String[] vars) throws Exception{
+	//-------------------------------------------------------------------------------------------
+	public ActionResult retractall( String rule, String[] vars) throws PrologEngineException, FunctionFailureException{
 		
 		if(jlog==null)
-			throw new Exception("No prolog engine, must call init first.");
+			throw new PrologEngineException("No prolog engine, must call init first.");
 		
-		ActionResult ar=query("retract("+fact+").",vars);
+		String s=processRule(rule);
+		ActionResult ar=query("retract("+s+").",vars);
+		
+		logger.debug("retractall: Retraction of rules matching \""+s+"\" executed.");
+		
 		return ar;
 	}
 	
-	/*-------------------------------------------------------------------------------------------
-	public String toString( ActionResult ar){
-		
-		StringBuffer sb=new StringBuffer();
-		
-		if(ar.getExecutionResult()==false){
-			sb.append("false.\n");
-		}
-		else{
-			sb.append("true.\n");
-			
-			for(int i=0; i<ar.getVariableBindings().getNumberResults();i++){
-				
-				sb.append((i+1)+": ");
-				
-				for(int j=0; j<ar.getNumberVariables(); j++){
-					
-					sb.append(ar.getVariable(j));
-					sb.append("=");
-					sb.append(ar.getResult(i).getBinding(j));
-					sb.append("\n");
-				}
-				
-				sb.append("\n");
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-	/*-------------------------------------------------------------------------------------------
-	public void function(){
-		
-		//System.out.println(jlog.getTranslation());
-		//jlog.setVariableTranslationKeys("X",null," ([jVariable] : String)");
-		/*
-		jTermTranslation tt=new jTermTranslation();
-		tt.setDefaults();
-		jlog.setTranslation(tt);
-		
-		Hashtable result=jlog.query("autor(A,B).");
-		if(result==null){
-			System.out.println("false");
-			return;
-		}
-		
-		Object o=result.get("A");
-		System.out.println(o.toString());
-		o=result.get("B");
-		System.out.println(o.toString());
-		
-		result=jlog.retry();
-		if(result==null){
-			System.out.println("false");
-			return;
-		}
-		
-		o=result.get("A");
-		System.out.println(o.toString());
-		o=result.get("B");
-		System.out.println(o.toString());
-	}
-*/
 	//---------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args){
 
-		System.out.println("hello!");
-		/*
 		try{
-			System.out.println("hello!");
-			//PrologApi prolog=new JLogPrologApi();
-			//prolog.init();
+			
+			PrologApi prolog=new JLogPrologApi();
+			prolog.init();
+			
+			
+			prolog.load(new File("./src/org/policy/filtering/kb1.pro"));
+			prolog.load(new File("./src/org/policy/filtering/kb2.pro"));
+			
+			if(prolog.execute("autor(denisa)."))
+				System.out.println("true");
+			else
+				System.out.println("false");
+			
+			ActionResult ar=prolog.queryOnce("autor(X,Y).");
+			System.out.println(ar.toString());
+			
+			ar=prolog.queryOnce("autor(X,Y).", new String[]{"X"});
+			System.out.println(ar.toString());
+			
+			ar=prolog.query("autor1(X,Y).");
+			System.out.println(ar.toString());
+			
+			ar=prolog.query("autor1(X,Y).", new String[]{"X"});
+			System.out.println(ar.toString());
+			
+			if(prolog.assertRule("autor2(maria,'paper1')"))
+				System.out.println("true");
+			else
+				System.out.println("false");
+			
+			if(prolog.assertRule("autor2(X,'paper1'):-autor(X). \t "))
+				System.out.println("true");
+			else
+				System.out.println("false");
+			
+			ar=prolog.query("autor2(X,Y).");
+			System.out.println(ar.toString());
+			
+			ar=prolog.retract("autor2(X,'paper1')");
+			System.out.println(ar.toString());
+			
+			prolog.assertRule("autor3(denisa,'paper1')");
+			prolog.assertRule("autor3(dragos,'paper1')");
+			
+			ar=prolog.retractall("autor3(X,'paper1').",new String[]{"X"});
+			System.out.println(ar.toString());	
 			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		*/
-		/*
-		prolog.load("autor(denisa).");
-		if(prolog.execute("autor(X)."))
-			System.out.println("true");
-		else
-			System.out.println("false");
-		
-		prolog.load(new File("kb.pro"));
-		if(prolog.execute("autor(dragos)."))
-			System.out.println("true");
-		else
-			System.out.println("false");
-		
-		
-		try{
-			prolog.load(new File("kb.pro"));
-			/*
-			ActionResult ar=prolog.query("exemplu(X,Y).");
-			System.out.println(prolog.toString(ar));
-			
-			ar=prolog.query("autor(X,Y).",new String[]{"X"});
-			System.out.println(prolog.toString(ar));
-			
-			prolog.add("autor(maria)");
-			ar=prolog.query("autor(X).");
-			System.out.println(prolog.toString(ar));
-			
-			ar=prolog.retract( "autor(X)", new String[]{"X"});
-			System.out.println(prolog.toString(ar));
-			
-			prolog.add("autor1(maria,'paper1')");
-			prolog.add("autor1(ines,'paper2')");
-			
-			
-			
-			((JLogPrologApi)prolog).function();
-			
-			//ActionResult ar=prolog.query( "autor(X).");
-			//System.out.println(prolog.toString(ar));
-			
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
 	}
-	*/
 }
 
