@@ -25,12 +25,12 @@ package org.policy.action;
  * A ActionResult contains a resultset and a flag. if this result is execution result, 
  * the flag will be set as true, otherweise be false.
  * </p><p>
- * $Id: ActionResult.java,v 1.2 2006/08/10 10:10:34 dolmedilla Exp $
+ * $Id: ActionResult.java,v 1.3 2006/08/16 21:12:37 gdenisa Exp $
  * <br/>
  * Date: 05-May-2006
  * <br/>
- * Last changed: $Date: 2006/08/10 10:10:34 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2006/08/16 21:12:37 $
+ * by $Author: gdenisa $
  * </p>
  * @author C. Jin && M. Li
  */
@@ -130,4 +130,33 @@ public class ActionResult {
 	public boolean getExecutionResult( ){
 		return executionResult;
 	}
+	
+	//-------------------------------------------------------------------------------------------
+	public String toString(){
+		
+		StringBuffer sb=new StringBuffer();
+		
+		if(this.executionResult==false){
+			sb.append("false.\n");
+		}
+		else{
+			sb.append("true.\n");
+			
+			for(int i=0; i<this.getNumberResults();i++){
+				
+				sb.append((i+1)+":\n");
+				
+				for(int j=0; j<this.getNumberVariables(); j++){
+					
+					sb.append(this.getVariable(j));
+					sb.append("=");
+					sb.append(this.getResult(i).getBinding(j));
+					sb.append("\n");
+				}
+			}
+		}
+		
+		return sb.toString();
+	}
+	
 }

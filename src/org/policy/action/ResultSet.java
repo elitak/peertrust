@@ -28,12 +28,12 @@ import java.util.List;
  * <p>
  * A ResultSet contains a list of result and a array of variables.
  * </p><p>
- * $Id: ResultSet.java,v 1.2 2006/08/10 10:10:35 dolmedilla Exp $
+ * $Id: ResultSet.java,v 1.3 2006/08/16 21:12:37 gdenisa Exp $
  * <br/>
  * Date: 05-May-2006
  * <br/>
- * Last changed: $Date: 2006/08/10 10:10:35 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2006/08/16 21:12:37 $
+ * by $Author: gdenisa $
  * </p>
  * @author C. Jin && M. Li
  */
@@ -57,7 +57,7 @@ public class ResultSet {
 	 * @throws FunctionFailureException if the number of input variables is more than
 	 * the number of results
 	 */
-	protected void addResult(final Result result) throws FunctionFailureException{
+	public /*protected*/ void addResult(final Result result) throws FunctionFailureException{
 		if(result.getNumberBindings() >= variableList.length){
 			bindings.add(result);
 		}
