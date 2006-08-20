@@ -3,7 +3,7 @@ package org.peertrust.modeler.policysystem.model.abtract;
 
 
 /**
- * Interface to implements  by classes which abtract the a model
+ * Interface to implements  by classes which abtract a model
  * filter. A filter is basicaly made of a policy an a condition which
  * conditions the protection the given filter. 
  *  

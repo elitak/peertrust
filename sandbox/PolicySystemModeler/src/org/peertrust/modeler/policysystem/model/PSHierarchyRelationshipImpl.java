@@ -12,6 +12,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
+//TODO remove this class since it is use an obsolete functionality group 
 class PSHierarchyRelationshipImpl implements PSHierarchyRelationship
 {
 

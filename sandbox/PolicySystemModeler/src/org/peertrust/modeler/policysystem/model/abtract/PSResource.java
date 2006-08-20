@@ -5,7 +5,8 @@ import java.util.List;
 
 
 /**
- * The interface to implement by classes that abtracts a policy system resource
+ * The interface to implement by classes that abtracts a policy system 
+ * resource.
  *  
  * @author Patrice Congo
  *

@@ -1,7 +1,7 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
- * Repressents a store of model check.
+ * Represents a store of model check.
  * Model checks can be register und retrieve with a string key
  * 
  * @author Patrice Congo

@@ -6,8 +6,13 @@ import java.util.Collection;
 
 /**
  *The interface to implement for model overriding rule object classes.
+ *An overriding rules specify a replace of a policy by another in the
+ *resource policy inheritance hierarchy.
  * 
- *@author Patrice Congo
+ * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicy
+ * @see org.peertrust.modeler.policysystem.model.abtract.PSResource
+ * 
+ * @author Patrice Congo
  */
 public interface PSOverridingRule extends PSModelObject 
 {
@@ -37,8 +42,6 @@ public interface PSOverridingRule extends PSModelObject
 	 */
 	public void setHasOverrider(PSPolicy policy);
 	
-//	public boolean getIsInheritable();
-//	public void setIsInheritable(boolean isInheritable);
 	
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getModelObject()

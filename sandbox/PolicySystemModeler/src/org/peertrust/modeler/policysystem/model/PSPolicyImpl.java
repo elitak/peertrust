@@ -14,7 +14,9 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
- * An implementation of PSPolicy
+ * An implementation of PSPolicy which is part of a 
+ * {@link org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem}
+ * 
  * @author Patrice Congo
  *
  */
@@ -29,7 +31,8 @@ class PSPolicyImpl implements PSPolicy
 	/**
 	 * The logger for the PSPolicyImpl class
 	 */
-	private static final Logger logger=Logger.getLogger(PSPolicyImpl.class);
+	private static final Logger logger=
+					Logger.getLogger(PSPolicyImpl.class);
 	
 	/**
 	 *Holds annobject which is being protected by this policy 
@@ -134,6 +137,9 @@ class PSPolicyImpl implements PSPolicy
 		return;
 	}
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicy#getHasValue()
+	 */
 	public String getHasValue() 
 	{
 		return PolicySystemRDFModel.getStringProperty(
@@ -141,6 +147,9 @@ class PSPolicyImpl implements PSPolicy
 								PolicySystemRDFModel.PROP_HAS_VALUE);
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicy#setHasValue(java.lang.String)
+	 */
 	public void setHasValue(String value) 
 	{
 		if(value==null)
@@ -161,6 +170,9 @@ class PSPolicyImpl implements PSPolicy
 	}
 
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() 
 	{
 		PSModelLabel label=getLabel();
@@ -175,22 +187,34 @@ class PSPolicyImpl implements PSPolicy
 	}
 
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getModelObject()
+	 */
 	public Object getModelObject() 
 	{
 		return resource;
 	}
 
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicy#getGuarded()
+	 */
 	public PSModelObject getGuarded() 
 	{
 		return guarded;
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSPolicy#setGuarded(org.peertrust.modeler.policysystem.model.abtract.PSModelObject)
+	 */
 	public void setGuarded(PSModelObject guarded) 
 	{
 		this.guarded=guarded;		
 	}
 
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object obj) 
 	{
 		if(obj==null)
@@ -211,11 +235,17 @@ class PSPolicyImpl implements PSPolicy
 		}
 	}
 
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#getRole()
+	 */
 	public String getRole() 
 	{
 		return role;
 	}	
 	
+	/**
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSModelObject#setRole(java.lang.String)
+	 */
 	public void setRole(String role)
 	{
 		this.role=role;

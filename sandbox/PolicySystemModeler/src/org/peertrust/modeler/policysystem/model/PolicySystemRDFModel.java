@@ -968,7 +968,7 @@ public class PolicySystemRDFModel
 			return null;
 		}
 		
-		URI identity=iMaker.makeIdentity(realResource);
+		URI identity=iMaker.relativeURI(realResource);
 		Selector psSel=
 			new SimpleSelector(
 					(Resource)null,
@@ -1006,7 +1006,7 @@ public class PolicySystemRDFModel
 					blockModelEvent=false;
 					return null;
 				}
-					String label=iMaker.makeLabel(realResource);
+					String label=iMaker.getLabel(realResource);
 					res=
 						rdfModel.createResource(
 							idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
@@ -1070,7 +1070,7 @@ public class PolicySystemRDFModel
 					"\n\rclass="+realResource.getClass());
 		}
 	
-		URI identity=iMaker.makeIdentity(realResource);
+		URI identity=iMaker.relativeURI(realResource);
 		Selector psSel=
 		new SimpleSelector(
 				(Resource)null,
@@ -1098,7 +1098,7 @@ public class PolicySystemRDFModel
 		{//need to be created
 			ProjectConfig projectConfig=ProjectConfig.getInstance();
 			URI root=
-				projectConfig.getRootFor(iMaker.toURI(realResource));
+				projectConfig.getRootFor(iMaker.getAbsoluteURI(realResource));
 				//ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
 			if(root==null)
 			{
@@ -1107,7 +1107,7 @@ public class PolicySystemRDFModel
 				blockModelEvent=false;
 				return null;
 			}
-			String label=iMaker.makeLabel(realResource);
+			String label=iMaker.getLabel(realResource);
 			res=
 					rdfModel.createResource(
 						idGenerator.generateID(PSResource.class,label));//	NS_KB_DATA+"PSResource"+System.currentTimeMillis());
@@ -2319,7 +2319,7 @@ public class PolicySystemRDFModel
 		return null;
 	}
 
-	public List getModelObjectProperties(
+	public List<Object> getModelObjectProperties(
 						PSModelObject modelObject, 
 						String propertyKey) 
 	{

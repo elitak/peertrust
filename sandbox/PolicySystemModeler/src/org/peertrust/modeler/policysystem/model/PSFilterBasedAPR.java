@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import org.peertrust.modeler.policysystem.model.abtract.PSProtection;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
@@ -44,13 +45,13 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(org.peertrust.modeler.policysystem.model.abtract.PSResource)
 	 */
-	public List getApplyingPolicies(PSResource psResource) 
+	public List<PSProtection> getApplyingPolicies(PSResource psResource) 
 	{
 		
 		logger.debug(
 				"\ncall :getApplyingPolicies(psResource)"+
 				"\n\tpsResource="+psResource);
-		Vector protections= new Vector();
+		Vector<PSProtection> protections= new Vector<PSProtection>();
 		if(psResource==null)
 		{
 			return protections;
@@ -66,7 +67,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 			applyConditions(protections,curRes);
 //			/override
 			applyORules(protections,curRes);
-			protections.addAll(PSProtectionImpl.makeProtections(curRes));
+			protections.addAll(PSProtectionImpl.getAddedProtections(curRes));
 //			applyConditions(protections,curRes);
 		}
 		logger.info(
@@ -83,7 +84,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	 * @param protections -- contains the conditions
 	 * @param resource -- the resource to test
 	 */
-	private static void applyConditions(Vector protections,PSResource resource)
+	private static void applyConditions(Vector<PSProtection> protections,PSResource resource)
 	{
 		logger.info(
 				"\napplyConditions(Vector protections,PSResource resource)"+
@@ -101,7 +102,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 //			return;
 //		}
 		
-		List toRemove= new ArrayList();
+		List<PSProtection> toRemove= new ArrayList<PSProtection>();
 		PSProtection protection;
 		String condition=null;
 		String identity=resource.getHasMapping();
@@ -173,7 +174,7 @@ public class PSFilterBasedAPR implements PSApplyingPolicyResolver
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(java.lang.String)
 	 */
-	public List getApplyingPolicies(String identity) 
+	public List<PSProtection> getApplyingPolicies(String identity) 
 	{
 		logger.debug(
 				"\nCall getApplyingPolicies(String identity)"+

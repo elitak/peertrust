@@ -17,24 +17,29 @@ public interface PSModelChangeVeto
 	public static final PSModelChangeVeto NO_VETO=
 		new PSModelChangeVeto()
 		{
-
-			public PSModelStatement[] getVetoingStatements() {
-				return new PSModelStatement[0];
+			final PSModelStatement NO_STMS[]=new PSModelStatement[0];
+			public PSModelStatement[] getVetoingStatements() 
+			{
+				return NO_STMS;
 			}
 
-			public void addPSModelStatement(PSModelStatement statement) {
+			public void addPSModelStatement(PSModelStatement statement) 
+			{
 				//empty
 			}
 
-			public void removePSModelStatement(PSModelStatement statement) {
+			public void removePSModelStatement(PSModelStatement statement) 
+			{
 				//empty
 			}
 
-			public void clear() {
+			public void clear() 
+			{
 				//empty				
 			}
 		
 		};
+		
 	/**
 	 * Returns the statement which veto the modification of the
 	 * model.

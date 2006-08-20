@@ -1,8 +1,10 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
- * The interface to implemen by class  which are abtracting a
+ * The interface to be implement by classes  which are abtracting a
  * conditional guarding i.e. guarding only if a given condition applies.
+ * A condition is represented as a string. and represents e.g. regular 
+ * expression which must be match bei the resource name.
  * 
  * @author Patrice Congo
  *

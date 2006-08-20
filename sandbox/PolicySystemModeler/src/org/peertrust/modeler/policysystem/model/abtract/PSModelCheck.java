@@ -1,7 +1,8 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
- * The interface to implements for a model check mechanism
+ * The interface to be implemented to provide a model checking mechanism
+ * 
  * @author Patrice Congo
  */
 public interface PSModelCheck 
@@ -16,7 +17,6 @@ public interface PSModelCheck
 	 * Get the failure message, describing the check.
 	 * @return
 	 */
-	String getMessage();
-	
+	String getMessage();	
 	
 }

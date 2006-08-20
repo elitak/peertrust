@@ -7,7 +7,9 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelStatement;
 
 /**
- * @author pat_dev
+ * The Default implementation of a PSModelStatement.
+ * 
+ * @author Patrice Congo
  *
  */
 public class PSModelStatementImpl implements PSModelStatement {

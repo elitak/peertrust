@@ -25,9 +25,9 @@ public class PSFileIdentityMaker implements PSResourceIdentityMaker
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker#makeIdentity(java.lang.Object)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker#relativeURI(java.lang.Object)
 	 */
-	public URI makeIdentity(Object fileResource)
+	public URI relativeURI(Object fileResource)
 	{
 		logger.debug("\n\tmakeIdentity:"+fileResource);
 		if(fileResource==null)
@@ -78,7 +78,7 @@ public class PSFileIdentityMaker implements PSResourceIdentityMaker
 		
 	}
 
-	public String makeLabel(Object resource) throws IllegalArgumentException 
+	public String getLabel(Object resource) throws IllegalArgumentException 
 	{
 		logger.debug("\n\tmake label:"+resource);
 		if(resource==null)
@@ -118,7 +118,7 @@ public class PSFileIdentityMaker implements PSResourceIdentityMaker
 
 	
 
-	public URI toURI(Object resource) {
+	public URI getAbsoluteURI(Object resource) {
 		if(resource==null)
 		{
 			throw new IllegalArgumentException(

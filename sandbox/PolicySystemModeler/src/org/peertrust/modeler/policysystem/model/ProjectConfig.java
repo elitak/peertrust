@@ -20,6 +20,15 @@ import org.peertrust.modeler.policysystem.PolicysystemPlugin;
 import org.peertrust.modeler.policysystem.model.exceptions.BadConfigFileException;
 
 
+/**
+ * This class implements the Singleton pattern to hold unique information
+ * about the current project.
+ * 
+ * Drawback of this design is that the eclipse resource framework
+ * (project nature) is not used
+ * @author Patrice Congo
+ *
+ */
 public class ProjectConfig 
 {
 	/**
@@ -56,8 +65,16 @@ public class ProjectConfig
 	 */
 	private String projectFile;
 	
-	private List projectConfigChangeListeners= new Vector();
+	/**
+	 * Holds project config change listerner
+	 */
+	private List<ProjectConfigChangeListener> 
+					projectConfigChangeListeners= 
+							new Vector<ProjectConfigChangeListener>();
 	
+	/**
+	 * Holds project properties which can be access using a key
+	 */
 	private Properties properties=new Properties();
 	
 	/**
@@ -65,26 +82,53 @@ public class ProjectConfig
 	 */
 	private int rootCount=0;
 	
+	/**
+	 * {@link ProjectConfig} class logger
+	 */
 	private final static Logger logger= 
 					Logger.getLogger(ProjectConfig.class);
-	private final List roots= new ArrayList();
 	
+	/**
+	 * holds the root of the resource hierarchy 
+	 */
+	private final List<URI> roots= new ArrayList<URI>();
+	
+	
+	/**
+	 * Default constructor, hidden according to the singleton pattern
+	 */
 	private ProjectConfig()
 	{
-		
+		//empty
 	}
 	
+	/**
+	 * Get the unique instance this {@link ProjectConfig} class
+	 * 
+	 * @return the unique instance this {@link ProjectConfig} class
+	 */
 	synchronized static public ProjectConfig getInstance()
 	{
 		return instance;
 	}
 
+	/**
+	 * @return the project file path as string
+	 */
 	synchronized public String getProjectFile() 
 	{
 		return projectFile;
 	}
 
-	synchronized public void setProjectFile(String projectFile) throws BadConfigFileException 
+	/**
+	 * Sets a new project file, and rebuild the project config instance
+	 * state accordingly.
+	 * 
+	 * @param projectFile the new project file to set
+	 * @throws BadConfigFileException
+	 */
+	synchronized public void setProjectFile(String projectFile) 
+										throws BadConfigFileException 
 	{
 		
 		logger.info("pjectFile="+projectFile+
@@ -117,12 +161,20 @@ public class ProjectConfig
 					"Cannot parse root count parse property to integer:"+rootCountString,
 					th);
 		}
+		
 		testRdfAndRdfsFilesAvailable(properties);
 		testRootIndexing(rootCount,properties);
 		fireProjectConfigChange();
 	}
 
-	private static final void testRdfAndRdfsFilesAvailable(Properties properties)
+	/**
+	 * tests Whether the project rdf and rdfs files are available
+	 * @param properties -- the properties object containing the data
+	 * @throws IllegalArgumentException is either rdf or rdfs file is 
+	 * 			not available 
+	 */
+	private static final void testRdfAndRdfsFilesAvailable(
+									Properties properties)
 									throws IllegalArgumentException
 	{
 		if(properties==null)
@@ -143,6 +195,18 @@ public class ProjectConfig
 					"\n\tproperty key="+RDF_SCHEMA_FILE);
 		}
 	}
+	
+	/**
+	 * Test the root indexing is valid; i.e. root count is consistent 
+	 * with indexing
+	 * @param rootCount
+	 * @param properties -- the properties instance containing the project 
+	 * 			properties
+	 * @throws BadConfigFileException
+	 * 			if indexing isnot consistent with root count count
+	 * @throws IllegalArgumentException
+	 * 			if the pass properties object is null
+	 */
 	private static final void testRootIndexing(
 								int rootCount,
 								Properties properties)
@@ -190,6 +254,10 @@ public class ProjectConfig
 		}
 	}
 	
+	/**
+	 * @param l -- add a project config change listener if not
+	 * allready in the listener ist
+	 */
 	synchronized public void addProjectConfigChangeListener(
 											ProjectConfigChangeListener l)
 	{
@@ -198,9 +266,16 @@ public class ProjectConfig
 			return;
 		}
 		logger.info("Adding Listener:"+l);
-		projectConfigChangeListeners.add(l);
+		if(!projectConfigChangeListeners.contains(l))
+		{
+			projectConfigChangeListeners.add(l);
+		}
 	}
 		
+	/**
+	 * Remove the given project change listener from the listener list
+	 * @param l
+	 */
 	synchronized public void removeProjectConfigChangeListener(
 											ProjectConfigChangeListener l)
 	{
@@ -211,6 +286,9 @@ public class ProjectConfig
 		projectConfigChangeListeners.remove(l);
 	}
 	
+	/**
+	 * Fire project config change
+	 */
 	synchronized public void fireProjectConfigChange()
 	{
 		//update list 
@@ -233,11 +311,24 @@ public class ProjectConfig
 		}
 	}
 
-	public String getProperty(String key) {
+	/**
+	 * Gets the project property associated with this key
+	 * @param key
+	 * @return
+	 */
+	public String getProperty(String key) 
+	{
 		return properties.getProperty(key);
 	}
 
-	public String put(String key, String value) {
+	/**
+	 * Add a new property to the project config
+	 * @param key -- the key of the property
+	 * @param value -- the prperty value
+	 * @return
+	 */
+	public String put(String key, String value) 
+	{
 		if(key==null || value==null)
 		{
 			throw new IllegalArgumentException(
@@ -292,19 +383,49 @@ public class ProjectConfig
 		}
 	}
 
-	public void store(OutputStream out, String comments) throws IOException {
+	/**
+	 * Store a project config into the given output stream as plain text
+	 * @param out -- the destination output stream
+	 * @param comments -- a comment to store with the project config data
+	 * @throws IOException 
+	 */
+	public void store(
+					OutputStream out, 
+					String comments) 
+					throws IOException 
+	{
 		properties.store(out, comments);
 	}
 
-	public void storeToXML(OutputStream os, String comment) throws IOException {
+	/**
+	 * Store a project config into the given output stream as plain xml
+	 * @param os -- the destination output stream
+	 * @param comments -- a comment to store with the project config data
+	 * @throws IOException 
+	 */
+	public void storeToXML(
+					OutputStream os, 
+					String comment) 
+	throws IOException 
+	{
 		properties.storeToXML(os, comment);
 	}
 	
+	/**
+	 * Gets the number of root in the project
+	 * @return the number of roots in this system
+	 */
 	public int getRootCount()
 	{
 		return rootCount;
 	}
 	
+	/**
+	 * Sets the specified root
+	 * @param rootIndex -- the index of the root to set
+	 * @param root -- the root path as string
+	 * @return
+	 */
 	public String putRoot(int rootIndex, String root) {
 		if(root==null)
 		{
@@ -327,7 +448,13 @@ public class ProjectConfig
 		return (String)properties.put(ROOT_DIR_PREFIX+rootIndex, root);
 	}
 	
-	public String addRoot(String root) {
+	/**
+	 * Add a  new root to the project
+	 * @param root -- the new root to add
+	 * @return the added root
+	 */
+	public String addRoot(String root) 
+	{
 		if(root==null)
 		{
 			throw new IllegalArgumentException(
@@ -340,6 +467,11 @@ public class ProjectConfig
 		return root;
 	}
 	
+	/**
+	 * Get the project root at the specify index
+	 * @param rootIndex
+	 * @return
+	 */
 	public String getRoot(int rootIndex)
 	{
 		if(rootIndex<0 || rootIndex>=rootCount)
@@ -352,6 +484,17 @@ public class ProjectConfig
 		return (String)properties.get(ROOT_DIR_PREFIX+rootIndex);
 	}
 	
+	/**
+	 * Creates a new project config file. A project is pecify by the
+	 * <ul>
+	 * 	<li>the .rdfs file which contains the schema
+	 * 	<li>the .rdf file which contains the policy system instances
+	 * 	<li>the .conf which contains project data like root count, roots ..
+	 * </ul> 
+	 * @param projectName -- the name of the project
+	 * @param destFolder -- the destination folder to store  the file
+	 * @param rootDir -- the first root dir
+	 */
 	public void createNewProjectConfigFile(
 						String projectName,
 						File destFolder,
@@ -408,6 +551,10 @@ public class ProjectConfig
 		
 	}
 	
+	/**
+	 * gets all roots as file
+	 * @return
+	 */
 	public File[] getRoots()
 	{
 		File[] files= new File[rootCount];
@@ -418,6 +565,11 @@ public class ProjectConfig
 		return files;
 	}
 	
+	/**
+	 * Checks whether a given resource is a root
+	 * @param resource
+	 * @return
+	 */
 	public boolean isRoot(URI resource)
 	{
 		if(resource==null)

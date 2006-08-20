@@ -15,6 +15,13 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 
+/**
+ * A Default implementation of the PSOverridingRule which is part of
+ * a {@link org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem}. 
+ * 
+ * @author Patrice Congo
+ *
+ */
 public class PSOverriddingRuleImpl implements PSOverridingRule 
 {
 	/**

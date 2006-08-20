@@ -16,7 +16,8 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
- * An implementation of PSFilter
+ * An implementation of PSFilter which is part of a 
+ * {@link org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem}
  * @author Patrice Congo
  *
  */
@@ -66,7 +67,7 @@ public class PSFilterImpl implements PSFilter
 //										this,
 //										PolicySystemRDFModel.PROP_HAS_CONDITION);
 		
-		List conds=
+		List<Object> conds=
 			psModel.getModelObjectProperties(
 				this,
 				Vocabulary.PS_MODEL_PROP_NAME_HAS_CONDITION //PolicySystemRDFModel.PROP_HAS_CONDITION

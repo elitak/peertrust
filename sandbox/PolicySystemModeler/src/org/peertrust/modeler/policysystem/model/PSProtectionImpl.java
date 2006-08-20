@@ -45,7 +45,7 @@ public class PSProtectionImpl implements PSProtection
 		this.condition=condition;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSProtection#getPolicy()
 	 */
 	public PSPolicy getPolicy() 
@@ -53,7 +53,7 @@ public class PSProtectionImpl implements PSProtection
 		return this.policy;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSProtection#setPolicy(org.peertrust.modeler.policysystem.model.abtract.PSPolicy)
 	 */
 	public void setPolicy(PSPolicy policy) 
@@ -61,7 +61,7 @@ public class PSProtectionImpl implements PSProtection
 		this.policy=policy;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSProtection#getCondition()
 	 */
 	public String getCondition() 
@@ -69,7 +69,7 @@ public class PSProtectionImpl implements PSProtection
 		return this.condition;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSProtection#removeCondition(java.lang.String)
 	 */
 	public void setCondition(String condition) 
@@ -78,7 +78,7 @@ public class PSProtectionImpl implements PSProtection
 	}
 
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSProtection#override(org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule)
 	 */
 	public void override(PSOverridingRule oRule) 
@@ -102,6 +102,11 @@ public class PSProtectionImpl implements PSProtection
 		}
 	}
 
+	/**
+	 * Ends a string with a separator 
+	 * @param identity the string to end with a separator
+	 * @return a string terminated with a separator
+	 */
 	private static String endsWithSep(String identity)
 	{
 		String sep=null;
@@ -125,9 +130,17 @@ public class PSProtectionImpl implements PSProtection
 				
 	}
 	
-	public static List makeProtections(PSResource  psRes,PSFilter filter)
+	/**
+	 * Gets alls then protection added at the given resource by the 
+	 * given filter
+	 * @param psRes the resorce for which the filtering protection 
+	 * 			is made
+	 * @param filter the filter with the policy to applay when the condition is match
+	 * @return
+	 */
+	public static List<PSProtection> makeProtections(PSResource  psRes,PSFilter filter)
 	{
-		Vector protections=new Vector();
+		Vector<PSProtection> protections=new Vector<PSProtection>();
 		if(filter!=null || psRes!=null)
 		{
 			//TODO generalize with type attribute in resource
@@ -162,9 +175,14 @@ public class PSProtectionImpl implements PSProtection
 		return protections;
 	}
 	
-	static public List makeProtections(PSResource psRes)
+	/**
+	 * Gets the protection added at the given resource
+	 * @param psRes
+	 * @return
+	 */
+	static public List<PSProtection> getAddedProtections(PSResource psRes)
 	{
-		Vector protections= new Vector();
+		Vector<PSProtection> protections= new Vector<PSProtection>();
 		if(psRes==null)
 		{
 			return protections;
@@ -182,7 +200,7 @@ public class PSProtectionImpl implements PSProtection
 		return protections;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

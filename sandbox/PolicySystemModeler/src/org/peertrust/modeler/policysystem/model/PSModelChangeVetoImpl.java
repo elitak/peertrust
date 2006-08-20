@@ -19,7 +19,7 @@ public class PSModelChangeVetoImpl implements PSModelChangeVeto
 	/**
 	 * The vector holding the vetoing statements
 	 */
-	List vetoingObject;
+	List<PSModelStatement> vetoingObject;
 	
 	/**
 	 *To create an empty model change veto   
@@ -27,7 +27,7 @@ public class PSModelChangeVetoImpl implements PSModelChangeVeto
 	public PSModelChangeVetoImpl() 
 	{
 		super();
-		vetoingObject=new ArrayList();
+		vetoingObject=new ArrayList<PSModelStatement>();
 	}
 
 	/**
@@ -36,9 +36,10 @@ public class PSModelChangeVetoImpl implements PSModelChangeVeto
 	public PSModelStatement[] getVetoingStatements() 
 	{
 		final int SIZE=vetoingObject.size();
-		PSModelStatement stms[] = new PSModelStatement[SIZE];
-		vetoingObject.toArray(stms);
-		
+		PSModelStatement stms[]= new PSModelStatement[SIZE];
+		stms=vetoingObject.toArray(stms);
+				//because a new array is created if stms due to concurent
+				//change does not contains enougth space
 		return stms;
 	}
 

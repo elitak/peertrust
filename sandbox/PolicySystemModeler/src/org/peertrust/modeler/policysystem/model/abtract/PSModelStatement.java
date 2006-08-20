@@ -1,8 +1,9 @@
 package org.peertrust.modeler.policysystem.model.abtract;
 
 /**
- * The interface to beimplement by statement class 
+ * The interface to be implemented by classes that abtract a statement 
  * for the policy system model.
+ * A statement is made of a Subject, and Object and a property.
  * 
  * @author Patrice Congo
  *

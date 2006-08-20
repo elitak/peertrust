@@ -13,15 +13,20 @@ import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 /**
+ * Provides a Default ID generator for the poilcy system resource 
+ * (PSResource, PSFilter ...)
+ * 
  * @author Patrice Congo
  *
  */
-public class PSModelElementIDGeneratorImpl implements PSModelElementIDGenerator {
+public class PSModelElementIDGeneratorImpl 
+				implements PSModelElementIDGenerator 
+{
 
 	/**
 	 * Map of prefixes 
 	 */
-	private Hashtable prefixes;
+	private Hashtable<Class,String> prefixes;
 	
 	public PSModelElementIDGeneratorImpl() 
 	{
@@ -31,7 +36,7 @@ public class PSModelElementIDGeneratorImpl implements PSModelElementIDGenerator 
 	
 	private void makePrefixes()
 	{
-		prefixes= new Hashtable();
+		prefixes= new Hashtable<Class,String>();
 		prefixes.put(
 				PSResource.class,
 				PolicySystemRDFModel.NS_KB_DATA+"PSResource/");

@@ -10,7 +10,9 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver;
 import org.peertrust.modeler.policysystem.model.abtract.PSOverridingRule;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
+import org.peertrust.modeler.policysystem.model.abtract.PSProtection;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 
 /**
@@ -35,17 +37,17 @@ public class PSAPRPolicyBased implements PSApplyingPolicyResolver
 	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(org.peertrust.modeler.policysystem.model.abtract.PSResource)
 	 */
-	public List getApplyingPolicies(PSResource psResource) 
+	public List<PSProtection> getApplyingPolicies(PSResource psResource) 
 	{
-		List aps= getInheritedPolicies(psResource);
+		List<PSProtection> aps= getInheritedPolicies(psResource);
 		
 		return aps;		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.peertrust.modeler.policysystem.model.abtract.PSApplyingPolicyResolver#getApplyingPolicies(java.lang.String)
 	 */
-	public List getApplyingPolicies(String identity) 
+	public List<PSProtection> getApplyingPolicies(String identity) 
 	{
 		return null;
 	}

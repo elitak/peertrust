@@ -18,7 +18,7 @@ public class PSStringBasedRIM implements PSResourceIdentityMaker
 	final static private Logger logger= 
 					Logger.getLogger(PSStringBasedRIM.class);
 	
-	public URI makeIdentity(Object resource) 
+	public URI relativeURI(Object resource) 
 	{
 		logger.debug("\n\tmakeIdentity:"+resource);
 		if(resource instanceof String)
@@ -43,9 +43,9 @@ public class PSStringBasedRIM implements PSResourceIdentityMaker
 	}
 
 	/**
-	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker#makeLabel(java.lang.Object)
+	 * @see org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker#getLabel(java.lang.Object)
 	 */
-	public String makeLabel(Object resource) 
+	public String getLabel(Object resource) 
 	{
 		logger.debug("\n\tmakeLabel:"+resource);
 		if(resource==null)
@@ -99,7 +99,7 @@ public class PSStringBasedRIM implements PSResourceIdentityMaker
 		
 	}
 
-	public URI toURI(Object resource) {
+	public URI getAbsoluteURI(Object resource) {
 		logger.debug("\n\ttoURI:"+resource);
 		if(resource==null)
 		{

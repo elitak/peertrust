@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.peertrust.modeler.policysystem.model.abtract;
 
 import java.util.List;
@@ -20,7 +17,7 @@ public interface PSApplyingPolicyResolver
 	 * @param psResource -- the ps resource
 	 * @return the applying policies a a vector
 	 */
-	List getApplyingPolicies(PSResource psResource);
+	List<PSProtection> getApplyingPolicies(PSResource psResource);
 	
 	/**
 	 * Get the applying policies for the entity with the
@@ -28,5 +25,5 @@ public interface PSApplyingPolicyResolver
 	 * @param identity -- the identity of the resource
 	 * @return the applying policies for this resource
 	 */
-	List getApplyingPolicies(String identity);
+	List<PSProtection> getApplyingPolicies(String identity);
 }

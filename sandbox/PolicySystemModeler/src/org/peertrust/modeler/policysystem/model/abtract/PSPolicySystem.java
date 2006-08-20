@@ -6,6 +6,8 @@ import java.util.Vector;
 
 /**
  * This is the interface a policy system must implement.
+ * A policy system contains an hierarchy of resources, policies,
+ * filters and overridding rules.
  * 
  * @author Patrice Congo 
  *
@@ -202,7 +204,7 @@ public interface PSPolicySystem
 	 * @param PropertyKey -- the key of the property
 	 * @return a list containing the properties
 	 */
-	public List getModelObjectProperties(
+	public List<Object> getModelObjectProperties(
 							PSModelObject modelObject,
 							String PropertyKey);
 	

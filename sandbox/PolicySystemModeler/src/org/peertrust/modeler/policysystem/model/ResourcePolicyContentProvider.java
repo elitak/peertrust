@@ -20,6 +20,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 import org.peertrust.modeler.policysystem.model.abtract.PSModelObject;
 import org.peertrust.modeler.policysystem.model.abtract.PSFilter;
 import org.peertrust.modeler.policysystem.model.abtract.PSPolicy;
+import org.peertrust.modeler.policysystem.model.abtract.PSPolicySystem;
 import org.peertrust.modeler.policysystem.model.abtract.PSResource;
 import org.peertrust.modeler.policysystem.model.abtract.PSResourceIdentityMaker;
 
@@ -28,7 +29,13 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 /**
- * @author pat_dev
+ * A implementation of the structure content provider that 
+ * can provide policies associated to a resource.
+ * The resource may be specify as a 
+ * {@link org.peertrust.modeler.policysystem.model.abtract.PSResource} or
+ * as a file
+ * 
+ * @author Patrice Congo
  *
  */
 public class ResourcePolicyContentProvider 
@@ -42,8 +49,15 @@ public class ResourcePolicyContentProvider
 	static private Logger logger= 
 		Logger.getLogger(ResourcePolicyContentProvider.class);
 	
-	static private PolicySystemRDFModel psModel=
+	/**
+	 * A local intance of the current policy system
+	 */
+	static private PSPolicySystem/*PolicySystemRDFModel*/ psModel=
 							PolicySystemRDFModel.getInstance();
+	
+	/**
+	 * Th class  file identity maker
+	 */
 	static private PSResourceIdentityMaker identityMaker=
 				psModel.getPSResourceIdentityMaker(File.class);
 	
@@ -52,17 +66,21 @@ public class ResourcePolicyContentProvider
 		//empty
 	}
 	
-	private void addParentResource(File file, PSResource psRes)
+	/**
+	 * Sets the {@link PSResource} parent resource. The file representing the
+	 * parent resource is given as parameter. if the correspong 
+	 * resource is not already in the model it is created.
+	 *  
+	 * @param file -- the parent resource as file
+	 * @param psRes -- the child resource as {@link PSResource}
+	 */
+	private void setParentResource(File file, PSResource psRes)
 	{
 		if(file==null || psRes==null)
 		{
 			return;
 		}
-//		//identity
-//		if(psRes.getHasMapping()==null)
-//		{
-//			psRes.setHasMapping(identityMaker.makeIdentity(file));
-//		}
+		
 		//test for allready set parent
 		PSResource aParent=psRes.getParent();
 		if(aParent!=null)
@@ -74,7 +92,8 @@ public class ResourcePolicyContentProvider
 		File parentFile=file.getParentFile();
 		//TODO change root 
 		/*String rootFileName=*/
-		URI root=	ProjectConfig.getInstance().getRootFor(parentFile.toURI());
+		URI root=	ProjectConfig.getInstance().getRootFor(
+												parentFile.toURI());
 			//ProjectConfig.getInstance().getProperty(ProjectConfig.ROOT_DIR);
 		logger.info("setting parent res; res="+psRes+
 				"\n\tparentFile:"+parentFile+
@@ -138,8 +157,8 @@ public class ResourcePolicyContentProvider
 					psModel.getPSResource(
 						file,//.getAbsolutePath(),//toString(),
 						true);//new FileResourceSelector(file));
-				System.out.println("pres:"+res);
-				addParentResource(file,res);
+				logger.info("pres:"+res);
+				setParentResource(file,res);
 				//TODO check effect of not getting ProtectedBy
 				List dirPolicies=null;//res.getIsProtectedBy();
 				List filters = res.getHasFilter();
@@ -176,7 +195,7 @@ public class ResourcePolicyContentProvider
 			} 
 			catch (Exception e) 
 			{
-				e.printStackTrace();
+				logger.warn(e);
 				return EMPTY_ARRAY;
 			}
 			
@@ -232,7 +251,7 @@ public class ResourcePolicyContentProvider
 		}		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 	 */
 	public void dispose() 
@@ -240,7 +259,7 @@ public class ResourcePolicyContentProvider
 		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
 	 */
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) 
@@ -254,6 +273,10 @@ public class ResourcePolicyContentProvider
 	//////////////////LABEL PROVIDER //////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Not emplemented allways return null
+	 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
+	 */
 	public Image getColumnImage(Object element, int columnIndex) 
 	{
 		logger.info("No immage for col:"+columnIndex);
@@ -296,7 +319,7 @@ public class ResourcePolicyContentProvider
 		}
 		else if(element instanceof PSFilter)
 		{
-			return getFlterTableCellLabel((PSFilter)element,columnIndex);
+			return getFilterTableCellLabel((PSFilter)element,columnIndex);
 		}
 		else
 		{
@@ -308,26 +331,48 @@ public class ResourcePolicyContentProvider
 		
 	}
 
+	/**
+	 * Not implemented since state chance events are not available
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	 */
 	public void addListener(ILabelProviderListener listener) 
 	{
-		
+		//empty
 	}
 
+	/**
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
+	 */
 	public boolean isLabelProperty(Object element, String property) 
 	{
-		System.out.println("isLabelProperty");
 		return false;
 	}
 
+	/**
+	 * Not emplemented since state change events are not available
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	 */
 	public void removeListener(ILabelProviderListener listener) 
 	{
-		
+		//empty
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////
 	//////////////////UTIL///////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
+	/**
+	 * Utily method to get the policy table cell label.
+	 * 
+	 * @param policy -- the row policy
+	 * @param colIndex -- the actual column index
+	 * @return the label as string:
+	 * 		<ul>
+	 * 			<li>column 0 returns the policy label
+	 * 			<li>column 1 returns the policy value
+	 * 			<li>column 2 returns the guarded model object
+ 	 * 		</ul>
+	 */
 	final private String getPolicyTableCellLabel(
 										PSPolicy policy,
 										int colIndex)
@@ -386,7 +431,19 @@ public class ResourcePolicyContentProvider
 	}
 	
 	
-	final private String getFlterTableCellLabel(
+	/**
+	 * Utily method to get the filter table cell label.
+	 * @param filter -- the row filter
+	 * @param colIndex -- the column  index to get the index for
+	 * @return return the label as string:
+	 * 	<ul>
+	 * 		<li>column 0 for the filter label
+	 * 		<li>column 1 return "filter"
+	 * 		<li>column 2 return the condition string
+	 * 		<li>default return an empty string
+	 * 	</ul>
+	 */
+	final private String getFilterTableCellLabel(
 												PSFilter filter,
 												int colIndex)
 	{

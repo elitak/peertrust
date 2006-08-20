@@ -191,7 +191,7 @@ public class PSResourcePolicyEditorPage
 			if(input instanceof File)
 			{
 				//String identity=((File)input).getCanonicalPath();
-				URI identity=identityMaker.makeIdentity((File)input);
+				URI identity=identityMaker.relativeURI((File)input);
 				PSResource psResource=
 					psModel.getPSResource(input,true);
 				oRulesTree.setInput(psResource);
@@ -491,7 +491,7 @@ public class PSResourcePolicyEditorPage
 			else if(input instanceof File)
 			{
 				try {
-					URI identity=identityMaker.makeIdentity(input);
+					URI identity=identityMaker.relativeURI(input);
 					PSResource psRes=
 						psModel.getPSResource(identity,true);
 					psRes.removeFilter((PSFilter)sel0);
@@ -585,7 +585,7 @@ public class PSResourcePolicyEditorPage
 		else if(input instanceof File)
 		{
 			try {
-				URI identity= identityMaker.makeIdentity(input);
+				URI identity= identityMaker.relativeURI(input);
 				PSResource psRes=
 					psModel.getPSResource(identity,true);
 				PSOverridingRule oRules[]=
@@ -661,7 +661,7 @@ public class PSResourcePolicyEditorPage
 			URI identity=null;
 			PSResource psRes=null;
 			try {
-					identity=identityMaker.makeIdentity(input);
+					identity=identityMaker.relativeURI(input);
 					psRes=
 						psModel.getPSResource((File)input,true);
 					List resFilters=psRes.getHasFilter();

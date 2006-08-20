@@ -8,7 +8,7 @@ import org.peertrust.modeler.policysystem.model.abtract.PSModelLabel;
 
 /**
  * Provide an implementation for the PSModelLabel interface
- * @author pat_dev
+ * @author Patrice Congo
  *
  */
 public class PSModelLabelImpl implements PSModelLabel 
