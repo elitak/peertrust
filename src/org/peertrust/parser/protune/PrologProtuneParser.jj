@@ -1,0 +1,951 @@
+options {
+  JDK_VERSION = "1.5";
+  STATIC = false;
+}
+
+PARSER_BEGIN(ProtunePrologParser)
+
+package org.peertrust.parser.protune;
+
+import java.io.*;
+import java.util.*;
+
+public class ProtunePrologParser {
+	
+	private Vector rules;
+	private Vector metarules;
+		
+	public void init(){
+		
+		rules=new Vector();
+		metarules=new Vector();
+	}
+	
+	public Vector getRules(){
+		return rules;
+	}
+	
+	public Vector getMetarules(){
+		return metarules;
+	}
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	/*private functions*/
+	
+	//transforms the body
+	private String process_body(Vector body){
+		
+		//for keeping the complex_terms
+		Vector complex_terms=new Vector();
+		
+		//for keeping the result
+		StringBuffer sb=new StringBuffer();
+		
+		//process the body in reverse order as the complex_term will always be after the predicates in which they where defined
+		for(int i=body.size()-1;i>=0;i--){
+
+			Object literal=body.get(i);
+			
+			if(complex_terms.isEmpty()){
+			
+				if(is_complex_term(literal)){
+				
+					complex_terms.add(literal);
+				}
+				else{
+				
+					String s=inline_literal(literal);
+					
+					if(sb.length()!=0)
+						s=s.concat(",");
+					sb.insert(0,s);
+				}
+			}
+			else{
+				
+				if(is_complex_term(literal)){
+					
+					String id=(String)(((Vector)literal).get(1));
+					String lastid=(String)((Vector)(complex_terms.get(0))).get(1);
+					
+					//it's from the same complex_term
+					if(id.compareTo(lastid)==0){
+							
+						complex_terms.add(literal);
+					}
+					else{
+						
+						String s=rebuild_complex_term(complex_terms);
+						
+						if(sb.length()!=0)
+							s=s.concat(",");
+						sb.insert(0,s);
+						
+						complex_terms.clear();
+						complex_terms.add(literal);
+					}
+				}
+				else{
+					
+					Vector v=integrate_complex_term(literal,complex_terms);
+					
+					String s=(String)v.get(0);
+					if(v.size()>1)
+						s=s.concat(","+(String)v.get(1));
+					
+					complex_terms.clear();
+					
+					if(sb.length()!=0)
+						s=s.concat(",");
+					sb.insert(0,s);
+				}
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	/*------------------------------------------------------*/
+	//checks if a literal is a complex_term
+	private boolean is_complex_term(Object literal){
+		
+		if(literal instanceof Vector){
+			
+			String s=(String)(((Vector)literal).get(0));
+			
+			if(s.compareTo("complex_term")==0)			
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/*------------------------------------------------------*/
+	//constructs the image of a literal
+	private String inline_literal(Object literal){
+		
+		if(literal instanceof String)
+			return (String)literal;
+			
+		StringBuffer sb=new StringBuffer();
+		
+		String pred=(String)(((Vector)literal).get(0));
+		sb.append(pred);
+		sb.append("(");
+		
+		Vector args=(Vector)(((Vector)literal).get(1));
+		for(Iterator it=args.iterator();it.hasNext();){
+			
+			sb.append(inline_literal(it.next()));
+			if(it.hasNext())
+				sb.append(",");
+		}
+		
+		sb.append(")");
+		
+		return sb.toString();
+	}
+	
+	/*------------------------------------------------------*/
+	//rebuilds a complex term from its components
+	private String rebuild_complex_term(Vector complex_terms){
+		
+		//get the id for all the complex terms
+		String id=(String)(((Vector)(complex_terms.get(0))).get(1));
+		
+		StringBuffer sb=new StringBuffer();
+		
+		sb.append(id);
+		sb.append("[");
+		
+		for(int i=complex_terms.size()-1;i>=0;i--){
+			
+			Vector complex_term=(Vector)complex_terms.get(i);
+			sb.append((String)(complex_term.get(2)));
+			if(i>0)
+				sb.append(",");
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
+	}
+	
+	/*------------------------------------------------------*/
+	//integrates the complex_term into the literal if the literal referes it
+	private boolean ct_flag;
+	private Vector integrate_complex_term(Object literal,Vector complex_terms){
+		
+		//get de id of the complex terms
+		String id=(String)(((Vector)(complex_terms.get(0))).get(1));
+		
+		//construct the complex term
+		String complex_term=rebuild_complex_term(complex_terms);
+		
+		//update the literal with the complex_term
+		ct_flag=false;
+		Object new_literal=update_literal(literal,id,complex_term);
+		
+		String s=inline_literal(new_literal);
+		
+		Vector v=new Vector(2);
+		v.add(s);
+		
+		if(ct_flag==false)
+			v.add(complex_term);
+			
+		return v;
+	}
+	
+	/*------------------------------------------------------*/
+	//updates the literal that references id with the image of the complex_term
+	private Object update_literal(Object literal,String id,String complex_term){
+		
+		if(literal instanceof String){
+			
+			if(id.compareTo((String)literal)==0){
+				
+				ct_flag=true;
+				return complex_term;
+			}
+		}
+		else{
+			
+			Vector args=(Vector)((Vector)literal).get(1);
+			
+			Vector new_args=new Vector(args.size());
+			for(Iterator it=args.iterator();it.hasNext();){
+				
+				Object new_arg=update_literal(it.next(),id,complex_term);
+				new_args.add(new_arg);
+			}
+			
+			((Vector)literal).setElementAt(new_args,1);
+		}
+		
+		return literal;
+	}
+	
+	/*------------------------------------------------------*/
+	//extract the complex_term heads from the vector of rules
+	private Vector extract_complex_terms(Vector rules){
+		
+		Vector v=new Vector(rules.size());
+		
+		for(Iterator it=rules.iterator();it.hasNext();)
+			v.add(((Vector)it.next()).get(1));
+		
+		return v;
+	}
+	
+	
+	/*------------------------------------------------------*/
+	//building the rules
+    private void building_rules(){
+    	
+    	Vector new_rules=new Vector();
+    	Vector complex_terms=new Vector();
+    	
+    	for(int i=rules.size()-1;i>=0;i--){
+    		
+    		//extract the current rule and the head of the rule
+    		Vector rule=(Vector)rules.get(i);
+    		Object head=rule.get(1);
+    		
+    		if(complex_terms.isEmpty()){
+    			
+    			if(is_complex_term(head)){
+			
+    				complex_terms.add(rule);
+    			}
+    			else{
+ 				
+    				StringBuffer sb=new StringBuffer();
+    				sb.append("["+(String)rule.get(0)+"]");
+    				sb.append(inline_literal(head));
+    				if(rule.size()>2)
+    					sb.append(":-"+(String)rule.get(2));
+    				sb.append(".");
+    				
+    				new_rules.insertElementAt(sb.toString(),0);
+    			}
+    		}
+    		else{
+    			
+    			if(is_complex_term(head)){
+  				
+    				//check if it is from the same complex_term
+    				String id=(String)rule.get(0);
+    				String lastid=(String)(((Vector)complex_terms.get(0)).get(0));
+    				
+    				if(id.compareTo(lastid)==0){
+    					
+    					complex_terms.add(rule);
+    				}
+    				else{
+   					
+    					StringBuffer sb=new StringBuffer();
+    					sb.append("["+id+"]");
+    					
+    					String s=rebuild_complex_term(extract_complex_terms(complex_terms));
+						sb.append(s);
+						
+						if(((Vector)complex_terms.get(0)).size()>2)
+							sb.append(":-"+(String)((Vector)complex_terms.get(0)).get(2));
+						
+						sb.append(".");
+							
+						new_rules.insertElementAt(sb.toString(),0);
+						
+						complex_terms.clear();
+						complex_terms.add(rule);
+    				}
+    			}
+    			else{
+
+    				Vector v=integrate_complex_term(head,extract_complex_terms(complex_terms));
+    				
+    				if(v.size()>1){
+    					
+    					String id=(String)((Vector)complex_terms.get(0)).get(0);
+    					
+    					String body=null;
+    					if(((Vector)complex_terms.get(0)).size()>2)
+    						body=(String)((Vector)complex_terms.get(0)).get(2);
+    					
+    					String s="["+id+"]"+(String)v.get(1);
+    					if(body!=null)
+    						s=s.concat(body);
+    					s=s.concat(".");
+    					
+    					new_rules.insertElementAt(s,0);
+    				}
+    				
+    				StringBuffer sb=new StringBuffer();
+    				sb.append("["+(String)rule.get(0)+"]");
+    				sb.append(v.get(0));
+    				if(rule.size()>2)
+    					sb.append(":-"+rule.get(2));
+    				sb.append(".");
+    					
+    				new_rules.insertElementAt(sb.toString(),0);	
+    				
+					complex_terms.clear();
+    			}
+    		}
+    	}
+    	
+ 		rules=new_rules;
+ 		
+ 	}
+ 	
+ 	public static String translate(String policy) throws Exception{
+		
+		ProtunePrologParser parser=new ProtunePrologParser(new BufferedReader(new StringReader(policy)));
+		parser.init();
+		parser.start();
+		parser.building_rules();
+		
+		StringBuffer sb=new StringBuffer();	
+		for(Iterator it=parser.getRules().iterator();it.hasNext();)
+			sb.append((String)it.next()+"\n");
+		for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
+			sb.append((String)it.next()+"\n");
+			
+		return sb.toString();
+	}
+	
+	/*------------------------------------------------------------------------------------------------------*/
+	public static void main(String args[]) throws ParseException,TokenMgrError{
+		
+		
+		try{
+			String s=ProtunePrologParser.translate("rule(r1,fact(X),[]).");
+			System.out.println(s);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+/*
+		Parser parser=null;
+		try{
+			
+			parser=new Parser(new FileReader("./config/policy_code_samples/OnlineLibrary/LibraryPolicy.prolog"));
+			parser.init();
+			parser.start();
+			parser.building_rules();
+			
+			for(Iterator it=parser.getRules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return;
+		}
+*/
+	}
+}
+
+PARSER_END(ProtunePrologParser)
+
+/*----------------------------------------------------------------------------------------------------------*/
+
+SKIP :
+{
+ 	" " | "\r" | "\t" |	"\n" 
+ 	| <COMMENT: ( "%" (~["\n","\r"])* ) |( "//" (~["\n","\r"])* ) | ("/*" (~[])* "*/") >
+}
+
+
+TOKEN:
+{
+	<RULE: "rule" >
+}
+
+TOKEN:
+{
+	<METARULE: "metarule" >
+}
+
+TOKEN:
+{
+	<ID: "id" >
+}
+
+TOKEN:
+{
+	<PRED: "pred" >
+}
+
+TOKEN:
+{
+	<COMPLEX_TERM: "complex_term" >
+}
+
+TOKEN:
+{
+	<NEGATION: "not" >
+}
+
+TOKEN:
+{
+	<IN: "in" >
+}
+
+TOKEN:
+{
+	<DECLARATION: "declaration" >
+}
+
+TOKEN:
+{
+	<CREDENTIAL: "credential" >
+}
+
+TOKEN:
+{
+	<OPERATOR: ( "=" | ">" | ">=" | "<" | "<=" | "!=" | " is ") >
+}
+
+TOKEN : 
+{
+	<VARIABLE: (<UPPERCASE> | <UNDERSCORE>) (<STRING>) >
+}
+
+TOKEN:
+{
+	<IDENTIFIER: (<LOWERCASE> <STRING>) >
+}
+
+TOKEN : 
+{
+	<#STRING: ( (<LOWERCASE>|<UPPERCASE>|<UNDERSCORE>|<NUMBER>)* ) >
+}
+
+TOKEN : 
+{
+	<STRING_QUOTED: ("'" (~["'","\\","\n","\r"])* "'") | ("\"" (~["\"","\\","\n","\r"])* "\"") >
+}
+
+TOKEN:
+{
+	<NUMBER: (<DIGIT>)+ >
+}
+
+TOKEN:
+{
+	<#LOWERCASE: ["a"-"z"] >
+}
+
+TOKEN:
+{
+	<#UPPERCASE: ["A"-"Z"] >
+}
+
+TOKEN:
+{
+	<#DIGIT: ["0"-"9"] >
+}
+
+TOKEN:
+{
+	<#UNDERSCORE: "_" >
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String StringConstant():
+{
+	Token t=null;
+}
+{
+	(
+		t=<IDENTIFIER> 
+		|
+		t=<STRING_QUOTED>
+	)
+	{return t.image;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String Constant():
+{
+	Token t=null;
+	String s=null;
+}
+{
+	t=<NUMBER>
+	{	return t.image;} 
+	|
+	s=StringConstant()
+	{	return s;}
+	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+void start() throws Exception:
+{
+	Vector rule=null;
+	String metarule=null;
+}
+{
+	(
+		rule=Rule()
+		{	rules.add( rule);}
+		|
+		metarule=MetaRule()
+		{	metarules.add( metarule);}
+
+	)+
+	<EOF>
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Rule():
+{
+	String id=null;
+	Object head=null;
+	Object body=null;
+	
+}
+{
+	<RULE> "(" id=Id() "," head=Head() "," "[" (body=Body(new Vector()))? "]" ")" "." 
+	{
+		Vector rule=new Vector(3);
+		
+		rule.add(id);
+		rule.add(head);
+		if(body!=null)
+			rule.add(body);
+		
+		return rule;
+	}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String Id():
+{
+	String ct=null;
+}
+{
+	ct=Constant()
+	{	return ct;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object Head():
+{	
+	String s=null;	
+	Vector v=null;
+}
+{
+	LOOKAHEAD( 2 )
+	v=Predicate()
+	{	return v;}
+	|
+	s=StringConstant()
+	{	return s;}
+	|
+	v=ComplexTerm()
+	{	return v;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Predicate():
+{
+	String pred=null;
+	Vector args=null;
+	
+	Vector v=null;
+}
+{
+	pred=StringConstant() "(" ( args=Arguments(new Vector()) )? ")"
+	{
+		if(args==null){
+			
+			v=new Vector(1);
+			v.add(pred);
+		}
+		else{
+			
+			v=new Vector(2);
+			v.add(pred);
+			v.add(args);
+		}
+		
+		return v;
+	}
+	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Vector ComplexTerm():
+{
+	Token t=null;
+	String s=null;
+	String atr=null;
+	String val=null;
+}
+{
+
+	<COMPLEX_TERM> "("
+						(
+							t=<VARIABLE> 
+						|
+							s=StringConstant()
+						)
+						"," 
+							atr=StringConstant()
+						"," 
+							val=Term()
+					")"
+	{
+		Vector v=new Vector(3);
+		
+		v.add("complex_term");
+		
+		if(s==null)
+			s=t.image;
+			
+		v.add(s);
+		v.add(atr+":"+val);
+		
+		return v;
+	}
+	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Vector Arguments(Vector v):
+{
+	Object arg=null;
+	Vector args=null;
+}
+{
+	arg=Argument() 
+	{
+		v.add(arg);
+	}
+	( "," args=Arguments(v) )? 
+	{
+		if(args==null)
+			return v;
+			
+		return args;
+	}	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object Argument():
+{
+	Token t=null;
+	Vector v=null;
+	String s=null;
+}
+{
+	t=<NUMBER> 
+	{	return t.image;}
+	|
+	LOOKAHEAD( 2 )
+	v=Predicate()
+	{	return v;}
+	|
+	t=<VARIABLE>
+	{	return t.image;} 
+	|
+	s=StringConstant()
+	{	return s;}	
+}		
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object Literal():
+{
+	Object o=null;
+	String s=null;
+}
+{
+	LOOKAHEAD( 2 )
+	s=Comparison()
+	{	return s;}
+	|
+	o=Head()
+	{	return o;}
+	|
+	<NEGATION> "(" ( LOOKAHEAD( 2 ) s=Comparison()|o=Head()) ")"
+	{	
+		if(o!=null){
+		
+			Vector v=new Vector(2);
+			v.add("not");
+		
+			Vector args=new Vector(1);
+			args.add(o);
+		
+			v.add(args);
+		
+			return v;
+		}
+		
+		return "not("+s+")";
+	}
+	|
+	o=SpecialLiteral()
+	{	return o;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object SpecialLiteral():
+{
+	Token t=null;
+	String id=null;
+	String s=null;
+	String f1=null;
+	String terms1=null;
+	String f2=null;
+	String terms2=null;
+}
+{
+	(
+		t=<CREDENTIAL>
+		|
+		t=<DECLARATION>
+	)
+	"(" id=Constant() "," s=Term() ")"
+	{
+		Vector v=new Vector(2);
+		v.add(t.image);
+		
+		Vector args=new Vector(2);
+		args.add(id);
+		args.add(s);
+		
+		v.add(args);
+		
+		return v;
+	}
+	|
+	<IN> "(" f1=StringConstant() ("(" (terms1=Terms())? ")")? "," s=StringConstant() "," f2=StringConstant() "," "[" (terms2=Terms())? "]" ")"
+	{
+		StringBuffer sb=new StringBuffer();
+		
+		sb.append("in(");
+		sb.append(f1+"(");
+		if(terms1!=null)
+			sb.append(terms1);
+		sb.append("),");
+		sb.append(s+":");
+		sb.append(f2+"(");
+		if(terms2!=null)
+			sb.append(terms2);
+		sb.append(")");
+		sb.append(")");
+		
+		return sb.toString();
+	}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String Term():
+{
+	Token t=null;
+	String s=null;
+}
+{
+	t=<VARIABLE> 
+	{	return t.image; }
+	|
+	s=Constant()
+	{	return s;}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+String Terms():
+{
+	String term=null;
+	String terms=null;
+}
+{
+	term=Term() ( "," terms=Terms() )?
+	{
+		if(terms==null)
+			return term;
+			
+		return term+","+terms;
+	}
+}
+/*----------------------------------------------------------------------------------------------------------*/
+String Comparison():
+{
+	String t1=null;
+	String t2=null;
+	Token op=null;
+}
+{
+	t1=Term() op=<OPERATOR> t2=Term()
+	{	return t1+" "+op.image+" "+t2;}	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object Body(Vector v):
+{
+	Object literal=null;
+	Object body=null;
+}
+{
+	literal=Literal() 
+	{
+		v.add(literal);
+	}
+	( "," body=Body(v) )?
+	{
+		if(body!=null)
+			return body;
+			
+		String s=process_body(v);
+		return s;
+	} 
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+//
+String MetaRule():
+{
+	String metahead=null;
+	Object metabody=null;
+}
+{
+	<METARULE> "(" metahead=MetaHead() "," "[" (metabody=MetaBody(new Vector()))? "]" ")" "." 
+	{	
+		String s=null;
+		if(metabody!=null){
+			
+			s=(String)metabody;
+			return new String(metahead+":-"+s+"."); 
+		}
+		
+		return new String(metahead+"."); 
+	}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+//
+String MetaHead():
+{
+	String atr=null;
+	String val=null;
+	String id=null;
+	Object head=null;
+}
+{
+	<ID> "," atr=StringConstant() "(" id=Constant() "," val=Term() ")"
+	{
+		return "["+id+"]"+atr+":"+val;
+	}	
+	|
+	<PRED> "," atr=StringConstant() "(" head=Head() "," val=Term() ")"	
+	{
+		 if(head instanceof String){
+		 	
+		 	String s=(String)head;
+		 	return new String(s+"."+atr+":"+val);
+		 }
+		 
+		 if(is_complex_term(head)){
+		 	
+		 	Vector v=(Vector)head;
+		 	String s=new String((String)v.get(1)+"."+(String)v.get(2));
+		 	return new String(s+"."+atr+":"+val);
+		 }
+
+		 String s=inline_literal(head);
+		 return new String(s+"."+atr+":"+val);
+	}
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object MetaBody(Vector v):
+{
+	Object metaliteral=null;
+	Object metabody=null;
+}
+{
+	metaliteral=MetaLiteral()
+	{
+		v.add(metaliteral);
+	} 
+	( "," metabody=MetaBody(v) )? 
+	{
+		if(metabody!=null)
+			return metabody;
+			
+		String s=process_body(v);
+		return s;
+	}	
+}
+
+/*----------------------------------------------------------------------------------------------------------*/
+Object MetaLiteral():
+{
+	String metahead=null;
+	Object literal=null;
+}
+{
+	<METARULE> "(" metahead=MetaHead() ")"
+	{
+		return metahead;
+	}
+	|
+	LOOKAHEAD( 3 )
+	<NEGATION> "(" <METARULE> "(" metahead=MetaHead() ")" ")"
+	{	
+		return "not("+metahead+")";
+	}
+	|
+	literal=Literal()
+	{
+		return literal;
+	}
+	
+}
+

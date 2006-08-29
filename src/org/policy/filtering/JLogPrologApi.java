@@ -104,7 +104,7 @@ public class JLogPrologApi implements PrologApi{
 		int i=0;
 		while(e.hasMoreElements()){
 			
-			sv[i]=transform(e.nextElement());
+			sv[i]=e.nextElement().toString();
 			i++;
 		}
 		
@@ -123,7 +123,7 @@ public class JLogPrologApi implements PrologApi{
 	
 		String[] bindings=new String[result.size()];
 		for(int i=0;i<result.size();i++)
-			bindings[i]=transform(result.get(variableList[i]));
+			bindings[i]=(result.get(variableList[i])).toString();
 
 		ar.getVariableBindings().addResult(new Result(bindings));
 		
@@ -143,7 +143,7 @@ public class JLogPrologApi implements PrologApi{
 			
 			if(result.containsKey(vars[i])){
 				v.add(vars[i]);
-				b.add(transform(result.get(vars[i])));
+				b.add(result.get(vars[i]).toString());
 			}
 		}
 			
@@ -207,7 +207,7 @@ public class JLogPrologApi implements PrologApi{
 			
 			String[] bindings=new String[result.size()];
 			for(int i=0;i<result.size();i++)
-				bindings[i]=transform(result.get(ar.getVariable(i)));
+				bindings[i]=result.get(ar.getVariable(i)).toString();
 			
 			ar.getVariableBindings().addResult(new Result(bindings));
 		}
@@ -242,7 +242,7 @@ public class JLogPrologApi implements PrologApi{
 			
 			String[] bindings=new String[ar.getNumberVariables()];
 			for(int i=0;i<ar.getNumberVariables();i++)
-				bindings[i]=transform(result.get(ar.getVariable(i)));
+				bindings[i]=result.get(ar.getVariable(i)).toString();
 			
 			ar.getVariableBindings().addResult(new Result(bindings));
 		}
