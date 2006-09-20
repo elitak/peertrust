@@ -21,12 +21,12 @@ public class Policy {
 		policy = s;
 	}
 	
-	/**
+	/*
 	 * Returns a string representation of the policy as a Prolog theory.
 	 * @return A string representation of the policy as a Prolog theory.
-	 */
+	 *
 	String toTheory(){
 		return policy;
-	}
+	}*/
 	
 }

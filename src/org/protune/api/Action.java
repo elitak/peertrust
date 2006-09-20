@@ -9,7 +9,7 @@ package org.protune.api;
  */
 public abstract class Action {
 	
-	abstract Notification perform();
+	public abstract Notification perform();
 	
 	public static Notification[] perform(Action[] aa){
 		Notification[] na = new Notification[aa.length];
@@ -29,6 +29,8 @@ public abstract class Action {
 	 * but not
 	 * <blockquote><tt>release(Credential).</tt></blockquote>
 	 */
-	abstract String toGoal();
+	public String accept(Mapper m){
+		return m.toPrologRepresentation(this);
+	}
 
 }

@@ -10,19 +10,19 @@ import java.util.Date;
  */
 public class TimeReadAction extends ReadAction<Date> {
 
-	Notification perform() {
+	public Notification perform() {
 		result = new Date();
 		return new ActionWellPerformed(this);
 	}
 	
-	/**
+	/*
 	 * According to deliverable <tt>I2-D2</tt> the Prolog representation of this action is
 	 * <blockquote><tt>time(T)</tt></blockquote>
 	 * <b>OPEN ISSUE:</b> Should it maybe have been <tt>do(time(T))</tt>?
-	 */
+	 *
 	String toGoal(){
 		// return "time(T)";
 		return "allow(access(books))";
-	}
+	}*/
 
 }

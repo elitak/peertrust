@@ -3,16 +3,14 @@ package org.protune.core;
 import org.protune.api.*;
 
 /**
- * The interface {@link org.protune.core.Checker} provides the methods for checking whether a
- * notification is (not) reliable, i.e. whether an action, which is supposed to be executed, was
- * actually executed as reported in its notification. Therefore a suitable method should be implemented
- * for each kind of notification available in the Protune system (i.e. for each known subclass of
+ * The interface {@link org.protune.core.Checker} provides methods for checking whether a notification 
+ * is (not) reliable, i.e. whether an action, which is supposed to be executed, was actually executed as
+ * reported in its notification. Therefore a suitable method should be implemented for each kind of
+ * notification available in the Protune system (i.e. for each known subclass of
  * {@link org.protune.api.Notification}).<br />
- * <b>OPEN ISSUE:</b> At present the system contains only two subclasses of {@link
- * org.protune.api.Notification} (namely {@link org.protune.api.ActionWellPerformed} and {@link
- * org.protune.api.ActionWrongPerformed}). Whenever in the future new subclasses are developed, this
- * interface and all classes implementing it will need to be changed. Think at a smart solution
- * avoiding this problem. 
+ * <b>NOTE:</b> The interface <tt>Checker</tt> should be aware of each subclass of {@link
+ * org.protune.api.Notification} available in the system, therefore whenever a new subclass is added,
+ * the interface <tt>Checker</tt> (all classes implementing it) should be modified.
  * @author jldecoi
  */
 public interface Checker {

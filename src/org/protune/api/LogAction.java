@@ -18,7 +18,7 @@ public class LogAction extends SideEffectAction {
 		fileName = s2;
 	}
 	
-	Notification perform() {
+	public Notification perform() {
 		try{
 			FileWriter f = new FileWriter(fileName, true);
 			f.write(toWrite);
@@ -30,14 +30,14 @@ public class LogAction extends SideEffectAction {
 		}
 	}
 	
-	/**
+	/*
 	 * According to deliverable <tt>I2-D2</tt> the Prolog representation of this action is
 	 * <blockquote><tt>logged(&lt;toWrite&gt;, &lt;fileName&gt;)</tt></blockquote>
 	 * <b>OPEN ISSUE:</b> Should it maybe have been <tt>do(logged(&lt;toWrite&gt;,
 	 * &lt;fileName&gt;))</tt>?.
-	 */
+	 *
 	String toGoal(){
 		return "logged(" + toWrite + ", " + fileName + ")";
-	}
+	}*/
 	
 }

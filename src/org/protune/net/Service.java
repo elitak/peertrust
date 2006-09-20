@@ -2,6 +2,11 @@ package org.protune.net;
 
 import java.io.IOException;
 
+/**
+ * <b>NOTE:</b> Each subclass of {@link org.protune.net.Service} should implement the constructor
+ * <tt>&lt;subclassName&gt;({@link org.protune.net.Pointer})</tt>.
+ * @author jldecoi
+ */
 public abstract class Service {
 	
 	Pointer otherPeer;

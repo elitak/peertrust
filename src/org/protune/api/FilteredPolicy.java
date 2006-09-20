@@ -29,13 +29,13 @@ public class FilteredPolicy {
 		policy = s;
 	}
 	
-	/**
+	/*
 	 * Concatenates <tt>n</tt> filtered policies.
 	 * @param fp
 	 * @return
 	 * @throws PrologEngineException Never (if I am not wrong the union of correct theory should be a
 	 * correct theory).
-	 */
+	 *
 	static FilteredPolicy concat(FilteredPolicy[] fp){
 		try{
 			String s = "";
@@ -59,7 +59,7 @@ public class FilteredPolicy {
 	 * not the case).
 	 * @param fp
 	 * @return
-	 */
+	 *
 	boolean equals(FilteredPolicy fp){
 		return policy.equals(fp.toString());
 	}
@@ -70,6 +70,10 @@ public class FilteredPolicy {
 	
 	public String toString(){
 		return policy;
+	}*/
+	
+	String accept(Mapper m){
+		return m.toPrologRepresentation(this);
 	}
 	
 }

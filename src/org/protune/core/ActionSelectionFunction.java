@@ -3,12 +3,12 @@ package org.protune.core;
 import org.protune.api.Action;
 
 /**
+ * <b>NOTE:</b> The signature of the method {@link #selectActions(Action[], Status)} should most
+ * likely be changed.<br />
  * After having identified the unlocked actions, a subset is chosen and executed according to the
  * Negotiation Strategy. The class {@link org.protune.core.ActionSelectionFunction} represents the
  * function selecting this subset. Each concrete selection function should extend
- * {@link org.protune.core.ActionSelectionFunction}.<br />
- * <b>OPEN ISSUE:</b> The signature of the method {@link #selectActions(Action[], Status)} should most
- * likely be changed.
+ * {@link org.protune.core.ActionSelectionFunction}.
  * @author jldecoi
  */
 public abstract class ActionSelectionFunction {

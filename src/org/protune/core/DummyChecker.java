@@ -3,7 +3,8 @@ package org.protune.core;
 import org.protune.api.*;
 
 /**
- * Dummy implementation of the interface {@link org.protune.core.Checker}.
+ * Dummy implementation of the interface <tt>Checker</tt>, which is unable to handle any notification
+ * type.
  * @author jldecoi
  */
 public class DummyChecker implements Checker {

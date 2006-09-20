@@ -35,7 +35,8 @@ public class DispatcherPeer implements Peer {
 			
 			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 			if(o instanceof ServiceRequestMessage) handle((ServiceRequestMessage)o, oos);
-			else if(o instanceof StartNegotiationMessage) handle((StartNegotiationMessage)o, oos);
+			else if(o instanceof DispatcherStartNegotiationMessage)
+				handle((DispatcherStartNegotiationMessage)o, oos);
 			else if(o instanceof DispatcherMessage){
 				DispatcherMessage dm = (DispatcherMessage)o;
 				NegotiationMessage nm = dm.getNegotiationMessage();
@@ -71,11 +72,11 @@ public class DispatcherPeer implements Peer {
 	
 	/**
 	 * If an error occurs, the negotiation is aborted.
-	 * @param snm
+	 * @param dsnm
 	 * @param oos
 	 * @throws IOException
 	 */
-	void handle(StartNegotiationMessage snm, ObjectOutputStream oos){
+	void handle(DispatcherStartNegotiationMessage dsnm, ObjectOutputStream oos){
 		try{
 			oos.writeObject(
 				new StartNegotiationMessage(
@@ -84,12 +85,21 @@ public class DispatcherPeer implements Peer {
 			);
 			oos.flush();
 
-			// To be changed
-			DummyService s = new DummyService(snm.getPeerPointer());
+			Class[] ca = { Pointer.class };
+			Object[] oa = { dsnm.getPeerPointer() };
+			Service s =
+				(Service) Class.forName(dsnm.getRequestedService()).getConstructor(ca).newInstance(oa);
 			currentRunningServiceID++;
 			runningServices.put(currentRunningServiceID, s);
 		}
 		catch(IOException ioe){}
+		catch(ClassNotFoundException cnfe){
+			// If the communication protocol is respected this exception should be never thrown.
+		}catch(Exception e){
+			// If each subclass of {@link org.protune.net.Service} implements the constructor
+			// &lt;subclassName&gt;({@link org.protune.net.Pointer}) this exception should be never
+			// thrown.
+		}
 	}
 	
 	/**
