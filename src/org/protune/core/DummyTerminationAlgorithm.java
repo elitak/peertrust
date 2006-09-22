@@ -1,6 +1,6 @@
 package org.protune.core;
 
-import org.policy.filtering.JLogPrologApi;
+import org.protune.api.PrologEngine;
 
 /**
  * Dummy implementation of the interface {@link org.protune.core.TerminationAlgorithm}, which
@@ -10,8 +10,8 @@ import org.policy.filtering.JLogPrologApi;
  */
 public class DummyTerminationAlgorithm extends TerminationAlgorithm {
 	
-	DummyTerminationAlgorithm(JLogPrologApi j){
-		jlpa = j;
+	DummyTerminationAlgorithm(PrologEngine pe){
+		prologEngine = pe;
 	}
 
 }

@@ -1,7 +1,5 @@
 package org.protune.api;
 
-import org.policy.filtering.*;
-
 /**
  * Represents a filtered policy.<br />
  * <b>OPEN ISSUE:</b> If I understood well, each filtered policy is a Prolog theory, but not each
@@ -11,21 +9,21 @@ import org.policy.filtering.*;
  */
 public class FilteredPolicy {
 
-	JLogPrologApi jlpa;
+	PrologEngine prologEngine;
 	String policy;
 	
-	FilteredPolicy(String s) throws PrologEngineException{
-		jlpa = new JLogPrologApi();
-		jlpa.load(s);
+	FilteredPolicy(String s) throws LoadTheoryException{
+		prologEngine = new TuPrologWrapper();
+		prologEngine.loadTheory(s);
 		policy = s;
 	}
 	
-	FilteredPolicy(String[] sa) throws PrologEngineException{
+	FilteredPolicy(String[] sa) throws LoadTheoryException{
 		String s = "";
-		for(int i=0; i<sa.length; i++) s += sa[i];
-		
-		jlpa = new JLogPrologApi();
-		jlpa.load(s);
+		for(int i=0; i<sa.length; i++) s += sa[i] + "\n";
+
+		prologEngine = new TuPrologWrapper();
+		prologEngine.loadTheory(s);
 		policy = s;
 	}
 	

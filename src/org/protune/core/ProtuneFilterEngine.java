@@ -1,19 +1,13 @@
 package org.protune.core;
 
-import org.policy.action.ActionResult;
-import org.policy.filtering.*;
-import org.protune.api.Action;
-import org.protune.api.FilteredPolicy;
-import org.protune.api.Mapper;
-import org.protune.api.Notification;
-import org.protune.api.Policy;
+import org.protune.api.*;
 
 import java.io.*;
 
 /**
  * <b>NOTE:</b> This class is still work in progress.<br />
  * The current implementation of the interface {@link org.protune.core.FilterEngine}. As inference engine
- * an istance of {@link org.policy.filtering.JLogPrologApi} is used.<br />
+ * an istance of {@link org.protune.api.TuPrologWrapper} is used.<br />
  * In order to avoid duplication, for each negotiation only a copy of the negotiation state should be
  * present in the system. Since at each negotiation step a copy is held in the inference engine
  * contained in the <tt>ProtuneFilterEngine</tt>, it is pointless implementing another copy somewhere
@@ -26,7 +20,7 @@ import java.io.*;
  */
 public class ProtuneFilterEngine implements FilterEngine, Status{
 
-	JLogPrologApi jlpa;
+	PrologEngine prologEngine;
 	Mapper mapper;
 	
 	/*
@@ -73,7 +67,7 @@ public class ProtuneFilterEngine implements FilterEngine, Status{
 	}*/
 	
 	/**
-	 * Creates an inference engine {@link org.policy.filtering.JLogPrologApi} and loads the policy into
+	 * Creates an inference engine {@link org.protune.api.TuPrologWrapper} and loads the policy into
 	 * it.
 	 * @param m A mapper.
 	 * @param p The policy available on the peer.
@@ -81,16 +75,15 @@ public class ProtuneFilterEngine implements FilterEngine, Status{
 	ProtuneFilterEngine(Mapper m, Policy p) throws Exception{
 		mapper = m;
 		
-		jlpa = new JLogPrologApi();
-		jlpa.init();
+		prologEngine = new TuPrologWrapper();
 		
-		jlpa.load(new File(Mapper.FILTERING_THEORY));
-		jlpa.load(mapper.toPrologRepresentation(p));
+		prologEngine.loadTheory(new File(Mapper.FILTERING_THEORY));
+		prologEngine.loadTheory(mapper.toPrologRepresentation(p));
 	}
 	
 	public int getCurrentNegotiationStepNumber(){
 		try{
-			return Integer.parseInt(jlpa.queryOnce(mapper.getCurrentNegotiationStepNumberStatement()).getResult(0).getBinding(0));
+			return Integer.parseInt(prologEngine.getFirstAnswer(mapper.getCurrentNegotiationStepNumberStatement()));
 		}
 		catch(Exception e){
 			return 0;
@@ -99,16 +92,16 @@ public class ProtuneFilterEngine implements FilterEngine, Status{
 	
 	public void increaseNegotiationStepNumber(){
 		try{
-			jlpa.execute(mapper.increaseNegotiationStepNumberStatement());
+			prologEngine.isSuccessful(mapper.increaseNegotiationStepNumberStatement());
 		}
 		catch(Exception e){}
 	}
 	
 	public void addNegotiationElement(NegotiationElement ne){
 		try{
-			jlpa.execute(mapper.addNegotiationElementStatement(mapper.toPrologRepresentation(ne)));
+			prologEngine.isSuccessful(mapper.addNegotiationElementStatement(mapper.toPrologRepresentation(ne)));
 		}
-		catch(PrologEngineException pee){}
+		catch(Exception pee){}
 	}
 	
 	/**
@@ -122,20 +115,19 @@ public class ProtuneFilterEngine implements FilterEngine, Status{
 	 */
 	public boolean isNegotiationSatisfied(Status status){
 		try{
-			return jlpa.execute(mapper.isNegotiationSatisfiedStatement());
+			return prologEngine.isSuccessful(mapper.isNegotiationSatisfiedStatement());
 		}
-		catch(PrologEngineException pee){
+		catch(Exception pee){
 			return false;
 		}
 	}
 	
 	public Action[] extractActions(FilteredPolicy fp){
 		try{
-			ActionResult ar =
-				jlpa.query(mapper.extractActionsStatement(mapper.toPrologRepresentation(fp)));
-			int length = ar.getNumberResults();
-			Action[] aa = new Action[length];
-			for(int i=0; i<length; i++) aa[i] = mapper.parseLogAction(ar.getResult(i).getBinding(0));
+			String[] sa =
+				prologEngine.getAllAnswers(mapper.extractActionsStatement(mapper.toPrologRepresentation(fp)));
+			Action[] aa = new Action[sa.length];
+			for(int i=0; i<sa.length; i++) aa[i] = mapper.parseLogAction(sa[i]);
 			return aa;
 		}
 		catch(Exception e){
@@ -158,31 +150,30 @@ public class ProtuneFilterEngine implements FilterEngine, Status{
 	 * @throws Exception
 	 */
 	public FilteredPolicy filter(Policy policy, Status status, Action request) throws Exception{
-		jlpa.execute(mapper.startFilteringStatement(request.accept(mapper))); 
+		prologEngine.isSuccessful(mapper.startFilteringStatement(request.accept(mapper))); 
 		
 		String list =
-			jlpa.queryOnce(mapper.firstFilteringStepStatement()).getVariableBindings().getResult(0).getBinding(0);
+			prologEngine.getFirstAnswer(mapper.firstFilteringStepStatement());
 		while(!mapper.isEmptyListStatement(list)){
 			Object[] oa = mapper.parseArray(list);
 			Notification[] na = new Notification[oa.length];
 			for(int i=0; i<na.length; i++) na[i] = ((Action)oa[i]).perform();
 			list =
-				jlpa.queryOnce(mapper.secondFilteringStepStatement(mapper.toPrologRepresentation(na))).getVariableBindings().getResult(0).getBinding(0);
+				prologEngine.getFirstAnswer(mapper.secondFilteringStepStatement(mapper.toPrologRepresentation(na)));
 		}
-		jlpa.execute(mapper.thirdFilteringStepStatement());
+		prologEngine.isSuccessful(mapper.thirdFilteringStepStatement());
 
 		StringBuffer sb = new StringBuffer();
-		ActionResult ar;
-		ar = jlpa.query(mapper.getRulesStatement());
-		for(int i=0; i<ar.getNumberResults(); i++) sb.append(ar.getResult(i).getBinding(0) + "\n");
-		ar = jlpa.query(mapper.getMetarulesStatement());
-		for(int i=0; i<ar.getNumberResults(); i++) sb.append(ar.getResult(i).getBinding(0) + "\n");
+		String[] sa;
+		sa = prologEngine.getAllAnswers(mapper.getRulesStatement());
+		for(int i=0; i<sa.length; i++) sb.append(sa[i] + "\n");
+		sa = prologEngine.getAllAnswers(mapper.getMetarulesStatement());
+		for(int i=0; i<sa.length; i++) sb.append(sa[i] + "\n");
 		return mapper.parseFilteredPolicy(sb.toString());
 	}
 	
 	public boolean isUnlocked(Action action) throws Exception{
-		return
-		   jlpa.query(mapper.isUnlockedStatement(action.accept(mapper))).getExecutionResult();
+		return prologEngine.isSuccessful(mapper.isUnlockedStatement(action.accept(mapper)));
 	}
 
 }

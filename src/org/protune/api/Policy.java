@@ -1,8 +1,5 @@
 package org.protune.api;
 
-import org.policy.filtering.*;
-import org.peertrust.exception.ConfigurationException;
-
 /**
  * Represents a policy.<br />
  * <b>OPEN ISSUE:</b> If I understood well, each policy is a Prolog theory, but not each Prolog theory
@@ -11,13 +8,12 @@ import org.peertrust.exception.ConfigurationException;
  */
 public class Policy {
 
-	JLogPrologApi jlpa;
+	PrologEngine prologEngine;
 	String policy;
 	
-	Policy(String s) throws PrologEngineException, ConfigurationException{
-		jlpa = new JLogPrologApi();
-		jlpa.init();
-		jlpa.load(s);
+	Policy(String s) throws LoadTheoryException{
+		prologEngine = new TuPrologWrapper();
+		prologEngine.loadTheory(s);
 		policy = s;
 	}
 	

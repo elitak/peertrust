@@ -4,6 +4,46 @@ import java.net.*;
 import java.io.*;
 import java.util.Hashtable;
 
+/**
+ * When a service is provided by a node and made available to the outer world throught the Internet,
+ * most likely a number of clients will request the service concurrently. The node providing the service
+ * should hence find a way to handle this concurrent requests. Two possible opposite solutions are
+ * <ul>
+ * <li>letting a client wait until the previous clients' requests are handled</li>
+ * <li>handle the concurrent requests concurrently (i.e. creating a new thread for each new
+ * request)</li>
+ * </ul>
+ * At present our choice tries to keep the things as simple as possible, according to the constrains
+ * set by the characteristics of our application. In the Protune system we are mostly interested in
+ * negotiations among (pairs of) peers. Since a negotiation could consist of many steps, it would not
+ * be realistic letting a client wait until the previous negotiations are terminated. Therefore we chose
+ * to handle the negotiations with the clients in an interleaved way, i.e.
+ * <ul>
+ * <li>each client has to wait until the previous clients' <em>negotiation steps</em> (and not
+ * <em>requests</em>) are handled</li>
+ * <li>as soon as the previous clients' negotiation steps are handled, the current negotiation step of
+ * the client is handled</li>
+ * </ul>
+ * Such an approach requires of course that the system keeps track of each ongoing negotiation and is
+ * able to retrieve the status of the previous negotiation as soon as a new negotiation message is
+ * received (see {@link org.protune.net.DispatcherPointer} for further details on this).<br />
+ * As stated before, in the Protune system we are mostly interested in negotiations, but we do not
+ * mind just supporting {@link org.protune.core.ProtuneService}: with a bit more of effort, the
+ * communication infrastructure can be made much more general by providing support to a number of
+ * services that the node may want to make available. To this goal it suffices that the
+ * <tt>DispatcherPeer</tt> is aware of the services the node wants to make available and is able to
+ * provide them (or at least is able to suggest which entity will be able to provide them).<br />
+ * At this point we are able to sketch the main steps a negotiation involving a <tt>DispatcherPeer</tt>
+ * consists of (see Fig. 1).
+ * <img src="DispatcherPeerNegotiation.gif" alt="negotiation involving a DispatcherPeer" />
+ * At the beginning of the negotiation a client asks the <tt>DispatcherPeer</tt> whether a service is
+ * available. If it is so, the negotiation starts and goes on until one of the peers decides to
+ * terminate it (by sending the other a {@link org.protune.net.EndNegotiationMessage}). Notice that
+ * at the beginning of the negotiation a <tt>DispatcherPeer</tt> requires to be sent not only a
+ * {@link org.protune.net.StartNegotiationMessage} but a subclass of it (namely
+ * {@link org.protune.net.DispatcherStartNegotiationMessage}).
+ * @author jldecoi
+ */
 public class DispatcherPeer implements Peer {
 	
 	AddressPortPointer selfPointer;

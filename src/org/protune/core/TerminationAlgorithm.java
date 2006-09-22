@@ -1,7 +1,6 @@
 package org.protune.core;
 
-import org.protune.api.Mapper;
-import org.policy.filtering.*;
+import org.protune.api.*;
 
 /**
  * At each negotiation step the current peer should decide whether going on or stopping the negotiation,
@@ -18,13 +17,14 @@ import org.policy.filtering.*;
  */
 public abstract class TerminationAlgorithm {
 
-	JLogPrologApi jlpa;
+	PrologEngine prologEngine;
 	
 	boolean terminate(Mapper m, Status s){
 		try{
-			return jlpa.execute(accept(m));
+			return prologEngine.isSuccessful(accept(m));
 		}
-		catch(PrologEngineException pee){
+		catch(QueryException qe){
+			// It should not happen
 			return false;
 		}
 	}
