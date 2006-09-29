@@ -8,8 +8,6 @@ import org.protune.api.Mapper;
 import org.protune.api.Notification;
 
 /**
- * <b>NOTE:</b>To be changed: probably only {@link org.protune.core.Status} and {@link
- * org.protune.api.Mapper} need to know about <tt>NegotiationElement</tt>.<br />
  * As stated in {@link org.protune.core.Status}, a state should contain (at least)
  * <ul>
  * <li>sent/received {@link org.protune.api.FilteredPolicy}</li>
@@ -115,7 +113,7 @@ public class NegotiationElement {
 	 * org.protune.api.Check}).
 	 * @return the entity contained in the negotiation element.
 	 */
-	public Object getObject(){
+	public Object getEntity(){
 		return entity;
 	}
 	

@@ -1,6 +1,5 @@
 package org.protune.core;
 
-
 /**
  * The interface <tt>Status</tt> represents the state of a negotiation. A state should contain (at
  * least)
