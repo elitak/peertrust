@@ -1,0 +1,151 @@
+% -------------------------------------------------------------------
+% BASIC DATATYPES
+% -------------------------------------------------------------------
+
+<STRING_QUOTED>         -> "'"  (~["'","\\","\n","\r"])* "'"
+                         | "\""  (~["\"","\\","\n","\r"])*  "\""
+
+<ANY_CHARACTER_BUT_EOF> -> (~["\n","\r"])*
+
+<DIGIT>                 -> 0 | 1 | ... | 9
+
+<LOWER_CASE>            -> a | b | ... | z
+
+<UPPER_CASE>            -> A | B | ... | Z
+
+<NUMBER>                -> <DIGIT> <NUMBER>
+                         | <DIGIT>
+
+<STRING_EXTENDED>       -> <LOWER_CASE> <STRING_EXTENDED>
+                         | <UPPER_CASE> <STRING_EXTENDED>
+                         | _ <STRING_EXTENDED>
+                         | <NUMBER> <STRING_EXTENDED>
+                         | E
+
+<STRING_CONSTANT>       -> <LOWER_CASE> <STRING_EXTENDED>
+                         | <STRING_QUOTED>
+
+<CONSTANT>              -> <STRING_CONSTANT>
+                         | <NUMBER>
+
+<VARIABLE>              -> <UPPER_CASE> <STRING_EXTENDED>
+                         | _ <STRING_EXTENDED>
+
+<RULE_SEP>              -> <-
+                         | :-
+
+<NEG_SYMBOL>            -> not
+                         | \+
+
+<OPERATOR>              -> =
+                         | >
+                         | >=
+                         | <
+                         | <=
+                         | !=
+                         | is
+
+% -------------------------------------------------------------------
+% PROGRAM RULES
+% -------------------------------------------------------------------
+
+<PROGRAM>               -> <DIRECTIVE_LIST> <RULE_LIST>
+
+<DIRECTIVE_LIST>        -> <DIRECTIVE> <DIRECTIVE_LIST>
+                         | E
+
+<DIRECTIVE>             -> include <STRING_QUOTED>
+
+<RULE_LIST>             -> <RULE>
+                         | <RULE> <RULE_LIST>
+                         | <META_RULE>
+                         | <META_RULE> <RULE_LIST>
+                         | <COMMENT>
+                         | <COMMENT> <RULE_LIST>
+
+<COMMENT>               -> "%" <ANY_CHARACTER_BUT_EOF> <EOF>
+                         | "//" <ANY_CHARACTER_BUT_EOF> <EOF>
+                         | "/*" ( )* "*/"
+
+<RULE>                  -> [ <ID> ] <HEAD_LITERAL> <RULE_SEP> <BODY> .
+                         | [ <ID> ] <HEAD_LITERAL> .
+                         | <HEAD_LITERAL> <RULE_SEP> <BODY> .
+                         | <HEAD_LITERAL> .
+
+<META_RULE>             -> <META_HEAD_LITERAL> <RULE_SEP> <META_BODY> .
+                         | <META_HEAD_LITERAL> .
+
+<ID>                    -> <CONSTANT>
+
+<HEAD_LITERAL>          -> <STRING_CONSTANT>
+                         | <PREDICATE_LITERAL>
+                         | <COMPLEX_TERM>
+
+<PREDICATE_LITERAL>     -> <PREDICATE> ( )
+                         | <PREDICATE> ( <ARGUMENT_LIST> )
+
+<META_HEAD_LITERAL>     -> [ <ID> ] . <FIELD>
+                         | <HEAD_LITERAL> . <FIELD>
+
+<LITERAL>               -> <HEAD_LITERAL>
+                         | <NEG_SYMBOL> <HEAD_LITERAL>
+                         | <TERM> <OPERATOR> <TERM>
+                         | <NEG_SYMBOL> <TERM> <OPERATOR> <TERM>
+                         | <SPECIAL_LITERAL>
+
+<META_LITERAL>          -> <META_HEAD_LITERAL>
+                         | <NEG_SYMBOL> <META_HEAD_LITERAL>
+                         | <LITERAL>
+
+<BODY>                  -> <LITERAL_LIST>
+                         | E
+
+<META_BODY>             -> <META_LITERAL_LIST>
+                         | E
+
+<LITERAL_LIST>          -> <LITERAL>
+                         | <LITERAL> , <LITERAL_LIST>
+
+<META_LITERAL_LIST>     -> <META_LITERAL>
+                         | <META_LITERAL> , <META_LITERAL_LIST>
+
+<TERM>                  -> <VARIABLE>
+                         | <CONSTANT>
+
+<TERM_LIST>             -> <TERM>
+                         | <TERM> , <TERM_LIST>
+
+<COMPLEX_TERM>          -> <VARIABLE> [ <FIELD_LIST> ]
+                         | <STRING_CONSTANT> [ <FIELD_LIST> ]
+
+<ANY_TERM>              -> <COMPLEX_TERM>
+                         | <TERM>
+
+<FIELD>	                -> <ATTRIBUTE> : <VALUE>
+
+<FIELD_LIST>            -> <FIELD>
+                         | <FIELD> , <FIELD_LIST>
+
+<SPECIAL_LITERAL>       -> in ( <FUNCTION> , <PACKAGE_CALL> )
+                         | declaration ( <ID> , <ANY_TERM> )
+                         | credential ( <ID> , <ANY_TERM> )
+
+<PACKAGE_CALL>          -> <PACKAGE> : <FUNCTION>
+
+<FUNCTION>              -> <PREDICATE>
+                         | <PREDICATE> ( )
+                         | <PREDICATE> ( <TERM_LIST> )
+
+<ARGUMENT>              -> <ANY_TERM>
+                         | <PREDICATE_LITERAL>
+
+<ARGUMENT_LIST>         -> <ARGUMENT>
+                         | <ARGUMENT> , <ARGUMENT_LIST>
+
+<ATTRIBUTE>             -> <STRING_CONSTANT>
+
+<VALUE>                 -> <TERM>
+
+<PREDICATE>             -> <STRING_CONSTANT>
+
+<PACKAGE>               -> <STRING_CONSTANT>

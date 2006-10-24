@@ -1,18 +1,26 @@
 \documentclass{article}
+
 \usepackage{verbatim}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{pdflscape}
 
 \title{Protune}
-\author{J. L. De Coi, D. Ghita, D. Olmedilla}
+%\author{J. L. De Coi, D. Ghita, D. Olmedilla}
 
-%\newtheorem{theorem}{Theorem}
+\newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{proposition}{Proposition}
 \newtheorem{remark}{Remark}
 \newtheorem{definition}{Definition} %
 \newtheorem{exa}{Example}
 
-%\newenvironment{example}
+\newcommand{\protune}{\textsc{Protune}}
+\newcommand{\m}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\s}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\x}[1]{\ensuremath{\mathit{#1}}}
 
+%\newenvironment{example}
 % program environment
 \newenvironment{program}{\begin{tabbing}
    tab \= tab \= tab \= tab \= tab \= tab \= tab \= \kill}{\end{tabbing}}
@@ -212,6 +220,330 @@ The arguments for the package call function are gathered in a list, so is be eas
 
 The start method of the parser which must match the main BNF production, for the entire policy, is extended. This happens as in the policy rules and metarules can be mixed and have common tokens. Since identifying the start of a rule or a metarule is frequently done while translating, we preferred to factor together the rule and the metarule syntax instead of using local lookahead, in order not to slow down the transformation process. Local lookahead is also used in other situations were factorization of rules would have been difficult and would have made the grammar not welcome future changes very well.It must be mentioned as well that even though the rules referring to literal and metaliteral have common parts, they were implemented separately in order to favor factorization over local lookahead. An important feature of the translator is that while transforming the Protune policy in the Prolog representation the semantics of the policies is not changed, only the syntax is modified.
 
+        \section{Semantics-preserving policy filtering}
+        \label{sec-no-loss}
 
+
+We parameterize policy filtering in order to be able to modify the
+filtering process using metadata.   For the filtering techniques
+reported in this section, we shall prove that the choice of
+the filtering criteria does not affect correctness/completeness.
+
+
+        \subsection{Removing Irrelevant Rules}
+
+This is an instance of the \emph{need to know principle}.
+%
+The \emph{relevant subset} of a policy \x{Pol} w.r.t.\ an atom $A$ is
+the least set $S$ such that:
+\begin{enumerate}
+\item If the head of a rule $R\in\x{Pol}$ unifies with $A$, then $R\in S$;
+\item If the head of a rule $R\in\x{Pol}$ unifies with an atom $B$
+        occurring in the body of some rule in $S$, then $R\in S$. 
+\end{enumerate}
+The relevant subset of \x{Pol} w.r.t\ $A$ will be denoted by
+\[
+        \m{relevant(\x{Pol,A})} \,.
+\]
+
+The relevant subset of \x{Pol} w.r.t\ $A$ suffices to determine which
+instances of $A$ are entailed by the policy in the given state:
+
+\begin{lemma}                           \label{lem-relevant}
+For all ground atoms $A\theta$ ($\theta$ is a substitution),
+\end{lemma}
+\[
+   A\theta \in \m{cmodel}(\x{Pol},\Sigma) \mbox{ iff }
+        A\theta \in \m{cmodel}(\m{relevant}(\x{Pol},A),\Sigma) \,.
+\]
+
+        \subsection{Compiling Private Policies}
+
+
+The \emph{immediate consequences} of a rule $R$ w.r.t.\ \x{Pol} and
+$\Sigma$ are the heads of the (ground) rules $R' \in \{R\}^\Sigma$
+whose body is true in $\m{cmodel}(\x{Pol},\Sigma)$.  The set of all
+immediate consequences of $R$ w.r.t.\ \x{Pol} and $\Sigma$ is denoted
+by
+$
+        \m{cons}(R,\x{Pol},\Sigma) \,.
+$
+This operator is extended to policies in the natural way:
+\begin{center}
+$\m{cons}(\x{Pol'}, \x{Pol},\Sigma) = \bigcup_{R\in\x{Pol'}}
+\m{cons}(R,\x{Pol},\Sigma)$.
+\end{center}
+
+Intuitively, \m{cons} \emph{compiles} the subpolicy \x{Pol'} and
+replaces it with its immediate consequences.  In this way, the results
+of the policy may be released to the peer without disclosing the
+internal structure of the rules.
+
+This transformation preserves the semantics of the given policy, no
+matter what rules are compiled:
+
+\begin{theorem}                                 \label{compile-ok}
+For all \x{Pol}, \x{Pol'}, $\Sigma$,
+$\m{cmodel} (\x{Pol \cup Pol'},\Sigma) =$
+\end{theorem}
+\begin{eqnarray*}
+%\m{cmodel}\lefteqn{   (\x{Pol \cup Pol'},\Sigma) =  }\\
+% & &   \m{cmodel}(\x{Pol \cup \m{cons}(Pol', Pol \cup Pol',\Sigma)},\Sigma) \,.
+    \m{cmodel}(\x{Pol \cup \m{cons}(Pol', Pol \cup Pol',\Sigma)},\Sigma) \,.
+\end{eqnarray*}
+
+        \section{Filtering with information loss}
+        \label{sec-with-loss}
+
+
+Policies and states are sensitive resources.  In general it may
+be necessary to hide part of them, which necessarily causes some
+information loss.
+
+\subsection{Blurring}
+\label{sec:blurring}
+
+Some rules $R$ may have to be hidden and blocked until the client is
+trusted enough.  This is accomplished by means of suitable
+metastatements:
+\[
+        \hat{R}.\s{sensitivity:not\_applicable} \leftarrow \ldots \,.
+\]
+(where $\hat{R}$ is $R$'s name).  As more credentials arrive, $R$ may
+become visible and extend negotiation opportunities.  In this
+framework, policy disclosure has a reactive flavour, as opposed to the
+predefined graph structure adopted in \cite{yws01}.
+
+Similarly, sensitive state predicates may have to be blocked until
+their evaluation does not disclose confidential information.
+
+However, they cannot simply be left in the policy and sent to the
+client%
+\footnote{
+%
+        Hereafter by ``client'' we mean the peer that submitted the
+        last request, and by ``server'' we denote the peer that is
+        evaluating its local policy to decide whether the request
+        should be accepted and whether a counter-request is needed.
+%
+}
+%
+because
+\begin{itemize}
+\item the client does not know how to evaluate them, since it has no
+access to the server's state, and
+\item the syntax of protected conditions may suffice to disclose some
+confidential information about the structure of the policy.
+\end{itemize}
+
+Removing these occurrences from the rules is not a good solution
+either, because then the client would not be aware that some
+conditions that lie beyond its control shall be checked later by the
+server.  The client should be able to see that even if all credentials
+occurring in the policy were supplied, still the requested access
+might be denied.  More precisely, the client should be able to
+distinguish the credential sets that satisfy the server's request with
+no additional checks, from the credential sets that are subject to
+further verification.
+
+The solution adopted here consists in \emph{blurring} the state
+conditions that cannot be evaluated immediately and cannot be made
+true by the other party.  Such conditions are blurred by replacing
+them with a reserved propositional symbol.
+
+For example, consider again the login policy (\ref{login-rule}). To
+avoid information leakage we postpone the evaluation of \s{user(U,P) } and
+send the client a modified rule:
+\begin{eqnarray}
+\nonumber
+\lefteqn{   \s{allow(enter\_site())} \leftarrow } \\
+& &     \s{declaration(usr=U,passwd=P)}, \nonumber
+        \s{blurred}
+\nonumber
+\end{eqnarray}
+where $r$ is the name of rule (\ref{login-rule}).  From this rule, a
+machine may realize that sending the declaration does not suffice to
+enter the site; first the server is performing a check of some sort.%
+\footnote{
+  Normally declarations result in a pop-up window where the user can
+  directly type in the requested information or click an
+  \emph{accept} button.  If the declaration is to be handled
+  automatically, the client's policy should encode enough information to
+  relate the appropriate user-password pair to the current service
+  request.  Moreover, appropriate policy rules are needed to decide
+  whether the user should be queried or the declaration should be
+  handled automatically.
+}
+Blurring is formalized below.
+
+Let $B$ be a set of literals, specifying which literals have to be
+blurred.  For all rules $R =(A \leftarrow \x{Body})$ with name $r$,
+let $\m{blur}(R, B) = (A \leftarrow \x{Body'})$ where 
+\begin{itemize}
+\item \x{Body' = Body} if \x{Body \cap B=\emptyset}, and
+\item \x{Body' = (Body \setminus B) \cup \{\s{blurred}\} } otherwise.
+\end{itemize}
+Then for all policies \x{Pol}, define 
+$$\m{blur}(\x{Pol}, B) =
+\bigcup_{R\in\x{Pol}} \m{blur}(R,B) \,.$$
+
+To prove the effectiveness of blurring in protecting the internal
+state, we show that under suitable conditions, the blurred partial
+evaluation of any given policy \x{Pol} is invariant across all
+possible contents of the protected part of the state.  As a
+consequence, from the result of the blurring one cannot deduce
+any protected state literal.
+
+To formalize this, say two states are equivalent if they have the same
+non-blurred (public) part:
+\[
+        \Sigma \equiv_B \Sigma' \mbox{ iff }
+        \Sigma \setminus B = \Sigma' \setminus B \,.
+\]
+
+\begin{theorem}[Confidentiality]
+For all \x{Pol}, $\Sigma$, $\Sigma'$, $E$ and $B$ of the appropriate
+type,  if $E \cap B=\emptyset$ and $\Sigma \equiv_B \Sigma'$ then
+\end{theorem}
+\[
+   \m{blur(partEval}(\x{Pol},\Sigma,E),B) =
+   \m{blur(partEval}(\x{Pol},\Sigma',E),B) \,.
+\]
+
+The precondition $E \cap B=\emptyset$ is very important; if it were
+violated, then some protected literal might be evaluated during
+filtering.  If this happens, one can find counterexamples to the above
+theorem where some protected state literals can be deduced from the
+filtered policy.
+
+Moreover, for a correct negotiation, $E \cup B$ \emph{should cover all
+state literals that cannot be made true by the client}. This
+guarantees that the result of the filtering contains only predicates
+that can be understood and effectively handled by the client.  This
+discussion gives us a method for determining $B$:
+
+Let \x{LSL} be the set of all \emph{local state literals}, that is,
+those with a predicate $p$ such that
+\begin{itemize}
+\item $p.\s{type}$ is \s{state\_predicate},
+\item $p.\s{actor}$ is not \s{peer}
+\end{itemize}
+(a more formal definition is given in the next section.)
+Then let $B = \x{LSL} \setminus E$.
+
+Note that both \x{LSL} and \x{E} are determined by the metadata, and
+hence $B$ is, as well.
+
+Another important question is: are there any pieces of \emph{certain}
+information that the client may extract from a blurred program?  More
+concretely:
+\begin{itemize}
+\item Can the client ever be sure that some credentials
+fulfill a request expressed as a blurred program?  Then the client
+may prefer to send immediately such credentials, in order to minimize
+useless disclosure.
+
+\item Can the client detect when its credentials do not suffice to
+satisfy the server's request?  Then the client may immediately abort
+the transaction, without any further unnecessary disclosure.
+\end{itemize}
+Fortunately, the answer to such questions in many cases is \emph{yes},
+and the reasoning needed to carry out this kind of analysis has the
+same complexity as plain credential selection, because reasoning boils
+down to computing two canonical models.
+
+\begin{theorem}                         \label{blurring-ok}
+For all blurred policies \x{Bpol}, let \x{Bpol^{\max} = Bpol \cup
+\{\s{blurred}\}} and \x{Bpol^{\min} = Bpol}.  Then, for all states
+$\Sigma$ and all sets of state predicates $B$,
+\end{theorem}
+\begin{eqnarray*}
+\m{cmodel} \lefteqn{  (\x{Bpol^{\max}},\Sigma) =  }\\
+& & \bigcup \{ \m{cmodel}(\x{P},\Sigma) \mid 
+\m{blur}(\x{P},B) =  \x{Bpol} \} \,,
+\nonumber
+\\
+\m{cmodel} \lefteqn{  (\x{Bpol^{\min}},\Sigma) =  }\\
+& & \bigcap \{ \m{cmodel}(\x{P},\Sigma) \mid 
+\m{blur}(\x{P},B) =  \x{Bpol} \} \,.
+\nonumber
+\end{eqnarray*}
+Informally speaking, this theorem says that \x{Bpol} contains
+\emph{all} the information that does not depend on blurred conditions.
+More precisely, the policies $P$ such that $\m{blur}(\x{P},B) =
+\x{Bpol}$ are those that might have originated \x{Bpol};
+\x{Bpol^{\min}} captures the consequences that are true in all these
+possible policies $P$, and the complement of \x{Bpol^{\max}} contains
+the facts that are false in all possible $P$.
+
+As a corollary of the above theorem, every consequence of
+\x{Bpol^{\min}} is also a consequence of the original non-blurred
+policy, and every atom that cannot be derived with \x{Bpol^{\max}},
+cannot be derived from the non-blurred policy either.  This is what
+the client can deduce from \x{Bpol}.
+
+Blurring is used also to deal with delayed actions.  Delayed
+provisional predicates must be evaluated after the response of the
+client, and in general cannot be understood by the client, just like
+private predicates.  Therefore it is appropriate to treat delayed
+state predicates like private predicates.  Nonetheless, distinguishing
+the two classes of predicates is useful to keep track of why their
+evaluation is delayed.
+
+        \subsection{Pre-evaluating External Provisional Predicates}
+
+
+Let \x{Pol_x} be the set of \x{Pol}'s rules containing some external
+provisional literal.  By Lemma~\ref{lem-parteval}, we have
+\begin{eqnarray*}
+\m{cmodel} \lefteqn{ (\x{Pol},\Sigma) = } \\
+ & = &   \m{cmodel}(\x{Pol \cup Pol_x},\Sigma) \\
+ & = &   \m{cmodel}(\x{Pol} \cup \m{partEval}(\x{Pol_x},\Sigma,E),\Sigma) \,.  
+\end{eqnarray*}
+
+\subsection{Action Gathering}
+
+
+
+
+\section{Protune Filtering Process}
+
+On each party, the policy filtering process is determined by several
+parameters:
+\begin{itemize}
+\item  a request \x{Req} from the client, requiring a decision about
+access control, or portfolio information release,
+\item an access control or portfolio release policy \x{Pol},
+\item a metapolicy \x{Mpol},
+\item the current state $\Sigma$.
+\end{itemize}
+With the exception of \x{Req}, all the parameters are local to the
+peer which is to make the decision.  The metapolicy is evaluated
+against the current state, yielding the \emph{current canonical
+metamodel} \x{MM}:
+\[
+        \x{MM} = \m{cmodel}(\x{Mpol},\Sigma)
+\]
+which is inspected to read the metaproperties of rules and predicates.
+
+As a result of the filtering process, the following two sets are returned:
+\begin{itemize}
+\item $FP \equiv$ a set of filtered policies
+\item $DA \equiv$ set of actions that are reffered and must be executed once the negotiation is finished
+\end{itemize}
+
+\subsection{Filtering Process}
+
+
+
+\newpage
+
+\begin{landscape}
+$S = \begin{cases}
+                \emptyset & \text{if \s{L_i \in X^{fail}} },\\ 
+                \s{\{ A\leftarrow L_1,\ldots,L_{i-1},Val,L_{i+1},\ldots,L_n\}} & \text{if \s{L_i \notin X^{fail}}}.
+           \end{cases}$
+
+\end{landscape}
 
 \end{document}
