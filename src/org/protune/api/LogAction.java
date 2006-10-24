@@ -3,7 +3,7 @@ package org.protune.api;
 import java.io.*;
 
 /**
- * Class {@link org.protune.api.LogAction} represents the provisional predicate <tt>logged(X,
+ * Class <tt>LogAction</tt> represents the provisional predicate <tt>logged(X,
  * logfile_name)</tt> which holds if <tt>X</tt> is recorded into <tt>logfile_name</tt> (cf. deliverable
  * <tt>I2-D2</tt>).
  * @author jldecoi

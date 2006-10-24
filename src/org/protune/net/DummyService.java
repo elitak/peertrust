@@ -1,7 +1,7 @@
 package org.protune.net;
 
 /**
- * Dummy extension of the abstract class {@link org.protune.net.Service}, which echoes the received
+ * Dummy implementation of the abstract class {@link org.protune.net.Service}, which echoes the received
  * messages.
  * @author jldecoi
  */

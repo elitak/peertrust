@@ -8,7 +8,7 @@ import org.protune.api.Mapper;
 import org.protune.api.Notification;
 
 /**
- * As stated in {@link org.protune.core.Status}, a state should contain (at least)
+ * As stated in {@link org.protune.core.Status}, a negotiation state should contain (at least)
  * <ul>
  * <li>sent/received {@link org.protune.api.FilteredPolicy}</li>
  * <li>{@link org.protune.api.Notification} of performed actions</li>

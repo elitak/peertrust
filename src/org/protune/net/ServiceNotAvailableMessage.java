@@ -7,8 +7,8 @@ package org.protune.net;
  * with a {@link org.protune.net.DispatcherPeer}.
  * A <tt>DispatcherPeer</tt> is able to provide support to a number of services that the node may
  * want to make available, nevertheless a client could ask the <tt>DispatcherPeer</tt> for providing a
- * service it is actually unable to provide. In this case the <tt>DispatcherPeer</tt> should communicate
- * the client back that the service it asked for is unavailable. This is the function of a
+ * service it is actually unable to provide. If this is the case, the <tt>DispatcherPeer</tt> should
+ * communicate the client back that the service it asked for is unavailable. This is the function of a
  * <tt>ServiceNotAvailableMessage</tt>.
  * @author jldecoi
  */

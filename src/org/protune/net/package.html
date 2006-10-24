@@ -34,14 +34,15 @@ which means that
 <li>the nodes need to share the same information representation</li>
 </ul>
 <p>
-In order to ensure the previously mentioned requirements are satisfied, package <tt>org.protune.net</tt>
-provides the interfaces {@link org.protune.net.Pointer} and {@link org.protune.net.Message}.
+In order to ensure that the previously mentioned requirements are satisfied, package
+<tt>org.protune.net</tt> provides the interfaces {@link org.protune.net.Pointer} and
+{@link org.protune.net.Message}.
 </p>
 <ul>
 <li>The first one represents the abstraction of a reference to another node. A concrete implementation
 can simply exploit socket (as the current one in the Protune system) or whatever more complex means (RPC,
-RMI, Web Services ...), as long as the method <tt>sendMessage(Message)</tt> is provided, ensuring that
-the information which should be received by the other node is actually sent.</li>
+RMI, Web Services ...), as long as the method {@link org.protune.net.Pointer#sendMessage(Message)} is
+provided, ensuring that the information which should be received by the other node is actually sent.</li>
 <li>The second one represents the common format of the information the two nodes exchange. Different
 applications can implement the interface in different ways.</li>
 </ul>

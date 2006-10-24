@@ -3,7 +3,7 @@ package org.protune.api;
 import java.util.Date;
 
 /**
- * Class {@link org.protune.api.TimeReadAction} represents the state (not provisional) predicate
+ * Class <tt>TimeReadAction</tt> represents the state (not provisional) predicate
  * <tt>time(T)</tt> which holds if <tt>T</tt> is the current time of the system (cf. deliverable
  * <tt>I2-D2</tt>).
  * @author jldecoi

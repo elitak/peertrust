@@ -8,6 +8,6 @@ package org.protune.api;
  */
 public class QueryException extends Exception {
 	
-	static final long serialVersionUID = 5678;
+	static final long serialVersionUID = 44;
 	
 }

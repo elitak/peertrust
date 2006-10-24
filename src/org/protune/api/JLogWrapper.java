@@ -5,7 +5,7 @@ import java.util.Vector;
 import ubc.cs.JLog.Foundation.jPrologAPI;
 
 /**
- * Class <tt>JLogWrapper</tt> adapts a <tt>ubc.cs.JLog.Foundation.jPrologAPI</tt> component to the
+ * Class <tt>JLogWrapper</tt> adapts an <tt>ubc.cs.JLog.Foundation.jPrologAPI</tt> component to the
  * interface specified in {@link org.protune.api.PrologEngine}. For further information about the
  * <tt>ubc.cs.JLog.Foundation.jPrologAPI</tt> component see the
  * <a href="http://jlogic.sourceforge.net/">JLog</a> web site.

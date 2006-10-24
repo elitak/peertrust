@@ -13,8 +13,8 @@ import java.io.*;
  * contained in the <tt>ProtuneFilterEngine</tt>, it is pointless implementing another copy somewhere
  * else in the system, as the inference engine itself can act as a(n implementation of the interface)
  * {@link org.protune.core.Status}. Actually this interface is not directly implemented by the inference
- * engine but by the <tt>ProtuneFilterEngine</tt> class. Finally the <tt>ProtuneFilterEngine</tt>
- * implements therefore both the interface {@link org.protune.core.FilterEngine} and {@link
+ * engine but by the <tt>ProtuneFilterEngine</tt> class. Therefore the <tt>ProtuneFilterEngine</tt>
+ * class implements both the interface {@link org.protune.core.FilterEngine} and {@link
  * org.protune.core.Status}. 
  * @author jldecoi
  */

@@ -8,7 +8,7 @@ package org.protune.net;
  * A <tt>DispatcherPeer</tt> is able to provide support to a number of services that the node may
  * want to make available, therefore at the beginning of the negotiation a client should specify which
  * service it is asking for. To this aim a {@link org.protune.net.StartNegotiationMessage} does not
- * suffice, <tt>DispatcherStartNegotiationMessage</tt> extends it with the needed information.
+ * suffice, <tt>DispatcherStartNegotiationMessage</tt> extends it with the required information.
  * @author jldecoi
  */
 public class DispatcherStartNegotiationMessage extends StartNegotiationMessage {

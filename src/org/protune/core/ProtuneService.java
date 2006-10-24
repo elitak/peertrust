@@ -7,8 +7,8 @@ import java.util.Vector;
 import java.text.ParseException;
 
 /**
- * The class <tt>ProtuneService</tt> could be described as the most important class of the Protune
- * systems, indeed it implements the algorithm the whole negotiation bases on. The main steps of this
+ * The class <tt>ProtuneService</tt> could be described as the most important class of the <i>Protune</i>
+ * system, indeed it implements the algorithm the whole negotiation bases on. The main steps of this
  * algorithm are sketched in an informal way in Fig. 1, a closer sight is of course provided by the
  * code.
  * <table border="1" cellspacing="0"><tbody><tr><td><pre>
@@ -24,7 +24,7 @@ import java.text.ParseException;
  *    if({@link org.protune.core.TerminationAlgorithm terminationAlgorithm}.terminate(mapper, status))
  *    	  return new EndNegotiationMessage(new {@link org.protune.net.UnsuccessfulNegotiationResult UnsuccessfulNegotiationResult}());
  *    
- *    {@link org.protune.api.Action Action}[]	aa = filter.extractActions(fpa);
+ *    {@link org.protune.api.Action Action}[] aa = filter.extractActions(fpa);
  *    FilteredPolicy[] fp = filter.filter(policy, status, aa));
  *    
  *    Action[] unlocked;

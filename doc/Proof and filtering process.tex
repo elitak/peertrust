@@ -1,0 +1,466 @@
+\documentclass{article}
+\usepackage{verbatim}
+\begin{document}
+
+\title{Protune proof and filtering process}
+\author{J. L. De Coi}
+
+\maketitle
+
+\newtheorem{myRule}{Rule}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\begin{abstract}
+
+This document tries to investigate the theoretical background of the \textit{Protune} proof and filtering process.
+
+\end{abstract}
+
+\section{Actions}
+
+The \textit{Protune} language allows a policy author to specify actions within the policy.
+
+\begin{itemize}
+	\item Actions are dealt in a procedural fashion, i.e. there is a clear distinction between input and output parameters
+	\item In order to trigger an action, its input parameters must be instantiated (i.e. they must be ground)
+	\item The successful execution of an action results in asserting a new fact (i.e. in modifying the actual knowledge base by adding a new fact) stating that the action was executed successfully
+	\item The (successful) execution of an action may trigger the execution of other actions (e.g. in case the output value of an action unifies with the last still not ground input parameter of another action)
+%	\item As previously mentioned, the (successful) execution of an action introduces side-effects (by modifying the knowledge base) the policy author should be aware of, e.g. the order in which actions are executed may matter
+\end{itemize}
+
+\texttt{tuProlog} \cite{tuProlog} provides a straightforward mechanism for executing actions within (an extended version of) Prolog. Tab. 1 compares (tu)Prolog and Java codes required to show an alert window.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|}
+\hline
+
+myAction :-\\
+java\_object('javax.swing.JOptionPane', [], JOP), \\
+JOP $\leftarrow$ showMessageDialog(\_, 'Hello, world!'). \\
+
+\hline
+
+import javax.swing.JOptionPane; \\
+\\
+void myAction()\{ \\
+JOptionPane JOP = new JOptionPane(); \\
+JOP.showMessageDialog(null, "Hello, world!"); \\
+\} \\
+
+\hline
+\end{tabular}
+\caption{(tu)Prolog and Java codes required to show an alert window.}
+\end{table}
+
+If we want to avoid re-executing $myAction$ in the same or in following proofs, we need to track its execution in the knowledge base by adding a new fact stating that $myAction$ was executed successfully. The suitable code is provided in Tab. 2.
+
+\begin{table}[b]
+\centering
+\begin{tabular}{|l|}
+\hline
+
+myAction :- \\
+java\_object('javax.swing.JOptionPane', [], JOP), \\
+JOP $\leftarrow$ showMessageDialog(\_, 'Hello, world!'), \\
+assert(performed(myAction)). \\
+\\
+myAction :- performed(myAction). \\
+
+\hline
+\end{tabular}
+\caption{(tu)Prolog code avoiding multiple executions of $myAction$.}
+\end{table}
+
+Notice that the \texttt{tuProlog} engine requires that the second rule follows the first one.
+
+\section{Proof process}
+
+Many PROLOG systems use SLD-resolution as refutation procedure \cite{Lloyd}, i.e. in order to prove a goal $G$
+
+\begin{itemize}
+	\item a sequence $G_{0}, ... G_{last}$ of goals
+	\item a sequence $C_{1}, ... C_{last}$ of variants of program clauses
+	\item a sequence $\theta_{1}, ... \theta_{last}$ of $mgu$s
+\end{itemize}
+
+are looked for, such that $G_{0} = G$, $G_{last} = \circ$ and $\forall G_{i} =\ \leftarrow A_{1}, ... A_{j}, ... A_{m}$
+
+\begin{itemize}
+	\item $\theta_{i+1}$ is an $mgu$ of $A_{j}$ and the head of $C_{i+1}$
+	\item $G_{i+1} =\ \leftarrow A_{1}, ... A_{j-1}, B_{1}, ... B_{n}, A_{j+1} ... A_{m}$ where $B_{1}, ... B_{n}$ is the body of $C_{i+1}$
+\end{itemize}
+
+A well known result ensures that if a goal can be proven at all, the same goal can be proven by exploiting whatever Computation Rule, i.e. by exploiting whatever rule for selecting the literal $A_{j}$. On the contrary in the \textit{Protune} system, because of the previously mentioned side-effects, the computation rule matters, as shown in the following example.
+
+\begin{verbatim}allow(access(book)) :- provisional(X), X=book.
+provisional(X).evaluation:immediate :- ground(X).\end{verbatim}
+
+If $provisional(X)$ is evaluated before $X=book$ the proof will fail, since $X$ is not ground, otherwise the proof will succeed, since $X$ is (becomes) ground.
+
+This suggests that, in evaluating a clause's body, the proof attempt should not backtrack after the first literal's failure but go on with the other ones. As soon as a literal succeeds a new attempt with the previously failed literals should be carried out until either each literal succeeds or each (not yet succeeded) literal fails. Tab. 3 sketches the algorithm which should be used in evaluating a clause's body.\\
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|}
+\hline
+
+evaluateBody([]). \\
+\\
+evaluateBody([H|T]) :- \\
+   evaluateLiteral(H), !, evaluateBody(T). \\
+\\
+evaluateBody([H|T]) :- \\
+   evaluateBody(T), evaluateLiteral(H). \\
+
+\hline
+\end{tabular}
+\caption{Algorithm evaluating a clause's body.}
+\end{table}
+
+Moreover standard Prolog systems use the order of clauses in a program as the fixed order in which they are to be tried. This behaviour has big drawbacks also in the \textit{Protune} system, as shown in the following example.
+
+\begin{verbatim}[r1] allow(access(book)) :- provisional(X, Y).
+[r2] allow(access(book)) :- provisional(book, X), not true.
+provisional(X, _).evaluation:immediate :- ground(X).\end{verbatim}
+
+If $[r1]$ is evaluated before $[r2]$ the proof will fail, since $X$ is not ground and after backtracking $[r2]$'s body contains the literal $not\ true$. Otherwise the proof will succeed, since
+
+\begin{itemize}
+	\item the evaluation of $provisional(book, X)$ will assert a fact like \\
+	$performed(provisional(book, someResult))$
+	\item the evaluation of $[r2]$ will fail but
+	\item after backtracking, because of the assertion of $performed(provisional(book,$ $someResult))$, $[r1]$ will succeed
+\end{itemize}
+
+This suggests that, in proving a goal, the proof should start again from the beginning each time an action is (successfully) executed.
+
+\section{Execution trace}
+
+In this section we are going to show how the \textit{Protune} engine works. We will present three execution traces, the first one based on the examples provided above and the other ones based on a real world example.
+
+The \textit{Protune} engine works like a standard Prolog engine, but uses the two rules stated above.
+
+\begin{myRule}
+In evaluating a clause's body the algorithm described in Tab. 3 will be exploited.
+\end{myRule}
+
+\begin{myRule}
+The proof of a goal will start again from the beginning each time an action is (successfully) executed.
+\end{myRule}
+
+\subsection{First example}
+
+In this example we will consider the following policy.
+
+\begin{verbatim}allow(access(book)) :-
+   provisional(X, Y).
+
+allow(access(book)) :-
+   provisional(X, Y),
+   X=book,
+   not true.
+
+provisional(X, _).evaluation:immediate :- ground(X).\end{verbatim}
+
+All steps of the proof of goal $?-\ allow(access(book)).$ are provided in the following.
+
+\begin{itemize}
+\item A proof for goal $?-\ allow(access(book)).$ is looked for
+  \begin{itemize}
+  \item According to SLD-resolution the goal becomes $?-\ provisional(X, Y).$
+	  \begin{itemize}
+    \item $X$ is not ground, therefore the goal fails and backtracking is performed
+    \end{itemize}
+  \end{itemize}
+  \begin{itemize}
+  \item The goal becomes $?-\ provisional(X, Y), X=book, not\ true.$
+	  \begin{itemize}
+    \item $provisional(X, Y)$ fails. According to Rule 1 a proof for $X=book$ is looked for
+    \item $X=book$ succeeds and the goal becomes $?-\ provisional(book, Y),$ $not\ true.$
+    \item $provisional(book, Y)$ succeeds and $performed(provisional(book,$ $someResult))$ is asserted
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+An action was executed (resulting in asserting $performed(provisional(book,$ $someResult))$), therefore according to Rule 2 the proof starts again from the beginning.
+
+\begin{itemize}
+\item A proof for goal $?-\ allow(access(book)).$ is looked for
+  \begin{itemize}
+  \item The goal becomes $?-\ provisional(X, Y).$
+	  \begin{itemize}
+    \item $provisional(X, Y)$ succeeds since it matches with the asserted fact $performed(provisional(book, someResult))$
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\subsection{Second example}
+
+This example is adapted from \cite{Denisa}. We will consider the following policy.
+
+\begin{verbatim}allow(access(Resource)) :-
+   credential(sa, Student_card[type: student, issuer:I,
+      public_key: K]),
+   valid_credential(Student_card, I),
+   is_recognized_university(I),
+   challenge(K).
+
+allow(access(Resource)) :-
+   authenticate(U),
+   has_subscription_for(U, Resource).
+
+valid_credential(C, I) :-
+   get_public_key(I, K),
+   verify_signature(C, K).
+
+authenticate(U) :-
+   declaration(ad, D[username: U, password: P]),
+   passwd(U, P).
+
+is_recognized_university(X).evaluation:immediate :- ground(X).
+challenge(X).evaluation:immediate :- ground(X).
+has_subscription_for(X, Y).evaluation:immediate :- ground(X),
+   ground(Y).
+get_public_key(X, _).evaluation:immediate :- ground(X).
+verify_signature(X, Y).evaluation:immediate :- ground(X),
+   ground(Y).
+passwd(X, Y).evaluation:immediate :- ground(X), ground(Y).\end{verbatim}
+
+All steps of the proof of goal $?-\ allow(access(book)).$ are provided in the following.
+
+\begin{itemize}
+\item A proof for goal $?-\ allow(access(book)).$ is looked for
+   \begin{itemize}
+   \item According to SLD-resolution the goal becomes $?-\ credential(...),$ $valid\_credential(Student\_card, I),$ $is\_recognized\_university(I),$ \\
+$challenge(K).$
+      \begin{itemize}
+      \item The Client did not provided any credential yet, therefore $credential(...)$ fails. According to Rule 1 a proof for $valid\_credential(Student\_card,$ $I)$ is looked for
+      \item According to SLD-resolution $valid\_credential(Student\_card, I)$ becomes $get\_public\_key(I, K), verify\_signature(Student\_card, K)$
+         \begin{itemize}
+         \item $I$ is not ground, therefore $get\_public\_key(I, K)$ fails. According to Rule 1 a proof for $verify\_signature(Student\_card, K)$ is looked for
+         \item Neither $Student\_card$ nor $K$ are ground, therefore \\
+         $verify\_signature(Student\_card, K)$ fails
+         \end{itemize}
+      \item As just shown, $valid\_credential(Student\_card, I)$ fails. According to Rule 1 a proof for $is\_recognized\_university(I)$ is looked for
+      \item $I$ is not ground, therefore $is\_recognized\_university(I)$ fails. According to Rule 1 a proof for $challenge(K)$ is looked for
+      \item $challenge(K)$ is not ground, therefore the goal fails and backtracking is performed
+      \end{itemize}
+   \item According to SLD-resolution the goal becomes $?-\ authenticate(U),$ $has\_subscription\_for(U, Resource).$
+      \begin{itemize}
+      \item According to SLD-resolution $authenticate(U)$ becomes \\
+      $declaration(...),$ $passwd(U, P)$
+         \begin{itemize}
+         \item The Client did not provided any declaration yet, therefore $declaration(...)$ fails. According to Rule 1 a proof for \\
+         $passwd(U, P)$ is looked for
+         \item Neither $U$ nor $P$ are ground, therefore $passwd(U, P)$ fails
+         \end{itemize}
+      \item As just shown, $authenticate(U)$ fails. According to Rule 1 a proof for $has\_subscription\_for(U, Resource)$ is looked for
+      \item Neither $U$ nor $Resource$ are ground, therefore the goal fails
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+\subsection{Third example}
+
+We will consider the same policy of the previous example, but this time we will suppose that the Client has already sent the credential $$ credential(sa, studentcard[type: student, issuer: hu, public\_key: 5272117]). $$
+
+All steps of the proof of goal $?-\ allow(access(book)).$ are provided in the following.
+
+\begin{itemize}
+\item A proof for goal $?-\ allow(access(book)).$ is looked for
+   \begin{itemize}
+   \item According to SLD-resolution the goal becomes $?-\ credential(...),$ $valid\_credential(Student\_card, I), is\_recognized\_university(I),$ \\
+   $challenge(K).$
+      \begin{itemize}
+      \item $credential(...)$ succeeds, since the Client provided a credential. The goal becomes $?-\ valid\_credential(studentcard, hu),$ \\
+      $is\_recognized\_university(hu), challenge(5272117).$
+      \item According to SLD-resolution $valid\_credential(studentcard, hu)$ becomes $get\_public\_key(hu, K), verify\_signature(studentcard, K)$
+         \begin{itemize}
+         \item $get\_public\_key(hu, K)$ succeeds and $performed(get\_public\_key(hu,$ $someResult))$ is asserted.
+         \end{itemize}
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+An action was executed (resulting in asserting $performed(get\_public\_key(hu,$ $someResult))$), therefore according to Rule 2 the proof starts again from the beginning.
+
+\begin{itemize}
+\item Cf. above
+   \begin{itemize}
+   \item Cf. above
+      \begin{itemize}
+      \item Cf. above
+         \begin{itemize}
+         \item $get\_public\_key(hu, K)$ succeeds since it matches with the asserted $performed(get\_public\_key(hu, someResult))$
+         \item $verify\_signature(studentcard, someResult)$ succeeds and \\
+         $performed(verify\_signature(studentcard, someResult))$ is asserted.
+         \end{itemize}
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+An action was executed (resulting in asserting $performed(verify\_signature(studentcard,$ $someResult))$), therefore according to Rule 2 the proof starts again from the beginning.
+
+\begin{itemize}
+\item Cf. above
+   \begin{itemize}
+   \item Cf. above
+      \begin{itemize}
+      \item Cf. above
+         \begin{itemize}
+         \item Cf. above
+         \item $verify\_signature(studentcard, someResult)$ succeeds since it matches with the asserted $performed(verify\_signature(studentcard,$ $someResult)))$
+         \end{itemize}
+      \item As just shown, $valid\_credential(studentcard, hu)$ succeeds. The goal becomes $?-\ is\_recognized\_university(hu),$ $challenge(5272117).$
+      \item $is\_recognized\_university(hu)$ succeeds and \\
+      $performed(is\_recognized\_university(hu))$ is asserted.
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+An action was executed (resulting in asserting $performed(is\_recognized\_university(hu))$), therefore according to Rule 2 the proof starts again from the beginning.
+
+\begin{itemize}
+\item Cf. above
+   \begin{itemize}
+   \item Cf. above
+      \begin{itemize}
+      \item Cf. above
+      \item $is\_recognized\_university(hu)$ succeeds since it matches with the asserted $performed(is\_recognized\_university(hu)))$. The goal becomes $?-\ challenge(5272117).$
+      \item $challenge(5272117)$ succeeds and $performed(challenge(5272117))$ is asserted.
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+An action was executed (resulting in asserting $performed(challenge(5272117))$), therefore according to Rule 2 the proof starts again from the beginning.
+
+\begin{itemize}
+\item Cf. above
+   \begin{itemize}
+   \item Cf. above
+      \begin{itemize}
+      \item Cf. above
+      \item $challenge(5272117)$ succeeds since it matches with the asserted $performed(challenge(5272117)))$. Therefore the overall goal succeeds.
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+\section{Filtering process}
+
+\begin{definition}[Semantics-preserving filtered policy \cite{I2-D2}]
+A semantics-preserving filtered policy is the set of (facts and) rules used during the (last) proof process.
+\end{definition}
+
+Dynamically asserted facts should be considered as well. Tab. 4 shows the semantics-preserving filtered policies related to the three previous examples.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|}
+\hline
+
+allow(access(book)) :- provisional(X, Y).\\
+\\
+performed(provisional(book, someResult)).\\
+
+\hline
+
+allow(access(Resource)) :-\\
+   credential(sa, Student\_card[type: student, issuer:I, public\_key: K]),\\
+   valid\_credential(Student\_card, I),\\
+   is\_recognized\_university(I),\\
+   challenge(K).\\
+\\
+allow(access(Resource)) :-\\
+   authenticate(U),\\
+   has\_subscription\_for(U, Resource).\\
+\\
+valid\_credential(C, I) :-\\
+   get\_public\_key(I, K),\\
+   verify\_signature(C, K).\\
+\\
+authenticate(U) :-\\
+   declaration(ad, D[username: U, password: P]),\\
+   passwd(U, P).\\
+
+\hline
+
+allow(access(Resource)) :-\\
+   credential(sa, Student\_card[type: student, issuer:I, public\_key: K]),\\
+   valid\_credential(Student\_card, I),\\
+   is\_recognized\_university(I),\\
+   challenge(K).\\
+\\
+valid\_credential(C, I) :-\\
+   get\_public\_key(I, K),\\
+   verify\_signature(C, K).\\
+\\
+credential(sa, studentcard[type: student, issuer: hu, public\_key: 5272117]).\\
+performed(get\_public\_key(hu, someResult)).\\
+performed(verify\_signature(studentcard, someResult)).\\
+performed(is\_recognized\_university(hu)).\\
+performed(challenge(5272117)).\\
+
+\hline
+\end{tabular}
+\caption{Semantics-preserving filtered policies examples.}
+\end{table}
+
+The filtering process may also involve information loss. Tab. 5 shows all components a policy can consist of.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|}
+\hline
+
+allow(access(Resource)) :- \\
+   publicAbbreviation(<parameters>), \\
+   privateAbbreviation(<parameters>), \\
+   selfProvisional1(<parameters>), \\
+   otherProvisional(<parameters>). \\
+ \\
+publicAbbreviation(<parameters>) :- \\
+   selfProvisional2(<parameters>), \\
+   otherProvisional2(<parameters>). \\
+ \\
+privateAbbreviation(<parameters>) :- \\
+   selfProvisional3(<parameters>). \\
+
+\hline
+\end{tabular}
+\caption{Basic components of a policy.}
+\end{table}
+
+Notice that
+
+\begin{itemize}
+\item according to \cite{I2-D2} only provisional predicates can be declared to be executed either by the current Peer or by the other one
+\item it is pointless adding a provisional predicate to be executed by the other Peer in the definition of a private abbreviation predicate, since the other Peer will never be aware of such definition
+\item only abbreviation predicates need to be declared either $public$ other $private$, indeed
+  \begin{itemize}
+	\item it is pointless declaring a provisional predicate to be executed by the other Peer as $public$ or $private$ (it is the other Peer's business)
+	\item it is not needed declaring a provisional predicate to be executed by the current Peer as $public$ or $private$, since the same result can be obtained by wrapping it with a suitable abbreviation predicate (i.e. by declaring the provisional predicate as the definition of a suitable abbreviation predicate). Notice that wrapping the same provisional predicate with abbreviation predicates having different sensibility will result in varying the sensibility of the provisional predicate itself according to the current context. An example will maybe help in understanding the background idea
+  \end{itemize}
+\end{itemize}
+
+\begin{example}
+If $provisional()$ must be considered sometimes $public$ and sometimes $private$, it suffices defining the two predicates
+
+\begin{verbatim}
+publicAbbreviation(<parameters>) :- provisional(<parameters>).
+privateAbbreviation(<parameters>) :- provisional(<parameters>).
+\end{verbatim}
+
+and, instead of directly using $provisional()$, using from time to time \\
+$publicAbbreviation()$ or $privateAbbreviation()$ according to the context.
+\end{example}
+
+\begin{thebibliography}{99}
+\bibitem{tuProlog} D.E.I.S. (2005) \textit{tuProlog Developer’s Guide}, Version 1.3.0
+\bibitem{Lloyd} J. W. Lloyd (1987) \textit{Foundations of Logic Programming}, 2nd Edition
+\bibitem{Denisa} D. Ghita (2006) \textit{Policy Adaptation and Exchange in Trust Negotiation}
+\bibitem{I2-D2} P. A. Bonatti, D. Olmedilla (2005) \textit{Policy Language Specification}
+\end{thebibliography}
+
+\end{document}

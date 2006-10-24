@@ -3,12 +3,12 @@ package org.protune.api;
 import java.io.*;
 
 /**
- * As described in the <a href="./package-summary.html">package</a> document, the <tt>Protune</tt>
+ * As described in the <a href="./package-summary.html">package</a> document, the <i>Protune</i>
  * system consists of an imperative and a declarative part: the first one was implemented (of course)
  * in Java while the second one in Prolog. The declarative part carries out the reasoning tasks related
  * to the negotiation and is implemented by exploiting third-part Java2Prolog and Prolog2Java inference
  * engines. Class <tt>PrologEngine</tt> provides the interface which these third-part tools should
- * respect in order to conform to the <tt>Protune</tt> system.
+ * respect in order to conform to the <i>Protune</i> system.
  * @author jldecoi
  */
 public abstract class PrologEngine {

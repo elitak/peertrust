@@ -7,6 +7,6 @@ package org.protune.api;
  */
 public class LoadTheoryException extends Exception {
 	
-	static final long serialVersionUID = 1234;
+	static final long serialVersionUID = 43;
 	
 }

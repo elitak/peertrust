@@ -8,6 +8,6 @@ package org.protune.core;
  */
 public class UnknownNotificationException extends Exception {
 	
-	static final long serialVersionUID = 4;
+	static final long serialVersionUID = 42;
 	
 }

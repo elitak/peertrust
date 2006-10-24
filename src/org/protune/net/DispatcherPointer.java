@@ -14,7 +14,7 @@ import java.io.*;
  */
 public class DispatcherPointer extends AddressPortPointer{
 	
-	static final long serialVersionUID = 22;
+	static final long serialVersionUID = 121;
 	long serviceID;
 	
 	DispatcherPointer(String s, int i, long l){

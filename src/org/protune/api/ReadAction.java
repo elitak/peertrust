@@ -1,8 +1,8 @@
 package org.protune.api;
 
 /**
- * Class {@link org.protune.api.ReadAction} represents a state (not provisional) predicate. Each state
- * (not provisional) predicate should extend {@link org.protune.api.ReadAction}. Deliverable
+ * Class <tt>ReadAction</tt> represents a state (not provisional) predicate. Each state
+ * (not provisional) predicate should extend <tt>ReadAction</tt>. Deliverable
  * <tt>I2-D2</tt> lists the following state predicates
  * <ol>
  * <li><tt>request(n, R)</tt></li>
@@ -21,7 +21,7 @@ package org.protune.api;
  * or a system variable) and provide a result (resp. <tt>true</tt> or <tt>false</tt>, the result of
  * the query and the current time).<br />
  * <b>OPEN ISSUE:</b> So far only {@link org.protune.api.TimeReadAction} was implemented: for the other
- * subclasses of {@link org.protune.api.ReadAction} a discussion is needed.
+ * subclasses of <tt>org.protune.api.ReadAction</tt> a discussion is needed.
  * @author jldecoi
  */
 public abstract class ReadAction<X> extends Action {

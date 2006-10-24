@@ -5,9 +5,9 @@ import org.protune.core.*;
 
 /**
  * The interface <tt>Mapper</tt> provides conversion utilities between the Java (resp. Prolog) part and
- * the Prolog (resp. Java) part of the system. The Protune system deals with a number of entities (e.g.
+ * the Prolog (resp. Java) part of the system. The <i>Protune</i> system deals with a number of entities (e.g.
  * notifications, checks, policies ...) which are represented in different ways in the Java (resp.
- * Prolog) subsystems. The methods of the interface <tt>Mapper</tt> convert these entities between the
+ * Prolog) subsystem. The methods of the interface <tt>Mapper</tt> convert these entities between the
  * one and the other representation.<br />
  * <b>NOTE:</b> The interface <tt>Mapper</tt> should be aware of each entity available in the system
  * (which requires to be represented both in the Java and Prolog subsystems), therefore whenever a new
@@ -33,11 +33,11 @@ import org.protune.core.*;
  * <li>methods converting entities from the Prolog representation to the Java one</li>
  * </ul>
  * Since the way of querying the Prolog engine depends on the representation of the entities stored in
- * the engine's state, a third kind of method is required
+ * the engine's state, a third kind of methods is required
  * <ul>
  * <li>query methods, returning the Prolog goal which should be proved by the Prolog engine when
- * needed. Have a look to the class {@link org.protune.core.ProtuneFilterEngine} class in order to
- * understand their use.</li>
+ * needed. Have a look to the class {@link org.protune.core.ProtuneFilterEngine} in order to
+ * understand how they can be used.</li>
  * </ul>
  * Tab. 1 lists the various kinds of methods.
  * <table border="1" cellspacing="0">

@@ -1,8 +1,8 @@
 package org.protune.api;
 
 /**
- * Class {@link org.protune.api.SideEffectAction} represents a provisional predicate. Each provisional
- * predicate should extend {@link org.protune.api.SideEffectAction}. Deliverable <tt>I2-D2</tt> lists the
+ * Class <tt>SideEffectAction</tt> represents a provisional predicate. Each provisional
+ * predicate should extend <tt>SideEffectAction</tt>. Deliverable <tt>I2-D2</tt> lists the
  * following provisional predicates
  * <ol>
  * <li><tt>credential(C, K)</tt></li>
@@ -28,7 +28,7 @@ package org.protune.api;
  * the connection to a <tt>uri</tt>, the invocation of a service, a challenge procedure) which can
  * eventually modify some resources (e.g. the <tt>log</tt> file) and do not provide any result.<br />
  * <b>OPEN ISSUE:</b> So far only {@link org.protune.api.LogAction} was implemented: for the other
- * subclasses of {@link org.protune.api.SideEffectAction} a discussion is needed.
+ * subclasses of <tt>SideEffectAction</tt> a discussion is needed.
  * @author jldecoi
  */
 public abstract class SideEffectAction extends Action {}
