@@ -20,7 +20,7 @@ public class StartNegotiationMessage implements NegotiationMessage {
 		peerPointer = p;
 	}
 	
-	Pointer getPeerPointer(){
+	public Pointer getPeerPointer(){
 		return peerPointer;
 	}
 

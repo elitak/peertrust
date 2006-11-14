@@ -31,4 +31,8 @@ public class DispatcherPointer extends AddressPortPointer{
 		super.sendMessage(dm);
 	}
 
+	public long getServiceID() {
+		return serviceID;
+	}
+
 }

@@ -1,0 +1,157 @@
+\documentclass{article}
+\usepackage{verbatim}
+\begin{document}
+
+\title{Activity report}
+\author{J. L. De Coi}
+
+\maketitle
+
+\newtheorem{note}{Note}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\begin{abstract}
+
+This document aims at describing how the Prolog part of the \textit{Protune} system was realised.
+
+\end{abstract}
+
+\section{Overall strategy}
+
+The filtering process described in \cite{Denisa} requires that the (Prolog) interpreter of the \textit{Protune} language directly manages variable instantiation/unification (cf. \cite{Denisa}, pg. 48). According to \cite{PrologArt} such a fine-grained interpreter can be realised, but
+
+\begin{itemize}
+	\item it is not easy (cf. \cite{PrologArt} pgg. 326, 329)
+	\item working at this fine level is usually not worthwhile, because of efficiency loss (cf. \cite{PrologArt} pg. 326)
+\end{itemize}
+
+Since avoiding the efficiency loss would require building a new Prolog interpreter from the schratch (which is out of scope as well), maybe it could be worth redefining the filtering process such in a way that
+
+\begin{itemize}
+	\item the result of the new filtering process is as close as possible to the one described in \cite{Denisa}
+	\item the new filtering process is not so hard to implement and can be efficiently executed
+\end{itemize}
+
+In the following we are going to describe this new (and already implemented) filtering process.
+
+\section{Filtering process}
+
+The filtering process described in \cite{Denisa} combines in a single procedure three (conceptually) distinct operations
+
+\begin{enumerate}
+	\item extraction of the actions the current peer has to execute in order to advance the negotiation
+	\item proof of the peer request
+	\item actual filtering of the current peer's policy to be sent to the other one
+\end{enumerate}
+
+The filtering process we propose keeps the previous steps distinct. The steps are executed in the shown order. Moreover, since the (Java-side) action execution may trigger the execution of other actions, the first step will be repeated (and the collected actions executed) until no more actions can be extracted.
+
+\begin{note}
+When we are going to connect the Prolog- and Java-parts of the \textit{Protune} system, we will need to decide whether the filtered policy should be sent to the peer even if the negotiation was already successful.
+\end{note}
+
+\subsection{Extracting actions}
+
+During the first step the policy is scanned in order to find
+
+\begin{itemize}
+	\item all provisional predicates
+	\item with actor \texttt{self}
+	\item which were not evaluated yet and
+	\item which can be immediately evaluated (i.e. whose evaluation is at present \texttt{immediate})
+\end{itemize}
+
+The scan starts with the (definition of the) decision predicates matching the peer request. If during the scan an abbreviation predicate is found, its definitions are scanned as well.
+
+\begin{note}
+At present the algorithm extracting actions gets looped when recursive rules are encountered. As soon as possible I will correct this tedious bug.
+\end{note}
+
+\subsection{Proof of the peer request}
+
+The proof of the peer request is a normal Prolog proof. Notice that this proof cannot fail because some provisional predicates were not executed by the current peer, since the (possible iteration of the) previous step ensures that the current peer executed all actions it could.
+
+\subsection{Filtering process}
+
+During the filtering step the policy is scanned once again. The scan starts with the (definition of the) decision predicates matching the peer request. If during the scan a public abbreviation predicate or a public state query predicate is found, its definitions are scanned as well.
+
+If appearing in the body of some rule
+
+\begin{itemize}
+	\item private abbreviation predicates and private state query predicates are blurred
+	\item provisional predicates with actor \texttt{self} and already executed provisional predicates with actor \texttt{peer} are filtered out
+\end{itemize}
+
+\begin{note}
+In \cite{Denisa} provisional predicates with actor \texttt{self} are not filtered out (if private, they are just blurred). I do not think that the other peer will be interested in the actions the current peer should carry out. But even if it were the case, changing this part of the code will require no more than one minute.
+\end{note}
+
+\section{Examples}
+
+In the following we are going to explain how the filtering process we proposed works by means of two different examples. The first one is the one provided in \cite{Denisa}, it will turn out that the result of our filtering is (almost) the same than the one described in \cite{Denisa}. The second example was meant to be as general as possible and it should show how our filtering process works in every circumstance.
+
+\subsection{First example}
+
+The (meta)policy this example bases on can be found in \cite{Denisa}, starting from page 84. The peer request is \texttt{allow(access(books))} and the peer already sent credential $$credential(studentcard[type:student, issuer:hu, public\_key: 5272117])$$
+
+\begin{description}
+\item[Extracting actions (First iteration)]
+The peer request matches \texttt{[r1]}, \texttt{[r2]} and \texttt{[r4]}. After unification with the credential sent by the peer, \texttt{[r1]}'s body contains the abbreviation predicate \texttt{valid\_credential(studentcard, hu)} and the provisional predicate \texttt{challenge(5272117)}. According to the algorithm described in 2.1, the definition of \texttt{valid\_credential(studentcard, hu)} (i.e. \texttt{[r12]}) should be scanned as well. After unification, \texttt{[r12]}'s body contains the provisional predicates \texttt{public\_key(hu, K)} and \texttt{verify\_signature(studentcard, K)}. Other provisional predicates may be retrieved by inspecting \texttt{[r2]} and \texttt{[r4]} in the same way, but it will turn out that, according to the metapolicy, just \texttt{challenge(5272117)} and \texttt{public\_key(hu, K)}
+
+\begin{itemize}
+	\item have \texttt{self} as actor
+	\item were not evaluated yet and
+	\item can be immediately evaluated
+\end{itemize}
+
+Therefore just these two will be executed.
+\item[Extracting actions (Second iteration)]
+Let suppose that \texttt{challenge(5272117)} was successfully executed and that the successful execution of \texttt{public\_key(hu, K)} provided the unification \texttt{K/2172705}. The second scan of the policy, performed like the first one, will retrieve the predicate \texttt{verify\_signature(studentcard, 2172705)} ready to be executed.
+\item[Extracting actions (Third iteration)]
+Let suppose that \texttt{verify\_signature(studentcard, 2172705)} was successfully executed. The third scan of the policy will retrieve no provisional predicates, therefore the second step of the algorithm described in 2.1 will be performed.
+\item[Proof]
+The proof of the peer request will be performed like a normal Prolog proof, it is hence easy to see that it succeeds.
+\item[Filtering]
+The peer request matches \texttt{[r1]}, \texttt{[r2]} and \texttt{[r4]}. After unification with the credential sent by the peer, \texttt{[r1]} looks like this.
+
+\begin{verbatim}[r1]allow(access(books)) :-
+   credential(studentcard[type:student, issuer:hu, public_key: 5272117]),
+   valid_credential(studentcard, hu),
+   recognized_university(hu),
+   challenge(5272117).
+\end{verbatim}
+
+According to the algorithm described in 2.3, provisional predicates \texttt{credential(...)} and \texttt{challenge(5272117)} are filtered out and the filtered version of \texttt{[r1]} (to be sent to the other peer) looks like this.
+
+\begin{verbatim}[r1]allow(access(books)) :-
+   valid_credential(studentcard, hu),
+   recognized_university(hu).
+\end{verbatim}
+
+Now \texttt{[r1]}'s body contains the public abbreviation predicate \texttt{valid\_credential(studentcard, hu)} and the public state query predicate \texttt{recognized\_university(hu)} whose definitions, according to the algorithm described in 2.3, should be scanned as well. After unification \texttt{[r12]} looks like this.
+
+\begin{verbatim}[r12]valid_credential(studentcard, hu) :-
+   public_key(hu, 2172705),
+   verify_signature(studentcard, 2172705).
+\end{verbatim}
+
+\texttt{[r12]}'s body consists of two provisional predicates which, according to the algorithm described in 2.3, should be filtered out. Therefore the filtered version of \texttt{[r12]} is the fact
+
+\begin{verbatim}[r12]valid_credential(studentcard, hu).
+\end{verbatim}
+
+\texttt{[f2]} is a fact, therefore its body is empty and does not need to be scanned. \texttt{[f2]} is simply added to the filtered policy.
+\texttt{[r2]} and \texttt{[r4]} can then be filtered in the same way.
+\end{description}
+
+As we can see, the filtered policy we obtained by exploiting our filtering procedure is like the one presented in \cite{Denisa} after the 7th step (pg. 51), except for the point described in Note 3.
+
+\begin{thebibliography}{99}
+\bibitem{Denisa} D. Ghita (2006) \textit{Policy Adaptation and Exchange in Trust Negotiation}
+\bibitem{PrologArt} L. Sterling, E. Shapiro (1986) \textit{The Art of Prolog}
+%\bibitem{Lloyd} J. W. Lloyd (1987) \textit{Foundations of Logic Programming}, 2nd Edition
+%\bibitem{I2-D2} P. A. Bonatti, D. Olmedilla (2005) \textit{Policy Language Specification}
+\end{thebibliography}
+
+\end{document}

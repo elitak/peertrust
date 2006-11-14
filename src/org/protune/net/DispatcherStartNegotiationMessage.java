@@ -21,11 +21,11 @@ public class DispatcherStartNegotiationMessage extends StartNegotiationMessage {
 		requestedService = s;
 	}
 	
-	Pointer getPeerPointer(){
+	public Pointer getPeerPointer(){
 		return peerPointer;
 	}
 	
-	String getRequestedService(){
+	public String getRequestedService(){
 		return requestedService;
 	}
 

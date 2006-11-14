@@ -54,7 +54,7 @@ public class DispatcherPeer implements Peer {
 	String[] availableServices;
 	Hashtable<Long, Service> runningServices = new Hashtable<Long, Service>();
 	Hashtable<Long, NegotiationResult> negotiationResults = new Hashtable<Long, NegotiationResult>();
-	long currentRunningServiceID = -1;
+	long currentRunningServiceID = 0;
 	
 	public DispatcherPeer(AddressPortPointer app, String[] sa) throws IOException{
 		selfPointer = app;
@@ -127,13 +127,13 @@ public class DispatcherPeer implements Peer {
 				)
 			);
 			oos.flush();
-
+			
 			Class[] ca = { Pointer.class };
 			Object[] oa = { dsnm.getPeerPointer() };
 			Service s =
 				(Service) Class.forName(dsnm.getRequestedService()).getConstructor(ca).newInstance(oa);
-			currentRunningServiceID++;
 			runningServices.put(currentRunningServiceID, s);
+			currentRunningServiceID++;
 		}
 		catch(IOException ioe){}
 		catch(ClassNotFoundException cnfe){

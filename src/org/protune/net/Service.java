@@ -17,7 +17,7 @@ public abstract class Service {
 	Pointer otherPeer;
 	
 	NegotiationMessage perform(OngoingNegotiationMessage onm) throws IOException, WrongMessageTypeException{
-		NegotiationMessage toSend = eval(onm); 
+		NegotiationMessage toSend = eval(onm);
 		otherPeer.sendMessage(toSend);
 		
 		return toSend;

@@ -7,7 +7,7 @@ package org.protune.net;
  */
 public class DummyService extends Service {
 	
-	DummyService(Pointer p){
+	public DummyService(Pointer p){
 		otherPeer = p;
 	}
 

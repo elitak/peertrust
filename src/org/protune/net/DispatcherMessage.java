@@ -19,7 +19,7 @@ public class DispatcherMessage implements NegotiationMessage {
 	long serviceID;
 	NegotiationMessage negotiationMessage;
 	
-	DispatcherMessage(long l, NegotiationMessage nm){
+	public DispatcherMessage(long l, NegotiationMessage nm){
 		serviceID = l;
 		negotiationMessage = nm;
 	}
@@ -28,7 +28,7 @@ public class DispatcherMessage implements NegotiationMessage {
 		return serviceID;
 	}
 	
-	NegotiationMessage getNegotiationMessage(){
+	public NegotiationMessage getNegotiationMessage(){
 		return negotiationMessage;
 	}
 	

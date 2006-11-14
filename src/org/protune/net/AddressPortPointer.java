@@ -34,6 +34,7 @@ public class AddressPortPointer implements Pointer {
 		
 		oos.writeObject(m);
 		oos.flush();
+		// Added by Chen
 		s.close();
 	}
 	
