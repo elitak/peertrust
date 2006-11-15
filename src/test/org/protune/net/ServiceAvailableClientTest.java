@@ -41,7 +41,6 @@ public class ServiceAvailableClientTest{
 		AddressPortPointer app = new AddressPortPointer(PROTUNE_ADDRESS, PROTUNE_PORT);
 		app.sendMessage(new ServiceRequestMessage("org.protune.net.DummyService"));
 		
-		/*
 		Socket s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
 		//System.out.println("new Binding...");
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
@@ -57,9 +56,9 @@ public class ServiceAvailableClientTest{
 		s.close();
 		
 		
-		Socket s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
+		s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
 		//System.out.println("new Socket Binding...");
-		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+		oos = new ObjectOutputStream(s.getOutputStream());
 		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(
 				new AddressPortPointer(MY_ADDRESS, MY_PORT),
 				"org.protune.net.DummyService"
@@ -138,7 +137,7 @@ public class ServiceAvailableClientTest{
 		//System.out.println("new Socket Binding...");
 		oos = new ObjectOutputStream(s.getOutputStream());
 		
-		ss.close();*/
+		ss.close();
 	}
 
 }

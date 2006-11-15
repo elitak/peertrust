@@ -41,27 +41,27 @@ public class ClientGui extends JFrame implements ActionListener {
 	}
 	
 	public ClientGui() {
-		super("Client-Anwendung");
+		super("Protune GUI");
 		setSize(500,400);
 		setLayout(new GridLayout(5,0));
 
 		JTabbedPane tabbedpaneConfig=new JTabbedPane();
 		JPanel panel=new JPanel(new GridLayout(2,2));
 		textClientAddress=new JTextField();
-		panel.add(new JLabel("Client Adresse"));
+		panel.add(new JLabel("Client address"));
 		panel.add(textClientAddress);
 		textClientPort=new JTextField();
-		panel.add(new JLabel("Client Port"));
+		panel.add(new JLabel("Client port"));
 		panel.add(textClientPort);
-		tabbedpaneConfig.addTab("Client Konfiguration",panel);
+		tabbedpaneConfig.addTab("Client",panel);
 		panel=new JPanel(new GridLayout(2,2));
 		textServerAddress=new JTextField();
-		panel.add(new JLabel("Server Adresse"));
+		panel.add(new JLabel("Server address"));
 		panel.add(textServerAddress);
 		textServerPort=new JTextField();
-		panel.add(new JLabel("Server Port"));
+		panel.add(new JLabel("Server port"));
 		panel.add(textServerPort);
-		tabbedpaneConfig.addTab("Server Konfiguration",panel);
+		tabbedpaneConfig.addTab("Server",panel);
 		add(tabbedpaneConfig);
 
 		panel=new JPanel(new GridLayout(1,2));
@@ -78,15 +78,15 @@ public class ClientGui extends JFrame implements ActionListener {
 
 		panel=new JPanel(new GridLayout(1,2));
 		textareaResult=new JTextArea();
-		panel.add(new JLabel("Ergebnis"));
+		panel.add(new JLabel("Result"));
 		panel.add(textareaResult);
 		add(panel);
 
 		panel=new JPanel(new GridLayout(2,2));
-		buttonServerStart=new JButton("Start Server");
+		buttonServerStart=new JButton("Start server");
 		buttonServerStart.addActionListener(this);
 		panel.add(buttonServerStart);
-		buttonClientStart=new JButton("Start Client");
+		buttonClientStart=new JButton("Start client");
 		buttonClientStart.addActionListener(this);
 		panel.add(buttonClientStart);
 		add(panel);

@@ -29,84 +29,88 @@ public class DummyClient {
 		clientgui=gui;
 	}
 
-	public String startClient(String strAdresse,int nPort,String strService,String strRequest,String strServerAdress,int nServerPort) throws Exception {
-		Socket s = new Socket(strServerAdress,nServerPort);
-		System.out.println("new Binding...");
+	public String startClient(
+			String strAdresse,
+			int nPort,
+			String strService,
+			String strRequest,
+			String strServerAdress,
+			int nServerPort
+	) throws Exception {
+		Socket s = new Socket(strServerAdress, nServerPort);
+		//System.out.println("new Binding...");
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		ServiceRequestMessage srm = new ServiceRequestMessage(strService);
-		System.out.println("Client sent ServiceRequestMessage...");
+		//System.out.println("Client sent ServiceRequestMessage...");
 		oos.writeObject(srm);
 		oos.flush();
-		System.out.println("Sent ServiceRequestMessage: " + srm);
+		//System.out.println("Sent ServiceRequestMessage: " + srm);
 		ObjectInputStream ois = new ObjectInputStream(new DataInputStream(s.getInputStream()));
-		System.out.println("Client received ServiceAvailableMessage...");
+		//System.out.println("Client received ServiceAvailableMessage...");
 		ServiceAvailableMessage sam = (ServiceAvailableMessage)(ois.readObject());
-		System.out.println("Received ServiceAvailableMessage: " + sam);
+		//System.out.println("Received ServiceAvailableMessage: " + sam);
 		s.close();
 
-		s = new Socket(strServerAdress,nServerPort);
-		System.out.println("new Socket Binding...");
+		s = new Socket(strServerAdress, nServerPort);
+		//System.out.println("new Binding...");
 		oos = new ObjectOutputStream(s.getOutputStream());
-		AddressPortPointer app = new AddressPortPointer(strAdresse,nPort);
-		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(app,strService);
+		AddressPortPointer app = new AddressPortPointer(strAdresse, nPort);
+		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(app, strService);
 		oos.writeObject(dsnm);
-		System.out.println("Client sent DispatcherStartNegotiationMessage..." );
+		//System.out.println("Client sent DispatcherStartNegotiationMessage..." );
 		oos.flush();
-		System.out.println("Sent DispatcherStartNegotiationMessage: " + dsnm);
+		//System.out.println("Sent DispatcherStartNegotiationMessage: " + dsnm);
 		ois = new ObjectInputStream(new DataInputStream(s.getInputStream()));
-		System.out.println("Client received StartNegotiationMessage...");
+		//System.out.println("Client received StartNegotiationMessage...");
 		StartNegotiationMessage snm = (StartNegotiationMessage)(ois.readObject());
-		System.out.println("Received StartNegotiationMessage: " + snm);
+		//System.out.println("Received StartNegotiationMessage: " + snm);
 		s.close();
 
-		boolean bStop=false;
+		boolean bStop = false;
 		
-		ServerSocket ss=null;
-		boolean bFirst=true;
+		ServerSocket ss = null;
 		DispatcherMessage dm;
-		long serviceId=0;
+		long serviceId = 0;
 		
-		while(!bStop) {
-			boolean bAccept=clientgui.showQuery("Send OngoingNegotiationMessage? Otherwise EndNegotiationMessage will be send.");
+		while(!bStop){
+			boolean bAccept = clientgui.showQuery("Send OngoingNegotiationMessage? Otherwise EndNegotiationMessage will be send.");
 			
-			if(bAccept) {
-				s = new Socket(strServerAdress,nServerPort);
-				System.out.println("new Socket Binding...");
+			if(bAccept){
+				s = new Socket(strServerAdress, nServerPort);
+				//System.out.println("new Binding...");
 				oos = new ObjectOutputStream(s.getOutputStream());
 				OngoingNegotiationMessage onm = new OngoingNegotiationMessage();
 				serviceId = ((DispatcherPointer)(((StartNegotiationMessage)snm).getPeerPointer())).getServiceID() ;
-				System.out.println("currentServiceId : "+serviceId);
-				dm = new DispatcherMessage(serviceId,onm);
+				//System.out.println("currentServiceId : " + serviceId);
+				dm = new DispatcherMessage(serviceId, onm);
 				oos.writeObject(dm);
-				System.out.println("Client sent DispatcherMessage with OngoingNegotiationMessage");
+				//System.out.println("Client sent DispatcherMessage with OngoingNegotiationMessage");
 				oos.flush();
-				System.out.println("Sent DispatcherMessage: " + dm);
-				System.out.println("Message in DispatcherMessage is OngoingNegotiationMessage : "+onm);
+				//System.out.println("Sent DispatcherMessage: " + dm);
+				//System.out.println("Message in DispatcherMessage is OngoingNegotiationMessage : " + onm);
 				s.close();
 
-				if(bFirst) {
-					ss=new ServerSocket(nPort);
-					bFirst=false;
-				}
-				s=ss.accept();
-				System.out.println("Client received OngoingNegotiationMessage...");
+				if(ss==null) ss = new ServerSocket(nPort);
+				s = ss.accept();
+				//System.out.println("Client received OngoingNegotiationMessage...");
 				ois = new ObjectInputStream(new DataInputStream(s.getInputStream()));
 				onm = (OngoingNegotiationMessage)(ois.readObject());
-				System.out.println("Received OngoingNegotiationMessage: " + onm);
+				//System.out.println("Received OngoingNegotiationMessage: " + onm);
 				s.close();
 			}
 			else {
-				bStop=true;
-				s = new Socket(strServerAdress,nServerPort);
+				bStop = true;
+				
+				s = new Socket(strServerAdress, nServerPort);
 				oos = new ObjectOutputStream(s.getOutputStream());
 				SuccessfulNegotiationResult snr = new SuccessfulNegotiationResult();
 				EndNegotiationMessage enm = new EndNegotiationMessage(snr);
-				dm = new DispatcherMessage(serviceId,enm);
+				dm = new DispatcherMessage(serviceId, enm);
 				oos.writeObject(dm);
-				System.out.println("Client sent DispatcherMessage with EndNegotiationMessage...");
+				//System.out.println("Client sent DispatcherMessage with EndNegotiationMessage...");
 				oos.flush();
-				System.out.println("Sent DispatcherMessage: " + dm);
-				System.out.println("Message in DispatcherMessage is EndNegotiationMessage : "+enm);
+				//System.out.println("Sent DispatcherMessage: " + dm);
+				//System.out.println("Message in DispatcherMessage is EndNegotiationMessage: " + enm);
 				s.close();
 			}
 		}
