@@ -1,0 +1,28 @@
+<html>
+   <head>
+      <meta name="generator" content="HTML Tidy, see www.w3.org">
+      <title>appletTest</title>
+   </head>
+   <body>
+      <script type="text/javascript" language="JavaScript">
+
+function printText(){
+   var from = document.myform.from.value;
+   var to = document.myform.to.value;
+   var s = ('<applet code="org.protune.gui.AppletTest.class" codebase="./bin" width=480 height=384>');
+   s += (' <param name="from" value="' + from + '">');
+   s += (' <param name="to" value="' + to + '">');
+   s += ('</applet>')
+   document.write(s);
+}
+
+      </script>
+      <form name="myform">
+<p>
+your name: <input name="from" type="text" id="from" width="100">
+her name:<input name="to" type="text" id="to" width="100">
+<input type="button" value="Submit" onclick="printText()">
+</p>
+      </form>
+   </body>
+</html>

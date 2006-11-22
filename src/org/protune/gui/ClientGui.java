@@ -5,27 +5,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JApplet;
 
 /**
  * 
  * @author cjin, swittler
  */
-public class ClientGui extends JFrame implements ActionListener {
-
+public class ClientGui extends JApplet implements ActionListener {
+	
 	private JTextField textClientAddress;
 	private JTextField textServerAddress;
 	private JTextField textClientPort;
 	private JTextField textServerPort;
 
-	private JTextField textService;
-	private JTextField textRequest;
+	private JTextField textAvailableService;
+	private JTextField textRequestedService;
 	private JTextArea textareaResult;
 	private JButton buttonClientStart;
 	private JButton buttonServerStart;
@@ -40,41 +40,37 @@ public class ClientGui extends JFrame implements ActionListener {
 		new ClientGui();
 	}
 	
-	public ClientGui() {
-		super("Protune GUI");
+	public void init(){
 		setSize(500,400);
-		setLayout(new GridLayout(5,0));
+		setLayout(new GridLayout(3,0));
 
 		JTabbedPane tabbedpaneConfig=new JTabbedPane();
-		JPanel panel=new JPanel(new GridLayout(2,2));
-		textClientAddress=new JTextField();
-		panel.add(new JLabel("Client address"));
-		panel.add(textClientAddress);
-		textClientPort=new JTextField();
-		panel.add(new JLabel("Client port"));
-		panel.add(textClientPort);
-		tabbedpaneConfig.addTab("Client",panel);
-		panel=new JPanel(new GridLayout(2,2));
+		tabbedpaneConfig.setSize(100, 100);
+		JPanel panel=new JPanel(new GridLayout(3,3));
 		textServerAddress=new JTextField();
-		panel.add(new JLabel("Server address"));
+		panel.add(new JLabel("Server Address"));
 		panel.add(textServerAddress);
 		textServerPort=new JTextField();
-		panel.add(new JLabel("Server port"));
+		panel.add(new JLabel("Server Port"));
 		panel.add(textServerPort);
-		tabbedpaneConfig.addTab("Server",panel);
-		add(tabbedpaneConfig);
-
-		panel=new JPanel(new GridLayout(1,2));
-		textService=new JTextField();
-		panel.add(new JLabel("Service"));
-		panel.add(textService);
-		add(panel);
+		textAvailableService=new JTextField();
+		panel.add(new JLabel("Available Services"));
+		panel.add(textAvailableService);
+		tabbedpaneConfig.addTab("Server Configuration",panel);
 		
-		panel=new JPanel(new GridLayout(1,2));
-		textRequest=new JTextField();
-		panel.add(new JLabel("Request"));
-		panel.add(textRequest);
-		add(panel);
+		panel=new JPanel(new GridLayout(3,3));
+		textClientAddress=new JTextField();
+		panel.add(new JLabel("Client Address"));
+		panel.add(textClientAddress);
+		textClientPort=new JTextField();
+		panel.add(new JLabel("Client Port"));
+		panel.add(textClientPort);
+		textRequestedService=new JTextField();
+		panel.add(new JLabel("Requested Service"));
+		panel.add(textRequestedService);
+		tabbedpaneConfig.addTab("Client Configuration",panel);
+		
+		add(tabbedpaneConfig);
 
 		panel=new JPanel(new GridLayout(1,2));
 		textareaResult=new JTextArea();
@@ -83,10 +79,10 @@ public class ClientGui extends JFrame implements ActionListener {
 		add(panel);
 
 		panel=new JPanel(new GridLayout(2,2));
-		buttonServerStart=new JButton("Start server");
+		buttonServerStart=new JButton("Start Server");
 		buttonServerStart.addActionListener(this);
 		panel.add(buttonServerStart);
-		buttonClientStart=new JButton("Start client");
+		buttonClientStart=new JButton("Start Client");
 		buttonClientStart.addActionListener(this);
 		panel.add(buttonClientStart);
 		add(panel);
@@ -98,27 +94,47 @@ public class ClientGui extends JFrame implements ActionListener {
 		textServerPort.setText("1234");
 		textClientAddress.setText("localhost");
 		textClientPort.setText("1235");
-		textService.setText("org.protune.net.DummyService");
-		
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	
 		setVisible(true);
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(buttonClientStart)) {
 			try {
-				client.startClient(textClientAddress.getText(),Integer.parseInt(textClientPort.getText()),textService.getText(),textRequest.getText(),textServerAddress.getText(),Integer.parseInt(textServerPort.getText()));
+				client.startClient(
+						textClientAddress.getText(),
+						Integer.parseInt(textClientPort.getText()),
+						textRequestedService.getText(),
+						textServerAddress.getText(),
+						Integer.parseInt(textServerPort.getText())
+				);
 			} catch (Exception exc) {
 				showException(exc);
 			}
 		}
 		else if(e.getSource().equals(buttonServerStart)) {
 			try {
-				server.startServer(textServerAddress.getText(),Integer.parseInt(textServerPort.getText()),textService.getText());
+				String strServices = "";
+				strServices = textAvailableService.getText();
+				String[] sa;
+				if(strServices.indexOf(",")!=-1){
+					sa = strServices.split(",");
+				}
+				else {
+					sa = new String[1];
+					sa[0] = strServices;
+				}
+				for(int i=0; i<sa.length; i++) System.out.println(sa[i]);
+				server.startServer(
+						textServerAddress.getText(),
+						Integer.parseInt(textServerPort.getText()),
+						sa
+				);
 			} catch (Exception exc) {
 				showException(exc);
 			}
 		}
+
 	}
 	
 	public void showException(Exception e) {
@@ -126,7 +142,11 @@ public class ClientGui extends JFrame implements ActionListener {
 	}
 	
 	public boolean showQuery(String strQuery) {
-		return JOptionPane.showConfirmDialog(this,strQuery,"",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION;
+		return JOptionPane.showConfirmDialog(
+				this,
+				strQuery,
+				"",
+				JOptionPane.YES_NO_OPTION
+		) == JOptionPane.YES_OPTION;
 	}
-
 }

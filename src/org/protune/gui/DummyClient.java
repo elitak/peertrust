@@ -1,10 +1,12 @@
 package org.protune.gui;
 
 import java.io.DataInputStream;
+//import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+//import java.net.UnknownHostException;
 
 import org.protune.net.AddressPortPointer;
 import org.protune.net.DispatcherMessage;
@@ -22,25 +24,24 @@ import org.protune.net.SuccessfulNegotiationResult;
  * @author cjin, swittler
  */
 public class DummyClient {
-
+	
 	private ClientGui clientgui;
 
 	public DummyClient(ClientGui gui) {
-		clientgui=gui;
+		clientgui = gui;
 	}
 
 	public String startClient(
 			String strAdresse,
 			int nPort,
-			String strService,
-			String strRequest,
+			String strRequestService,
 			String strServerAdress,
 			int nServerPort
-	) throws Exception {
-		Socket s = new Socket(strServerAdress, nServerPort);
+	) throws Exception  {
+		Socket s = new Socket(strServerAdress,nServerPort);
 		//System.out.println("new Binding...");
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-		ServiceRequestMessage srm = new ServiceRequestMessage(strService);
+		ServiceRequestMessage srm = new ServiceRequestMessage(strRequestService);
 		//System.out.println("Client sent ServiceRequestMessage...");
 		oos.writeObject(srm);
 		oos.flush();
@@ -51,11 +52,11 @@ public class DummyClient {
 		//System.out.println("Received ServiceAvailableMessage: " + sam);
 		s.close();
 
-		s = new Socket(strServerAdress, nServerPort);
-		//System.out.println("new Binding...");
+		s = new Socket(strServerAdress,nServerPort);
+		//System.out.println("new Socket Binding...");
 		oos = new ObjectOutputStream(s.getOutputStream());
-		AddressPortPointer app = new AddressPortPointer(strAdresse, nPort);
-		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(app, strService);
+		AddressPortPointer app = new AddressPortPointer(strAdresse,nPort);
+		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(app,strRequestService);
 		oos.writeObject(dsnm);
 		//System.out.println("Client sent DispatcherStartNegotiationMessage..." );
 		oos.flush();
@@ -70,27 +71,27 @@ public class DummyClient {
 		
 		ServerSocket ss = null;
 		DispatcherMessage dm;
-		long serviceId = 0;
+		long serviceId=0;
 		
-		while(!bStop){
+		while(!bStop) {
 			boolean bAccept = clientgui.showQuery("Send OngoingNegotiationMessage? Otherwise EndNegotiationMessage will be send.");
 			
-			if(bAccept){
-				s = new Socket(strServerAdress, nServerPort);
-				//System.out.println("new Binding...");
+			if(bAccept) {
+				s = new Socket(strServerAdress,nServerPort);
+				//System.out.println("new Socket Binding...");
 				oos = new ObjectOutputStream(s.getOutputStream());
 				OngoingNegotiationMessage onm = new OngoingNegotiationMessage();
 				serviceId = ((DispatcherPointer)(((StartNegotiationMessage)snm).getPeerPointer())).getServiceID() ;
-				//System.out.println("currentServiceId : " + serviceId);
+				//System.out.println("currentServiceId : "+serviceId);
 				dm = new DispatcherMessage(serviceId, onm);
 				oos.writeObject(dm);
 				//System.out.println("Client sent DispatcherMessage with OngoingNegotiationMessage");
 				oos.flush();
 				//System.out.println("Sent DispatcherMessage: " + dm);
-				//System.out.println("Message in DispatcherMessage is OngoingNegotiationMessage : " + onm);
+				//System.out.println("Message in DispatcherMessage is OngoingNegotiationMessage : "+onm);
 				s.close();
 
-				if(ss==null) ss = new ServerSocket(nPort);
+				if(ss == null) ss=new ServerSocket(nPort);
 				s = ss.accept();
 				//System.out.println("Client received OngoingNegotiationMessage...");
 				ois = new ObjectInputStream(new DataInputStream(s.getInputStream()));
@@ -99,7 +100,7 @@ public class DummyClient {
 				s.close();
 			}
 			else {
-				bStop = true;
+				bStop=true;
 				
 				s = new Socket(strServerAdress, nServerPort);
 				oos = new ObjectOutputStream(s.getOutputStream());
@@ -110,12 +111,12 @@ public class DummyClient {
 				//System.out.println("Client sent DispatcherMessage with EndNegotiationMessage...");
 				oos.flush();
 				//System.out.println("Sent DispatcherMessage: " + dm);
-				//System.out.println("Message in DispatcherMessage is EndNegotiationMessage: " + enm);
+				//System.out.println("Message in DispatcherMessage is EndNegotiationMessage : "+enm);
 				s.close();
 			}
 		}
 
 		return "";
 	}
-	
+
 }
