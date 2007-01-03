@@ -1,0 +1,64 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Use case -- General version}
+\author{J. L. De Coi}
+\maketitle
+
+Each Peer tracks everything happens in its state. Among other the following information is tracked
+
+\begin{itemize}
+	\item requests for performing actions
+	\item notifications of performed actions
+	\item sent/received (filtered) policies
+\end{itemize}
+
+\begin{table}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{First Peer -- $P1$} & \textbf{Second Peer -- $P2$} \\
+\hline
+\textit{Performs some actions (e.g. sends $P2$ some} & \\
+\textit{credentials)} & \\
+Asks $P2$ for performing some actions (e.g. & \\
+for allowing access to resource $R$) & \\
+\textit{Notifies $P2$ that some actions were performed} & \\
+\textit{(e.g. that some credentials were sent)} & \\
+\hline
+& Gets the requests \textit{and the notifications} \\
+& \textit{Proves whether the actions were actually} \\
+& \textit{performed (e.g. whether the credentials were} \\
+& \textit{actually sent) and whether they were performed} \\
+& \textit{in the right way (e.g. whether the sent} \\
+& \textit{credentials are valid)} \\
+& Determines whether to terminate the negotiation \\
+& according to its termination algorithm \\
+& \textit{Performs some actions} \\
+& Identifies the actions $P1$ must perform \\
+& Filters such information \\
+& Sends $P1$ such information \\
+& \textit{Notifies $P1$ that some actions were performed} \\
+\hline
+Gets the (filtered) information \textit{and the} & \\
+\textit{notifications} & \\
+\textit{Proves whether the actions were actually} & \\
+\textit{performed and whether they were performed in} & \\
+\textit{the right way} & \\
+Determines whether to terminate the negotiation & \\
+according to its termination algorithm & \\
+Identifies the actions to be performed & \\
+Performs some unlocked actions according to its & \\
+strategy & \\
+For each locked action identifies the actions $P2$ & \\
+must perform & \\
+Filters such information & \\
+Sends $P2$ such information & \\
+Notifies $P2$ that some actions were performed & \\
+\hline
+& ... \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{document}

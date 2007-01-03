@@ -1,0 +1,93 @@
+\documentclass{article}
+\pagestyle{headings}
+
+%\usepackage{syntonly}
+%\syntaxonly
+
+\begin{document}
+
+% \mainmatter
+\title{title}
+% \titlerunning{subtitle}
+\author{author}
+% \authorrunning{main author}
+% \institute{institute}
+% \email{email}
+\maketitle
+
+\begin{abstract}
+abstract
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\section{section}
+
+% \hide{comment}
+% \comment{comment}
+\fbox{fbox}\linebreak
+\emph{emph}
+\textit{textit}
+\texttt{texttt}
+\underline{underline}\\
+\today
+\footnote{footnote}
+\ldots \ref{label} \pageref{label}
+% cite~\cite{book}
+
+\subsection{subsection} \label{label}
+
+\begin{flushleft}
+flushleft
+\end{flushleft}
+
+\begin{itemize}
+\item item
+\end{itemize}
+
+\begin{center}
+center
+\end{center}
+
+\begin{enumerate}
+\item[*] item
+\end{enumerate}
+
+\begin{flushright}
+flushright
+\end{flushright}
+
+\begin{description}
+\item[di] dd
+\end{description}
+
+\begin{quote}
+quote
+\end{quote}
+
+\begin{verse}
+verse
+\end{verse}
+
+\subsubsection{subsubsection}
+
+\begin{tabular}[c]{|l|c|r|}
+\hline
+\multicolumn{3}{|c|}{multicolumn} \\
+\cline{1-1}
+cell & \multicolumn{2}{|r|}{multicolumn} \\
+\cline{2-2}
+\multicolumn{2}{|l|}{multicolumn} & cell \\
+\cline{3-3}
+\multicolumn{3}{|c|}{multicolumn} \\
+\hline
+\end{tabular}
+
+\section*{section*}
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}

@@ -1,0 +1,303 @@
+\documentclass{article}
+\usepackage{verbatim}
+\begin{document}
+
+\title{Protune Negotiation Model}
+\author{J. L. De Coi, D. Ghita, D. Olmedilla}
+\maketitle
+
+\begin{comment}
+\begin{description}
+\item[Definition (List)] A list of elements $l$ is
+  \begin{itemize}
+	\item either the empty list
+	\item or an element followed by a list
+  \end{itemize}
+\end{description}
+
+Let $l$ be a non-empty list, therefore it is composed of an element $e$ and a (sub)list $l'$. $e$ (resp. $l'$) is called \textit{head} (resp. \textit{tail}) of $l$.
+
+We will write the empty list as $[]$ and a non-empty list as $[head, tail]$.
+
+\begin{description}
+\item[Definition (Length of a list)] The length of a list is a function
+  \begin{displaymath}
+  length: L \rightarrow N
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $L$ is the set of all lists
+	\item $N$ is the set of all natural numbers
+  \end{itemize}
+  such that
+  \begin{itemize}
+	\item $length([])=0$
+	\item $length([head, tail])=1+length(tail)$
+  \end{itemize}
+\item[Definition (n-th element of a list)] Let define the function
+  \begin{displaymath}
+  elementAt: A \subset (L \times (N \backslash \{0\})) \rightarrow E
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $N$ is the set of all natural numbers
+	\item $L$ is the set of all lists
+	\item $E$ is the set of all elements
+  \end{itemize}
+	such that
+  \begin{itemize}
+	\item $elementAt(1, [head, tail])=head$
+	\item $elementAt(n, [head, tail])=elementAt(n-1, tail)$
+  \end{itemize}
+  Notice that such function is not defined for ordered pairs $(n, l)$ such that $n > length(l)$.
+\item[Definition  (Negotiation Message)] A negotiation message $m$ is an ordered pair
+  \begin{displaymath}
+  (fp, C)
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $fp \equiv$ a filtered policy
+	\item $C \equiv$ a set of credentials
+  \end{itemize}
+\item[Definition  (Negotation State)] A negotiation state $s$ is an ordered pair
+  \begin{displaymath}
+  (M_{snd}, M_{rcv})
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $M_{snd} \equiv$ list of sent messages
+	\item $M_{rcv} \equiv$ list of received messages
+  \end{itemize}
+\item[Definition (Transition system)] A transition system $TS$ is a tuple
+  \begin{displaymath}
+  (S, M_{snd}, M_{rcv},  s_{0}, f_{snd}, f_{rcv})
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $S \equiv$ a set of states
+	\item $M \equiv$ a set of messages
+	\item $s_{0} \equiv$ a state (calles \textit{initial state})
+	\item $f_{snd} \equiv$ a function $S \times M_{snd} \rightarrow S$
+	\item $f_{rcv} \equiv$ a function $S \times M_{rcv} \rightarrow S$
+  \end{itemize}
+  Where $f_{snd}$ and $f_{snd}$ are callsd \textit{negotiation functions}.
+\end{description}
+
+In the following we will consider only these particular negotiation functions
+
+\begin{displaymath}
+f_{snd}:(s_{snd}, m) \rightarrow s'_{snd}
+\end{displaymath}
+
+where
+
+\begin{itemize}
+	\item $s_{snd} = (M_{snd}, M_{rcv})$
+	\item $s'_{snd} = ([m, M_{snd}], M_{rcv})$
+\end{itemize}
+
+and
+
+\begin{displaymath}
+f_{rcv}:(s_{rcv}, m) \rightarrow s'_{rcv}
+\end{displaymath}
+
+where
+
+\begin{itemize}
+	\item $s_{rcv} = (M_{snd}, M_{rcv})$
+	\item $s'_{rcv} = (M_{snd}, [m, M_{rcv}])$
+\end{itemize}
+
+\begin{description}
+\item[Definition (Credentials selection)] A credentials selection $CS$ is a function
+  \begin{displaymath}
+  P \times S \rightarrow C
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $P$ is the set of all policies
+	\item $S$ is the set of all states
+	\item $C$ is the set of all credentials
+  \end{itemize}
+\item[Definition (Filter)] A filter $F$ is a function
+  \begin{displaymath}
+  P \times S \rightarrow P
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $P$ is the set of all policies
+	\item $S$ is the set of all states
+  \end{itemize}
+\item[Definition (Negotiation Strategy)] A negotiation strategy $NS$ is an ordered pair
+  \begin{displaymath}
+  (cs, f)
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $cs$ is a credentials selection function
+	\item $f$ is a filter
+  \end{itemize}
+\item[Definition (Termination Algorithm)] A termination algorithm $TA$ is a function
+  \begin{displaymath}
+  S \rightarrow \{true, false\}
+  \end{displaymath}
+\item[Definition (Negotiation Model)] A negotation model $NM$ is a tuple
+  \begin{displaymath}
+  (p, C, TS, ns, ta)
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $p$ is a policy
+	\item $C$ is a set of credentials
+	\item $TS$ is a transition system
+	\item $ns$ is a negotiation strategy
+	\item $ta$ is a termination algorithm
+  \end{itemize}
+\end{description}
+\end{comment}
+
+\begin{description}
+\item[Definition 1 (List)] A list of elements is
+  \begin{itemize}
+	\item either the empty list
+	\item or an element followed by a list
+  \end{itemize}
+\end{description}
+
+Let $l$ be a non-empty list, therefore it is composed of an element $e$ and a (sub)list $l'$. $e$ (resp. $l'$) is called \textit{head} (resp. \textit{tail}) of $l$.
+
+We will write the empty list as $[]$ and a non-empty list as $[head, tail]$.
+
+\begin{description}
+\item[Definition 2 (Length of a list)] The length of a list is a function
+  \begin{displaymath}
+  length: L \rightarrow {\cal N}
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $L$ is the set of all lists
+	\item ${\cal N}$ is the set of all natural numbers
+  \end{itemize}
+  such that
+  \begin{itemize}
+	\item $length([])=0$
+	\item $length([head, tail])=1+length(tail)$
+  \end{itemize}
+\item[Definition 3 ($i$-th element of a list)] The $i$-th element of a list is a function
+  \begin{displaymath}
+  elementAt: A \rightarrow E
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $A = \{ (n, l) \in {\cal N}^{*} \times L : n \leq length(l) \}$
+	\item ${\cal N}^{*}$ is ${\cal N}\ \backslash \ \{0\}$
+	\item $E$ is the set of all elements
+  \end{itemize}
+	such that
+  \begin{itemize}
+	\item $elementAt(1, [head, tail])=head$
+	\item $elementAt(i, [head, tail])=elementAt(i-1, tail)$
+  \end{itemize}
+\item[Definition 4 (Containment relationship)] Let $e$ be an element and $l$ be a list. $l$ \textit{contains} $e$ iff $e=elementAt(i, l)$ for some $i$.
+\end{description}
+
+If $e$ is contained in $l$ we will write (with abuse of notation) $e \in l$.
+
+\begin{description}
+\item[Definition 5 (Negotiation Message)] A negotiation message is an ordered pair
+  \begin{displaymath}
+  (fp, C)
+  \end{displaymath}
+  where
+  \begin{itemize}
+	\item $fp \equiv$ a filtered policy
+	\item $C \equiv$ a set of credentials
+  \end{itemize}
+\item[Definition 6 (Negotation State)] A negotiation state is an ordered pair
+  \begin{displaymath}
+  (M_{snd}, M_{rcv})
+  \end{displaymath}
+  where both $M_{snd}$ and $M_{rcv}$ are lists of messages.
+\end{description}
+
+$M_{snd}$ (resp. $M_{rcv}$) is intended to represent the list of sent (resp. received) messages.
+
+Notice that for each state $s=(M_{snd}, M_{rcv})$ the following expressions represent the sets of credentials globally sent or received so far
+
+\begin{displaymath}
+\bigcup \{C_{i} : \exists fp_{i}\ (fp_{i}, C_{i}) \in M_{snd}\}
+\end{displaymath}
+
+\begin{displaymath}
+\bigcup \{C_{i} : \exists fp_{i}\ (fp_{i}, C_{i}) \in M_{rcv}\}
+\end{displaymath}
+
+\begin{description}
+\item[Definition 7 (Peer)] A Peer is composed of the following elements
+  \begin{itemize}
+	\item A policy $p$
+	\item A set of credentials $C$
+	\item A set of filtered policies $FP$
+	\item A set of states $S$
+	\item A state $s_{0}$ (called \textit{initial state})
+	\item Two sets of messages $M_{snd}$ and $M_{rcv}$
+	\item A function $tf_{snd}:S \times M_{snd} \rightarrow S$ (called \textit{transition function})
+	\item A function $tf_{rcv}:S \times M_{rcv} \rightarrow S$ (called \textit{transition function})
+	\item A function $f:S \rightarrow FP$ (called \textit{filter})
+	\item A function $csf:S \rightarrow {\cal P}(C)$ (called \textit{credential selection function})
+	\item A function $ta:S \rightarrow \{true, false\}$ (called \textit{termination algorithm})
+  \end{itemize}
+\end{description}
+
+The tuple $(S, s_{0}, M_{snd}, M_{rcv}, tf_{snd}, tf_{rcv})$ is also called \textit{transition system}, the ordered pair $(csf, ta)$ is also called \textit{negotiation strategy}.
+
+The intended meaning is as follows
+
+\begin{itemize}
+	\item $p$ represents the Peer's policy protecting the local credentials and allowing access to the local resources
+	\item $C$ represents the set of the credentials local to the Peer
+	\item $FP$ represents the set of filtered policies the Peer can send to the other Peer
+	\item $S$ represents the set of states in which the Peer can be
+	\item $s_{0}$ represents the initial state, i.e. the state in which the Peer is at the beginning of the negotiation
+	\item $M_{snd}$ (resp. $M_{rcv}$) represents the set of messages the Peer can send (resp. receive)
+	\item $tf_{snd}$ (resp. $tf_{rcv}$) represents the Peer's state transition following the sending (resp. reception) of a message
+	\item $f$ represents the process of filtering the Peer's policy according to the current state
+	\item $cfs$ represents the process of selecting the Peer's credentials to send to the other Peer
+	\item $ta$ represent the Peer's decision about whether going on or terminating the current negotiation
+\end{itemize}
+
+Hereafter we will consider Peers with the following characteristics
+
+\begin{itemize}
+\item $s_{0}$ is empty (i.e. it is the ordered pair $([], [])$)
+\item $f_{snd}:(s_{snd}, m) \rightarrow s'_{snd}$ where
+  \begin{itemize}
+	\item $s_{snd} = (M_{snd}, M_{rcv})$
+	\item $s'_{snd} = ([m, M_{snd}], M_{rcv})$
+  \end{itemize}
+\item $f_{rcv}:(s_{rcv}, m) \rightarrow s'_{rcv}$ where
+  \begin{itemize}
+	\item $s_{rcv} = (M_{snd}, M_{rcv})$
+	\item $s'_{rcv} = (M_{snd}, [m, M_{rcv}])$
+  \end{itemize}
+\end{itemize}
+
+\begin{description}
+\item[Definition 8 (Negotiation)] A Negotiation is an ordered pair
+  \begin{displaymath}
+  (P^{1}, P^{2})
+  \end{displaymath}
+  where $P^{1}$ (resp. $P^{2}$) is a Peer.
+\end{description}
+
+$P^{1}$ (resp. $P^{2}$) is called \textit{requester Peer} (resp. \textit{provider Peer}).
+
+Hereafter we will consider Negotiations with the following characteristics
+
+\begin{itemize}
+\item $M_{snd}^{1} = M_{rcv}^{2}$
+\item $M_{snd}^{2} = M_{rcv}^{1}$
+\end{itemize}
+
+\end{document}

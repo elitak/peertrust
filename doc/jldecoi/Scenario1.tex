@@ -1,0 +1,45 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Use case}
+\author{D. Olmedilla, J. L. De Coi}
+\maketitle
+
+$P_{1}$ has a negotiation independent state (including some rules) $NIS_{1}$ and a negotiation dependent state $NDS_{1}$. Initially $NDS_{1} = \emptyset$.\\
+$P_{2}$ has a negotiation independent state (including some rules) $NIS_{2}$ and a negotiation dependent state $NDS_{2}$. Initially $NDS_{1} = \emptyset$.\\
+$P_{1}$ sends $P_{2}$ a request $G$ and possibly a subset $S_{1}$ of $NIS_{1}$ (including some credentials).
+
+$P_{2}$ receives $G$ and $S_{1}$.\\
+$P_{2}$ sets $NDS_{2}$ to $S_{1}$.\\
+$P_{2}$ evaluates $G$ against its state (i.e. $NIS_{2} \cup NDS_{2}$) and generates a modified (filtered) version of such information $F^{P_{2}} = filter^{P_{2}}(G, NIS_{2}, NDS_{2})$.\footnote{$F^{P_{2}}$ represents $P_{2}$'s policy and therefore which actions $P_{1}$ has to perform in order to satisfy $P_{2}$'s requirements for accessing $G$.}\\
+$P_{2}$ sends a message to $P_{1}$ containing $F^{P_{2}}$.
+
+$P_{1}$ receives $F^{P_{2}}$.\\
+$P_{1}$ sets $NDS_{1}$ to $F^{P_{2}}$.\\
+$P_{1}$ analyses $NDS_{1}$ and extracts the set of actions $\{a_{1}, ... a_{n}\}$ it has to perform.\\
+For each action $a_{i}$,  $P_{1}$ checks its state (i.e. $NIS_{1} \cup NDS_{1}$) and generates a modified (filtered) version of such information $F^{P_{1}}_{i} = filter^{P_{1}}_{i}(G, NIS_{1}, NDS_{1}).$\footnote{$F^{P_{1}}_{i}$ represents the filtered version of $P_{1}$'s policy protecting $a_{i}$.}\\
+Let $U_{1}$ be the set of actions already performed or not protected by a policy (\textit{unlocked} actions): $P_{1}$ selects a subset $S_{1}$ of $U_{1}$ (according to its strategy).\\
+$P_{1}$ sends a message to $P_{2}$ containing $S_{1}$ and $F^{P_{1}} = \bigcup_{i}F^{P_{1}}_{i}$.\footnote{$F^{P_{1}}$ represents $P_{1}$'s policy and therefore which actions $P_{2}$ has to perform in order to satisfy $P_{1}$'s requirements for executing the actions specified in $F^{P_{2}}$.}
+
+$P_{2}$ receives the message.\\
+$P_{2}$ sets $NDS_{2}$ accordingly.\\
+$P_{2}$ analyses $NDS_{2}$ and extracts the set of actions it has to perform.
+
+And so on and so forth until
+
+\begin{itemize}
+	\item $P_{2}$ receives a message.\\
+	$P_{2}$ realizes that the actions needed to access $G$ were already performed.\\
+	$P_{2}$ notifies $P_{1}$ that the negotiation was successful.
+\end{itemize}
+
+or
+
+\begin{itemize}
+	\item $P_{i}$ receives a (possibly empty) message.\\
+	According to its termination algorithm, $P_{i}$ realizes that the negotiation was not successful.\\
+	$P_{i}$ notifies the other Peer that the negotiation was not successful.
+\end{itemize}
+
+\end{document}

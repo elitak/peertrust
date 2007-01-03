@@ -42,7 +42,7 @@ public class ProtuneTest{
 		//app.sendMessage(new ServiceRequestMessage("org.protune.net.TestProtuneService"));
 		
 		Socket s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
-		//System.out.println("new Binding...");
+		System.out.println("new Binding...");
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 		ServiceRequestMessage srm = new ServiceRequestMessage("org.protune.net.TestProtuneService");
 		//System.out.println("Client sent ServiceRequestMessage...");

@@ -1,0 +1,37 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Use case}
+\author{J. L. De Coi}
+\maketitle
+
+Each Peer
+
+\begin{itemize}
+	\item is able to perform a set of actions $\{a_{1}, ...a_{n}\}$
+	\item protects each $a_{i}$ with a (possibly empty) policy $p_{i}$
+	\item has a (negotiation-dependent) state, which is empty at the beginning of the negotiation
+\end{itemize}
+
+Sending a credential or whatever kind of message (e.g. eMail messages, but not negotiation message) is an action as well.\\
+A policy $p_{i}$ specifies the conditions which must be fulfilled (in particular the actions which must be performed) in order to perform the action $a_{i}$. In particular it specifies the conditions the other Peer must fulfill (in particular the actions the other Peer must perform) in order to let the first Peer perform the action $a_{i}$.\\
+If a policy $p_{i}$ is empty, then the Peer can perform the action $a_{i}$ whenever requested.\\
+The state keeps track of the ongoing negotiation (in particular registers the sent/received -- filtered -- policies, the actions already performed by the Peer and the ones received from the other Peer).
+
+At each negotiation step a Peer $P$
+
+\begin{itemize}
+	\item is requested for performing a set of actions $A = \{a_{1}, ...a_{n}\}$\\
+	\textbf{Note:} $A$ can be written as $A_{u} \cup A_{l}$ where
+	\begin{itemize}
+	  \item $A_{u} = \{a_{i} \in A : p_{i}$ is empty or satisfied.$\}$ (\textit{\textbf{u}nlocked} actions)
+	  \item $A_{l} = A$ $\backslash$ $A_{u}$ (i.e. the set of actions whose policies are not satisfied -- \textit{\textbf{l}ocked} actions)
+  \end{itemize}
+  \item determines whether to terminate the negotiation. The choice is carried out according to $P$'s termination algorithm (based on its current state)
+	\item performs the actions belonging to a subset $S$ of $A_{u}$. The choice of $S$ is carried out according to $P$'s negotiation strategy (based on its current state and its set of policies)
+	\item sends $F$ to the other Peer, where $F$ is the set $\{filter(p_{i}) : a_{i} \in A_{l}.\}$
+	\item sends the other Peer a notification of the execution of the actions in $S$
+\end{itemize}
+
+\end{document}

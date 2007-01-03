@@ -1,0 +1,115 @@
+\documentclass{article}
+\usepackage{verbatim}
+\begin{document}
+
+\title{Protune Negotiation Model}
+\author{J. L. De Coi, D. Ghita, D. Olmedilla}
+
+\maketitle
+
+%\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition} %
+\newtheorem{exa}{Example}
+
+%\newenvironment{example}
+
+This document aims at formalizing the negotiation between two entities, namely $E_1$ and $E_2$. For the rest of the paper we assume that $E_1$ is the initial requester while $E_2$ is the provider, i.e. $E_1$ is assumed to send a request to $E_2$ thus starting a negotiation. Notice that during a negotiation both entities $E_1$ and $E_2$ may both request or provide information to each other.
+
+Let our Policy language be a rule-based language. Such a rule language is based on normal logic program rules $ A \leftarrow L_{1}, \ldots L_{n}$ where $A$ is a standard logical atom (called the \textit{head} of the rule) and $L_1, \ldots L_n$ (the \textit{body} of the rule) are literals, i.e. $L_{i}$ equals either $B_{i}$ or $\neg B_{i}$, for some logical atom $B_{i}$.
+
+\begin{definition}[Policy]
+A Policy is a set of rules, such that negation is not applied to any predicate occurring in a rule head.
+\end{definition}
+
+This restriction ensures that policies are \emph{monotonic} in the sense of~\cite{swyyj02}, i.e. as more credentials are released and more actions executed, the set of permissions does not decrease. Moreover, the restriction on negation makes policies \textit{stratified programs}; therefore negation as failure has a clear, PTIME computable semantics that can be equivalently formulated as the perfect model semantics, the well-founded semantics or the stable model semantics~\cite{baral-book}.
+
+\begin{definition}[Negotiation Message]
+A Negotiation Message is an ordered pair
+$$(p, C)$$
+where
+  \begin{itemize}
+	\item $p \equiv$ a Policy
+	\item $C \equiv$ a set of credentials
+  \end{itemize}
+We will denote with $M$ the set of all possible Negotiation Messages.
+\end{definition}
+
+\begin{definition}[Message Sequence]
+A Message Sequence $\sigma$ is a list of Negotiation Messages
+$$\sigma_{1}, \ldots \sigma_n\ |\ \sigma_{i} \in M$$
+We will denote with $|\sigma|$ the length of $\sigma$ and with $\sigma_i$ the $i$-th element of the Message Sequence $\sigma$.
+\end{definition}
+
+\begin{definition}[Negotiation History]
+Let $E_{1}$ and $E_{2}$ be the two entities involved in the negotiation. Let $E_{1}$ be the initiator of such a negotiation, i.e. the sender of the first message in the negotiation. A Negotiation History $\sigma$ for the entity $E_{j}$ ($j = 1, 2$) is a Message Sequence
+$$\sigma_{1}, \ldots \sigma_{n}\ |\ \sigma_{i} \in M$$
+Moreover let
+	\begin{itemize}
+	\item $M_{snt}(\sigma) = \{ \sigma_{i}\ |\ i = 2k - (j\ mod 2), 1 \leq k \leq \left\lfloor n/2 \right\rfloor \}$
+	\item $M_{rvd}(\sigma) = \{ \sigma_{i}\ |\ i = 2k - 1 + (j\ mod 2), 1 \leq k \leq \left\lfloor n/2 \right\rfloor \}$
+	\end{itemize}
+\end{definition}
+
+We will refer to a Negotiation History also as a \textit{Negotiation State}.
+
+Intuitively, messages among parties are sent alternatively, i.e. a message sent by $E_{j}$ is followed by the reception of a message, which is in turn followed by the sending of a new message and so on. Therefore, $M_{snt}(\sigma)$ (resp. $M_{rvd}(\sigma)$) represents the set of messages sent (resp. received) by $E_{j}$.
+
+Notice that according to this definition, the Negotiation History $\sigma$ is shared by the two entities $E_{1}$ and $E_{2}$, but the sets $M_{snt}(\sigma)$ and $M_{rvd}(\sigma)$ are swapped among them. Therefore it holds that $$ M_{snt}(E_{1}, \sigma) = M_{rvd}(E_{2}, \sigma) $$ and $$ M_{rvd}(E_{1}, \sigma) = M_{snt}(E_{2}, \sigma) $$
+
+In order to ease the notation in the rest of the paper, given a Negotiation History $\sigma$, we define the following entities
+
+\begin{itemize}
+\item $C_{snt}(\sigma) = \bigcup\{ C_{i}\ |\ \exists p_{i}\ (p_{i}, C_{i}) \in M_{snt}(\sigma) \}$
+\item $C_{rvd}(\sigma) = \bigcup\{ C_{i}\ |\ \exists p_{i}\ (p_{i}, C_{i}) \in M_{rvd}(\sigma) \}$
+\item $lp_{snt}(\sigma) = p_{i_{max}}\ |\ i_{max} = max\{i\ |\ (p_{i}, c_{i}) \in M_{snt}(\sigma) \}$
+\item $lp_{rcv}(\sigma) = p_{i_{max}}\ |\ i_{max} = max\{i\ |\ (p_{i}, c_{i}) \in M_{rcv}(\sigma) \}$
+\end{itemize}
+
+Intuitively, $C_{snt}$ (resp. $C_{rvd}$) represents the set of all credentials sent (resp. received) and $lp_{snt}$ (resp. $lp_{rvd}$) represents the last policy sent (resp. received).
+
+\begin{definition}[Negotiation State Machine]
+A Negotiation State Machine is a tuple $$(\Sigma, S, s_{0}, t)$$ such that
+	\begin{itemize}
+	\item $S \equiv$ a set of Negotiation States
+	\item $s_{0} \equiv $ the empty list (\textit{initial state})
+	\item $\Sigma \equiv $ a set of Negotiation Messages.
+	\item $t \equiv $ a function $S \times \Sigma \rightarrow S$ such that if $S = (\sigma_{1}, \ldots \sigma_{n})$ then $t(S, \sigma) = (\sigma_{1},  \ldots \sigma_{n}, \sigma_{n+1})$ (\textit{transition function})
+	\end{itemize}
+\end{definition}
+
+Intuitively a Negotiation State Machine models how an entity evolves during the negotiation by the exchange of messages. $\Sigma$ contains both sent and received Negotiation Messages and can therefore be partitioned into two subsets $\Sigma_{snd}$ and $\Sigma_{rcv}$.
+
+\begin{definition}[Negotiation Model]
+A Negotiation Model is a tuple $$(C, P, p_{0}, NSM, ff, ns)$$ where
+	\begin{itemize}
+	\item $C \equiv$ a set of credentials
+	\item $P \equiv$ a set of Policies
+	\item $p_{0} \equiv$ a Policy (\textit{local Policy})
+	\item $NSM \equiv$ a Negotiation State Machine $(\Sigma, S, s_{0}, t)$
+	\item $ff \equiv$ a function $S \rightarrow P$ (\textit{Filtering Function})
+	\item $ns \equiv$ an ordered pair $(csf, ta)$ where
+		\begin{itemize}
+		\item $csf \equiv$ a function $S \rightarrow C$ (\textit{Credential Selection Function})
+		\item $ta \equiv$ a function $S \rightarrow \{true, false\}$ (\textit{Termination Algorithm})
+		\end{itemize}
+	(\textit{Negotiation Strategy})
+	\end{itemize}
+\end{definition}
+
+Each occurrence of $S$ is supposed to refer to the same set of Negotiation States.
+
+The intended meaning is as follows
+\begin{itemize}
+	\item $C$ represents the set of the credentials local to the Peer
+	\item $p_{0}$ represents the Peer's policy protecting the local credentials and allowing access to the local resources
+	\item $S$ represents the set of states in which the Peer can be
+	\item $s_{0}$ represents the initial state, i.e. the state in which the Peer is at the beginning of the negotiation
+	\item $f$ represents the process of filtering the Peer's Policy according to the current state
+	\item $csf$ represents the process of selecting the Peer's credentials to send to the other Peer
+	\item $ta$ represent the Peer's decision about whether going on or terminating the current negotiation
+\end{itemize}
+
+\end{document}
