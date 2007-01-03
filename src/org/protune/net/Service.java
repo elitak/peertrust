@@ -14,9 +14,10 @@ import java.io.IOException;
  */
 public abstract class Service {
 	
-	Pointer otherPeer;
+	protected Pointer otherPeer;
 	
-	NegotiationMessage perform(OngoingNegotiationMessage onm) throws IOException, WrongMessageTypeException{
+	NegotiationMessage perform(OngoingNegotiationMessage onm)
+			throws IOException, WrongMessageTypeException{
 		NegotiationMessage toSend = eval(onm);
 		otherPeer.sendMessage(toSend);
 		

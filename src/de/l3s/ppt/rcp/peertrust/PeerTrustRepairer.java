@@ -202,7 +202,7 @@ public class PeerTrustRepairer implements IPresentationDamager, IPresentationRep
 		if (attr != null && offset >= 0 && offset + length <= totalLength && length > 0) {
 			logger.debug("addRange() : offset; length; RGB; Bold?; Italic? : " 
 					+ offset + "; " + length + "; " + attr.getForeground() + "; " + bold + "; " + italic);
-			styleRanges.add(new StyleRange(offset, length, attr.getForeground(), 
+			styleRanges.addLocal(new StyleRange(offset, length, attr.getForeground(), 
 					attr.getBackground(), attr.getStyle()));
 		} else {
 			logger.warning("addRange() : corrupted range was not added : offset; length; RGB; Bold?; Italic? : " 

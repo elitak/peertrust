@@ -1,6 +1,7 @@
 package test.org.protune.core;
 
 import org.protune.api.*;
+import java.io.File;
 
 /**
  * <tt>consultSource(String theory)</tt> rewrites previous theories.
@@ -9,7 +10,7 @@ import org.protune.api.*;
  * @author jldecoi
  */
 public class TestPrologEngine {
-
+/*
 	public static void main(String[] args){
 		JLogWrapper jlw = new JLogWrapper();
 		TuPrologWrapper tpw = new TuPrologWrapper();
@@ -37,6 +38,23 @@ public class TestPrologEngine {
 			for(int i=0;i<sa.length;i++) System.out.println(sa[i]);
 		}
 		catch(QueryException qe){}
+	}
+*/
+	
+	public static void main(String[] args){
+		TuPrologWrapper tpw = new TuPrologWrapper();
+		
+		File f;
+		
+		try {
+			f = new File("C:/Dokumente und Einstellungen/jldecoi/Desktop/Test/Program.txt");
+			tpw.loadTheory(f);
+			f = new File("C:/Dokumente und Einstellungen/jldecoi/Desktop/Test/1-Server.txt");
+			tpw.loadTheory(f);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

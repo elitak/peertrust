@@ -10,11 +10,9 @@ package org.protune.api;
 public abstract class Action {
 	
 	public abstract Notification perform();
-	
-	public static Notification[] perform(Action[] aa){
-		Notification[] na = new Notification[aa.length];
-		for(int i=0; i<na.length; i++) na[i] = aa[i].perform();
-		return na;
+/*	
+	public Goal toGoal(Mapper m) throws QueryException{
+		return new Goal(accept(m));
 	}
 	
 	/**
@@ -28,9 +26,9 @@ public abstract class Action {
 	 * <blockquote><tt>release(Credential)</tt></blockquote>
 	 * but not
 	 * <blockquote><tt>release(Credential).</tt></blockquote>
-	 */
+	 *
 	public String accept(Mapper m){
 		return m.toPrologRepresentation(this);
 	}
-
+*/
 }

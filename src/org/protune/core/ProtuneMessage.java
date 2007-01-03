@@ -13,16 +13,22 @@ public class ProtuneMessage extends OngoingNegotiationMessage {
 	
 	static final long serialVersionUID = 5111;
 	
-	FilteredPolicy[] filteredPolicies;
+	Goal goal;
+	FilteredPolicy filteredPolicy;
 	Notification[] notifications;
 	
-	public ProtuneMessage(FilteredPolicy[] fpa, Notification[] na){
-		filteredPolicies = fpa;
+	public ProtuneMessage(Goal g, FilteredPolicy fp, Notification[] na){
+		goal = g;
+		filteredPolicy = fp;
 		notifications = na;
 	}
 	
-	FilteredPolicy[] getFilteredPolicies(){
-		return filteredPolicies;
+	Goal getGoal(){
+		return goal;
+	}
+	
+	FilteredPolicy getFilteredPolicy(){
+		return filteredPolicy;
 	}
 	
 	Notification[] getNotifications(){

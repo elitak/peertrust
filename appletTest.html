@@ -1,27 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
    <head>
-      <meta name="generator" content="HTML Tidy, see www.w3.org">
+      <meta name="generator" content="HTML Tidy, see www.w3.org" />
       <title>appletTest</title>
    </head>
    <body>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
 
 function printText(){
+var str = "'string'";
    var from = document.myform.from.value;
    var to = document.myform.to.value;
-   var s = ('<applet code="org.protune.gui.AppletTest.class" codebase="./bin" width=480 height=384>');
-   s += (' <param name="from" value="' + from + '">');
-   s += (' <param name="to" value="' + to + '">');
-   s += ('</applet>')
+   var s = ('<object codebase="org.protune.gui.AppletTest.class" codebase="./bin" width=480 height=384>');
+   s += (' <param name="from" value="' + from + '" />');
+   s += (' <param name="to" value="' + to + '" />');
+   s += ('</object>');
    document.write(s);
 }
 
       </script>
       <form name="myform">
 <p>
-your name: <input name="from" type="text" id="from" width="100">
-her name:<input name="to" type="text" id="to" width="100">
-<input type="button" value="Submit" onclick="printText()">
+your name: <input name="from" type="text" id="from" width="100" />
+her name:<input name="to" type="text" id="to" width="100" />
+<input type="button" value="Submit" onclick="printText()" />
 </p>
       </form>
    </body>

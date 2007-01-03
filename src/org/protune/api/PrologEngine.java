@@ -1,6 +1,7 @@
 package org.protune.api;
 
 import java.io.*;
+import java.text.ParseException;
 
 /**
  * As described in the <a href="./package-summary.html">package</a> document, the <i>Protune</i>
@@ -12,6 +13,8 @@ import java.io.*;
  * @author jldecoi
  */
 public abstract class PrologEngine {
+	
+	Mapper mapper;
 
 	public abstract void loadTheory(String theory) throws LoadTheoryException;
 	
@@ -58,5 +61,94 @@ public abstract class PrologEngine {
 	 * @throws QueryException
 	 */
 	public abstract String[] getAllAnswers(String query) throws QueryException;
+
+//	 add RECEIVED, negotiationStep and Prolog representation of a policy; retract previous fp and assert the new one
+	public void addReceived(FilteredPolicy fp){
+		try{
+			isSuccessful("retract(currentFilteredPolicy(_)).");
+			isSuccessful("assert(currentFilteredPolicy(" + mapper.toPrologRepresentation(fp) + ")).");
+		}
+		catch(QueryException qe){
+			// Should not happen.
+		}
+	}
+
+//	 add RECEIVED, negotiationStep and Prolog representation of a notification
+	public void addReceived(Notification n){
+		try{
+			isSuccessful("assert(alreadyExecuted(execute(" + mapper.toPrologRepresentation(n) + "))).");
+		}
+		catch(QueryException qe){
+			// Should not happen.
+		}
+	}
+
+//	 add NegotiationElement.SENT, negotiationStep and Prolog representation of a policy;
+	public void addSent(FilteredPolicy fp){}
+
+//	 add NegotiationElement.SENT, negotiationStep and Prolog representation of a notification
+	public void addSent(Notification n){
+		try{
+			isSuccessful("assert(alreadyExecuted(execute(" + mapper.toPrologRepresentation(n) + "))).");
+		}
+		catch(QueryException qe){
+			// Should not happen.
+		}
+	}
+
+	public void addLocal(Notification n){
+		try{
+			isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		}
+		catch(QueryException qe){
+			// Should not happen.
+		}
+	}
+
+//	 add RECEIVED, negotiationStep and Prolog representation of a check
+	public void add(Check c){}
+	
+	public void increaseNegotiationStepNumber(){}
+	
+	public Action[] extractLocalActions(Goal g) throws QueryException, ParseException{
+		String[] sa = getAllAnswers(
+				"isIn(X, Y),extractLocalActions(" +
+				mapper.toPrologRepresentation(g) +
+				", Y)."
+		);
+		Action[] aa = new Action[sa.length];
+		for(int i=0; i<aa.length; i++)
+			aa[i] = mapper.parseAction(sa[i]);
+		return aa;
+	}
+	
+	public boolean isNegotiationSatisfied(Goal g) throws QueryException{
+		return isSuccessful("prove(" + mapper.toPrologRepresentation(g) + ").");
+	}
+	
+	public boolean terminate() throws QueryException{
+		return isSuccessful("terminationAlgorithm.");
+	}
+	
+	// To be changed: Extract just selected unlocked actions
+	public Action[] extractExternalActions(Goal g) throws QueryException, ParseException{
+		String[] sa = getAllAnswers(
+				"isIn(X, Y),extractUnlockedExternalActions(" +
+				mapper.toPrologRepresentation(g) +
+				", Y)."
+		);
+		Action[] aa = new Action[sa.length];
+		for(int i=0; i<aa.length; i++)
+			aa[i] = mapper.parseAction(sa[i]);
+		return aa;
+	}
+	
+	public FilteredPolicy filter(Goal g) throws QueryException, ParseException{
+		return mapper.parseFilteredPolicy(getFirstAnswer(
+				"filter(" + 
+				mapper.toPrologRepresentation(g) + 
+				", FilteredPolicy)."
+		));
+	}
 	
 }

@@ -130,13 +130,15 @@ public class DispatcherPeer implements Peer {
 			
 			Class[] ca = { Pointer.class };
 			Object[] oa = { dsnm.getPeerPointer() };
+			System.out.println(dsnm.getRequestedService());
 			Service s =
 				(Service) Class.forName(dsnm.getRequestedService()).getConstructor(ca).newInstance(oa);
+			System.out.println("Created: " + s);
 			runningServices.put(currentRunningServiceID, s);
 			currentRunningServiceID++;
 		}
 		catch(IOException ioe){}
-		catch(ClassNotFoundException cnfe){
+		catch(ClassNotFoundException cnfe){System.out.println(1);
 			// If the communication protocol is respected this exception should be never thrown.
 		}catch(Exception e){
 			// If each subclass of {@link org.protune.net.Service} implements the constructor

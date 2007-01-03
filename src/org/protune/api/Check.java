@@ -10,9 +10,9 @@ package org.protune.api;
 public abstract class Check {
 	
 	protected Notification notification;
-	
+/*
 	String accept(Mapper m){
 		return m.toPrologRepresentation(this);
 	}
-	
+*/
 }

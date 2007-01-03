@@ -30,7 +30,7 @@ public class NegotiationElement {
 	public static final boolean SENT = true;
 	public static final boolean RECEIVED = false;
 	
-	boolean sentOrReceived;
+	Boolean sentOrReceived;
 	Date timestamp;
 	int negotiationStepNumber;
 	/**
@@ -43,25 +43,37 @@ public class NegotiationElement {
 	 */
 	Object entity;
 	
-	public NegotiationElement(boolean b, int i, FilteredPolicy fp){
+	public NegotiationElement(Boolean b, int i, FilteredPolicy fp){
 		sentOrReceived = b;
 		timestamp = new Date();
 		negotiationStepNumber = i;
 		entity = fp;
 	}
 	
-	public NegotiationElement(boolean b, int i, Notification n){
+	public NegotiationElement(Boolean b, int i, Notification n){
 		sentOrReceived = b;
 		timestamp = new Date();
 		negotiationStepNumber = i;
 		entity = n;
 	}
 	
-	public NegotiationElement(boolean b, int i, Check c){
+	public NegotiationElement(Boolean b, int i, Check c){
 		sentOrReceived = b;
 		timestamp = new Date();
 		negotiationStepNumber = i;
 		entity = c;
+	}
+	
+	public NegotiationElement(int i, FilteredPolicy fp){
+		this(null, i, fp);
+	}
+	
+	public NegotiationElement(int i, Notification n){
+		this(null, i, n);
+	}
+	
+	public NegotiationElement(int i, Check c){
+		this(null, i, c);
 	}
 	
 	/**
@@ -116,9 +128,9 @@ public class NegotiationElement {
 	public Object getEntity(){
 		return entity;
 	}
-	
+/*	
 	String accept(Mapper m){
 		return m.toPrologRepresentation(this);
 	}
-
+*/
 }

@@ -29,12 +29,12 @@ import org.peertrust.meta.Tree;
  * <p>
  * Specific queue with a simple FIFO (First In First Out) strategy.
  * </p><p>
- * $Id: FIFOQueue.java,v 1.5 2005/08/07 12:06:54 dolmedilla Exp $
+ * $Id: FIFOQueue.java,v 1.6 2007/01/03 12:31:02 jldecoi Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/08/07 12:06:54 $
- * by $Author: dolmedilla $
+ * Last changed: $Date: 2007/01/03 12:31:02 $
+ * by $Author: jldecoi $
  * </p>
  * @author olmedilla
  */
@@ -43,7 +43,7 @@ public class FIFOQueue implements Queue, Configurable
 	Vector _queue ;
 	
 	/**
-	 * @see org.peertrust.strategy.Queue#add(trust.meta.Tree)
+	 * @see org.peertrust.strategy.Queue#addLocal(trust.meta.Tree)
 	 */
 	public synchronized void add(Tree tree)
 	{
@@ -59,7 +59,7 @@ public class FIFOQueue implements Queue, Configurable
 	}
 	
 	/**
-	 * @see org.peertrust.strategy.Queue#add(trust.meta.Tree)
+	 * @see org.peertrust.strategy.Queue#addLocal(trust.meta.Tree)
 	 */
 	public synchronized void add(Tree[] trees)
 	{

@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.protune.net.*;
 
-public class ServiceAvailableClientTest{
+public class ProtuneTest{
 	
 	public static final String MY_ADDRESS = "localhost";
 	public static final int MY_PORT = 1235;
@@ -17,7 +17,7 @@ public class ServiceAvailableClientTest{
 		Runnable runnable = new Runnable() {
 			public void run() {
 				// Local variables initialisation.
-				String[] sa = {"org.protune.net.DummyService"};
+				String[] sa = {"org.protune.net.TestProtuneService"};
 				DispatcherPeer dp;
 				
 				try {
@@ -39,12 +39,12 @@ public class ServiceAvailableClientTest{
 		ServerSocket ss=new ServerSocket(MY_PORT);
 		
 		//AddressPortPointer app = new AddressPortPointer(PROTUNE_ADDRESS, PROTUNE_PORT);
-		//app.sendMessage(new ServiceRequestMessage("org.protune.net.DummyService"));
+		//app.sendMessage(new ServiceRequestMessage("org.protune.net.TestProtuneService"));
 		
 		Socket s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
 		//System.out.println("new Binding...");
 		ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-		ServiceRequestMessage srm = new ServiceRequestMessage("org.protune.net.DummyService");
+		ServiceRequestMessage srm = new ServiceRequestMessage("org.protune.net.TestProtuneService");
 		//System.out.println("Client sent ServiceRequestMessage...");
 		oos.writeObject(srm);
 		oos.flush();
@@ -61,7 +61,7 @@ public class ServiceAvailableClientTest{
 		oos = new ObjectOutputStream(s.getOutputStream());
 		DispatcherStartNegotiationMessage dsnm = new DispatcherStartNegotiationMessage(
 				new AddressPortPointer(MY_ADDRESS, MY_PORT),
-				"org.protune.net.DummyService"
+				"org.protune.net.TestProtuneService"
 		);
 		oos.writeObject(dsnm);
 		//System.out.println("Client sent DispatcherStartNegotiationMessage..." );
@@ -73,7 +73,7 @@ public class ServiceAvailableClientTest{
 		System.out.println("Received StartNegotiationMessage: " + snm);
 		s.close();
 		
-		
+/*		
 		s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);
 		//System.out.println("new Socket Binding...");
 		oos = new ObjectOutputStream(s.getOutputStream());
@@ -137,7 +137,7 @@ public class ServiceAvailableClientTest{
 		//System.out.println("new Socket Binding...");
 		oos = new ObjectOutputStream(s.getOutputStream());
 		
-		ss.close();
+		ss.close();*/
 	}
 
 }

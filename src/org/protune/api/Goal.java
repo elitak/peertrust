@@ -7,28 +7,19 @@ package org.protune.api;
  * enough.
  * @author jldecoi
  */
-public class FilteredPolicy {
+public class Goal {
 
 	PrologEngine prologEngine;
-	String policy;
+	String goal;
 	
-	FilteredPolicy(String s) throws LoadTheoryException{
+	Goal(String s) throws LoadTheoryException{
 		prologEngine = new TuPrologWrapper();
 		prologEngine.loadTheory("dummy(" + s + ").");
-		policy = s;
-	}
-	
-	FilteredPolicy(String[] sa) throws LoadTheoryException{
-		String s = "";
-		for(int i=0; i<sa.length; i++) s += sa[i] + "\n";
-
-		prologEngine = new TuPrologWrapper();
-		prologEngine.loadTheory("dummy(" + s + ").");
-		policy = s;
+		goal = s;
 	}
 	
 	public String toString(){
-		return policy;
+		return goal;
 	}
 	
 	String accept(Mapper m){

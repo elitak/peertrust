@@ -1,10 +1,20 @@
 package org.protune.core;
 
-import org.protune.net.*;
-import org.protune.api.*;
-
-import java.util.Vector;
 import java.text.ParseException;
+
+import org.protune.api.Action;
+import org.protune.api.FilteredPolicy;
+import org.protune.api.Goal;
+import org.protune.api.Notification;
+import org.protune.api.PrologEngine;
+import org.protune.api.QueryException;
+import org.protune.net.EndNegotiationMessage;
+import org.protune.net.NegotiationMessage;
+import org.protune.net.OngoingNegotiationMessage;
+import org.protune.net.Service;
+import org.protune.net.SuccessfulNegotiationResult;
+import org.protune.net.UnsuccessfulNegotiationResult;
+import org.protune.net.WrongMessageTypeException;
 
 /**
  * The class <tt>ProtuneService</tt> could be described as the most important class of the <i>Protune</i>
@@ -49,107 +59,81 @@ import java.text.ParseException;
  * During the computation the negotiation status (most likely) changes.
  * @author jldecoi
  */
-public class ProtuneService extends Service {
+public abstract class ProtuneService extends Service {
+
+	protected PrologEngine engine;
+	protected Checker checker;
 	
-	Status status;
-	Checker checker;
-	TerminationAlgorithm terminationAlgorithm;
-	FilterEngine filter;
-	ActionSelectionFunction actionSelectionFunction;
-	Policy policy;
-	Pointer otherPeer;
-	Mapper mapper;
-	
-	ProtuneService(
-			Status s,
-			Checker c,
-			TerminationAlgorithm ta,
-			ProtuneFilterEngine f,
-			ActionSelectionFunction asf,
-			Policy pl,
-			Pointer pi,
-			Mapper m
-	){
-		status = s;
-		checker = c;
-		terminationAlgorithm = ta;
-		filter = f;
-		actionSelectionFunction = asf;
-		policy = pl;
-		otherPeer = pi;
-	}
-	
-	/**
-	 * Works out the message received from the other Peer and sends it a new negotiation message.
-	 * @param onm The message received from the other Peer.<br />
-	 * <b>NOTE:</b> Must be an instance of {@link org.protune.core.ProtuneMessage}.
-	 * @return The message to be sent to the other Peer.
-	 */
 	public NegotiationMessage eval(OngoingNegotiationMessage onm) throws WrongMessageTypeException{
 		if(!(onm instanceof ProtuneMessage)) throw new WrongMessageTypeException(); 
 		ProtuneMessage pm = (ProtuneMessage) onm;
 		
-		FilteredPolicy[] fpa = pm.getFilteredPolicies();
+		Goal g = pm.getGoal();
+		FilteredPolicy fp = pm.getFilteredPolicy();
 		Notification[] na = pm.getNotifications();
 		
-		int negotiationStep = status.getCurrentNegotiationStepNumber();
-		for(int i=0; i<fpa.length; i++)
-			status.addNegotiationElement(new NegotiationElement(NegotiationElement.RECEIVED, negotiationStep, fpa[i]));
-		for(int i=0; i<na.length; i++)
-			status.addNegotiationElement(new NegotiationElement(NegotiationElement.RECEIVED, negotiationStep, na[i]));
+		engine.addReceived(fp);
+		for(int i=0; i<na.length; i++) engine.addReceived(na[i]);
 		for(int i=0; i<na.length; i++) try{
-			status.addNegotiationElement(new NegotiationElement(
-					NegotiationElement.RECEIVED, negotiationStep, checker.checkNotification(na[i])
-			));
+			engine.add(checker.checkNotification(na[i]));
 		} catch(UnknownNotificationException une){
 			// If the checker is not able to check the notification, a further check is simply not
 			// added.
 		}
 		
-		status.increaseNegotiationStepNumber();
-		negotiationStep = status.getCurrentNegotiationStepNumber();
+		engine.increaseNegotiationStepNumber();
 		
-		if(filter.isNegotiationSatisfied(status))
-			return new EndNegotiationMessage(new SuccessfulNegotiationResult());
-		if(terminationAlgorithm.terminate(mapper, status))
-			return new EndNegotiationMessage(new UnsuccessfulNegotiationResult());
-		
-		Vector<Action> v = new Vector<Action>();
-		Action[] aa = new Action[0];
-		for(int i=0; i<fpa.length; i++){
-			aa = filter.extractActions(fpa[i]);
-			for(int j=0; i<aa.length; j++) v.add(aa[i]);
+		Action[] laa;
+		try {
+			laa= engine.extractLocalActions(g);
+			while(laa.length!=0){
+				Notification[] lna = new Notification[laa.length];
+				for(int i=0; i<lna.length; i++){
+					lna[i] = laa[i].perform();
+					engine.addLocal(lna[i]);
+				}
+				laa = engine.extractLocalActions(g);
+			}
+		} catch (QueryException e1) {
+			// Should not happen.
+		} catch (ParseException e1) {
+			// Should not happen.
 		}
-		aa = v.toArray(aa);
 		
-		Vector<FilteredPolicy> vfp = new Vector<FilteredPolicy>();
-		for(int i=0; i<aa.length; i++) try{
-			vfp.add(filter.filter(policy, status, aa[i]));
+		try {
+			if(engine.isNegotiationSatisfied(g))
+				return new EndNegotiationMessage(new SuccessfulNegotiationResult());
+			if(engine.terminate())
+				return new EndNegotiationMessage(new UnsuccessfulNegotiationResult());
+		} catch (QueryException e) {
+			// Should not happen.
 		}
-		catch(ParseException pe){
-			// It should not happen.
+		
+		Action[] eaa = new Action[0];
+		try {
+			eaa= engine.extractExternalActions(g);
+		} catch (QueryException e1) {
+			// Should not happen.
+		} catch (ParseException e1) {
+			// Should not happen.
 		}
-		catch(Exception e){}
+		Notification[] ena = new Notification[eaa.length]; 
+		for(int i=0; i<eaa.length; i++) ena[i] = eaa[i].perform();
 		
-		Vector<Action> unlocked = new Vector<Action>();
-		Vector<FilteredPolicy> fpToSend = new Vector<FilteredPolicy>();
-		for(int i=0; i<vfp.size(); i++) try{
-			if(filter.isUnlocked(aa[i])) unlocked.add(aa[i]);
-			else fpToSend.add(vfp.get(i));
-		} catch(Exception e){}
+		try {
+			fp = engine.filter(g);
+		} catch (QueryException e1) {
+			// Should not happen.
+		} catch (ParseException e1) {
+			// Should not happen.
+		}
 		
-		Action[] toPerform = new Action[0];
-		toPerform = actionSelectionFunction.selectActions(unlocked.toArray(toPerform), status);
-		fpa = fpToSend.toArray(fpa);
-		Notification[] naToSend = Action.perform(toPerform);
-		for(int i=0; i<fpa.length; i++)
-			status.addNegotiationElement(new NegotiationElement(NegotiationElement.SENT, negotiationStep, fpa[i]));
-		for(int i=0; i<naToSend.length; i++)
-			status.addNegotiationElement(new NegotiationElement(NegotiationElement.SENT, negotiationStep, naToSend[i]));
+		engine.addSent(fp);
+		for(int i=0; i<ena.length; i++) engine.addSent(ena[i]);
 		
-		status.increaseNegotiationStepNumber();
+		engine.increaseNegotiationStepNumber();
 		
-		return new ProtuneMessage(fpa, naToSend);
+		return new ProtuneMessage(g, fp, ena);
 	}
 
 }
