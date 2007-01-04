@@ -1,5 +1,7 @@
 package org.protune.api;
 
+import java.io.Serializable;
+
 /**
  * A notification that an attempt to carry out an {@link org.protune.api.Action} was performed. The
  * attempt could have different results, each one should be represented as a subclass of
@@ -8,7 +10,7 @@ package org.protune.api;
  * {@link org.protune.api.ActionWrongPerformed}.  
  * @author jldecoi
  */
-public abstract class Notification {
+public abstract class Notification implements Serializable{
 	
 	protected Action action;
 	

@@ -16,6 +16,7 @@ public class TuPrologWrapper extends PrologEngine {
 	Prolog p;
 	
 	public TuPrologWrapper(){
+		mapper = new DummyMapper();
 		p = new Prolog();
 	}
 	

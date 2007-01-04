@@ -1,7 +1,10 @@
 package org.protune.api;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.text.ParseException;
+import java.util.Vector;
 
 /**
  * As described in the <a href="./package-summary.html">package</a> document, the <i>Protune</i>
@@ -14,7 +17,7 @@ import java.text.ParseException;
  */
 public abstract class PrologEngine {
 	
-	Mapper mapper;
+	protected Mapper mapper;
 
 	public abstract void loadTheory(String theory) throws LoadTheoryException;
 	
@@ -30,7 +33,6 @@ public abstract class PrologEngine {
 		}
 		
 		br.close();
-		
 		loadTheory(sb.toString());
 	}
 	
@@ -111,17 +113,38 @@ public abstract class PrologEngine {
 	public void increaseNegotiationStepNumber(){}
 	
 	public Action[] extractLocalActions(Goal g) throws QueryException, ParseException{
-		String[] sa = getAllAnswers(
-				"isIn(X, Y),extractLocalActions(" +
+		String s = getFirstAnswer(
+				"extractLocalActions(" +
 				mapper.toPrologRepresentation(g) +
-				", Y)."
+				", X)."
 		);
-		Action[] aa = new Action[sa.length];
-		for(int i=0; i<aa.length; i++)
-			aa[i] = mapper.parseAction(sa[i]);
+		s = s.substring(1, s.length() - 1);
+		
+		Vector<String> vs = new Vector<String>();
+		String currentString = new String();
+		int openParenthesis = 0;
+		for(int i=0; i<s.length(); i++){
+			if(s.charAt(i)=='('){
+				openParenthesis++;
+				currentString += s.charAt(i);
+			}
+			else if(s.charAt(i)==')'){
+				openParenthesis--;
+				currentString += s.charAt(i);
+			}
+			else if(s.charAt(i)==',' && openParenthesis==0){
+				vs.add(currentString);
+				currentString = new String();
+			}
+			else currentString += s.charAt(i);
+		}
+		if(!currentString.equals("")) vs.add(currentString);
+		
+		Action[] aa = new Action[vs.size()];
+		for(int i=0; i<aa.length; i++) aa[i] = mapper.parseAction(vs.get(i));
 		return aa;
 	}
-	
+
 	public boolean isNegotiationSatisfied(Goal g) throws QueryException{
 		return isSuccessful("prove(" + mapper.toPrologRepresentation(g) + ").");
 	}
@@ -132,14 +155,37 @@ public abstract class PrologEngine {
 	
 	// To be changed: Extract just selected unlocked actions
 	public Action[] extractExternalActions(Goal g) throws QueryException, ParseException{
-		String[] sa = getAllAnswers(
-				"isIn(X, Y),extractUnlockedExternalActions(" +
+		String s = getFirstAnswer(
+				"extractUnlockedExternalActions(" +
 				mapper.toPrologRepresentation(g) +
-				", Y)."
+				", X)."
 		);
-		Action[] aa = new Action[sa.length];
-		for(int i=0; i<aa.length; i++)
-			aa[i] = mapper.parseAction(sa[i]);
+		s = s.substring(1, s.length() - 1);
+		
+		Vector<String> vs = new Vector<String>();
+		String currentString = new String();
+		int openParenthesis = 0;
+		for(int i=0; i<s.length(); i++){
+			if(s.charAt(i)=='('){
+				openParenthesis++;
+				currentString += s.charAt(i);
+			}
+			else if(s.charAt(i)==')'){
+				openParenthesis--;
+				currentString += s.charAt(i);
+			}
+			else if(s.charAt(i)==',' && openParenthesis==0){
+				vs.add(currentString);
+				currentString = new String();
+			}
+			else currentString += s.charAt(i);
+		}
+		if(!currentString.equals("")) vs.add(currentString);
+
+		Action[] aa = new Action[vs.size()];
+		for(int i=0; i<aa.length; i++){
+			aa[i] = mapper.parseAction(vs.get(i));
+		}
 		return aa;
 	}
 	

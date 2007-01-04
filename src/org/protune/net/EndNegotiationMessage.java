@@ -20,7 +20,7 @@ public class EndNegotiationMessage implements NegotiationMessage {
 		negotiationResult = nr;
 	}
 	
-	NegotiationResult getNegotiationResult(){
+	public NegotiationResult getNegotiationResult(){
 		return negotiationResult;
 	}
 	

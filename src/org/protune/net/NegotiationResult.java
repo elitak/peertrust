@@ -8,4 +8,4 @@ import java.io.Serializable;
  * {@link org.protune.net.UnsuccessfulNegotiationResult}. Exensions are possible in the future.
  * @author jldecoi
  */
-interface NegotiationResult extends Serializable{}
+public interface NegotiationResult extends Serializable{}

@@ -18,7 +18,7 @@ import org.protune.api.*;
 public abstract class TerminationAlgorithm {
 
 	PrologEngine prologEngine;
-	
+/*	
 	boolean terminate(Mapper m, Status s){
 		try{
 			return prologEngine.isSuccessful(accept(m));
@@ -32,5 +32,5 @@ public abstract class TerminationAlgorithm {
 	String accept(Mapper m){
 		return m.toPrologRepresentation(this);
 	}
-	
+*/
 }

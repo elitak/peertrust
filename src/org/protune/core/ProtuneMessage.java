@@ -23,15 +23,15 @@ public class ProtuneMessage extends OngoingNegotiationMessage {
 		notifications = na;
 	}
 	
-	Goal getGoal(){
+	public Goal getGoal(){
 		return goal;
 	}
 	
-	FilteredPolicy getFilteredPolicy(){
+	public FilteredPolicy getFilteredPolicy(){
 		return filteredPolicy;
 	}
 	
-	Notification[] getNotifications(){
+	public Notification[] getNotifications(){
 		return notifications;
 	}
 	

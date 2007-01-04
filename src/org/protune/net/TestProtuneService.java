@@ -1,9 +1,10 @@
 package org.protune.net;
 
-import org.protune.core.ProtuneService;
-import org.protune.core.DummyChecker;
-import org.protune.api.LoadTheoryException;
+import java.io.File;
+
 import org.protune.api.TuPrologWrapper;
+import org.protune.core.DummyChecker;
+import org.protune.core.ProtuneService;
 
 public class TestProtuneService extends ProtuneService {
 
@@ -12,10 +13,11 @@ public class TestProtuneService extends ProtuneService {
 		checker = new DummyChecker();
 		engine = new TuPrologWrapper();
 		try {
-			engine.loadTheory("./Server.txt");
+			File f = new File("C:/Programme/eclipse-SDK-3.2-win32/eclipse/workspace/ProtuneBack/src/Server.txt");
+			engine.loadTheory(f);
 		}
-		catch (LoadTheoryException e) {
-			System.out.println("LoadTheoryException");
+		catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

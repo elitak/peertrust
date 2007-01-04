@@ -65,7 +65,7 @@ public abstract class ProtuneService extends Service {
 	protected Checker checker;
 	
 	public NegotiationMessage eval(OngoingNegotiationMessage onm) throws WrongMessageTypeException{
-		if(!(onm instanceof ProtuneMessage)) throw new WrongMessageTypeException(); 
+		if(!(onm instanceof ProtuneMessage)) throw new WrongMessageTypeException();
 		ProtuneMessage pm = (ProtuneMessage) onm;
 		
 		Goal g = pm.getGoal();
@@ -85,7 +85,7 @@ public abstract class ProtuneService extends Service {
 		
 		Action[] laa;
 		try {
-			laa= engine.extractLocalActions(g);
+			laa = engine.extractLocalActions(g);
 			while(laa.length!=0){
 				Notification[] lna = new Notification[laa.length];
 				for(int i=0; i<lna.length; i++){
@@ -111,7 +111,7 @@ public abstract class ProtuneService extends Service {
 		
 		Action[] eaa = new Action[0];
 		try {
-			eaa= engine.extractExternalActions(g);
+			eaa = engine.extractExternalActions(g);
 		} catch (QueryException e1) {
 			// Should not happen.
 		} catch (ParseException e1) {
