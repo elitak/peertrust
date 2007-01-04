@@ -25,7 +25,6 @@ public interface Checker {
 	 * in the other methods. If it is so, this one is a facility method for dealing with kinds of
 	 * notifications not explicitly considered in the Protune system (yet). 
 	 * @param n
-	 * @return
 	 */
 	Check checkNotification(Notification n) throws UnknownNotificationException;
 	

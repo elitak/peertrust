@@ -18,7 +18,6 @@ public abstract class ActionSelectionFunction {
 	 * structured (e.g. an AND-OR tree)? Discussion is needed. 
 	 * @param aa
 	 * @param s
-	 * @return
 	 */
 	abstract Action[] selectActions(Action[] aa, Status s);
 	

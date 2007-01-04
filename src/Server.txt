@@ -1,0 +1,484 @@
+% Server policy
+
+% execute(access(Resource)) :-
+%    abbreviationPublicServer(X),
+%    abbreviationPrivateServer(Y),
+%    stateQueryPublicServer1(),
+%    stateQueryPrivateServer1(),
+%    provisionalSelfServer1(X, Y),
+%    clientCredential1().
+% 
+% abbreviationPublicServer(X) :-
+%    stateQueryPublicServer2(),
+%    stateQueryPrivateServer2(),
+%    provisionalSelfServer2(X),
+%    clientCredential2().
+% 
+% abbreviationPrivateServer(X) :-
+%    stateQueryPublicServer3(),
+%    stateQueryPrivateServer3(),
+%    provisionalSelfServer3(X).
+% 
+% execute(serverCredential1()) :-
+%    clientCredential3().
+% 
+% execute(serverCredential2()).
+% 
+% stateQueryPublicServer1().
+% stateQueryPublicServer2().
+% stateQueryPublicServer3().
+% stateQueryPrivateServer1().
+% stateQueryPrivateServer2().
+% stateQueryPrivateServer3().
+%
+% execute(access(X)).type:abbreviation.
+% execute(access(X)).sensitivity:public.
+%
+% abbreviationPublicServer(X).type:abbreviation.
+% abbreviationPublicServer(X).sensitivity:public.
+%
+% abbreviationPrivateServer(X).type:abbreviation.
+% abbreviationPrivateServer(X).sensitivity:private.
+%
+% stateQueryPublicServer1().type:stateQuery.
+%
+% stateQueryPrivateServer1().type:stateQuery.
+%
+% provisionalSelfServer1(X, Y).type:provisional.
+% provisionalSelfServer1(X, Y).actor:self.
+% provisionalSelfServer1(X, Y).execution:immediate :-
+%    ground(X),
+%    ground(Y).
+%
+% clientCredential1().type:provisional.
+% clientCredential1().actor:peer.
+%
+% stateQueryPublicServer2().type:stateQuery.
+%
+% stateQueryPrivateServer2().type:stateQuery.
+%
+% provisionalSelfServer2(X, Y).type:provisional.
+% provisionalSelfServer2(X, Y).actor:self.
+% provisionalSelfServer2(X, Y).execution:immediate.
+%
+% clientCredential2().type:provisional.
+% clientCredential2().actor:peer.
+%
+% stateQueryPublicServer3().type:stateQuery.
+%
+% stateQueryPrivateServer3().type:stateQuery.
+%
+% provisionalSelfServer3(X, Y).type:provisional.
+% provisionalSelfServer3(X, Y).actor:self.
+% provisionalSelfServer3(X, Y).execution:immediate.
+%
+% execute(serverCredential1).type:abbreviation.
+% execute(serverCredential1).sensitivity:public.
+%
+% clientCredential3().type:provisional.
+% clientCredential3().actor:peer.
+%
+% execute(serverCredential2).type:abbreviation.
+% execute(serverCredential2).sensitivity:public.
+
+localPolicy([
+   rule(execute(access(Resource)), [
+      abbreviationPublicServer(X1),
+      abbreviationPrivateServer(X2),
+      stateQueryPublicServer1,
+      stateQueryPrivateServer1,
+      provisionalSelfServer1(X1, X2),
+      clientCredential1
+   ]),
+   rule(abbreviationPublicServer(X3), [
+      stateQueryPublicServer2,
+      stateQueryPrivateServer2,
+      provisionalSelfServer2(X3),
+      clientCredential2
+   ]),
+   rule(abbreviationPrivateServer(X4), [
+      stateQueryPublicServer3,
+      stateQueryPrivateServer3,
+      provisionalSelfServer3(X4)
+   ]),
+   rule(execute(serverCredential1), [
+      clientCredential3
+   ]),
+   rule(execute(serverCredential2), []),
+   rule(stateQueryPublicServer1, []),
+   rule(stateQueryPublicServer2, []),
+   rule(stateQueryPublicServer3, []),
+   rule(stateQueryPrivateServer1, []),
+   rule(stateQueryPrivateServer2, []),
+   rule(stateQueryPrivateServer3, []),
+   rule(metapolicy(execute(access(X5)), type, abbreviation), []),
+   rule(metapolicy(execute(access(X6)), sensitivity, public), []),
+   rule(metapolicy(abbreviationPublicServer(X7), type, abbreviation), []),
+   rule(metapolicy(abbreviationPublicServer(X8), sensitivity, public), []),
+   rule(metapolicy(abbreviationPrivateServer(X9), type, abbreviation), []),
+   rule(metapolicy(abbreviationPrivateServer(X10), sensitivity, private), []),
+   rule(metapolicy(stateQueryPublicServer1, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateServer1, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfServer1(X11, X12), type, provisional), []),
+   rule(metapolicy(provisionalSelfServer1(X13, X14), actor, self), []),
+   rule(metapolicy(provisionalSelfServer1(X15, X16), execution, immediate), [
+      ground(X15),
+      ground(X16)
+   ]),
+   rule(metapolicy(clientCredential1, type, provisional), []),
+   rule(metapolicy(clientCredential1, actor, peer), []),
+   rule(metapolicy(stateQueryPublicServer2, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateServer2, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfServer2(X17), type, provisional), []),
+   rule(metapolicy(provisionalSelfServer2(X19), actor, self), []),
+   rule(metapolicy(provisionalSelfServer2(X21), execution, immediate), []),
+   rule(metapolicy(clientCredential2, type, provisional), []),
+   rule(metapolicy(clientCredential2, actor, peer), []),
+   rule(metapolicy(stateQueryPublicServer3, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateServer3, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfServer3(X23), type, provisional), []),
+   rule(metapolicy(provisionalSelfServer3(X25), actor, self), []),
+   rule(metapolicy(provisionalSelfServer3(X27), execution, immediate), []),
+   rule(metapolicy(execute(serverCredential1), type, abbreviation), []),
+   rule(metapolicy(execute(serverCredential1), sensitivity, public), []),
+   rule(metapolicy(clientCredential3, type, provisional), []),
+   rule(metapolicy(clientCredential3, actor, peer), []),
+   rule(metapolicy(execute(serverCredential2), type, abbreviation), []),
+   rule(metapolicy(execute(serverCredential2), sensitivity, public), [])
+]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Server state
+
+currentFilteredPolicy([]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 0: Utilities
+
+isIn(X, [X|_]).
+isIn(X, [H|T]) :-
+   isIn(X, T).
+
+localProve([]).
+localProve([H|T]) :-
+   localProveGoal(H),
+   localProve(T).
+
+localProveGoal(Goal) :-
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   localProve(Body).
+% To be changed: so far ground() is the only built-in predicate supported
+localProveGoal(ground(X)) :-
+   ground(X).
+
+localMetapolicy(Atom, Type, Value) :-
+   localProve([metapolicy(Atom, Type, Value)]).
+
+filteredProve([]).
+filteredProve([H|T]) :-
+   filteredProveGoal(H),
+   filteredProve(T).
+
+filteredProveGoal(Goal) :-
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filteredProve(Body).
+% To be changed: so far ground() is the only built-in predicate supported
+filteredProveGoal(ground(X)) :-
+   ground(X).
+
+filteredMetapolicy(Atom, Type, Value) :-
+   filteredProve([metapolicy(Atom, Type, Value)]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 1: Extract local actions
+
+% extractLocalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractLocalActions(Goals, [H|T]) :-
+   extractLocalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractLocalActions(Goals, LocalActions) :-
+   extractLocalActionsFromFilteredPolicy(Goals, LocalActions).
+
+extractLocalActionsFromLocalPolicy([], []).
+extractLocalActionsFromLocalPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromLocalPolicy(H, L1),
+   extractLocalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   localMetapolicy(Goal, type, abbreviation),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractLocalActionsFromLocalPolicy(Body, LocalActions).
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   localMetapolicy(Goal, execution, immediate),
+   alreadyExecuted(Goal),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, [Goal]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   localMetapolicy(Goal, execution, immediate),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   alreadyExecuted(Goal),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromFilteredPolicy(execute(Goal), LocalActions).
+extractGoalLocalActionsFromLocalPolicy(Goal, []).
+
+extractLocalActionsFromFilteredPolicy([], []).
+extractLocalActionsFromFilteredPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromFilteredPolicy(H, L1),
+   extractLocalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractLocalActionsFromFilteredPolicy(Body, LocalActions).
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   filteredMetapolicy(Goal, executed, true),
+   !.
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromLocalPolicy(execute(Goal), LocalActions).
+extractGoalLocalActionsFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 2: Check whether an action (in particular the overall goal) is unlocked
+
+prove([]).
+prove([H|T]) :-
+   proveGoal(H),
+   prove(T).
+
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, abbreviation),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   prove(Body).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, stateQuery),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, [])|_], Policy).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   !,
+   alreadyExecuted(Goal).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, provisional),
+   alreadyExecuted(execute(Goal)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 3: Extract external actions
+
+% extractExternalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractExternalActions(Goals, [H|T]) :-
+   extractExternalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractExternalActions(Goals, ExternalActions) :-
+   extractExternalActionsFromFilteredPolicy(Goals, ExternalActions).
+
+extractExternalActionsFromLocalPolicy([], []).
+extractExternalActionsFromLocalPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromLocalPolicy(H, L1),
+   extractExternalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   localMetapolicy(Goal, type, abbreviation),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractExternalActionsFromLocalPolicy(Body, ExternalActions).
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   alreadyExecuted(execute(Goal)),
+   !.
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromFilteredPolicy(execute(Goal), ExternalActions).
+extractGoalExternalActionsFromLocalPolicy(Goal, []).
+
+extractExternalActionsFromFilteredPolicy([], []).
+extractExternalActionsFromFilteredPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromFilteredPolicy(H, L1),
+   extractExternalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+extractGoalExternalActionsFromFilteredPolicy(Goal, ExternalActions) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractExternalActionsFromFilteredPolicy(Body, ExternalActions).
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   alreadyExecuted(execute(Goal)),
+   !.
+extractGoalExternalActionsFromFilteredPolicy(Goal, [execute(Goal)|ExternalActions]) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromLocalPolicy(execute(Goal), ExternalActions).
+extractGoalExternalActionsFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 4: Filter the policy
+
+% filter should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+filter(Goals, [H|T]) :-
+   filterFromLocalPolicy(Goals, [H|T]),
+   !.
+filter(Goals, FilteredPolicy) :-
+   filterFromFilteredPolicy(Goals, FilteredPolicy).
+
+filterFromLocalPolicy([], []).
+filterFromLocalPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromLocalPolicy(H, L1),
+   filterFromLocalPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+filterGoalFromLocalPolicy(Goal, [
+         rule(Goal, Body),
+         rule(metapolicy(Goal, type, abbreviation), []) |
+         FilteredPolicy
+   ]) :-
+   localMetapolicy(Goal, type, abbreviation),
+   localMetapolicy(Goal, sensitivity, public),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filterFromLocalPolicy(Body, FilteredPolicy).
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, abbreviation), []),
+      rule(metapolicy(Goal, blurred, true), [])
+]) :-
+   localMetapolicy(Goal, type, abbreviation).
+%   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(Goal, []),
+      rule(metapolicy(Goal, type, stateQuery), [])
+]) :-
+   localMetapolicy(Goal, type, stateQuery),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, [])|_], Policy).
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, self), []),
+      rule(metapolicy(Goal, executed, true), [])
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   alreadyExecuted(Goal),
+   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, self), [])
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   !.
+filterGoalFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   alreadyExecuted(Goal),
+   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, peer), []) |
+      FilteredPolicy
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   !,
+   filterGoalFromFilteredPolicy(execute(Goal), FilteredPolicy).
+filterGoalFromLocalPolicy(Goal, []).
+
+filterFromFilteredPolicy([], []).
+filterFromFilteredPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromFilteredPolicy(H, L1),
+   filterFromFilteredPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+filterGoalFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filterFromFilteredPolicy(Body, FilteredPolicy).
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   filterGoalFromLocalPolicy(execute(Goal), FilteredPolicy).
+filterGoalFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Warning: to be proven
+
+extractUnlockedExternalActions(Goals, UnlockedExternalActions) :-
+   extractExternalActions(Goals, ExternalActions),
+   selectUnlockedActions(ExternalActions, UnlockedExternalActions).
+
+selectUnlockedActions([], []).
+selectUnlockedActions([H|Actions], [H|UnlockedActions]) :-
+   proveGoal(H),
+   !,
+   selectUnlockedActions(Actions, UnlockedActions).
+selectUnlockedActions([H|Actions], [UnlockedActions]) :-
+   selectUnlockedActions(Actions, UnlockedActions).
+
+actionSelectionFunction(Actions, SelectedActions) :-
+   defaultActionSelectionFunction(Actions, SelectedActions).
+
+defaultActionSelectionFunction(Actions, Actions).
+
+terminationAlgorithm :-
+   defaultTerminationAlgorithm.
+
+% defaultTerminationAlgorithm.
