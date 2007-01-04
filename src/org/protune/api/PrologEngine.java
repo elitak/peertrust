@@ -40,7 +40,6 @@ public abstract class PrologEngine {
 	 * Short-hand for boolean queries (or for queries whose (un)successful result we are only interested
 	 * in).
 	 * @param query
-	 * @return
 	 * @throws QueryException
 	 */
 	public abstract boolean isSuccessful(String query) throws QueryException;
@@ -49,7 +48,6 @@ public abstract class PrologEngine {
 	 * Short-hand for one-variable queries (or for queries whose first variable's value we are only
 	 * interested in).
 	 * @param query
-	 * @return
 	 * @throws QueryException
 	 */
 	public abstract String getFirstAnswer(String query) throws QueryException;
@@ -59,7 +57,6 @@ public abstract class PrologEngine {
 	 * interested in).<br />
 	 * <b>NOTE:</b> Each rule must be put on a different line.
 	 * @param query
-	 * @return
 	 * @throws QueryException
 	 */
 	public abstract String[] getAllAnswers(String query) throws QueryException;
