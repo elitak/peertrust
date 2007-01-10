@@ -2,6 +2,7 @@ package org.protune.api;
 
 import java.util.*;
 
+
 import alice.tuprolog.*;
 
 /**
@@ -13,10 +14,10 @@ import alice.tuprolog.*;
  */
 public class TuPrologWrapper extends PrologEngine {
 
-	Prolog p;
+	private Prolog p;
 	
 	public TuPrologWrapper(){
-		mapper = new DummyMapper();
+		mapper = new MapperAdapter();
 		p = new Prolog();
 	}
 	

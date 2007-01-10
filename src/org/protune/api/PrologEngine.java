@@ -6,6 +6,12 @@ import java.io.FileReader;
 import java.text.ParseException;
 import java.util.Vector;
 
+import org.protune.core.Action;
+import org.protune.core.Check;
+import org.protune.core.FilteredPolicy;
+import org.protune.core.Goal;
+import org.protune.core.Notification;
+
 /**
  * As described in the <a href="./package-summary.html">package</a> document, the <i>Protune</i>
  * system consists of an imperative and a declarative part: the first one was implemented (of course)

@@ -10,4 +10,4 @@ import java.io.Serializable;
  * ways.
  * @author jldecoi
  */
-interface Message extends Serializable{}
+public interface Message extends Serializable{}

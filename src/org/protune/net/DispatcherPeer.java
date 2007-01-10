@@ -49,12 +49,12 @@ import java.util.Hashtable;
  */
 public class DispatcherPeer implements Peer {
 	
-	AddressPortPointer selfPointer;
-	ServerSocket ss;
-	String[] availableServices;
-	Hashtable<Long, Service> runningServices = new Hashtable<Long, Service>();
-	Hashtable<Long, NegotiationResult> negotiationResults = new Hashtable<Long, NegotiationResult>();
-	long currentRunningServiceID = 0;
+	private AddressPortPointer selfPointer;
+	private ServerSocket ss;
+	private String[] availableServices;
+	private Hashtable<Long, Service> runningServices = new Hashtable<Long, Service>();
+	private Hashtable<Long, NegotiationResult> negotiationResults = new Hashtable<Long, NegotiationResult>();
+	private long currentRunningServiceID = 0;
 	
 	public DispatcherPeer(AddressPortPointer app, String[] sa) throws IOException{
 		selfPointer = app;
@@ -100,7 +100,7 @@ public class DispatcherPeer implements Peer {
 	 * @param oos
 	 * @throws IOException
 	 */
-	void handle(ServiceRequestMessage srm, ObjectOutputStream oos){
+	private void handle(ServiceRequestMessage srm, ObjectOutputStream oos){
 		int i;
 		for(i=0; i<availableServices.length; i++)
 			if(srm.getRequestedService().compareTo(availableServices[i])==0) break;
@@ -119,7 +119,7 @@ public class DispatcherPeer implements Peer {
 	 * @param oos
 	 * @throws IOException
 	 */
-	void handle(DispatcherStartNegotiationMessage dsnm, ObjectOutputStream oos){
+	private void handle(DispatcherStartNegotiationMessage dsnm, ObjectOutputStream oos){
 		try{
 			Class[] ca = { Pointer.class };
 			Object[] oa = { dsnm.getPeerPointer() };
@@ -151,7 +151,7 @@ public class DispatcherPeer implements Peer {
 	 * @param l
 	 * @param onm
 	 */
-	void handle(long l, OngoingNegotiationMessage onm){
+	private void handle(long l, OngoingNegotiationMessage onm){
 		Service s = runningServices.get(l);
 		if(s != null) try{
 			NegotiationMessage nm = s.perform(onm);
@@ -166,7 +166,7 @@ public class DispatcherPeer implements Peer {
 		}
 	}
 	
-	void handle(long l, EndNegotiationMessage enm){
+	private void handle(long l, EndNegotiationMessage enm){
 		runningServices.remove(l);
 		negotiationResults.put(l, enm.getNegotiationResult());
 	}

@@ -14,7 +14,7 @@ package org.protune.net;
 public class EndNegotiationMessage implements NegotiationMessage {
 	
 	static final long serialVersionUID = 611;
-	NegotiationResult negotiationResult;
+	private NegotiationResult negotiationResult;
 	
 	public EndNegotiationMessage(NegotiationResult nr){
 		negotiationResult = nr;

@@ -11,20 +11,20 @@ import java.net.Socket;
  */
 public class AddressPortPointer implements Pointer {
 	
-	static final long serialVersionUID = 12;
-	String address;
-	int port;
+	static final long serialVersionUID = 81;
+	private String address;
+	private int port;
 	
 	public AddressPortPointer(String s, int i){
 		address = s;
 		port = i;
 	}
 	
-	String getAddress(){
+	public String getAddress(){
 		return address;
 	}
 	
-	int getPort(){
+	public int getPort(){
 		return port;
 	}
 	

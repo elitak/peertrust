@@ -14,15 +14,15 @@ import java.io.*;
  */
 public class DispatcherPointer extends AddressPortPointer{
 	
-	static final long serialVersionUID = 121;
-	long serviceID;
+	static final long serialVersionUID = 811;
+	private long serviceID;
 	
-	DispatcherPointer(String s, int i, long l){
+	public DispatcherPointer(String s, int i, long l){
 		super(s, i);
 		serviceID = l;
 	}
 	
-	DispatcherPointer(AddressPortPointer app, long l){
+	public DispatcherPointer(AddressPortPointer app, long l){
 		this(app.getAddress(), app.getPort(), l);
 	}
 

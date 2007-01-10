@@ -14,6 +14,6 @@ import java.io.*;
  */
 public interface Pointer extends Serializable{
 	
-	void sendMessage(Message m) throws IOException;
+	public void sendMessage(Message m) throws IOException;
 
 }

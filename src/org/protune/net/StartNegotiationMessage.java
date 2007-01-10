@@ -14,7 +14,7 @@ package org.protune.net;
 public class StartNegotiationMessage implements NegotiationMessage {
 	
 	static final long serialVersionUID = 411;
-	Pointer peerPointer;
+	protected Pointer peerPointer;
 	
 	public StartNegotiationMessage(Pointer p){
 		peerPointer = p;

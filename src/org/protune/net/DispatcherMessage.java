@@ -16,15 +16,15 @@ package org.protune.net;
 public class DispatcherMessage implements NegotiationMessage {
 	
 	static final long serialVersionUID = 711;
-	long serviceID;
-	NegotiationMessage negotiationMessage;
+	private long serviceID;
+	private NegotiationMessage negotiationMessage;
 	
 	public DispatcherMessage(long l, NegotiationMessage nm){
 		serviceID = l;
 		negotiationMessage = nm;
 	}
 	
-	long getServiceID(){
+	public long getServiceID(){
 		return serviceID;
 	}
 	

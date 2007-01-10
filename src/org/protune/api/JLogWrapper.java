@@ -13,7 +13,7 @@ import ubc.cs.JLog.Foundation.jPrologAPI;
  */
 public class JLogWrapper extends PrologEngine {
 
-	jPrologAPI jpa;
+	private jPrologAPI jpa;
 	
 	public JLogWrapper(){
 		jpa = new jPrologAPI("");

@@ -2,10 +2,6 @@ package org.protune.core;
 
 import java.text.ParseException;
 
-import org.protune.api.Action;
-import org.protune.api.FilteredPolicy;
-import org.protune.api.Goal;
-import org.protune.api.Notification;
 import org.protune.api.PrologEngine;
 import org.protune.api.QueryException;
 import org.protune.net.EndNegotiationMessage;
@@ -22,7 +18,7 @@ import org.protune.net.WrongMessageTypeException;
  * algorithm are sketched in an informal way in Fig. 1, a closer sight is of course provided by the
  * code.
  * <table border="1" cellspacing="0"><tbody><tr><td><pre>
- * {@link org.protune.net.NegotiationMessage NegotiationMessage} eval({@link org.protune.api.FilteredPolicy FilteredPolicy}[] fpa, {@link org.protune.api.Notification Notification}[] na){
+ * {@link org.protune.net.NegotiationMessage NegotiationMessage} eval({@link org.protune.core.FilteredPolicy FilteredPolicy}[] fpa, {@link org.protune.core.Notification Notification}[] na){
  *    {@link org.protune.core.Status status}.add(fpa);
  *    staus.add(na);
  *    status.add({@link org.protune.core.Checker checker}.checkNotification(na))
@@ -34,7 +30,7 @@ import org.protune.net.WrongMessageTypeException;
  *    if({@link org.protune.core.TerminationAlgorithm terminationAlgorithm}.terminate(mapper, status))
  *    	  return new EndNegotiationMessage(new {@link org.protune.net.UnsuccessfulNegotiationResult UnsuccessfulNegotiationResult}());
  *    
- *    {@link org.protune.api.Action Action}[] aa = filter.extractActions(fpa);
+ *    {@link org.protune.core.Action Action}[] aa = filter.extractActions(fpa);
  *    FilteredPolicy[] fp = filter.filter(policy, status, aa));
  *    
  *    Action[] unlocked;

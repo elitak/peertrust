@@ -4,8 +4,8 @@ package org.protune.net;
  * The interface <tt>Peer</tt> represents a generic node of a Peer to Peer network.
  * @author jldecoi
  */
-interface Peer {
+public interface Peer {
 	
-	Pointer getPointer();
+	public Pointer getPointer();
 	
 }
