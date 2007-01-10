@@ -24,15 +24,6 @@ public class FilteredPolicy implements Serializable{
 		policy = s;
 	}
 	
-	public FilteredPolicy(String[] sa) throws LoadTheoryException{
-		String s = "";
-		for(int i=0; i<sa.length; i++) s += sa[i] + "\n";
-
-		TuPrologWrapper tpw = new TuPrologWrapper();
-		tpw.loadTheory("dummy(" + s + ").");
-		policy = s;
-	}
-	
 	public String toString(){
 		return policy;
 	}

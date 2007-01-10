@@ -53,7 +53,7 @@ public class DispatcherPeer implements Peer {
 	private ServerSocket ss;
 	private String[] availableServices;
 	private Hashtable<Long, Service> runningServices = new Hashtable<Long, Service>();
-	private Hashtable<Long, NegotiationResult> negotiationResults = new Hashtable<Long, NegotiationResult>();
+	//private Hashtable<Long, NegotiationResult> negotiationResults = new Hashtable<Long, NegotiationResult>();
 	private long currentRunningServiceID = 0;
 	
 	public DispatcherPeer(AddressPortPointer app, String[] sa) throws IOException{
@@ -157,7 +157,7 @@ public class DispatcherPeer implements Peer {
 			NegotiationMessage nm = s.perform(onm);
 			if(nm instanceof EndNegotiationMessage){
 				runningServices.remove(l);
-				negotiationResults.put(l, ((EndNegotiationMessage)nm).getNegotiationResult());
+				//negotiationResults.put(l, ((EndNegotiationMessage)nm).getNegotiationResult());
 			}
 		} catch(IOException ioe){
 			runningServices.remove(l);
@@ -168,7 +168,7 @@ public class DispatcherPeer implements Peer {
 	
 	private void handle(long l, EndNegotiationMessage enm){
 		runningServices.remove(l);
-		negotiationResults.put(l, enm.getNegotiationResult());
+		//negotiationResults.put(l, enm.getNegotiationResult());
 	}
 	
 }

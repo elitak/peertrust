@@ -1,7 +1,6 @@
 package org.protune.core;
 
 import org.protune.net.OngoingNegotiationMessage;
-import org.protune.api.*;
 
 /**
  * A {@link org.protune.net.OngoingNegotiationMessage} particularly suited for the <i>Protune</i>

@@ -3,7 +3,6 @@ package test.org.protune;
 import java.io.File;
 
 import org.protune.api.TuPrologWrapper;
-import org.protune.core.DummyChecker;
 import org.protune.core.ProtuneService;
 import org.protune.net.Pointer;
 

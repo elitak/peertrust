@@ -1,0 +1,18 @@
+ProtuneService does not work if a constructor is specified. Theoretically it should not work if the
+constructor is NOT specified.
+
+DispatcherPeer does not support Service constructors with parameters.
+
+PrologEngine interface is out of date (e.g. extractExternalActions actually just extracts unlocked
+external actions).
+
+Mapper is almost useless: so far just the following classes use it
+   MapperAdapter (of course)
+   PrologEngine
+   TuPrologWrapper
+   FilteredPolicy
+   Goal
+   Notification
+   
+PrologEngine: add surrounding information to entities added to the KB and eventually change interface.
+

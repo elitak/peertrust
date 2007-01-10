@@ -60,6 +60,11 @@ public abstract class ProtuneService extends Service {
 	protected PrologEngine engine;
 	protected Checker checker;
 	
+	/* For some reason this constructor must be commented.
+	public ProtuneService(Pointer p){
+		otherPeer = p;
+	}*/
+	
 	public NegotiationMessage eval(OngoingNegotiationMessage onm) throws WrongMessageTypeException{
 		if(!(onm instanceof ProtuneMessage)) throw new WrongMessageTypeException();
 		ProtuneMessage pm = (ProtuneMessage) onm;

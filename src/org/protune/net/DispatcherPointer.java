@@ -30,7 +30,15 @@ public class DispatcherPointer extends AddressPortPointer{
 		DispatcherMessage dm = new DispatcherMessage(serviceID, nm);
 		super.sendMessage(dm);
 	}
-
+	
+	/**
+	 * A <tt>DispatcherPointer</tt> expects a <tt>NegotiationMessage</tt>. If it receives a
+	 * <tt>Message</tt> belonging to some other class, it throws an <tt>IOException</tt>.
+	 */
+	public void sendMessage(Message m) throws IOException{
+		throw new IOException();
+	}
+	
 	public long getServiceID() {
 		return serviceID;
 	}

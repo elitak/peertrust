@@ -1,7 +1,5 @@
 package org.protune.core;
 
-import org.protune.api.*;
-
 /**
  * The interface <tt>Checker</tt> provides methods for checking whether a notification 
  * is (not) reliable, i.e. whether an action, which is supposed to be executed, was actually executed as
