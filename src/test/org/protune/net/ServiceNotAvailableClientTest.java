@@ -1,4 +1,4 @@
-package test.org.protune;
+package test.org.protune.net;
 
 import java.io.*;
 import java.net.Socket;

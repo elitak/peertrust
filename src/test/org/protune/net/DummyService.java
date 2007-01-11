@@ -1,4 +1,4 @@
-package test.org.protune;
+package test.org.protune.net;
 
 import org.protune.net.NegotiationMessage;
 import org.protune.net.OngoingNegotiationMessage;

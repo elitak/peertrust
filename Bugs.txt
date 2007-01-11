@@ -1,7 +1,37 @@
-ProtuneService does not work if a constructor is specified. Theoretically it should not work if the
-constructor is NOT specified.
+   Red bugs
 
-DispatcherPeer does not support Service constructors with parameters.
+Policy sintax (not use lists anymore).
+
+Add identifier to policies.
+
+Add variable names.
+
+Add log information.
+
+Multiple predicate definitions are not supported.
+   
+PrologEngine: change interface and add surrounding information to entities added to the KB (e.g. if a
+filtered policy/notification was added/received, timestamp, old received filtered policies should not be
+deleted...). This implies changes to the Prolog part as well.
+
+   Yellow bugs
+
+Demo is implemented only server-side and on localhost (ProtuneTest should be modified).
+
+Prolog built-in predicates are not supported (except ground).
+
+DispatcherPeer does not support Service constructors with parameters (which means that the name of the
+files containing the policies must be built in subclasses of ProtuneService).
+
+Just DummyAction (printing a message on the screen).
+
+Just DummyChecker (unable to manage any kind of notifications).
+
+Just dummyActionSelectionFunction (selects all unlocked actions).
+
+Just dummyTerminationAlgorithm (it never ends).
+
+   Green bugs
 
 PrologEngine interface is out of date (e.g. extractExternalActions actually just extracts unlocked
 external actions).
@@ -13,6 +43,20 @@ Mapper is almost useless: so far just the following classes use it
    FilteredPolicy
    Goal
    Notification
-   
-PrologEngine: add surrounding information to entities added to the KB and eventually change interface.
 
+Notifications of local/external actions are not well distincted (in the Prolog part).
+
+ProtuneService does not work if a constructor is specified. Theoretically it should not work if the
+constructor is NOT specified.
+
+A client cannot be supposed to know whether the Pointer it will receive will be a DispatcherPointer.
+
+   Just in order to let you know
+
+Protune syntax is as follows
+   execute is the only decision predicate (which is nothing else than a special abbreviation predicate, i.e. its type is abbreviation)
+   for abbreviation predicates just metapolicies type and sensitivity need to be specified
+   for state query predicates just metapolicy type needs to be specified
+   for provisional predicates with actor peer just metapolicies type and actor need to be specified
+   for provisional predicates with actor peer just metapolicies type, actor and execution need to be specified
+"Need to be specified" means that only these metapolicies  are used while reasoning.

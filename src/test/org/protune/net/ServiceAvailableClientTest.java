@@ -1,4 +1,4 @@
-package test.org.protune;
+package test.org.protune.net;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -38,7 +38,7 @@ public class ServiceAvailableClientTest{
 		
 		ServerSocket ss=new ServerSocket(MY_PORT);
 		
-		//AddressPortPointer app = new AddressPortPointer(PROTUNE_ADDRESS, PROTUNE_PORT);
+		//AddressPortPointer app = new AddressPortPointer(SERVER_ADDRESS, SERVER_PORT);
 		//app.sendMessage(new ServiceRequestMessage("org.protune.net.DummyService"));
 		
 		Socket s = new Socket(PROTUNE_ADDRESS, PROTUNE_PORT);

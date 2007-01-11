@@ -25,7 +25,7 @@ public class DispatcherPointer extends AddressPortPointer{
 	public DispatcherPointer(AddressPortPointer app, long l){
 		this(app.getAddress(), app.getPort(), l);
 	}
-
+/*
 	public void sendMessage(NegotiationMessage nm) throws IOException{
 		DispatcherMessage dm = new DispatcherMessage(serviceID, nm);
 		super.sendMessage(dm);
@@ -36,7 +36,10 @@ public class DispatcherPointer extends AddressPortPointer{
 	 * <tt>Message</tt> belonging to some other class, it throws an <tt>IOException</tt>.
 	 */
 	public void sendMessage(Message m) throws IOException{
-		throw new IOException();
+		if(m instanceof NegotiationMessage){
+			super.sendMessage(new DispatcherMessage(serviceID, (NegotiationMessage)m));
+		}
+		else throw new IOException();
 	}
 	
 	public long getServiceID() {
