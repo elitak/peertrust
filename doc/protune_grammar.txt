@@ -69,7 +69,7 @@
 %    file is only a comment
 
 <DIRECTIVE_LIST>        -> <DIRECTIVE> <DIRECTIVE_LIST>
-                         | <COMMENT> <DIRECTIVE_LIST>
+                         | <COMMENT> <DIRECTIVE><DIRECTIVE_LIST>
                          | E
 
 % include should work like if the text of the file is copied there
@@ -106,13 +106,11 @@
                          | <HEAD_LITERAL> . <META_FIELD>
 
 <BODY>                  -> <LITERAL_LIST>
-                         | E
 
 <META_BODY>             -> <META_LITERAL_LIST>
-                         | E
 
-<LITERAL_LIST>          -> <LITERAL>
-                         | <LITERAL> , <LITERAL_LIST>
+<LITERAL_LIST>          -> <ANY_LITERAL>
+                         | <ANY_LITERAL> , <LITERAL_LIST>
 
 <META_LITERAL_LIST>     -> <META_LITERAL>
                          | <META_LITERAL> , <META_LITERAL_LIST>
@@ -141,13 +139,16 @@
                          | <OPERATOR_LITERAL>
                          | <NEG_SYMBOL> <OPERATOR_LITERAL>
                          | <NEG_SYMBOL> ( <OPERATOR_LITERAL> )
+			 | <COMPLEX_TERM>
+			 | <NEG_SYMBOL> <COMPLEX_TERM>
+			 | <NEG_SYMBOL> ( COMPLEX_TERM> )
 
 <OPERATOR_LITERAL>      -> <ANY_TERM> <OPERATOR> <ANY_TERM>
 
 <META_LITERAL>          -> <META_HEAD_LITERAL>
                          | <NEG_SYMBOL> <META_HEAD_LITERAL>
                          | <NEG_SYMBOL> ( <META_HEAD_LITERAL> )
-                         | <LITERAL>
+                         | <NORMAL_LITERAL>
 
 <ANY_TERM>              -> <COMPLEX_TERM>
                          | <TERM>
@@ -162,7 +163,7 @@
 <COMPLEX_TERM>          -> <VARIABLE> [ <CT_FIELD_LIST> ]
                          | <STRING_CONSTANT> [ <CT_FIELD_LIST> ]
 
-<CT_FIELD>	        -> <CT_ATTRIBUTE> : <CT_VALUE>
+<CT_FIELD>	        -> <ATTRIBUTE> : <CT_VALUE>
 
 <CT_FIELD_LIST>         -> <CT_FIELD>
                          | <CT_FIELD> , <CT_FIELD_LIST>
@@ -179,8 +180,8 @@
 % Whether the exact attributes are well used or not should not be check
 %    by the syntactic parser using this grammar but by the semantic parser
 
-<META_FIELD>	        -> <META_ATTR_TYPE1> : <TERM>
-                         | <META_ATTR_TYPE2> : <CONCATENATED_STRING>
+<META_FIELD>	        -> <ATTRIBUTE> : <TERM>
+                         | <ATTRIBUTE> : <CONCATENATED_STRING>
 
 <SPECIAL_LITERAL>       -> in ( <VAR_CONTAINMENT> , <PACKAGE_CALL> )
 
@@ -209,7 +210,7 @@
 <PARAM_LIST>            -> <CONCATENATED_STRING>
                          | <CONCATENATED_STRING> , <PARAM_LIST>
 
-<CT_ATTRIBUTE>          -> <STRING_CONSTANT>
+<ATTRIBUTE>             -> <STRING_CONSTANT>
 
 <CT_VALUE>              -> <ANY_TERM>
 
@@ -219,4 +220,6 @@
 %   - Negation cannot be applied to provisional predicates (too restrictive) or
 %       negation cannot be applied to provisional predicates which depend on the
 %       actor peer (more flexible)
+%   - the semantic parser should also check that for one policy there are not more
+%       than one metapolicy with same attribute (or even one for pred and one for id).
 %   - ...
