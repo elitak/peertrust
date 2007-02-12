@@ -2,9 +2,9 @@
 % BASIC DATATYPES
 % -------------------------------------------------------------------
 
-<SINGLE_QUOTED_STRING>  -> "'"  (~["'","\\","\n","\r"])* "'"
+<SINGLE_QUOTED_STRING>  -> "'"  (~["'","\\","\n","\r"])* "'"
 
-<DOUBLE_QUOTED_STRING>  -> "\""  (~["\"","\\","\n","\r"])*  "\""
+<DOUBLE_QUOTED_STRING>  -> "\""  (~["\"","\\","\n","\r"])* "\""
 
 <ANY_CHARACTER_BUT_EOF> -> (~["\n","\r"])*
 
