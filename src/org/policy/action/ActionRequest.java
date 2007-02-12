@@ -25,11 +25,11 @@ package org.policy.action;
  * A ActionRequest contains a name of function and two string arrays. 
  * An Array saves arguments and another saves input variables.
  * </p><p>
- * $Id: ActionRequest.java,v 1.2 2006/08/10 10:10:34 dolmedilla Exp $
+ * $Id: ActionRequest.java,v 1.3 2007/02/12 12:21:43 dolmedilla Exp $
  * <br/>
  * Date: 05-May-2006
  * <br/>
- * Last changed: $Date: 2006/08/10 10:10:34 $
+ * Last changed: $Date: 2007/02/12 12:21:43 $
  * by $Author: dolmedilla $
  * </p>
  * @author C.Jin && M. Li
@@ -182,7 +182,7 @@ public class ActionRequest {
 	 * get all input variables.
 	 * @return an string array of all input variables
 	 * */
-	protected String[] getInputsVar(){
+	public String[] getInputsVar(){
 		return inputVars;
 	}
 	

@@ -8,10 +8,10 @@ import junit.framework.TestCase;
 
 import org.policy.action.ActionResult;
 import org.policy.action.FunctionFailureException;
-import org.policy.action.LDAPWrapper;
 import org.policy.action.NoSuchFunctionException;
 import org.policy.action.Result;
 import org.policy.action.ResultSet;
+import org.policy.action.packages.LDAPWrapper;
 
 public class LDAPWrapperTest extends TestCase {
 	private LDAPWrapper ldapWapper = null;

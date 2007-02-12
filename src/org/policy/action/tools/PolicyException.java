@@ -19,18 +19,15 @@
 USA
 */
 
-package org.policy.action;
+package org.policy.action.tools;
 
-import org.policy.action.tools.PolicyException;
+public class PolicyException extends Exception {
 
-public class ActionExecutionException extends PolicyException
-{
-
-	public ActionExecutionException() {
+	public PolicyException() {
 		super();
 	}
 
-	public ActionExecutionException(String message) {
+	public PolicyException(String message) {
 		super(message);
 	}
 }

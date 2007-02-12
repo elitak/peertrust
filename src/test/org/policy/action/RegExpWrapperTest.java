@@ -8,9 +8,9 @@ import java.util.Vector;
 import junit.framework.TestCase;
 
 import org.policy.action.FunctionFailureException;
-import org.policy.action.LDAPWrapper;
 import org.policy.action.NoSuchFunctionException;
-import org.policy.action.RegExpWrapper;
+import org.policy.action.packages.LDAPWrapper;
+import org.policy.action.packages.RegExpWrapper;
 
 public class RegExpWrapperTest extends TestCase {
 	RegExpWrapper rew;

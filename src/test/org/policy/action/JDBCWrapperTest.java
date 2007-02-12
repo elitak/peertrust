@@ -6,10 +6,10 @@ import junit.framework.TestCase;
 
 import org.policy.action.ActionResult;
 import org.policy.action.FunctionFailureException;
-import org.policy.action.JDBCWrapper;
 import org.policy.action.NoSuchFunctionException;
 import org.policy.action.Result;
 import org.policy.action.ResultSet;
+import org.policy.action.packages.JDBCWrapper;
 
 public class JDBCWrapperTest extends TestCase {
 	private JDBCWrapper jdbcWapper = null;

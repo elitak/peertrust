@@ -41,12 +41,12 @@ import javax.swing.border.TitledBorder;
 import org.policy.action.AbstractExecutorWrapper;
 import org.policy.action.ActionResult;
 import org.policy.action.FunctionFailureException;
-import org.policy.action.JDBCWrapper;
-import org.policy.action.LDAPWrapper;
 import org.policy.action.NoSuchFunctionException;
-import org.policy.action.RegExpWrapper;
-import org.policy.application.Functions;
-import org.policy.parser.Parse;
+import org.policy.action.packages.JDBCWrapper;
+import org.policy.action.packages.LDAPWrapper;
+import org.policy.action.packages.RegExpWrapper;
+import org.policy.action.parser.Parse;
+import org.policy.action.tools.Functions;
 
 import java.awt.Font;
 
@@ -54,11 +54,11 @@ import java.awt.Font;
  * <p>
  * This frame is used for input and shows the execution results.
  * </p><p>
- * $Id: QueryGUI.java,v 1.1 2006/08/10 10:10:35 dolmedilla Exp $
+ * $Id: QueryGUI.java,v 1.2 2007/02/12 12:21:47 dolmedilla Exp $
  * <br/>
  * Date: 05-May-2006
  * <br/>
- * Last changed: $Date: 2006/08/10 10:10:35 $
+ * Last changed: $Date: 2007/02/12 12:21:47 $
  * by $Author: dolmedilla $
  * </p>
  * @author C. Jin && M. Li
