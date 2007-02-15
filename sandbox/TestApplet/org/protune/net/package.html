@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>org.protune.net</title>
+   </head>
+   <body>
+
+<h3>Key concepts</h3>
+
+<p>
+Package <tt>org.protune.net</tt> provides a number of classes taking care of the issues related with the
+communication among nodes of a network. A generic node of a Peer to Peer network is represented by the
+interface {@link org.protune.net.Peer}.<br />
+This package tries to hide the further complexity requested by the communication among nodes of a
+network by providing facilities which should let the programmer to focus on the application. The
+application logic is represented by the (abstract) class {@link org.protune.net.Service} which should be
+extended by the programmer by incapsulating the application logic in a subclass of it.
+</p>
+
+<h3>The network infrastructure</h3>
+
+<p>
+In order to grant that communication among nodes actually takes place, it is required that
+</p>
+<ul>
+<li>the information sent by one node is received by the other one</li>
+<li>each node is able to understand the information it receives</li>
+</ul>
+<p>
+which means that
+</p>
+<ul>
+<li>each node needs to have a reference (pointer) to the location of the other one</li>
+<li>the nodes need to share the same information representation</li>
+</ul>
+<p>
+In order to ensure that the previously mentioned requirements are satisfied, package
+<tt>org.protune.net</tt> provides the interfaces {@link org.protune.net.Pointer} and
+{@link org.protune.net.Message}.
+</p>
+<ul>
+<li>The first one represents the abstraction of a reference to another node. A concrete implementation
+can simply exploit socket (as the current one in the Protune system) or whatever more complex means (RPC,
+RMI, Web Services ...), as long as the method {@link org.protune.net.Pointer#sendMessage(Message)} is
+provided, ensuring that the information which should be received by the other node is actually sent.</li>
+<li>The second one represents the common format of the information the two nodes exchange. Different
+applications can implement the interface in different ways.</li>
+</ul>
+
+<h3>The <i>Protune</i> system</h3>
+
+<p>
+In the <i>Protune</i> system we are mostly interested in negotiations among (pairs of) peers. A
+negotiation starts, goes on and finishes.
+</p>
+<ul>
+<li>In the first part the handshaking takes place</li>
+<li>In the second part the out-and-out negotiation takes place</li>
+<li>In the third part the negotiation finishes and the overall result of the negotiation is provided</li>
+</ul>
+<p>
+According to the various steps of the negotiation, package <tt>org.protune.net</tt> provides the classes
+{@link org.protune.net.StartNegotiationMessage}, {@link org.protune.net.OngoingNegotiationMessage} and
+{@link org.protune.net.EndNegotiationMessage}, which are all implementation of the interface
+{@link org.protune.net.NegotiationMessage}. The concept of "negotiation result" is provided by the
+interface {@link org.protune.net.NegotiationResult}; so far this interface is implemented by the classes
+{@link org.protune.net.SuccessfulNegotiationResult} and {@link
+org.protune.net.UnsuccessfulNegotiationResult}. Exensions are possible in the future.
+</p>
+
+   </body>
+</html>

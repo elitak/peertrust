@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+	PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+	"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<!-- a tag library descriptor -->
+
+<taglib>
+	<!-- after this the default space is
+		"http://java.sun.com/j2ee/dtds/jsptaglibrary_1_2.dtd"
+	-->
+
+	<tlibversion>1.0</tlibversion>
+	<jspversion>2.0</jspversion>
+	<shortname>poljsp</shortname>
+	<uri></uri>
+	<info>
+		A tag library for authenticating with credentials.
+	</info>
+
+	<tag>
+		<name>policycondition</name>
+		<tagclass>peertrust.tag.PolicyConditionTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<info>Checks if one policy is satisfied</info>
+		<attribute>
+			<name>policyname</name>
+			<required>true</required>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>iftrue</name>
+		<tagclass>peertrust.tag.ConditionTrueTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<info>if policy is satisfied</info>
+	</tag>
+
+	<tag>
+		<name>iffalse</name>
+		<tagclass>peertrust.tag.ConditionFalseTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<info>if policy is not satisfied</info>
+	</tag>
+
+</taglib>

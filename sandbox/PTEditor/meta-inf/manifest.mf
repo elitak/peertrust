@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PTEditor Plug-in
+Bundle-SymbolicName: org.peertrust.pteditor; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ hp.jena
+Eclipse-LazyStart: true
+Bundle-Vendor: peertrust.org
+Import-Package: org.eclipse.jface.text,
+ org.eclipse.ui.console

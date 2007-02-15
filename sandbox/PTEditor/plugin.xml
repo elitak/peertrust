@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.peertrust.pteditor.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.peertrust.pteditor.FilePerspective"
+            icon="icons/file.GIF"
+            id="org.peertrust.pteditor.perspective.file"
+            name="Files">
+      </perspective>
+      <perspective
+            class="org.peertrust.pteditor.CredentialPerspective"
+            icon="icons/credential.GIF"
+            id="org.peertrust.pteditor.perspective.credential"
+            name="Credentials"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.peertrust.pteditor.views.SelectFileView"
+            id="PTEditor.view.selectfile"
+            name="Select File"/>
+      <view
+            class="org.peertrust.pteditor.views.PolicyView"
+            id="PTEditor.view.policies"
+            name="Policies"/>
+      <view
+            class="org.peertrust.pteditor.views.InheritedPoliciesView"
+            id="PTEditor.view.inheritedPolicies"
+            name="Inherited Policies"/>
+      <view
+            class="org.peertrust.pteditor.views.SelectCredentialView"
+            id="PTEditor.view.selectCredential"
+            name="Select Credential"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.peertrust.pteditor.editors.ProtectFileEditor"
+            default="false"
+            icon="icons/alt_window_16.gif"
+            id="PTEditor.editor.editFileProtect"
+            name="Protect File"/>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipsercp.hyperbola.application"
+            name="PTEditor"/>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true"/>
+      <toc file="tocgettingstarted.xml"/>
+      <toc file="toctasks.xml"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="PTEditor.actionSet.SelectFile"
+            label="Select File Actions"
+            visible="false">
+            <action
+            	id="org.peertrust.pteditor.addFileRoot"
+            	label="A&amp;dd file root"
+            	menubarPath="file/additions"
+            	toolbarPath="Normal/additions"
+            	icon="icons/file_root.GIF"
+            	tooltip="Adds a file root to the file view"
+            	class="org.peertrust.pteditor.actions.AddFileRootAction">
+            </action>
+	  </actionSet>
+   </extension>
+
+</plugin>
