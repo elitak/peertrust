@@ -13,7 +13,7 @@ function linkevent(evt) {
 	if(!evt)
 		evt=window.event;
 //	var waitpopup=window.open('http://localhost:8081/MyServlet/wait.html','','width=600,height=200');
-//	waitpopup.document.write('<html><body><img src="progress.gif"><br><br><b>Please wait</b></body></html>');
+//	waitpopup.document.write('<html><body><img src="images/progress.gif"><br><br><b>Please wait</b></body></html>');
 //	top.frames[0].document.applets[0].showWaitPage("http://localhost:8081/MyServlet/wait.html","rightFrame");
 //	top.frames[0].document.applets[0].askForURL(evt.target,evt.target.target);
 	if(evt.target)

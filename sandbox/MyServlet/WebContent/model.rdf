@@ -6,27 +6,22 @@
 		 xmlns:peer="http://sourceforge.net/projects/peertrust/#">
 
 	<peer:Root rdf:ID="start">
-		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/download/download.html"/>
-		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/download/2007_bookDDMS_rule_policies.pdf"/>
-		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/download/hemsch06.pdf"/>
-		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/download/ML2005a.pdf"/>
+		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/project/internal.html"/>
+		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/publications/ccs05.pdf"/>
+		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/publications/2005_policy_protune.pdf"/>
 		<peer:startingPoint rdf:resource="http://localhost:8081/MyServlet/trusted_company"/>
 	</peer:Root>
 	
-	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/download/download.html">
-		<peer:policy>Manager</peer:policy>
+	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/project/internal.html">
+		<peer:policy>Rewerse_Member</peer:policy>
 	</peer:ProtectedResource>
 
-	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/download/2007_bookDDMS_rule_policies.pdf">
-		<peer:policy>IEEE_Member</peer:policy>
-	</peer:ProtectedResource>
-
-	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/download/hemsch06.pdf">
+	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/publications/ccs05.pdf">
 		<peer:policy>ACM_Member</peer:policy>
 	</peer:ProtectedResource>
 
-	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/download/ML2005a.pdf">
-		<peer:policy>ACS_Member</peer:policy>
+	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/publications/2005_policy_protune.pdf">
+		<peer:policy>IEEE_Member</peer:policy>
 	</peer:ProtectedResource>
 	
 	<peer:ProtectedResource rdf:about="http://localhost:8081/MyServlet/trusted_company"/>
