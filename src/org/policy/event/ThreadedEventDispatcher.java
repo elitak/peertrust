@@ -19,9 +19,11 @@
 */
 package org.policy.event;
 
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.policy.config.Configurable;
@@ -31,11 +33,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: ThreadedEventDispatcher.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: ThreadedEventDispatcher.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/17 23:00:31 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -44,22 +46,23 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
 	private static Logger log = Logger.getLogger(ThreadedEventDispatcher.class);
 	
-	// TODO make the class thread safe
-	//    - Add a Threadpool for the event dispatching
-	//    - Make synchronized the access to the dispatcher
-	//    - Hashtable and iterator may be concurrent
+	final int DEFAULT_NUMBER_OF_THREADS = 10 ;
 	
-	Hashtable _registry ;
-	Iterator _copiedIterator ;
+	// ConcurrentHashMap provides safe concurrent access (including the iterators)
+	ConcurrentHashMap<Class,Vector<EventListener>> _registry ;
+	ExecutorService _threadPool ;
+	
+	int _numberOfThreads = DEFAULT_NUMBER_OF_THREADS ;
 	
 	public ThreadedEventDispatcher() {
 		super();
-		log.debug("$Id: ThreadedEventDispatcher.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $");
+		log.debug("$Id: ThreadedEventDispatcher.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
-		_registry = new Hashtable() ;
+		_registry = new ConcurrentHashMap<Class,Vector<EventListener>>() ;
+		_threadPool = Executors.newFixedThreadPool(_numberOfThreads) ;
 	}
 
 	/* (non-Javadoc)
@@ -72,12 +75,15 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#unregister(org.peertrust.event.PeerTrustEvent)
 	 */
-	public boolean unregister(EventListener listener) {
+	
+	// register and unregister must be synchronized. The rest of the methods do not change the registry
+	//     so there is no need for having them synchronized
+	public synchronized boolean unregister(EventListener listener) {
 		boolean res = false ;
 		Iterator it = _registry.keySet().iterator() ;
 		while (it.hasNext())
 		{
-			Vector vector = (Vector) _registry.get(it.next()) ;
+			Vector<EventListener> vector = (Vector<EventListener>) _registry.get(it.next()) ;
 			if (vector.remove(listener) == true)
 				res = true ;
 			
@@ -88,15 +94,15 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#register(org.peertrust.event.PeerTrustEvent, java.lang.Class)
 	 */
-	public void register(EventListener listener, Class event)
+	public synchronized void register(EventListener listener, Class event)
 	{
     		log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
     	
-        Vector vector = (Vector) _registry.get(event);
+        Vector<EventListener> vector = (Vector<EventListener>) _registry.get(event);
     	
         // Add a new vector if not existing already
 	    	if ( vector == null ) {
-	    		vector = new Vector();
+	    		vector = new Vector<EventListener>();
 	    		_registry.put(event, vector);
 	    	}
 	    	
@@ -115,13 +121,17 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 		log.debug("Distributing event " + event.getClass().getName() + " from " + event.getSource().getClass().getName());
 		
 		Class currentClass = event.getClass() ;
-		Vector vector ;
+		Vector<EventListener> vector ;
 		
+		// The set (vector) of listeners for the given event is retrieved and the event is dispatched to all
+		//    of them. In addition, the event is also dispatched to all listeners of the superclasses of the
+		//    given event. That means that a listener subscribed to events of type Event will be notified
+		//    for any existing event
 		while ( (currentClass != Object.class ) && (currentClass != null) )
 		{
-			vector = (Vector) _registry.get(currentClass);
+			vector = (Vector<EventListener>) _registry.get(currentClass);
 	
-			// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
+			// No listeners for this event
 			if (vector == null)
 				log.debug("No listeners registered to catch event " + currentClass.getName()) ;
 			else
@@ -130,52 +140,59 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 				
 				log.debug("Broadcasting event to listeners registered for the event " + currentClass.getName());
 				Iterator it = vector.iterator();
-				dispatchEvent(event, it)  ;
+				_threadPool.execute(new Dispatcher(event,it)) ;
 			}
 			
 			currentClass = currentClass.getSuperclass() ;
 		}	
-		
-//        vector = (Vector) registry.get(PTEvent.class);
-//
-//        if (vector == null)
-//        	log.debug("No listeners registered to catch event of type PeerTrustEvent") ;
-//        else
-//        {
-//        	log.debug(vector.size() + " elements registered for the event PeerTrustEvent" ) ;
-//        	
-//        	log.debug("Always broadcasting event to listeners registered for the parent PeerTrustEvent");
-//
-//        	Iterator it = vector.iterator();
-//        
-//        	dispatchEvent(event, it) ;
-//        }
 	}
-	
-    private void dispatchEvent(Event event, Iterator it)
-    {        
-        while( it.hasNext() )
-        {
-            Object listener =  it.next();
-             
-            if (listener instanceof EventListener)
-            {
-	            	if (listener != event.getSource())
-	            		( (EventListener)listener).event(event) ;
-	/*            	try {
-	                    if ( service != event.getSource() ) {
-	                        service.event(event);
-	                    }
-	                } catch (Exception e) {
-	                    log.error("Exception: ", e);
-	                } */
-            }
-			else
-			{
-				log.error ("Unknown object " + listener.getClass().getName()) ;
-			}
 
-        }
-    }
+	/**
+	 * @return Returns the numberOfThreads.
+	 */
+	public int getNumberOfThreads()
+	{
+		return _numberOfThreads;
+	}
 
+	/**
+	 * @param numberOfThreads The numberOfThreads to set.
+	 */
+	public void setNumberOfThreads(int numberOfThreads)
+	{
+		this._numberOfThreads = numberOfThreads;
+	}
+
+	// This class uses a new thread in order to dispatch an event to a list of listeners (in a iterator)
+	//    registered for notifications of such event
+	private class Dispatcher implements Runnable
+	{
+		Event _event ;
+		Iterator _it ;
+		public Dispatcher (Event event, Iterator it)
+		{
+			_event = event ;
+			_it = it ;
+		}
+
+		public void run()
+		{
+			while( _it.hasNext() )
+	        {
+	            Object listener =  _it.next();
+	             
+	            if (listener instanceof EventListener)
+	            {
+		            	if (listener != _event.getSource())
+		            		( (EventListener)listener).event(_event) ;
+	            }
+				else
+				{
+					log.error ("Unknown object " + listener.getClass().getName()) ;
+				}
+
+	        }
+		}
+		
+	}
 }

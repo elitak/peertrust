@@ -49,11 +49,11 @@ import org.policy.model.ServiceHandler;
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.1 2007/02/17 16:59:29 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:29 $
+ * Last changed: $Date: 2007/02/17 23:00:31 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -68,11 +68,11 @@ public class PolicyEngineClient implements Replyable
 	static public int DEFAULT_SLEEP_INTERVAL = 200 ;
 	static public long DEFAULT_FRESHNESS_TIME = 7200000 ;
 
-	final String PREFIX_MESSAGE = "CLIENT: " ;
+/*	final String PREFIX_MESSAGE = "CLIENT: " ;
 	final String INFO_MESSAGE = PREFIX_MESSAGE + "INFO: " ;
 	final String ERROR_MESSAGE = PREFIX_MESSAGE + "ERROR: " ;
 	final String WARN_MESSAGE = PREFIX_MESSAGE + "WARN: " ;
-	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;
+	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;*/
 
 	Hashtable<ClientRequestId,CommunicationEntry> _requests = new Hashtable<ClientRequestId,CommunicationEntry> () ;
 	
@@ -140,7 +140,7 @@ public class PolicyEngineClient implements Replyable
 	// Peer : the peer to which the query is sent
 	//     Peer = LocalPeerEngine : the query is local
 	//     Peer = any other peer : the query is forwarded to the appropriate peer 
-	public ClientRequestId sendSimpleNegotiationRequest (Policy query, ServiceHandler handler, Peer peer)
+	public ClientRequestId sendSimpleNegotiationRequest (Policy query, ServiceHandler handler, Peer peer) throws CommunicationEntryNotFound
 	{
 		checkInitializedEngine () ;
 		
@@ -165,7 +165,7 @@ public class PolicyEngineClient implements Replyable
 	// ServiceHandler: specifies which framework should process the request
 	// Peer : the peer to which the query is sent. The negotiation is performed with this peer
 	
-	public ClientRequestId sendNegotiationRequest (Policy query, ServiceHandler handler, Peer peer)
+	public ClientRequestId sendNegotiationRequest (Policy query, ServiceHandler handler, Peer peer) throws CommunicationEntryNotFound
 	{
 		checkInitializedEngine () ;
 		
@@ -185,35 +185,30 @@ public class PolicyEngineClient implements Replyable
 		return requestId ;		
 	}
 
-	public RequestIdentifier sendAndWaitForAnswer (CommunicationEntry entry)
+	public synchronized RequestIdentifier sendAndWaitForAnswer (CommunicationEntry entryRequest) throws CommunicationEntryNotFound
 	{
-		_requests.put(entry.getClientRequestIdentifier(), entry) ;
+		ClientRequestId clientReqId = entryRequest.getClientRequestIdentifier() ;
 		
-		RequestIdentifier id = _engine.sendRequest (entry.getRequest()) ;
+		_requests.put(clientReqId, entryRequest) ;
 		
-		// TODO Synchronous wait till answer is given
+		RequestIdentifier id = _engine.sendRequest (entryRequest.getRequest()) ;
 		
-		// TODO Retrieve the negotiation id for later requests
+		long time = System.currentTimeMillis() ;
 		
-			
-/*			long time = System.currentTimeMillis() ;
-
-			while (System.currentTimeMillis() - time < _timeout )
+		while ( (entryRequest.isResponseReceived() == false) && (System.currentTimeMillis() - time < _timeout ) )
+		{
+            try
 			{
-				//System.out.println ("CURRENT QUERY IS " + isQueryFinished(id) + " FINISHED") ;
-				if (isQueryFinished(id) == true)
-					break ;
-				else
-					try {
-						Thread.sleep(_sleepInterval) ;
-					} catch (InterruptedException e) {
-						// ignore
-					}
-			}*/
+				wait();
+			} catch (InterruptedException e)
+			{}
+			
+		}		
+			
 		return id ;
 	}
 	
-	public void reply (ClientRequestId identifier, ServiceMessage response)
+	public synchronized void reply (ClientRequestId identifier, ServiceMessage response)
 	{
 		CommunicationEntry entry;
 		try
@@ -227,7 +222,7 @@ public class PolicyEngineClient implements Replyable
 		
 		entry.setResponse(response) ;
 		
-		// TODO notify so the waiting method start again
+		notifyAll();
 	}
 
 	public CommunicationEntry checkCommunicationEntry(ClientRequestId identifier) throws CommunicationEntryNotFound 
