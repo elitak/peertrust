@@ -31,11 +31,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: EventDispatcherImpl.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: EventDispatcherImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/18 00:38:12 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -44,16 +44,16 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 	
 	private static Logger log = Logger.getLogger(EventDispatcherImpl.class);
 	
-	Hashtable registry ;
+	Hashtable _registry ;
 	
 	public EventDispatcherImpl() {
 		super();
-		log.debug("$Id: EventDispatcherImpl.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $");
+		log.debug("$Id: EventDispatcherImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
-		registry = new Hashtable() ;
+		_registry = new Hashtable() ;
 	}
 
 	/* (non-Javadoc)
@@ -68,10 +68,10 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 	 */
 	public boolean unregister(EventListener listener) {
 		boolean res = false ;
-		Iterator it = registry.keySet().iterator() ;
+		Iterator it = _registry.keySet().iterator() ;
 		while (it.hasNext())
 		{
-			Vector vector = (Vector) registry.get(it.next()) ;
+			Vector vector = (Vector) _registry.get(it.next()) ;
 			if (vector.remove(listener) == true)
 				res = true ;
 			
@@ -85,12 +85,12 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 	public void register(EventListener listener, Class event) {
     	log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
     	
-        Vector vector = (Vector) registry.get(event);
+        Vector vector = (Vector) _registry.get(event);
     	
     	// Add a new vector if not existing already
     	if ( vector == null ) {
     		vector = new Vector();
-    		registry.put(event, vector);
+    		_registry.put(event, vector);
     	}
     	
     	// Only add not already registered components for the specified event
@@ -112,7 +112,7 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 		
 		while ( (currentClass != Object.class ) && (currentClass != null) )
 		{
-			vector = (Vector) registry.get(currentClass);
+			vector = (Vector) _registry.get(currentClass);
 	
 			// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
 			if (vector == null)

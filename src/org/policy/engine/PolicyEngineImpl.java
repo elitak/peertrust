@@ -22,22 +22,22 @@ package org.policy.engine;
 
 import org.apache.log4j.Logger;
 import org.policy.communication.LocalPeerEngine;
-import org.policy.communication.Peer;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
-import org.policy.event.CommunicationEvent;
+import org.policy.event.EventDispatcher;
 import org.policy.model.RequestIdentifier;
+import org.policy.model.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngineImpl.java,v 1.1 2007/02/17 16:59:29 dolmedilla Exp $
+ * $Id: PolicyEngineImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:29 $
+ * Last changed: $Date: 2007/02/18 00:38:12 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -50,38 +50,82 @@ public class PolicyEngineImpl implements PolicyEngine
 	static final String DEFAULT_ALIAS = "PolicyEngine" ;
 	
 	String _alias = DEFAULT_ALIAS ;
-	LocalPeerEngine _peer ;
+	LocalPeerEngine _enginePeer ;
+	ServiceHandlerRegistry _handlerRegistry ;
+	EventDispatcher _dispatcher ;
+	NetworkCommunicationFactory _commChannel ;
+
+	public PolicyEngineImpl ()
+	{
+	}
+	
+	public void init() throws ConfigurationException
+	{
+		_enginePeer = new LocalPeerEngine (_alias) ;
+		
+		String msg = null ;
+		
+		if (_handlerRegistry == null)
+			msg = "No service handler registry has been specified." ;
+		else if (_dispatcher == null)
+			msg = "No event dispatcher has been specified." ;
+		else if (_commChannel == null)
+			msg = "No communication channel has been specified." ;
+		
+		if (msg != null)
+		{
+			log.error (msg) ;
+			throw new ConfigurationException(msg) ;
+		}
+	}
+
+	private PolicyEngine retrieveServiceHandler (ServiceHandler handler) throws UnavailableServiceHandlerException
+	{
+		return _handlerRegistry.retrieveServiceHandler(handler) ;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.policy.engine.PolicyEngine#sendRequest(org.policy.communication.message.ServiceRequest, org.policy.communication.Peer)
 	 */
-	public RequestIdentifier sendRequest(ServiceMessage request)
-	{		
-		CommunicationEvent event = new CommunicationEvent (request) ;
+	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException
+	{	
+		PolicyEngine engine;
+		try
+		{
+			engine = retrieveServiceHandler (request.getHandler());
+		} catch (UnavailableServiceHandlerException e)
+		{
+			log.error("No policy engine is associated to service handler " + request.getHandler().getClass().getName()) ;
+			throw new EngineInternalException (e) ;
+		}
 
-		_dispatcher.(event) ;
-		// TODO Auto-generated method stub
-		return null;
+		return engine.sendRequest(request) ;
 	}
-
-	public void init() throws ConfigurationException
-	{
-		_peer = new LocalPeerEngine (_alias) ;
-		
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	public void setCommunicationChannel(NetworkCommunicationFactory factory)
 	{
-		// TODO Auto-generated method stub
-		
+		_commChannel = factory ;
 	}
 
 	public LocalPeerEngine getLocalPeerServer()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return _enginePeer ;
+	}
+
+	/**
+	 * @param handlerRegistry The handlerRegistry to set.
+	 */
+	public void setHandlerRegistry(ServiceHandlerRegistry handlerRegistry)
+	{
+		this._handlerRegistry = handlerRegistry;
+	}
+
+	/**
+	 * @param dispatcher The dispatcher to set.
+	 */
+	public void setDispatcher(EventDispatcher dispatcher)
+	{
+		this._dispatcher = dispatcher;
 	}
 
 }
