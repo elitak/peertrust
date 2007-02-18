@@ -37,11 +37,11 @@ import org.policy.event.SendMessageEvent;
  * <p>
  * 
  * </p><p>
- * $Id: NetworkCommunicationFactory.java,v 1.1 2007/02/17 16:59:29 dolmedilla Exp $
+ * $Id: NetworkCommunicationFactory.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:29 $
+ * Last changed: $Date: 2007/02/18 00:38:12 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -65,13 +65,13 @@ public abstract class NetworkCommunicationFactory implements Configurable, Commu
 	}
 	
 	public void init() throws ConfigurationException
-	{
-		String msg = "No event dispatcher has been found." ;
-	
+	{	
 		if (_dispatcher == null)
 		{
+			String msg = "No event dispatcher has been specified." ;
+
 			log.error (msg) ;
-			throw new NullPointerException(msg) ;
+			throw new ConfigurationException(msg) ;
 		}
 		
 		NetworkServer netServer = createNetServer () ;

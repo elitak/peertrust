@@ -30,11 +30,11 @@ import org.policy.model.RequestIdentifier;
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngine.java,v 1.1 2007/02/17 16:59:29 dolmedilla Exp $
+ * $Id: PolicyEngine.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
  * <br/>
  * Date: Feb 12, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:29 $
+ * Last changed: $Date: 2007/02/18 00:38:12 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -67,5 +67,5 @@ public interface PolicyEngine extends Configurable
 	//     - Add/modify/remove policies
 	//   * Engine Management
 	//     - Start/Stop
-	RequestIdentifier sendRequest(ServiceMessage request) ;
+	RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException;
 }

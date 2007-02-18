@@ -23,6 +23,7 @@ package org.policy.engine;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
+import org.policy.GeneralPolicyEngineException;
 import org.policy.communication.LocalPeerClient;
 import org.policy.communication.LocalPeerEngine;
 import org.policy.communication.Peer;
@@ -49,11 +50,11 @@ import org.policy.model.ServiceHandler;
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.3 2007/02/18 00:38:12 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 23:00:31 $
+ * Last changed: $Date: 2007/02/18 00:38:12 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -74,7 +75,8 @@ public class PolicyEngineClient implements Replyable
 	final String WARN_MESSAGE = PREFIX_MESSAGE + "WARN: " ;
 	final String DEBUG_MESSAGE = PREFIX_MESSAGE + "DEBUG: " ;*/
 
-	Hashtable<ClientRequestId,CommunicationEntry> _requests = new Hashtable<ClientRequestId,CommunicationEntry> () ;
+	Hashtable<ClientRequestId,CommunicationEntry> _requests = 
+		new Hashtable<ClientRequestId,CommunicationEntry> () ;
 	
 	
 	Configurator _config ;
@@ -115,18 +117,18 @@ public class PolicyEngineClient implements Replyable
 		// TODO Whole client initialization: load policies, credentials, etc...
 	}
 
-	private void checkInitializedEngine () throws NullPointerException
+	private void checkInitializedEngine () throws ConfigurationException
 	{
-		String msg = "No policy engine has been found." ;
-	
 		if (_engine == null)
 		{
+			String msg = "No policy engine has been specified." ;
+			
 			log.error (msg) ;
-			throw new NullPointerException(msg) ;
+			throw new ConfigurationException(msg) ;
 		}
 	}
 	
-	public void stop()
+	public void stop() throws ConfigurationException
 	{
 		checkInitializedEngine () ;
 				
@@ -140,7 +142,8 @@ public class PolicyEngineClient implements Replyable
 	// Peer : the peer to which the query is sent
 	//     Peer = LocalPeerEngine : the query is local
 	//     Peer = any other peer : the query is forwarded to the appropriate peer 
-	public ClientRequestId sendSimpleNegotiationRequest (Policy query, ServiceHandler handler, Peer peer) throws CommunicationEntryNotFound
+	public ClientRequestId sendSimpleNegotiationRequest (Policy query, ServiceHandler handler, Peer peer)
+		throws CommunicationEntryNotFound, ConfigurationException, EngineInternalException
 	{
 		checkInitializedEngine () ;
 		
@@ -151,7 +154,8 @@ public class PolicyEngineClient implements Replyable
 		
 		// TODO check that peer is not localpeerclient
 		
-		SingleStepNegotiationRequest negRequest = new SingleStepNegotiationRequest (requestId, _localPeer, peer, handler, negInfo) ;
+		SingleStepNegotiationRequest negRequest = 
+			new SingleStepNegotiationRequest (requestId, _localPeer, peer, handler, negInfo) ;
 		
 		CommunicationEntry entry = new NegotiationCommunicationEntry (requestId, negRequest) ;
 		sendAndWaitForAnswer(entry) ;
@@ -165,7 +169,8 @@ public class PolicyEngineClient implements Replyable
 	// ServiceHandler: specifies which framework should process the request
 	// Peer : the peer to which the query is sent. The negotiation is performed with this peer
 	
-	public ClientRequestId sendNegotiationRequest (Policy query, ServiceHandler handler, Peer peer) throws CommunicationEntryNotFound
+	public ClientRequestId sendNegotiationRequest (Policy query, ServiceHandler handler, Peer peer) 
+		throws CommunicationEntryNotFound, ConfigurationException, EngineInternalException
 	{
 		checkInitializedEngine () ;
 		
@@ -185,7 +190,8 @@ public class PolicyEngineClient implements Replyable
 		return requestId ;		
 	}
 
-	public synchronized RequestIdentifier sendAndWaitForAnswer (CommunicationEntry entryRequest) throws CommunicationEntryNotFound
+	public synchronized RequestIdentifier sendAndWaitForAnswer (CommunicationEntry entryRequest)
+		throws CommunicationEntryNotFound, EngineInternalException
 	{
 		ClientRequestId clientReqId = entryRequest.getClientRequestIdentifier() ;
 		
@@ -225,12 +231,14 @@ public class PolicyEngineClient implements Replyable
 		notifyAll();
 	}
 
-	public CommunicationEntry checkCommunicationEntry(ClientRequestId identifier) throws CommunicationEntryNotFound 
+	public CommunicationEntry checkCommunicationEntry(ClientRequestId identifier) 
+		throws CommunicationEntryNotFound 
 	{
 		CommunicationEntry entry = _requests.get(identifier) ;
 		
 		if (entry == null)
-			throw new CommunicationEntryNotFound ("The identifier " + identifier + " is not found in the list of previous requests.") ;
+			throw new CommunicationEntryNotFound ("The identifier " + 
+					identifier + " is not found in the list of previous requests.") ;
 		
 		return entry ;
 	}
@@ -254,7 +262,8 @@ public class PolicyEngineClient implements Replyable
 		return entry.isResponseReceived() ;	
 	}
 	
-	public boolean isNegotiationFinished (ClientRequestId id) throws FunctionNotSupported, CommunicationEntryNotFound
+	public boolean isNegotiationFinished (ClientRequestId id) 
+		throws FunctionNotSupported, CommunicationEntryNotFound
 	{
 		CommunicationEntry entry = checkCommunicationEntry (id);
 		
@@ -264,7 +273,8 @@ public class PolicyEngineClient implements Replyable
 		return ((NegotiationCommunicationEntry) entry).isNegotiationFinished() ;
 	}
 	
-	public Explanation getExplanation (ClientRequestId id, int type) throws FunctionNotSupported, CommunicationEntryNotFound
+	public Explanation getExplanation (ClientRequestId id, int type) 
+		throws FunctionNotSupported, CommunicationEntryNotFound
 	{
 		CommunicationEntry entry = checkCommunicationEntry (id);
 		
@@ -274,7 +284,8 @@ public class PolicyEngineClient implements Replyable
 		return ((NegotiationCommunicationEntry) entry).getExplanation(type) ;
 	}
 	
-	public Notification[] getNotifications (ClientRequestId id) throws FunctionNotSupported, CommunicationEntryNotFound
+	public Notification[] getNotifications (ClientRequestId id) 
+		throws FunctionNotSupported, CommunicationEntryNotFound
 	{
 		CommunicationEntry entry = checkCommunicationEntry (id);
 		
@@ -284,7 +295,8 @@ public class PolicyEngineClient implements Replyable
 		return ((NegotiationCommunicationEntry) entry).getNotifications() ;
 	}
 	
-	public static void main(String[] args) throws ConfigurationException, CommunicationEntryNotFound, FunctionNotSupported
+	public static void main(String[] args) 
+		throws ConfigurationException, CommunicationEntryNotFound, FunctionNotSupported, EngineInternalException
 	{	
 		String USAGE_MESSAGE = "Usage: program <configFile> <queryString>" ;
 		int USAGE_RETURN_ERROR = 1 ; 
@@ -325,7 +337,8 @@ public class PolicyEngineClient implements Replyable
 		
 		PolicyEngineClient client = new PolicyEngineClient (newArgs, defaultComponents) ;
 
-		ClientRequestId id = client.sendSimpleNegotiationRequest(new ProtunePolicy(query), Protune.getServiceHandler(), client.getEnginePeer()) ;
+		ClientRequestId id = client.sendSimpleNegotiationRequest(new ProtunePolicy(query), 
+				Protune.getServiceHandler(), client.getEnginePeer()) ;
 		
 		System.out.println("Results: ") ;
 		System.out.println("\tRequest successful: " + client.isSuccessful(id)) ;
@@ -489,7 +502,7 @@ public class PolicyEngineClient implements Replyable
 		}
 	}
 	
-	public class CommunicationEntryNotFound extends Exception {
+	public class CommunicationEntryNotFound extends GeneralPolicyEngineException {
 
 		/**
 		 * @param arg0
@@ -499,7 +512,7 @@ public class PolicyEngineClient implements Replyable
 		}
 	}
 	
-	public class FunctionNotSupported extends Exception {
+	public class FunctionNotSupported extends GeneralPolicyEngineException {
 
 		/**
 		 * @param arg0

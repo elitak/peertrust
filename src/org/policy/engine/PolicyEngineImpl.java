@@ -26,6 +26,7 @@ import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.event.EventDispatcher;
+import org.policy.event.ReceivedMessageEvent;
 import org.policy.model.RequestIdentifier;
 import org.policy.model.ServiceHandler;
 
@@ -33,11 +34,11 @@ import org.policy.model.ServiceHandler;
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngineImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
+ * $Id: PolicyEngineImpl.java,v 1.3 2007/02/18 00:42:46 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/18 00:38:12 $
+ * Last changed: $Date: 2007/02/18 00:42:46 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -89,6 +90,9 @@ public class PolicyEngineImpl implements PolicyEngine
 	 */
 	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException
 	{	
+		// We dispatch a new event in order to notify other components about the new request
+		_dispatcher.event(new ReceivedMessageEvent(request)) ;
+		
 		PolicyEngine engine;
 		try
 		{
