@@ -24,27 +24,27 @@ package org.policy.model;
  * <p>
  * 
  * </p><p>
- * $Id: ProtuneServiceHandler.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: StandardNotification.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
  * <br/>
- * Date: Feb 17, 2007
+ * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/19 09:01:27 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class ProtuneServiceHandler extends ServiceHandler
+public class StandardNotification extends Notification
 {
 	
-	public ProtuneServiceHandler ()
+	// TODO to write completely
+	public StandardNotification (String notification)
 	{
-		// No code
-	}
-
-	public String getServiceHandlerDescription()
-	{
-		return "Within a message, this handler specifies that it should be processed by a Protune Framework" ;
+		this(new String[] {notification} ) ;
 	}
 	
+	public StandardNotification (String [] notification)
+	{
+		super() ;
+	}
 }

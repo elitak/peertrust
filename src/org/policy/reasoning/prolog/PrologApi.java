@@ -2,9 +2,9 @@ package org.policy.reasoning.prolog;
 
 import org.peertrust.config.*;
 import org.peertrust.exception.*;
-import org.policy.action.ActionResult;
-import org.policy.action.FunctionFailureException;
-import org.policy.action.packages.*;
+import org.policy.action.standard.ActionResult;
+import org.policy.action.standard.FunctionFailureException;
+import org.policy.action.standard.packages.*;
 
 import java.io.*;
 

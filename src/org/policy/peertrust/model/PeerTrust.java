@@ -15,27 +15,31 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with Peertrust; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.communication.net;
-
-import org.policy.communication.NetworkPeer;
-import org.policy.communication.message.ServiceMessage;
+package org.policy.peertrust.model;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: NetworkClient.java,v 1.2 2007/02/19 09:01:28 dolmedilla Exp $
+ * $Id: PeerTrust.java,v 1.1 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
- * Date: 05-Dec-2003
+ * Date: Feb 17, 2007
  * <br/>
  * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
- * @author olmedilla 
+ * @author olmedilla
  */
-public interface NetworkClient {
-	public void send(ServiceMessage message, NetworkPeer destination) throws NetworkCommunicationException ;
+
+public class PeerTrust
+{
+	public static PeerTrustServiceHandler getServiceHandler ()
+	{
+		return new PeerTrustServiceHandler() ;
+	}
+	
+	// TODO completely
 }

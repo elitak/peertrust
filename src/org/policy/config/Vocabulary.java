@@ -31,18 +31,18 @@ import com.hp.hpl.jena.rdf.model.RDFException;
  * <p>
  * Specifies the vocabulary accepted by the configurator in the configuration file.
  * </p><p>
- * $Id: Vocabulary.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.2 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
 public class Vocabulary {
 
-    public static final String uri = "http://www.l3s.de/~olmedilla/peertrust/Vocabulary#";
+    public static final String uri = "http://www.l3s.de/~olmedilla/policy/Vocabulary#";
 
 
     public static String getURI()
@@ -55,7 +55,7 @@ public class Vocabulary {
     /**
      * Peer
     */
-    public static Resource PeertrustEngine;
+    public static Resource PolicyEngine;
 
 //    public static Property peerName ;
 //
@@ -185,7 +185,7 @@ public class Vocabulary {
       javaClass =
       	  m.createProperty(Vocabulary.uri + "javaClass") ;
 
-      PeertrustEngine =
+      PolicyEngine =
         m.createResource(Vocabulary.uri + "PeertrustEngine");
 
       InferenceEngine =

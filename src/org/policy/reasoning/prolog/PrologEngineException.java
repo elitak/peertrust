@@ -1,6 +1,6 @@
 package org.policy.reasoning.prolog;
 
-import org.policy.action.tools.*;
+import org.policy.action.standard.tools.*;
 
 public class PrologEngineException extends PolicyException{
 

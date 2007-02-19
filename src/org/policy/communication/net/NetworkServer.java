@@ -26,15 +26,15 @@ import org.policy.communication.message.ServiceMessage;
  * <p>
  * 
  * </p><p>
- * $Id: NetworkServer.java,v 1.1 2007/02/17 16:59:29 dolmedilla Exp $
+ * $Id: NetworkServer.java,v 1.2 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:29 $
+ * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
 public interface NetworkServer {
-	public ServiceMessage listen() ;
+	public ServiceMessage listen() throws NetworkCommunicationException ;
 }

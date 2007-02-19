@@ -20,27 +20,27 @@
 
 package org.policy.model;
 
+import java.net.URI;
+
+import org.policy.config.Configurable;
+
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ProtuneFilteredPolicy.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: Action.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
  * <br/>
- * Date: Feb 15, 2007
+ * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/19 09:01:27 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class ProtuneFilteredPolicy extends Policy
+public interface Action extends Configurable
 {
-
-	public ProtuneFilteredPolicy (String filteredPolicyRules)
-	{
-		super () ;
-		
-		// TODO Parse filtered rules (different than normal policy rules?)
-	}
+	URI getURI (String methodName) throws MethodNotSupportedException ;
+	
+	StandardNotification execute (URI ref, String[] args) throws MethodNotSupportedException, ActionExecutionException ;
 }

@@ -32,6 +32,7 @@ import org.policy.communication.message.NegotiationRequest;
 import org.policy.communication.message.NegotiationResponse;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.message.SingleStepNegotiationRequest;
+import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.config.Configurator;
 import org.policy.config.Vocabulary;
@@ -40,21 +41,21 @@ import org.policy.model.Explanation;
 import org.policy.model.NegotiationInfo;
 import org.policy.model.Notification;
 import org.policy.model.Policy;
-import org.policy.model.Protune;
-import org.policy.model.ProtunePolicy;
 import org.policy.model.RequestIdentifier;
 import org.policy.model.ServiceHandler;
+import org.policy.protune.model.Protune;
+import org.policy.protune.model.ProtunePolicy;
 
 /**
  * <p>
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.3 2007/02/18 00:38:12 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.4 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/18 00:38:12 $
+ * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -78,7 +79,6 @@ public class PolicyEngineClient implements Replyable
 	Hashtable<ClientRequestId,CommunicationEntry> _requests = 
 		new Hashtable<ClientRequestId,CommunicationEntry> () ;
 	
-	
 	Configurator _config ;
 	PolicyEngine _engine ;
 	
@@ -90,25 +90,29 @@ public class PolicyEngineClient implements Replyable
 	int _sleepInterval = DEFAULT_SLEEP_INTERVAL ;
 	
 	// time for which previous requests are considered fresh (default 2 hours)
-	long _freshnessTime = DEFAULT_FRESHNESS_TIME ; 
+	long _freshnessTime = DEFAULT_FRESHNESS_TIME ;
+	
+	String [] _configurationArgs ;
+	String [] _components ;
 		
 	public PolicyEngineClient (String [] configurationArgs, String [] components) throws ConfigurationException
 	{
-		// TODO clean the HashTable from old requests
-		
 		super() ;
-	
-		_config = new Configurator() ;
-
-		_config.startApp(configurationArgs, components) ;
 		
-		_engine = (PolicyEngine) _config.getComponent(Vocabulary.PeertrustEngine) ;
-		
-		init() ;
+		_configurationArgs = configurationArgs ;
+		_components = components ;
 	}
 
 	public void init() throws ConfigurationException
 	{
+		// TODO clean the HashTable from old requests
+		
+		_config = new Configurator() ;
+
+		_config.startApp(_configurationArgs, _components) ;
+		
+		_engine = (PolicyEngine) _config.getComponent(Vocabulary.PolicyEngine) ;
+		
 		checkInitializedEngine () ;
 		
 		_localPeer = new LocalPeerClient (this.getAlias(), this) ;
@@ -133,6 +137,11 @@ public class PolicyEngineClient implements Replyable
 		checkInitializedEngine () ;
 				
 		// TODO Create the EngineMgmtRequest message to stop the engine and send it  
+	}
+
+	public void setCommunicationChannel(NetworkCommunicationFactory factory)
+	{
+		_engine.setCommunicationChannel(factory) ;
 	}
 
 	// Querying for a quick answer (no negotiation but a single step)
@@ -300,18 +309,15 @@ public class PolicyEngineClient implements Replyable
 	{	
 		String USAGE_MESSAGE = "Usage: program <configFile> <queryString>" ;
 		int USAGE_RETURN_ERROR = 1 ; 
-		String DEFAULT_QUERY = "'@'(request(spanishCourse,Session),elearn)" ;
 		
-		String defaultConfigFile = "file:peertrustConfig.rdf" ;
-		String [] defaultComponents = { Vocabulary.PeertrustEngine.toString() } ;
+		String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
 			
 		String newArgs[] = new String[1] ;
 		String query = null ;
-		if (args.length < 1)
+		if (args.length < 2)
 		{
 			System.out.println (USAGE_MESSAGE) ;
-			newArgs[0] = defaultConfigFile ; 
-			query = DEFAULT_QUERY ;
+			System.exit(USAGE_RETURN_ERROR) ;
 		}
 		else
 		{
@@ -323,19 +329,14 @@ public class PolicyEngineClient implements Replyable
 			else
 			{
 				newArgs[0] = args[0] ;
-				if ( (args.length == 1) ||
-						( (args.length == 2) && 
-								(args[1] == null) || (args[1].equals("")))
-								)
-					query = DEFAULT_QUERY ;
-				else
-					query = args[1] ;
+				query = args[1] ;
 			}
 		}
 	
 		//	java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 		
 		PolicyEngineClient client = new PolicyEngineClient (newArgs, defaultComponents) ;
+		client.init() ;
 
 		ClientRequestId id = client.sendSimpleNegotiationRequest(new ProtunePolicy(query), 
 				Protune.getServiceHandler(), client.getEnginePeer()) ;

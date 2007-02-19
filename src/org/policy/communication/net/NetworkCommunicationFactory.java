@@ -26,6 +26,7 @@ import org.policy.communication.Peer;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.config.Configurable;
 import org.policy.config.ConfigurationException;
+import org.policy.event.CommunicationEvent;
 import org.policy.event.CommunicationEventListener;
 import org.policy.event.Event;
 import org.policy.event.EventDispatcher;
@@ -37,16 +38,16 @@ import org.policy.event.SendMessageEvent;
  * <p>
  * 
  * </p><p>
- * $Id: NetworkCommunicationFactory.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
+ * $Id: NetworkCommunicationFactory.java,v 1.3 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/18 00:38:12 $
+ * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public abstract class NetworkCommunicationFactory implements Configurable, CommunicationEventListener {
+public abstract class NetworkCommunicationFactory implements Configurable {
 	
 	private static Logger log = Logger.getLogger(NetworkCommunicationFactory.class);
 	
@@ -134,21 +135,29 @@ public abstract class NetworkCommunicationFactory implements Configurable, Commu
 			// TODO Condition for stopping the listening server thread
 			
 			while (true) {  
-				ServiceMessage message = _netServer.listen() ;
-				
-				if (message != null)
+				ServiceMessage message;
+				try
 				{
-					log.debug ("New message received from " + message.getSource() + " to " + message.getTarget()) ;
+					message = _netServer.listen();
 
-					_dispatcher.event(new ReceivedMessageEvent(message)) ;
-	 			}
+					if (message != null)
+					{
+						log.debug ("New message received from " + message.getSource() + " to " + message.getTarget()) ;
+
+						_dispatcher.event(new ReceivedMessageEvent(message)) ;
+		 			}
+
+				} catch (NetworkCommunicationException e)
+				{
+					log.error(e) ;
+				}				
 			}
 			
 		}
 		
 	}
 	
-	private class NetworkClientWrapper implements EventListener
+	private class NetworkClientWrapper implements CommunicationEventListener
 	{
 		NetworkClient _netClient ;
 		
@@ -159,6 +168,14 @@ public abstract class NetworkCommunicationFactory implements Configurable, Commu
 
 		public void event(Event event)
 		{
+			if (event instanceof CommunicationEvent)
+				this.event(event) ;
+			else
+				log.warn("Received event of type " + event.getClass().getName()) ;
+		}
+		
+		public void event(CommunicationEvent event)
+		{
 			if (event instanceof SendMessageEvent)
 			{
 				ServiceMessage message = ( (SendMessageEvent) event).getMessage() ;
@@ -167,7 +184,14 @@ public abstract class NetworkCommunicationFactory implements Configurable, Commu
 				// if the peer is a NetworkPeer then the message is sent, otherwise it is ignored
 				//    (it is not a network event but probably an application event)
 				if (peer instanceof NetworkPeer)
-					_netClient.send(message, (NetworkPeer) message.getTarget()) ;
+					try
+					{
+						_netClient.send(message, (NetworkPeer) message.getTarget()) ;
+					} catch (NetworkCommunicationException e)
+					{
+						// TODO probably try to send an error back to the application or retry at least another time
+						log.error(e) ;
+					}
 			}
 			else
 				// The event should not have been received by this class

@@ -18,17 +18,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.model;
+package org.policy.protune.model;
+
+import org.policy.model.Policy;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ProtunePolicy.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: ProtunePolicy.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
  * <br/>
  * Date: Feb 15, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/19 09:01:27 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

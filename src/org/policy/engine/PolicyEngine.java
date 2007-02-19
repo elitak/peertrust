@@ -30,11 +30,11 @@ import org.policy.model.RequestIdentifier;
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngine.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
+ * $Id: PolicyEngine.java,v 1.3 2007/02/19 09:01:28 dolmedilla Exp $
  * <br/>
  * Date: Feb 12, 2007
  * <br/>
- * Last changed: $Date: 2007/02/18 00:38:12 $
+ * Last changed: $Date: 2007/02/19 09:01:28 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -46,7 +46,7 @@ public interface PolicyEngine extends Configurable
 	//       (to be used on the messages between the apolication client and the engine)
 	LocalPeerEngine getLocalPeerServer() ;
 	
-	void setCommunicationChannel (NetworkCommunicationFactory factory) ;
+	public void setCommunicationChannel (NetworkCommunicationFactory factory) ;
 	
 	// request
 	// id local_query (question, givenInfo) --> id send_request (question, localPeer, givenInfo (forState) )
@@ -67,5 +67,5 @@ public interface PolicyEngine extends Configurable
 	//     - Add/modify/remove policies
 	//   * Engine Management
 	//     - Start/Stop
-	RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException;
+	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException;
 }

@@ -3,9 +3,9 @@ package org.policy.reasoning.prolog;
 import ubc.cs.JLog.Foundation.*;
 import org.apache.log4j.*;
 import org.peertrust.exception.*;
-import org.policy.action.ActionResult;
-import org.policy.action.FunctionFailureException;
-import org.policy.action.Result;
+import org.policy.action.standard.ActionResult;
+import org.policy.action.standard.FunctionFailureException;
+import org.policy.action.standard.Result;
 
 import java.io.*;
 import java.util.*;
