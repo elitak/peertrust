@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
+<%@ taglib uri="policytag" prefix="poljsp" %>
 <html><!-- InstanceBegin template="/Templates/WebSite.dwt" codeOutsideHTMLIsLocked="false" -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -61,56 +62,56 @@
 				  <td><strong>PARTNER NAME </strong></td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					<td><strong>BUDGET</strong></td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 						
 				</tr>
 				<tr>
 				  <td>Hannover University and L3S Research Center </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				</tr>
 				<tr>
 				  <td>Heraklion (FORTH) </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>Linkoeping University </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>Naples University </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>St. Gallen University</td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>Turin University </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>Vienna University</td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 				<tr>
 				  <td>Zurich University </td>
 					<poljsp:policycondition policyname="Rewerse_Member"><poljsp:iftrue>
 					  <td>123234 &#8364;</td>
-  					</poljsp:iftrue></poljsp:policycondition>
+  					</poljsp:iftrue><poljsp:iffalse></poljsp:iffalse></poljsp:policycondition>
 				  </tr>
 																
 				</table>
