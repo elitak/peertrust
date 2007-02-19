@@ -65,6 +65,7 @@ import netscape.javascript.JSObject;
 //TODO: Nur Link nach Applet weiterleiten, wenn übergebene Domain stimmt (Variable)
 //TODO: Server may give a new applet every time a new window is created.
 //TODO: free images in thesis
+//TODO: jsp tag requires credential that client protects-bug
 
 /**
  * Applet that acts on the client side and performs the trust negotiation with the
@@ -321,13 +322,13 @@ addToLog("Wrong service ID");
 					// If negotiation was successful, get session ID to access
 					// the requested resource
 					if(nr instanceof HttpSuccessfulNegotiationResult) {
-addToLog("Negotiation successful");
+addToLog("Negotiation finished");
 						strSessionID=((HttpSuccessfulNegotiationResult)nr).getSessionID();
 					}
 					// If negotiation was not successful, get session ID to access
 					// the error page
 					else if(nr instanceof HttpUnsuccessfulNegotiationResult) {
-addToLog("Negotiation failed");
+addToLog("Negotiation finished");
 						strSessionID=((HttpUnsuccessfulNegotiationResult)nr).getSessionID();
 					}
 //TODO: Statt Server die Error Page erzeugt, sie einfach hier laden
@@ -359,38 +360,36 @@ addToLog(""+e);
 		}
 	}
 
-/**
- * Creates and returns the client negotiation service. 
- * @param service_id The service ID of the servicee (must be the same as the server's)
- * @param pointerOtherPeer The Pointer (communication part) of the server.
- * @return The client negotiation service.
- */
-private Service createService(long service_id,Pointer pointerOtherPeer) {
-//TODO: Beispiele, Dummies raus
-	// Create key-/value-pairs to simulate policies protecting credentials
-	List<String> listKeys=new LinkedList<String>();
-	List<String> listValues=new LinkedList<String>();
-	// Only add the credentials to the service that are selected in the listbox
-	int ids[]=list.getSelectedIndices();
-	for(int i=0;i<ids.length;i++) {
-		if(ids[i]==0) {
-			listKeys.add(CREDENTIALS[0]);
-			listValues.add("http://localhost:8081/MyServlet/trusted_company");
-		}
-		else if(ids[i]==1) {
-			listKeys.add(CREDENTIALS[1]);
-			listValues.add("");
-		}
-		else if(ids[i]==2) {
-			listKeys.add(CREDENTIALS[2]);
-			listValues.add("");
-		}
-		else if(ids[i]==3) {
-			listKeys.add(CREDENTIALS[3]);
-			listValues.add("");
+	/**
+	 * Creates and returns the client negotiation service. 
+	 * @param service_id The service ID of the servicee (must be the same as the server's)
+	 * @param pointerOtherPeer The Pointer (communication part) of the server.
+	 * @return The client negotiation service.
+	 */
+	private Service createService(long service_id,Pointer pointerOtherPeer) {
+	//TODO: Beispiele, Dummies raus
+		// Create key-/value-pairs to simulate policies protecting credentials
+		List<String> listKeys=new LinkedList<String>();
+		List<String> listValues=new LinkedList<String>();
+		// Only add the credentials to the service that are selected in the listbox
+		int ids[]=list.getSelectedIndices();
+		for(int i=0;i<ids.length;i++) {
+			for(int j=0;j<CREDENTIALS.length;j++) {
+				if(ids[i]==0) {
+					listKeys.add(CREDENTIALS[0]);
+					listValues.add("");
+				}
+				else if(ids[i]==1) {
+					listKeys.add(CREDENTIALS[1]);
+					listValues.add("http://localhost:8081/MyServlet/trusted_company");
+				}
+				else if(ids[i]==j) {
+					listKeys.add(CREDENTIALS[j]);
+					listValues.add("");
+				}
 			}
 		}
-	
+		
 		// Create negotiation service
 		Service service=new HttpNegotiationService(
 				(String[])listKeys.toArray(new String[0]),
