@@ -93,8 +93,10 @@ public class JSPTagChecker implements IJSPTagChecker {
 	private boolean isTagFulfilled(List listCreds,String strCredName,HttpSession session) {
 		log.debug(SESSION_ACCESS_STATE_RESPONSE);
 		// If client sent no credentials, the tag is not satisfied
-		if(listCreds.isEmpty())
+		if(listCreds.isEmpty()) {
+			session.setAttribute(SESSION_FINISHED_KEY,SESSION_FINISHED_VALUE);
 			return false;
+		}
 		
 		// Check if the list from the client contains the required credential
 		boolean bFulfilled=false;
