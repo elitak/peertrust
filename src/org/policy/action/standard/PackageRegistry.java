@@ -8,5 +8,5 @@ public interface PackageRegistry extends Configurable
 	
 	AbstractExecutorWrapper removePackage (String packageName) ;
 	
-	AbstractExecutorWrapper getPackageExecutor (String packageName) ;
+	AbstractExecutorWrapper getPackageExecutor (String packageName) throws UnavailablePackageException ;
 }

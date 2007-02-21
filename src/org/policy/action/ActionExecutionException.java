@@ -15,22 +15,54 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with Peertrust; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
-USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 package org.policy.action;
 
-import org.policy.action.tools.PolicyException;
+import org.policy.GeneralPolicyEngineException;
 
-public class ActionExecutionException extends PolicyException
-{
+/**
+ * <p>
+ * Exception raised if an error while configuring the system or a class.
+ * </p><p>
+ * $Id: ActionExecutionException.java,v 1.4 2007/02/21 06:52:48 dolmedilla Exp $
+ * <br/>
+ * Date: 05-Dec-2003
+ * <br/>
+ * Last changed: $Date: 2007/02/21 06:52:48 $
+ * by $Author: dolmedilla $
+ * </p>
+ * @author olmedilla 
+ */
+public class ActionExecutionException extends GeneralPolicyEngineException {
 
+	/**
+	 * 
+	 */
 	public ActionExecutionException() {
 		super();
 	}
 
+	/**
+	 * @param message
+	 */
 	public ActionExecutionException(String message) {
 		super(message);
+	}
+	
+	/**
+	 * @param arg0
+	 */
+	public ActionExecutionException(Throwable arg0) {
+		super(arg0);
+		// TODO Auto-generated constructor stub
+	}
+	/**
+	 * @param arg0
+	 * @param arg1
+	 */
+	public ActionExecutionException(String arg0, Throwable arg1) {
+		super(arg0, arg1);
+		// TODO Auto-generated constructor stub
 	}
 }

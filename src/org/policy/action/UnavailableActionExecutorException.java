@@ -17,7 +17,7 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.policy.model;
+package org.policy.action;
 
 import org.policy.GeneralPolicyEngineException;
 
@@ -25,35 +25,35 @@ import org.policy.GeneralPolicyEngineException;
  * <p>
  * Exception raised if an error while configuring the system or a class.
  * </p><p>
- * $Id: MethodNotSupportedException.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: UnavailableActionExecutorException.java,v 1.1 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class MethodNotSupportedException extends GeneralPolicyEngineException {
+public class UnavailableActionExecutorException extends GeneralPolicyEngineException {
 
 	/**
 	 * 
 	 */
-	public MethodNotSupportedException() {
+	public UnavailableActionExecutorException() {
 		super();
 	}
 
 	/**
 	 * @param message
 	 */
-	public MethodNotSupportedException(String message) {
+	public UnavailableActionExecutorException(String message) {
 		super(message);
 	}
 	
 	/**
 	 * @param arg0
 	 */
-	public MethodNotSupportedException(Throwable arg0) {
+	public UnavailableActionExecutorException(Throwable arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -61,7 +61,7 @@ public class MethodNotSupportedException extends GeneralPolicyEngineException {
 	 * @param arg0
 	 * @param arg1
 	 */
-	public MethodNotSupportedException(String arg0, Throwable arg1) {
+	public UnavailableActionExecutorException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 		// TODO Auto-generated constructor stub
 	}

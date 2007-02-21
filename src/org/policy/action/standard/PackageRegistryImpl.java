@@ -28,11 +28,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * 
  * </p><p>
- * $Id: PackageRegistryImpl.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: PackageRegistryImpl.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -72,9 +72,14 @@ public class PackageRegistryImpl implements PackageRegistry
 	/* (non-Javadoc)
 	 * @see org.policy.action.standard.PackageRegistry#getPackageExecutor(java.lang.String)
 	 */
-	public AbstractExecutorWrapper getPackageExecutor(String packageName)
+	public AbstractExecutorWrapper getPackageExecutor(String packageName) throws UnavailablePackageException
 	{
-		return _registry.get(packageName) ;
+		AbstractExecutorWrapper executor = _registry.get(packageName) ;
+		
+		if (executor == null)
+			throw new UnavailablePackageException ("Package " + packageName + " has not been found") ;
+		else
+			return executor ;
 	}
 
 }

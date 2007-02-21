@@ -23,28 +23,28 @@ package org.policy.crypt.credentials;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
+import org.policy.action.ActionExecutionException;
+import org.policy.action.ActionExecutor;
+import org.policy.action.StandardNotification;
 import org.policy.action.standard.PackageAction;
 import org.policy.config.ConfigurationException;
-import org.policy.model.Action;
-import org.policy.model.ActionExecutionException;
 import org.policy.model.MethodNotSupportedException;
-import org.policy.model.StandardNotification;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: CredentialAction.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: CredentialAction.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class CredentialAction implements Action
+public class CredentialAction implements ActionExecutor
 {
 	// TODO Not yet clear whether this will be done like this or not
 	

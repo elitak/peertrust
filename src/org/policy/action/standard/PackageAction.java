@@ -24,38 +24,33 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
+import org.policy.action.ActionExecutionException;
+import org.policy.action.ActionExecutor;
+import org.policy.action.StandardNotification;
 import org.policy.config.ConfigurationException;
-import org.policy.model.Action;
-import org.policy.model.ActionExecutionException;
-import org.policy.model.MethodNotSupportedException;
-import org.policy.model.StandardNotification;
 
 /**
  * <p>
  * This is specific kind of action which wraps all package calls made i.e. using the 
  *     in predicate in Protune. It contains a single method called "packageExecution"
  * </p><p>
- * $Id: PackageAction.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: PackageAction.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class PackageAction implements Action
+public class PackageAction implements ActionExecutor
 {
 	private static Logger log = Logger.getLogger(PackageAction.class);
 	
-	final String DEFAULT_URI = "http://www.L3S.de/~olmedilla/action#packageAction" ;  
-	final String DEFAULT_METHOD_NAME = "packageExecution" ;
+	final String DEFAULT_METHOD_NAME = "in" ;
 	
-	String _URIString = DEFAULT_URI ;
 	String _methodName = DEFAULT_METHOD_NAME ;
-	
-	URI _uri ;
 
 	public PackageAction ()
 	{
@@ -63,34 +58,27 @@ public class PackageAction implements Action
 	
 	public void init() throws ConfigurationException
 	{
-		try
-		{
-			_uri = new URI(_URIString) ;
-		} catch (URISyntaxException e)
-		{
-			log.error(e.getMessage()) ;
-			new ConfigurationException (e.getMessage()) ;
-		}
+
 	}
 
 	/* (non-Javadoc)
 	 * @see org.policy.model.Action#getURI(java.lang.String)
-	 */
+	 * /
 	public URI getURI(String methodName) throws MethodNotSupportedException
 	{
 		if (_methodName.equalsIgnoreCase(methodName) == false)
 			throw new MethodNotSupportedException ("Method " + methodName + " is not known in class " + this.getClass().getName()) ;
 		
 		return _uri ;
-	}
+	}*/
 
 	/* (non-Javadoc)
 	 * @see org.policy.model.Action#execute(java.net.URI, java.lang.String[])
 	 */
-	public StandardNotification execute (URI ref, String[] args) throws MethodNotSupportedException, ActionExecutionException
+	public StandardNotification execute(String method, String[] args) throws WrongArgumentsException, NoSuchFunctionException, ActionExecutionException
 	{
-		if (_uri.equals(ref) == false)
-			throw new MethodNotSupportedException ("URI " + ref + " is not supported in class " + this.getClass().getName()) ;
+		if (_methodName.equals(method) == false)
+			throw new NoSuchFunctionException ("Method  " + method + " is not supported in class " + this.getClass().getName()) ;
 
 		// TODO wrap the package call around here
 		
@@ -100,16 +88,9 @@ public class PackageAction implements Action
 	/**
 	 * @param methodName The methodName to set.
 	 */
-	public void setMethodName(String methodName)
+	public void setPackageMethodName(String methodName)
 	{
 		this._methodName = methodName;
 	}
 
-	/**
-	 * @param uri The uRI to set.
-	 */
-	public void setURI(String uri)
-	{
-		_URIString = uri;
-	}
 }

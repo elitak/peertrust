@@ -18,33 +18,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.model;
+package org.policy.action;
+
+import org.policy.model.Action;
+import org.policy.model.Notification;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: StandardNotification.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: ActionManager.java,v 1.1 2007/02/21 06:52:47 dolmedilla Exp $
  * <br/>
- * Date: Feb 18, 2007
+ * Date: Feb 20, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:47 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class StandardNotification extends Notification
+public interface ActionManager
 {
-	
-	// TODO to write completely
-	public StandardNotification (String notification)
-	{
-		this(new String[] {notification} ) ;
-	}
-	
-	public StandardNotification (String [] notification)
-	{
-		super() ;
-	}
+	Notification [] executeActions (Action [] actions) ;
 }

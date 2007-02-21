@@ -20,18 +20,18 @@
 
 package org.policy.protune.model;
 
+import org.policy.action.StandardNotification;
 import org.policy.model.Notification;
-import org.policy.model.StandardNotification;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ProtuneNotification.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: ProtuneNotification.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

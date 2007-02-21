@@ -18,15 +18,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.model;
+package org.policy.action;
+
+import org.policy.model.Action;
+import org.policy.model.Notification;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Action.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
+ * $Id: StandardNotification.java,v 1.1 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
- * Date: Feb 20, 2007
+ * Date: Feb 18, 2007
  * <br/>
  * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
@@ -34,20 +37,17 @@ package org.policy.model;
  * @author olmedilla
  */
 
-public abstract class Action
+public class StandardNotification extends Notification
 {
-	String _actionString ;
 	
-	public Action(String actionString)
+	// TODO to write completely
+	public StandardNotification (Action action, String notification)
 	{
-		_actionString = actionString ;
+		this(action, new String[] {notification} ) ;
 	}
-
-	/**
-	 * @return Returns the actionString.
-	 */
-	public String getActionString()
+	
+	public StandardNotification (Action action, String [] notifications)
 	{
-		return _actionString;
+		super(action, notifications) ;
 	}
 }

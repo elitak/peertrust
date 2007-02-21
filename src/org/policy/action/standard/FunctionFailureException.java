@@ -21,7 +21,7 @@ USA
 
 package org.policy.action.standard;
 
-import org.policy.model.ActionExecutionException;
+import org.policy.action.ActionExecutionException;
 
 
 public class FunctionFailureException extends ActionExecutionException {

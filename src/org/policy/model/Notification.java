@@ -24,11 +24,11 @@ package org.policy.model;
  * <p>
  * 
  * </p><p>
- * $Id: Notification.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: Notification.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -36,5 +36,28 @@ package org.policy.model;
 
 public class Notification
 {
+	Action _action ;
+	String [] _notificationStrings ;
+	
+	public Notification (Action action, String [] notificationStrings)
+	{
+		_action = action ;
+		_notificationStrings = notificationStrings ;
+	}
+	
+	/**
+	 * @return Returns the action.
+	 */
+	public Action getAction()
+	{
+		return _action;
+	}
 
+	/**
+	 * @return Returns the notificationStrings.
+	 */
+	public String[] getNotificationStrings()
+	{
+		return _notificationStrings;
+	}
 }

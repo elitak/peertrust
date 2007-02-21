@@ -24,5 +24,5 @@ package org.policy.action.standard;
 
 public interface ExecutablePackage {
 	ActionResult executeAction( final String functionName, final String arguments[], final String[] inputVars ) 
-	      throws IllegalArgumentException, FunctionFailureException, NoSuchFunctionException;
+	      throws WrongArgumentsException, FunctionFailureException, NoSuchFunctionException;
 }

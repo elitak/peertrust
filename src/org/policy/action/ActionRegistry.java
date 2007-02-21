@@ -18,13 +18,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.model;
+package org.policy.action;
+
+import java.net.URI;
+
+import org.policy.config.Configurable;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Action.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
+ * $Id: ActionRegistry.java,v 1.1 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: Feb 20, 2007
  * <br/>
@@ -34,20 +38,11 @@ package org.policy.model;
  * @author olmedilla
  */
 
-public abstract class Action
+public interface ActionRegistry extends Configurable
 {
-	String _actionString ;
+	void addActionExecutor (URI uri, ActionExecutor executor) ;
 	
-	public Action(String actionString)
-	{
-		_actionString = actionString ;
-	}
-
-	/**
-	 * @return Returns the actionString.
-	 */
-	public String getActionString()
-	{
-		return _actionString;
-	}
+	ActionExecutor removeActionExecutor (URI uri) ;
+	
+	ActionExecutor getActionExecutor (URI uri) throws UnavailableActionExecutorException ;
 }

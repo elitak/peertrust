@@ -17,7 +17,7 @@
  * along with Peertrust; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-package org.policy.model;
+package org.policy.action.standard;
 
 import org.policy.GeneralPolicyEngineException;
 
@@ -25,35 +25,35 @@ import org.policy.GeneralPolicyEngineException;
  * <p>
  * Exception raised if an error while configuring the system or a class.
  * </p><p>
- * $Id: ActionExecutionException.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: UnavailablePackageException.java,v 1.1 2007/02/21 06:52:48 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/21 06:52:48 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class ActionExecutionException extends GeneralPolicyEngineException {
+public class UnavailablePackageException extends GeneralPolicyEngineException {
 
 	/**
 	 * 
 	 */
-	public ActionExecutionException() {
+	public UnavailablePackageException() {
 		super();
 	}
 
 	/**
 	 * @param message
 	 */
-	public ActionExecutionException(String message) {
+	public UnavailablePackageException(String message) {
 		super(message);
 	}
 	
 	/**
 	 * @param arg0
 	 */
-	public ActionExecutionException(Throwable arg0) {
+	public UnavailablePackageException(Throwable arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub
 	}
@@ -61,7 +61,7 @@ public class ActionExecutionException extends GeneralPolicyEngineException {
 	 * @param arg0
 	 * @param arg1
 	 */
-	public ActionExecutionException(String arg0, Throwable arg1) {
+	public UnavailablePackageException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 		// TODO Auto-generated constructor stub
 	}

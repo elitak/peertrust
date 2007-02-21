@@ -18,36 +18,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-package org.policy.model;
+package org.policy.action;
+
+import org.policy.action.standard.NoSuchFunctionException;
+import org.policy.action.standard.WrongArgumentsException;
+import org.policy.config.Configurable;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Action.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
+ * $Id: ActionExecutor.java,v 1.1 2007/02/21 06:52:47 dolmedilla Exp $
  * <br/>
- * Date: Feb 20, 2007
+ * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/21 06:52:48 $
+ * Last changed: $Date: 2007/02/21 06:52:47 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public abstract class Action
+public interface ActionExecutor extends Configurable
 {
-	String _actionString ;
+	// URI getURI (String methodName) throws NoSuchFunctionException ;
 	
-	public Action(String actionString)
-	{
-		_actionString = actionString ;
-	}
-
-	/**
-	 * @return Returns the actionString.
-	 */
-	public String getActionString()
-	{
-		return _actionString;
-	}
+	// void setURI (URI uri, String methodName) ;
+	
+	StandardNotification execute (String method, String[] args) throws WrongArgumentsException, NoSuchFunctionException, ActionExecutionException ;
 }
