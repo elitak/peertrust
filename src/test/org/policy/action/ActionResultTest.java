@@ -1,6 +1,6 @@
 package test.org.policy.action;
 
-import org.policy.action.ActionResult;
+import org.policy.action.standard.ActionResult;
 
 import junit.framework.TestCase;
 

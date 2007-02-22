@@ -1,0 +1,23 @@
+<head><TITLE>POLICY MANAGEMENT TOOL AND WEB BROWSER AND SERVER SCENARIO</TITLE></head>
+
+<body>
+<h2>POLICY MANAGEMENT TOOL AND WEB BROWSER AND SERVER SCENARIO</h2>
+ 
+<p>
+The two demos here presented are closely related and show how policies can be used for resource protection. In particular, we address a scenario in which a web server protects resources by means of policies and a user, using its browser (as she would usually do) is able to access sensitive resources by negotiating with the web server (based of course also on credentials the user owns as well as the policies stating the conditions under which those credentials can be disclosed. Furthermore, the web server can assign policies not only to full resources (files or static web pages offered) but it is also able to generate dynamic web pages based in a personalized way, depending on runtime negotiations with the client requesting such resources.
+</p>
+
+<h3>Policy Management Tool</h3>
+
+<p>
+End users as well as administrators require tools for managing their policies. Furthermore, providing policies individually to each existing credential or resource may be time consuming and error prone. For example, a user having a VISA credit card and a Master Card is likely to be willing to protect both of them with the same policies. In the same way, a web server administrator will probably want to attach policies to whole directories in a way that the policies are propagated to the files in those directories automatically. This is the main idea of our policy management tool, in which ontologies and inheritance are used in order to ease the specification and management of policies by users. The tool currently provides two different views: one for managing policies attached to credentials and another for file system protection. For each one of them, policies can be associated and inherited by subelements in the hierarchies. Furthermore, for each policy assignment, several options are available, among them, setting the type of the policy (mandatory - inherited policies which cannot be overridden - and default - inherited but which can be overridden) or filters specifying how the inheritance will be performed (which elements of the hierarchy will inherit the policy) based on regular expressions. All the information specified with the policy management tool is exported to a file that is later used by the policy engine in order to enforce these policies.
+
+</p>
+
+<h3>Web Browser and Server Scenario.</h3>
+
+<p>
+Given that both user and web server have defined their policies protecting their resources (either credentials or files), these can be used while both parties are communicating. Suppose the user uses her web browser to access some resources of the web server  First time she tries to access any resource, an applet is provided by the server. This applet is signed by a trusted authority (e.g., REWERSE) and not by the server (which may be untrusted). This ensures that the user has a policy engine with full reasoning capabilities without the need of installing any extra tool (and therefore keeping the policy-driven negotiations invisible to her). The applet reads the user local policies in order to enforce them during forthcoming negotiations. Every time the user tries to access now a new resource, a possible negotiation will start in case the resource is protected at the web server side. There are two kind of protections at the server side: static resource protection (the whole resource as a whole) or dynamic resource protection. The former assigns policies to (generally) existing resources and disclose them only if the policies are satisfied. The latter represents a situation in which dynamic content is generated (dynamic web pages) in which content will be generated according to the satisfaction (or not satisfaction) of policies. For this case, some JSP tags are defined so web designers can add conditions based on satisfaction of policies when generating web pages. All negotiations use the standard HTTP messages and are hidden to the user, which does not need to know about what is happening behind the scenes unless she is interested on seeing it. It is important to mention that currently, when the user is denied access to a resource, there exist a general message stating that some conditions were not fullfiled. However, we are currently working towards the integration of the explanations module in order to provide better feedback to the user about the reasons why access was denied.
+</p>
+
+</body>

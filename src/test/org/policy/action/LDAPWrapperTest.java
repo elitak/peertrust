@@ -6,12 +6,12 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-import org.policy.action.ActionResult;
-import org.policy.action.FunctionFailureException;
-import org.policy.action.NoSuchFunctionException;
-import org.policy.action.Result;
-import org.policy.action.ResultSet;
-import org.policy.action.packages.LDAPWrapper;
+import org.policy.action.standard.ActionResult;
+import org.policy.action.standard.FunctionFailureException;
+import org.policy.action.standard.NoSuchFunctionException;
+import org.policy.action.standard.Result;
+import org.policy.action.standard.ResultSet;
+import org.policy.action.standard.packages.LDAPWrapper;
 
 public class LDAPWrapperTest extends TestCase {
 	private LDAPWrapper ldapWapper = null;

@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 
-import org.policy.view.QueryGUI;
+import org.policy.action.standard.view.QueryGUI;
 
 import junit.framework.TestCase;
 

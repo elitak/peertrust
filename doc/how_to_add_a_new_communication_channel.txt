@@ -1,0 +1,39 @@
+HOW TO ADD A NEW COMMUNICATION CHANNEL TO THE POLICY FRAMEWORK
+
+The following steps have to be performed:
+
+1. Subclassing org.policy.communication.net.NetworkPeer
+-------------------------------------------------------
+This subclass should contain the information needed for a peer to connect to another based on the new communication channel. For example, org.policy.communication.net.socket.SocketPeer only requires address and port as information needed to connect to any other peer, that is, with that information it is possible to start a socket connection with another peer.
+
+2. Create a class implementing the org.policy.communication.net.NetworkClient interface
+---------------------------------------------------------------------------------------
+This is in charge of sending new messages. The method to implement is
+	void send(ServiceMessage message, NetworkPeer destination) throws NetworkCommunicationException.
+which basically sends the message to the destination. 
+
+NOTE: destination should be an instance of the subclass defined in point 1. Otherwise there must be a wrong use of the code by a developer
+
+3. Create a class implementing the org.policy.communication.net.NetworkServer interface
+---------------------------------------------------------------------------------------
+This is in charge of listening for new messages. The method to impement is 
+
+	ServiceMessage listen() throws NetworkCommunicationException ;
+
+which only awaits till a new message arrives and returns it. Once this message is processed by the factory, it will again invoke the method listen() in order to wait for new messages.
+
+NOTE: the class should await till a new message arrives. However, mechanisms like sleep are required in order to avoid the consumption of processor while waiting.
+
+4. Subclassing org.policy.communication.net.NetworkCommunicationFactory
+-----------------------------------------------------------------------
+NetworkCommunicationFactory is an abstract class that takes care of the creation of a communication channel client and server at a peer. It already defines the code for the management of incoming messages and its notification to other components of the engine and also takes care of the reception of requests for new messages to be sent. Therefore, for the new communication channel it is only needed to create a new subclass that implements the following methods:
+ 
+ - NetworkPeer getLocalServerPeerInfo (). Returns the subclass of NetworkPeer created in point 1.
+ - NetworkClient createNetClient(). Returns the class implementing NetworkClient created in point 2.
+ - NetworkServer createNetServer(). Returns the class implementing NetworkServer created in point 3.
+
+NOTE: It is important not to override any of the existing non-abstract methods in NetworkCommunicationFactory. Failing to do so may cause the system not working correctly.
+
+Once all this is performed, there are two ways of integration with the policy engine:
+- (PREFERRED) the new factory class is added to the configuration file used to load the engine. This is possible if the factory may be created new during the initialization of the policy engine.
+- invoke the setCommunicationChannel(NetworkCommunicationFactory factory) method provided in any of the wrappers built for using the policy engine (e.g., org.policy.engine.PolicyEngineClient) or directly (if possible avoid doing it directly) in the policy engine being used (from the interface org.policy.engine.PolicyEngine). This way is useful when the communication channel already exists before the policy engine is created and initialized. NOTE: if this mechanism is chosing, setting the communication channel should be done only right after the creation of the policy engine wrapper (or the engine itself) and before it is initialized. Failing doing so may cause the system not functioning correctly.

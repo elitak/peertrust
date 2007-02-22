@@ -1,0 +1,49 @@
+USING THE POLICY ENGINE FROM AN APPLICATION CLIENT
+
+In order to easily use the policy engine, a wrapper client class has been created. This class is org.policy.engine.PolicyEngineClient . The class contains the basic methods required to make decisions according to policies. There are two main methods requesting a decision:
+- sendSimpleNegotiationRequest (Policy query, ServiceHandler handler, Peer peer). This method sends a request to the engine and expects an "quick" answer from the peer, that is, no negotiation is performed but a single step. The arguments are
+	* Policy : the query to be answered
+	* ServiceHandler: specifies which framework should process the request (e.g., Protune or PeerTrust). Subclasses of ServiceHandler should exist for available frameworks (e.g., org.policy.protune.model.ProtuneServiceHandler or org.policy.peertrust.model.PeerTrustServiceHandler)
+	* Peer : the peer to which the query is sent. Several options are here possible:
+		- LocalPeerEngine : the query is sent only to the local policy engine (and not forwarded to any other peer). This is useful when making local decisions, or testing local policies. Note: this peer can be retrieved using the method getEnginePeer().
+		- An external peer : the query is forwarded to the specified peer. This is used when the request is not made locally but it must be sent to an external peer.
+- sendNegotiationRequest(Policy, ServiceHandler, Peer). This method sends a request to the engine and expects a final answer from the specified peer, that is, a negotiation may be performed (and the local policy engine will negotiate on client's behalf and only notify the client after the negotiation is finished). The arguments are
+	* Policy : the query to be answered
+	* ServiceHandler: specifies which framework should process the request (e.g., Protune or PeerTrust). Subclasses of ServiceHandler should exist for available frameworks (e.g., org.policy.protune.model.ProtuneServiceHandler or org.policy.peertrust.model.PeerTrustServiceHandler)
+	Peer : the peer to which the query is sent. In this case, only an external peer is allowed and the local policy engine will perform a negotiation with such a peer
+
+After a request has been made, a org.policy.model.ClientRequestId is returned as an identifier. It can then be used to extract information of the result of the request. Currently available methods in org.policy.engine.PolicyEngineClient are:
+	* boolean isResponseReceived (ClientRequestId id). Returns whether a response has been received or not (in case the control was returned due to a timeout).
+	* boolean isSuccessful (ClientRequestId id). Returns whether the request was successful (query was evaluated to true) or not (evaluated to false).
+	* boolean isNegotiationFinished (ClientRequestId id). Returns whether a negotiation has been finished or not.
+	* Explanation getExplanation (ClientRequestId id, int type). Returns an explanation of the response to the request.
+	* Notification[] getNotifications (ClientRequestId id). Returns the notifications sent with the response.
+Typically, isResponseReceived, isSuccessful and getExplanation will be the main ones used for access control decisions.
+
+An example of how to use the class org.policy.engine.PolicyEngineClient is here provided:
+
+	// Given a query (e.g., in Protune syntax) and a configuration file for the engine initilization and configuration
+	String query = ... ;
+	String configurationFile = ... ;
+
+	String [] newArgs = {  configurationFile } ;
+	String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
+	
+	PolicyEngineClient client = new PolicyEngineClient (newArgs, defaultComponents) ;
+
+	// In case that the configuration file does not define a communication channel, here it may be explicitly specified
+	// Only use this mechanism when the communication channel already exists before the policy engine is created (that is, it is external to the engine)
+	// setCommunicationChannel(NetworkCommunicationFactory factory)
+
+	client.init() ;
+
+	// A request to the Protune framework of the policy engine is sent
+	ClientRequestId id = client.sendNegotiationRequest(new ProtunePolicy(query), 
+			Protune.getServiceHandler(), client.getEnginePeer()) ;
+	
+	// All results of the negotiation can now be extracted
+	System.out.println("Results: ") ;
+	System.out.println("\tRequest successful: " + client.isSuccessful(id)) ;
+	System.out.println("\tResponse received: " + client.isResponseReceived(id)) ;
+	System.out.println("\tNegotiation successful: " + client.isNegotiationFinished(id)) ;
+	System.out.println("\tExplanation: " + client.getExplanation(id, Explanation.WHY_NOT_EXPLANATION)) ;

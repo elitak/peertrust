@@ -23,7 +23,7 @@ package test.org.policy.action;
 
 import junit.framework.TestCase;
 
-import org.policy.action.parser.Parse;
+import org.policy.action.standard.parser.Parse;
 
 public class ParserTest extends TestCase {
 	private static String TESTSTR = " in (user(Name, Address), rdbms: query('select name, address from test', 'project'))";

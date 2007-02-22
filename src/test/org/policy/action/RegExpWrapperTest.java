@@ -7,10 +7,10 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-import org.policy.action.FunctionFailureException;
-import org.policy.action.NoSuchFunctionException;
-import org.policy.action.packages.LDAPWrapper;
-import org.policy.action.packages.RegExpWrapper;
+import org.policy.action.standard.FunctionFailureException;
+import org.policy.action.standard.NoSuchFunctionException;
+import org.policy.action.standard.packages.LDAPWrapper;
+import org.policy.action.standard.packages.RegExpWrapper;
 
 public class RegExpWrapperTest extends TestCase {
 	RegExpWrapper rew;

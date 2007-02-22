@@ -4,12 +4,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.policy.action.ActionResult;
-import org.policy.action.FunctionFailureException;
-import org.policy.action.NoSuchFunctionException;
-import org.policy.action.Result;
-import org.policy.action.ResultSet;
-import org.policy.action.packages.JDBCWrapper;
+import org.policy.action.standard.ActionResult;
+import org.policy.action.standard.FunctionFailureException;
+import org.policy.action.standard.NoSuchFunctionException;
+import org.policy.action.standard.Result;
+import org.policy.action.standard.ResultSet;
+import org.policy.action.standard.packages.JDBCWrapper;
 
 public class JDBCWrapperTest extends TestCase {
 	private JDBCWrapper jdbcWapper = null;

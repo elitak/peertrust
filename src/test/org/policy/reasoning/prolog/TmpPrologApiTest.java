@@ -1,7 +1,7 @@
 package test.org.policy.reasoning.prolog;
 
 import org.policy.reasoning.prolog.*;
-import org.policy.action.ActionResult;
+import org.policy.action.standard.ActionResult;
 import org.peertrust.exception.*;
 import java.io.*;
 
