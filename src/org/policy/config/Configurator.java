@@ -60,11 +60,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: Configurator.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: Configurator.java,v 1.2 2007/02/24 19:20:54 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/24 19:20:54 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -144,7 +144,7 @@ public class Configurator {
         
         
 
-		log.debug("$Id: Configurator.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $");
+		log.debug("$Id: Configurator.java,v 1.2 2007/02/24 19:20:54 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -401,6 +401,8 @@ public class Configurator {
                     Object parameter = null;
                     
                     if (type.equals(String.class)) {
+                    	// DOC: added support for reference to system properties in the configuration file
+                    	
                     	// regular expression for system properties (e.g., ${user.home}
                 		String regex = "\\$\\{[a-zA-Z0-9.]*}" ;
                 		Pattern pattern = Pattern.compile(regex);
@@ -468,7 +470,7 @@ public class Configurator {
         }
     }
 
-    private Vector fillVector(Resource identifier, Object component, String attribute, String value) {
+    private Vector fillVector(Resource identifier, Object component, String attribute, String value) throws ConfigurationException {
         log.debug(".fillVector()");
         
         Resource subject = identifier ;
@@ -503,7 +505,12 @@ public class Configurator {
                     vector.add(literal.getString());
                 } else if (node instanceof Resource) {
                     Resource resource = (Resource) node;
-                    vector.add(resource.getURI().toString());
+                    //vector.add(resource.getURI().toString());
+                    
+                    // DOC: added support for objects within vectors
+                    Object parameter = createComponent (resource) ;
+                    vector.add(parameter) ;
+
                 }
             }
         }
@@ -553,7 +560,7 @@ public class Configurator {
     public static void main (String args[]) throws ConfigurationException
     {
     	String [] confFiles = { "peertrustConfig.rdf" } ;
-    	String [] components = { Vocabulary.PeertrustEngine.toString() } ;
+    	String [] components = { Vocabulary.PolicyEngine.toString() } ;
     	Configurator ptconf = new Configurator() ;
     	ptconf.startApp(confFiles, components) ;
     }

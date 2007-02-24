@@ -7,39 +7,34 @@
 <rdf:RDF xmlns:rdf="&rdf;" xmlns:rdfs="&rdfs;" xmlns:pt="&pt;">
 
  	<!-- ======================================================================
-	PeertrustEngine
+	Peertrust Engine
 	================================================================== -->
 	<pt:PolicyEngine rdf:about="#Example1">
 		<pt:javaClass>test.org.policy.config.TestClass</pt:javaClass>
-		<pt:string>testing</pt:string>
-		<pt:bool>true</pt:bool>
-		<pt:integer>33</pt:integer>
-		<pt:longinteger>33333</pt:longinteger>
 		<pt:vector rdf:resource="#Vector1"/>
-		<pt:example2 rdf:resource="#Example2"/>
 	</pt:PolicyEngine>
 
 	<rdf:Seq rdf:about="#Vector1">
-		<rdf:li>Element 1</rdf:li>
-		<rdf:li>Element 2</rdf:li>
+		<rdf:li rdf:resource="#Test1"/>
+		<rdf:li rdf:resource="#Test2"/>
 	</rdf:Seq>
 
 	<!-- ======================================================================
-	Example2
+	Test1
 	================================================================== -->
-	<pt:Example2 rdf:about="#Example2">
-		<pt:javaClass>test.org.policy.config.TestClass</pt:javaClass>
-		<pt:string>testing2</pt:string>
-		<pt:bool>false</pt:bool>
-		<pt:integer>-99</pt:integer>
-		<pt:longinteger>-99999</pt:longinteger>
-		<pt:vector rdf:resource="#Vector2"/>
-		<pt:example2 rdf:resource="#Example1"/>
-	</pt:Example2>
+	<pt:Component rdf:about="#Test1">
+		<pt:javaClass>test.org.policy.config.TestClass2</pt:javaClass>
+		<pt:string1>Element 1</pt:string1>
+		<pt:string2>Element 2</pt:string2>
+	</pt:Component>
 
-	<rdf:Seq rdf:about="#Vector2">
-		<rdf:li>Element 3</rdf:li>
-		<rdf:li>Element 4</rdf:li>
-	</rdf:Seq>
+	<!-- ======================================================================
+	Test2
+	================================================================== -->
+	<pt:Component rdf:about="#Test2">
+		<pt:javaClass>test.org.policy.config.TestClass2</pt:javaClass>
+		<pt:string1>Element 3</pt:string1>
+		<pt:string2>Element 4</pt:string2>
+	</pt:Component>
 	
 </rdf:RDF>

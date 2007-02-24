@@ -2,22 +2,22 @@
 <!DOCTYPE rdf:RDF [
         <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
         <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
-        <!ENTITY pt 'http://www.l3s.de/~olmedilla/peertrust/Vocabulary#'>
+        <!ENTITY pt 'http://www.L3S.de/~olmedilla/policy/Vocabulary#'>
 ]>
 <rdf:RDF xmlns:rdf="&rdf;" xmlns:rdfs="&rdfs;" xmlns:pt="&pt;">
 
  	<!-- ======================================================================
 	PeertrustEngine
 	================================================================== -->
-	<pt:PeertrustEngine rdf:about="#Example1">
-		<pt:javaClass>test.org.peertrust.config.TestClass</pt:javaClass>
+	<pt:PolicyEngine rdf:about="#Example1">
+		<pt:javaClass>test.org.policy.config.TestClass</pt:javaClass>
 		<pt:string>testing</pt:string>
 		<pt:bool>true</pt:bool>
 		<pt:integer>33</pt:integer>
 		<pt:longinteger>33333</pt:longinteger>
 		<pt:vector rdf:resource="#Vector1"/>
 		<pt:extraExample rdf:resource="#ConfiguratorParent"/>
-	</pt:PeertrustEngine>
+	</pt:PolicyEngine>
 
 	<rdf:Seq rdf:about="#Vector1">
 		<rdf:li>Element 1</rdf:li>
