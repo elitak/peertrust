@@ -1,0 +1,303 @@
+The representation of the following entities never change during the Protune -> Prolog translation
+
+	VARIABLE
+	STRING_CONSTANT
+	NUMBER
+	PREDICATE_LITERAL (not containing COMPLEX_TERMs at any nesting level)
+	OPERATOR_LITERAL (not containing COMPLEX_TERMs)
+
+Moreover the translation of
+
+	not SOMETHING
+
+is simply
+
+	not (TRANSLATION_OF_SOMETHING)
+
+therefore in the rest of the document only
+
+	PREDICATE_LITERAL containing COMPLEX_TERMs at some nesting level
+	OPERATOR_LITERAL containing COMPLEX_TERMs
+	COMPLEX_TERMs containing other COMPLEX_TERMs
+	SPECIAL_LITERALs
+	META_HEAD_LITERALs
+	negations
+
+will be taken into account.
+The following example is meant to contain all and only the entities whose representations change during the Protune -> Prolog translation. Such entities will appear in all positions they are allowed to.
+_____________________________________________________________________________________
+
+% Rule
+
+predicate1(predicate2(complexTerm1[attribute1:complexTerm2[attribute2:value1]])) :-
+	not predicate3(predicate4(complexTerm3[attribute3:complexTerm4[attribute4:value2]])),
+	not complexTerm5[attribute5:complexTerm6[attribute6:value3]] is complexTerm7[attribute7:complexTerm8[attribute8:value4]],
+	not complexTerm9[attribute9:complexTerm10[attribute10:value5]],
+	in(a(X, Y), package:function("string1" & X, Y)).
+
+% The same as before, but with an ID in front of the rule, i.e.
+
+[id] predicate1(predicate2(complexTerm1[attribute1:complexTerm2[attribute2:value1]])) :-
+	not predicate3(predicate4(complexTerm3[attribute3:complexTerm4[attribute4:value2]])),
+	not complexTerm5[attribute5:complexTerm6[attribute6:value3]] is complexTerm7[attribute7:complexTerm8[attribute8:value4]],
+	not complexTerm9[attribute9:complexTerm10[attribute10:value5]],
+	in(a(X, Y), package:function("string1" & X, Y)).
+
+% Metarule
+
+predicate1(predicate2(complexTerm1[attribute1:complexTerm2[attribute2:value1]])).attributeA:"string1" & X :-
+	not predicate3(predicate4(complexTerm3[attribute3:complexTerm4[attribute4:value2]])),
+	not complexTerm5[attribute5:complexTerm6[attribute6:value3]] is complexTerm7[attribute7:complexTerm8[attribute8:value4]],
+	not complexTerm9[attribute9:complexTerm10[attribute10:value5]],
+	not predicate5(predicate6(complexTerm11[attribute11:complexTerm12[attribute12:value6]])).attributeB:"string2" & X.
+
+% The same as before, but with IDs in META_HEAD_LITERALs, i.e.
+
+[id1].attributeA:"string1" & X :-
+	not predicate3(predicate4(complexTerm3[attribute3:complexTerm4[attribute4:value2]])),
+	not complexTerm5[attribute5:complexTerm6[attribute6:value3]] is complexTerm7[attribute7:complexTerm8[attribute8:value4]],
+	not complexTerm9[attribute9:complexTerm10[attribute10:value5]],
+	not [id2].attributeB:"string2" & X.
+_____________________________________________________________________________________
+
+The translation into Prolog follows. The translation rules base on
+	§2 of "Protune-documentation.pdf" you sent me on October, the 14th
+	the mail "Fwd: Re: questions about the protune system" you sent me on October, the 14th
+	the mail "Re: Internal representations" you sent me on Januar, the 13th
+	the mails "Re: Protune example" you sent me on Januar, the 16th at 9:59 and 12:04
+	the mails you sent me the day before yesterday
+_____________________________________________________________________________________
+
+% Rule
+
+rule(
+	automaticallyGeneratedId,
+	predicate1(predicate2(complexTerm1)),
+	[
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4),
+			complex_term(complexTerm4, attribute4, value2)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm6, attribute6, value3),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complex_term(complexTerm8, attribute8, value4),
+			complexTerm5 is complexTerm8
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10),
+			complex_term(complexTerm10, attribute10, value5)
+		),
+		in(a(X, Y), package, function, [['string1', X], [Y]])
+	],
+	['X' = X, 'Y' = Y]
+).
+rule(
+	cf. above,
+	complex_term(complexTerm1, attribute1, complexTerm2),
+	cf. above,
+	cf. above
+).
+rule(
+	cf. above,
+	complex_term(complexTerm2, attribute2, value1),
+	cf. above,
+	cf. above
+).
+
+% The same as before, but with an ID in front of the rule, i.e.
+
+rule(
+	id,
+	cf. above,
+	cf. above,
+	cf. above
+).
+rule(
+	id,
+	cf. above,
+	cf. above,
+	cf. above
+).
+rule(
+	id,
+	cf. above,
+	cf. above,
+	cf. above
+).
+
+% Metarule
+
+metarule(
+	head(pred, predicate1(predicate2(complexTerm1)), attributeA, ['string1', X]),
+	[
+		complex_term(complexTerm1, attribute1, complexTerm2), complex_term(complexTerm2, attribute2, value1),
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4),
+			complex_term(complexTerm4, attribute4, value2)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm6, attribute6, value3),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complex_term(complexTerm8, attribute8, value4),
+			complexTerm5 is complexTerm8
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10),
+			complex_term(complexTerm10, attribute10, value5)
+		),
+		not(
+			head(pred, predicate5(predicate6(complexTerm11)), attributeB, ['string2', X]),
+			complex_term(complexTerm11, attribute11, complexTerm12),
+			complex_term(complexTerm12, attribute12, value6)
+		)
+	],
+	['X' = X]
+).
+
+% The same as before, but with IDs in META_HEAD_LITERALs, i.e.
+
+metarule(
+	head(id, id1, attributeA, ['string1', X]),
+	[
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4),
+			complex_term(complexTerm4, attribute4, value2)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm6, attribute6, value3),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complex_term(complexTerm8, attribute8, value4),
+			complexTerm5 is complexTerm8
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10),
+			complex_term(complexTerm10, attribute10, value5)
+		),
+		not(
+			head(id, id2, attributeB, ['string2', X])
+		)
+	],
+	['X' = X]
+).
+_____________________________________________________________________________________
+
+So far we focused on a specific example. In the following quite general traslation rules are provided.
+Four functions (namely _nextId_(), _getVariableMappings_(), _removeComplexTerms_(), _translate_()) are defined and described by means of a Java-like notation.
+_____________________________________________________________________________________
+
+/**
+Returns a new id automatically generated.
+*/
+_nextId_();
+
+/**
+Returns a list of variable mappings like "['X' = X, 'Y' = Y]" (used in rules and metarules).
+*/
+_getVariableMappings_();
+
+/**
+Removes complex terms from SOMETHING.
+ES:
+_removeComplexTerms_( "a(b(c[d:e]))" ) = "a(b(c))"
+_removeComplexTerms_( "a[b:c] is d[e:f]" ) = "a is d"
+_removeComplexTerms_( "a[b:c[d:e]]" ) = "a[b:c]"
+_removeComplexTerms_( "a(b[c:d]).e:f" ) = "a(b).e:f"
+_removeComplexTerms_( "a" ) = "a"
+*/
+_removeComplexTerms_(SOMETHING).
+
+/**
+Translates Protune code into Prolog code, according to the following definitions.
+
+// DIRECTIVE
+_translate_(DIRECTIVE):
+	"";
+
+// COMMENT
+_translate_(COMMENT):
+	"";
+
+// RULE without id
+_translate_("PREDICATE_LITERAL :- BODY."):
+	s = "";
+	id = _nextId_();
+	for each COMPLEX_TERM CTi in PREDICATE_LITERAL, at whatever nesting level
+		s += "rule(" + id + "," + _translate_(_removeComplexTerms_(CTi)) + ",[" + _translate_(BODY) + "]," + _getVariableMappings_() + ").";
+	s += "rule(" + id + "," + _removeComplexTerms_(PREDICATE_LITERAL) + ",[" + _translate_(BODY) + "]," + _getVariableMappings_() + ").";
+
+// RULE with id
+_translate_("[ID] PREDICATE_LITERAL :- BODY."):
+	cf. above (just replace "id" with "ID").
+
+// (META_)BODY
+_translate_("LITERAL1, ... LITERALn"):
+	s = "";
+	for(i=1; i<n; i++)
+		s += _translate_(LITERALi) + ",";
+	s += _translate_(LITERALn);
+
+// Negation of something
+_translate_("not SOMETHING"):
+	"not (" + _translate_(SOMETHING) + ")";
+
+// COMPLEX_TERM not appearing in a bigger structure
+_translate_("SOMETHING[ATTRIBUTE:VALUE1, ... ATTRIBUTE:VALUEn]"):
+	s = "";
+	for(i=1; i<=n; i++)
+		s += "complex_term(SOMETHING, ATTRIBUTE," + _removeComplexTerms_(VALUEi) + "),";
+	for each CTi in VALUE1...n (just at the first nesting level) except the last one
+		s += _translate_(CTi) + ",";
+	s += _translate_(CTlast_one);
+
+// PREDICATE_LITERAL not appearing in a bigger structure
+_translate_(PREDICATE_LITERAL):
+	s = _removeComplexTerms_(PREDICATE_LITERAL) + ",";
+	for each COMPLEX_TERM CTi in PREDICATE_LITERAL (just at the first nesting level of complex terms) except the last one
+		s += _translate_(CTi) + ",";
+	s += _translate_(CTlast_one);
+
+// OPERATOR_LITERAL
+_translate_("SOMETHING1 OPERATOR SOMETHING2"):
+	s = "";
+	for each COMPLEX_TERM CTi in SOMETHING1 or SOMETHING2 (just at the first nesting level of complex terms)
+		s += _translate_(CTi) + ",";
+	s += _removeComplexTerms_("SOMETHING1 OPERATOR SOMETHING2");
+
+// SPECIAL_LITERAL
+_translate_("in(SOMETHING, package:function(CONCATENATED_STRING1, ... CONCATENATED_STRINGn))"):
+	"in(SOMETHING, package, function, [" + _translate_(CONCATENATED_STRING1) + "," + ... _translate_(CONCATENATED_STRINGn) + "])";
+
+// CONCATENATED_STRING
+_translate_("\"a\" & ... B"):
+	"['a', ..., B]";
+
+// META_RULE whose head contains a PREDICATE
+_translate_("PREDICATE_LITERAL.ATTRIBUTE:VALUE :- META_BODY."):
+	s = "metarule(head(pred," + _removeComplexTerm_(PREDICATE_LITERAL) + ", ATTRIBUTE," + _translate_(VALUE) + "),[";
+	for each COMPLEX_TERM CTi in the HEAD (just at the first nesting level of complex terms)
+		s += _translate_(CTi) + ",";
+	s += _translate_(META_BODY) + "]," + _getVariableMappings_() + ").";
+
+// META_RULE whose head contains an ID
+_translate_("[ID].ATTRIBUTE:VALUE :- META_BODY."):
+	"metarule(" + _translate_("[ID].ATTRIBUTE:VALUE") + ",[" + _translate_(META_BODY) + "]," + _getVariableMappings_() + ").";
+
+// META_LITERAL containing a PREDICATE_LITERAL and not appearing in a bigger structure
+_translate_("PREDICATE_LITERAL.ATTRIBUTE:VALUE"):
+	s = "head(pred," + _removeComplexTerms_(PREDICATE_LITERAL) + ", ATTRIBUTE," + _translate_(VALUE) + "),";
+	for each COMPLEX_TERM CTi in PREDICATE_LITERAL (just at the first nesting level of complex terms) except the last one
+		s += _translate_(CTi) + ",";
+	s += _translate_(CTlast_one);
+
+// META_LITERAL containing an ID and not appearing in a bigger structure
+_translate_("[ID].ATTRIBUTE:VALUE"):
+	"head(id, ID, ATTRIBUTE," + _translate_(VALUE) + ")";
+*/
+_translate_(SOMETHING).

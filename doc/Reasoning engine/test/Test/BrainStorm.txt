@@ -1,0 +1,13 @@
+selectGoal(X, Y) :-
+   not X is Y,
+   !,
+   fail.
+selectGoal(X, Y).
+
+select(Goal, [], []).
+select(Goal, [H|T1], [H|T2]) :-
+   selectGoal(Goal, H),
+   !,
+   select(Goal, T1, T2).
+select(Goal, [H|T1], T2) :-
+   select(Goal, T1, T2).

@@ -1,0 +1,37 @@
+PARSER_BEGIN(Parser)
+
+package test.javacc;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+public class Parser {
+
+  public static void main(String args[]) throws ParseException, FileNotFoundException {
+    IdList parser = new IdList(new FileInputStream("C:/Programme/eclipse-SDK-3.2-win32/eclipse/workspace/Protune/src/test/javacc/Example.txt"));
+    parser.Input();
+  }
+
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  < IdList: Id ("," Id)* "." >
+  < Id: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* >
+}
+
+void Input() :
+{}
+{
+  ( <IdList> )+ <EOF>
+}

@@ -1,0 +1,93 @@
+rule(
+	automaticallyGeneratedId,
+	allow(something),
+	[
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complexTerm5 is complexTerm7
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10)
+		),
+		in(a(X, Y), package, function, [['string1', X], [Y]])
+	],
+	['X' = X, 'Y' = Y]
+).
+rule(
+	cf. above,
+	complex_term(complexTerm1, attribute1, complexTerm2),
+	cf. above,
+	cf. above
+).
+rule(
+	cf. above,
+	complex_term(complexTerm2, attribute2, value1),
+	cf. above,
+	cf. above
+).
+
+
+
+% Metarule
+
+metarule(
+	head(pred, predicate1(predicate2(complexTerm1)), attributeA, ['string1', X]),
+	[
+		complex_term(complexTerm1, attribute1, complexTerm2), complex_term(complexTerm2, attribute2, value1),
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4),
+			complex_term(complexTerm4, attribute4, value2)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm6, attribute6, value3),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complex_term(complexTerm8, attribute8, value4),
+			complexTerm5 is complexTerm8
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10),
+			complex_term(complexTerm10, attribute10, value5)
+		),
+		not(
+			head(pred, predicate5(predicate6(complexTerm11)), attributeB, ['string2', X]),
+			complex_term(complexTerm11, attribute11, complexTerm12),
+			complex_term(complexTerm12, attribute12, value6)
+		)
+	],
+	['X' = X]
+).
+
+% The same as before, but with IDs in META_HEAD_LITERALs, i.e.
+
+metarule(
+	head(id, id1, attributeA, ['string1', X]),
+	[
+		not (
+			predicate3(predicate4(complexTerm3)),
+			complex_term(complexTerm3, attribute3, complexTerm4),
+			complex_term(complexTerm4, attribute4, value2)
+		),
+		not (
+			complex_term(complexTerm5, attribute5, complexTerm6),
+			complex_term(complexTerm6, attribute6, value3),
+			complex_term(complexTerm7, attribute7, complexTerm8),
+			complex_term(complexTerm8, attribute8, value4),
+			complexTerm5 is complexTerm8
+		),
+		not (
+			complex_term(complexTerm9, attribute9, complexTerm10),
+			complex_term(complexTerm10, attribute10, value5)
+		),
+		not(
+			head(id, id2, attributeB, ['string2', X])
+		)
+	],
+	['X' = X]
+).

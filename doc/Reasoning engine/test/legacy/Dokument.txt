@@ -1,0 +1,158 @@
+Recall the example I provided, which theoretically should contain each possible Protune's linguistic construct
+
+[c0] p1(p2(), X1, CT1[a1:V1, a2:V2]) :- not p3(), X2 is X3, in(p4(), package:p5("$(X4)")).
+[c1].x6:X7 :- a(CT2[a3:V3]).a4:V4, CT3[a5:V5].
+
+It seems that we have to deal with (at least) eight syntactic entities: in the following "Something" refers to anyone of the following
+syntactic entities
+
+variable: 		Variable
+predicate:		predicate(Something1, ... SomethingN)
+negation:		not Something
+infixed operator:	Something1 Operator Something2
+"in" predicate:		in(Something1, package:Something2)
+metapredicate:		Something1.attribute:Something2
+string with escape:	"" & Something
+complex term:		Something1[attribute:Something2]
+
+(All operators we consider are fixed and well known, therefore in the following I will just use the 'is' operator, moreover I will only
+consider predicates with one single argument, complex terms with one single attribute/value pair and strings concatenated with just one
+term).
+
+In order to define a grammar for the Protune language we need to decide which possible combinations of these entities will be allowed.
+I started filling in the following table by using the information we exchanged by mail. Would you like to help me in checking and
+completing it? I am especially interested in the cases where the correct answer is "it depends".
+
+1. Suppose that a variable appears somewhere in a correct Protune (meta)rule. Is it possible that at run time such variable is replaced
+by a
+
+variable		Yes
+predicate		Yes
+negation		No
+infixed operator	No
+"in" predicate		No
+metapredicate		Yes
+string with escape	No
+complex term		Yes
+
+2. Suppose that a predicate appears somewhere in a correct Protune (meta)rule. Is it possible that it contains the following synctactic
+entities?
+
+predicate(Variable)					Yes
+predicate(predicate(Something))				Yes
+predicate(not Something)				No
+predicate(Something1 is Something2)			No
+predicate(in(Something1, package:Something2))		No
+predicate(Something1.attribute:Something2)		No
+predicate("" & Something)				No
+predicate(Something1[attribute:Something2])		Yes
+
+3. 
+
+not Variable					tuProlog supports it
+not predicate(Something)			Yes
+not (not Something)				tuProlog supports it
+not (Something1 is Something2)			tuProlog supports it
+not in(Something1, package:Something2)		
+not Something1.attribute:Something2		
+not "" & Something				
+not Something1[attribute:Something2]		I think yes
+
+4.
+
+Variable is Something					Yes
+predicate(Something1) is Something2			Yes
+(not Something1) is Something2				tuProlog supports it
+(Something1 is Something2) is Something3		tuProlog supports it
+in(Something1, package:Something2) is Something3	
+Something1.attribute:Something2 is Something3		
+"${Something1}" is Something2				
+Something1[attribute:Something2] is Something3		Yes
+
+and
+
+Something is Variable					Yes
+Something1 is predicate(Something2)			Yes
+Something1 is (not Something2)				tuProlog supports it
+Something1 is (Something2 is Something3)		tuProlog supports it
+Something1 is in(Something2, package:Something3)	
+Something1 is Something2.attribute:Something3		
+Something1 is ("" & Something2)				
+Something1 is Something2[attribute:Something3]		Yes
+
+5.
+
+in(Variable, package:Something)					Yes
+in(predicate(Something1), package:Something2)			
+in(not Something1, package:Something2)					
+in(Something1 is Something2, package:Something3)		
+in(in(Something1, package:Something2), package:Something3)	
+in(Something1.attribute:Something2, package:Something3)		
+in("" & Something1, package:Something2)				
+in(Something1[attribute:Something2], package:Something3)	
+
+and
+
+in(Something, package:Variable)					I think no
+in(Something1, package:predicate(Something2))			Yes
+in(Something1, package:(not Something2))			I think no
+in(Something1, package:(Something2 is Something3))		I think no
+in(Something1, package:in(Something2, package:Something3))	I think no
+in(Something1, package:(Something2.attribute:Something3))	I think no
+in(Something1, package:("" & Something2))			I think no
+in(Something1, package:Something2[attribute:Something3])	I think no
+
+6.
+
+Variable.attribute:Something					Yes
+predicate(Something1).attribute:Something2			
+(not Something1).attribute:Something2				
+(Something1 is Something2).attribute:Something3			
+in(Something1, package:Something2).attribute:Something3		
+(Something1.attribute:Something2).attribute:Something3		
+("" & Something1).attribute:Something2				
+Something1[attribute:Something2].attribute:Something3		
+
+and
+
+Something.attribute:Variable					Yes
+Something1.attribute:predicate(Something2)			
+Something1.attribute:(not Something2)				I think no
+Something1.attribute:(Something2 is Something3)			I think no
+Something1.attribute:in(Something2, package:Something3)		I think no
+Something1.attribute:(Something2.attribute:Something3)		
+Something1.attribute:("" & Something2)				
+Something1.attribute:Something2[attribute:Something3]		Yes
+
+7.
+
+"" & Variable					Yes
+"" & predicate(Something1, ... SomethingN)	I think no
+"" & (not Something)				I think no
+"" & (Something1 Operator Something2)		I think no
+"" & in(Something1, package:Something2)		I think no
+"" & Something1.attribute:Something2		I think no
+"" & "" & Something				I think no
+"" & Something1[attribute:Something2]		I think no
+
+8.
+
+Variable[attribute:Something]
+(predicate(Something1))[attribute:Something2]			I think no
+(not Something1)[attribute:Something2]				I think no
+(Something1 Operator Something2)[attribute:Something3]		I think no
+in(Something1, package:Something2)[attribute:Something3]	I think no
+(Something1.attribute:Something2)[attribute:Something3]		I think no
+("" & Something1)[attribute:Something2]				I think no
+(Something1[attribute:Something2])[attribute:Something3]	No
+
+and
+
+Something1[attribute:Variable]					
+Something1[attribute:predicate(Something2)]			
+Something1[attribute:(not Something2)]				
+Something1[attribute:(Something2 Operator Something3)]		
+Something1[attribute:in(Something2, package:Something3)]	
+Something1[attribute:(Something2.attribute:Something3)]		
+Something1[attribute:("" & Something2)]				
+Something1[attribute:(Something2[attribute:Something3])]	Yes

@@ -1,0 +1,21 @@
+localPolicy(X).
+filterGoalFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+extractLocalActions([execute(access(Resource))], LocalActions).
+prove([execute(access(Resource))]).
+prove([execute(serverCredential2)]).
+   OR
+prove([execute(clientCredential2)]).
+extractExternalActions([execute(access(Resource))], ExternalActions).
+filter([execute(access(Resource))], CurrentFilteredPolicy).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+extractUnlockedExternalActions([execute(access(Resource))], X). = []
+extractExternalActions([execute(access(Resource))], X). = CC1
+extractExternalActionsFromFilteredPolicy([execute(access(Resource))], X). = CC1
+extractGoalExternalActionsFromFilteredPolicy(execute(access(Resource)), X). = CC1
+
+Continuare con la regola evidenziata.

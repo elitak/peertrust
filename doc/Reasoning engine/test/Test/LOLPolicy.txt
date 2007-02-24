@@ -1,0 +1,225 @@
+% [r1] allow( browse(index) ) :-
+%    true.
+% 
+% [r2] allow( download(Resource) ) :-
+%    public(Resource).
+% [r3] allow( download(Resource) ) :-
+%    authenticated(User),
+%    has_subscription(User,Subscription),
+%    available_for(Resource,Subscription).
+% [r4] allow( download(Resource) ) :-
+%    authenticated(User),
+%    paid(User,Resource).
+% 
+% [r5] allow( comment(X) ) :-
+%    logged(X).
+% 
+% [r6] authenticated(User) :-
+%    id(Credential),
+%    Credential.name:User,
+%    Credential.public_key:K,
+%    challenge(K).
+% [r7] authenticated(User) :-
+%    declaration(D[ username:User, password:P ]),
+%    passwd(User,P).
+% [r8] authenticated(User) :-
+%    do('http://lol.com/register.php').
+% 
+% [r9] id(Cred) :-
+%    valid_credential(Cred),
+%    Cred.type:T,
+%    Cred.issuer:CA,
+%    isa(T,id),
+%    trusted_for(CA,T).
+% 
+% [r10] isa(T,T).
+% [r11] isa(ssn,id).
+% [r12] isa(passport,id).
+% [r13] isa(driving_license,id).
+% 
+% [r14] paid(Usr,Resource) :-
+%    price(Resource,Price),
+%    fastpay(Resource,Price).
+% [r15] paid(Usr,Resource) :-
+%    price(Resource,Price),
+%    credit_card_payment(Resource,Price).
+% 
+% [r16] fastpay(Resource,Price) :-
+%    valid_credential(FPC),
+%    FPC.type:fastpay,
+%    declaration(D[ pin:XXXX ]),
+%    charged(Resource,Price,FPC,XXXX).
+% 
+% [r17] credit_card_payment(Resource,Price) :-
+%    valid_credential(CC),
+%    CC.type:credit_card,
+%    CC.owner:Usr,
+%    authenticated(Usr),
+%    charged(Resource,Price,CC,na).
+% 
+% [r18] valid_credential(C) :-
+%    credential(C),
+%    C.issuer:CA,
+%    public_key(CA,K),
+%    verify_signature(C,K).
+% 
+% [r19] public(resource).
+% 
+% [r20] public_key(issuer, publicKey).
+% 
+% [r21] trusted_for(issuer, type).
+% 
+% [r22] has_subscription(user, subscription).
+% 
+% [r23] available_for(resource, subscription).
+% 
+% [r24] price(resource, price).
+% 
+% [r25] passwd(user, password).
+% 
+% allow(_) . type : abbreviation.
+% allow(_) . sensitivity : public.
+% 
+% public(_) . type : stateQuery.
+% public(X) . sensitivity : public :- ground(X).
+% 
+% authenticated(_) . type : abbreviation.
+% authenticated(_) . sensitivity : public.
+% 
+% has_subscription(_,_) . type : stateQuery.
+% has_subscription(X,_) . sensitivity : public :- ground(X).
+%
+% available_for(_,_) . type : stateQuery.
+% available_for(X,_) . sensitivity : public :- ground(X).
+% 
+% paid(_,_) . type : abbreviation.
+% paid(_,_) . sensitivity : public.
+% 
+% logged(_) . type : provisional.
+% logged(_) . actor : self.
+% logged(X) . execution : immediate :- ground(X).
+% 
+% id(_) . type : abbreviation.
+% id(_) . sensitivity : public.
+% 
+% challenge(_) . type : provisional.
+% challenge(_) . actor : self.
+% challenge(X) . execution : immediate :- ground(X).
+% 
+% declaration(_) . type : provisional.
+% declaration(_) . actor : peer.
+% 
+% passwd(_,_) . type : stateQuery.
+% passwd(X,Y) . sensitivity : public :- ground(X), ground(Y).
+% 
+% do(_) . type : provisional.
+% do(_) . actor : peer.
+% 
+% valid_credential(_) . type : abbreviation.
+% valid_credential(_) . sensitivity : public.
+% 
+% isa(_,_) .type : stateQuery.
+% isa(_,_) .sensitivity : public.
+% 
+% trusted_for(_,_) . type : stateQuery.
+% trusted_for(_,_) . sensitivity : public.
+% 
+% price(_,_) .type : stateQuery.
+% price(X,_) .sensitivity : public :- ground(X).
+% 
+% fastpay(_,_) . type : abbreviation.
+% fastpay(_,_) . sensitivity : public.
+% 
+% credit_card_payment(_,_) . type : abbreviation.
+% credit_card_payment(_,_) . sensitivity : public.
+% 
+% charged(_,_,_,_) . type : provisional.
+% charged(_,_,_,_) . actor : self.
+% charged(X,Y,Z,T) . execution : immediate :- ground(X), ground(Y), ground(Z), ground(T).
+% 
+% credential(_) . type : provisional.
+% credential(_) . actor : peer.
+% 
+% public_key(_,_) . type : stateQuery.
+% public_key(_,_) . sensitivity : private.
+% 
+% verify_signature(_,_) . type : provisional.
+% verify_signature(_,_) . actor : self.
+% verify_signature(X,Y) . execution : immediate :- ground(X), ground(Y).
+
+rule(r1, allow( browse(index) ), [ true ], []).
+rule(r2, allow( download(Resource) ), [ public(Resource) ], [ 'Resource' = Resource ]).
+rule(r3, allow( download(Resource) ), [ authenticated(User), has_subscription(User,Subscription), available_for(Resource,Subscription) ], [ 'Resource' = Resource, 'User' = User, 'Subscription' = Subscription ]).
+rule(r4, allow( download(Resource) ), [ authenticated(User), paid(User,Resource) ], [ 'Resource' = Resource, 'User' = User ]).
+rule(r5, allow( comment(X) ), [ logged(X) ], [ 'X' = X ]).
+rule(r6, authenticated(User), [ id(Credential), complex_term(Credential, name, User), complex_term(Credential, public_key, K), challenge(K) ], [ 'User' = User, 'Credential' = Credential, 'K' = K ]).
+rule(r7, authenticated(User), [ declaration(D), complex_term(D, username, User), complex_term(D, password, P), passwd(User,P) ], [ 'User' = User, 'D' = D, 'P' = P ]).
+rule(r8, authenticated(User), [ do('http://lol.com/register.php') ], []).
+rule(r9, id(Cred), [ valid_credential(Cred), complex_term(Cred, type, T), complex_term(Cred, issuer, CA), isa(T,id), trusted_for(CA,T) ], [ 'Cred' = Cred, 'T' = T, 'CA' = CA ]).
+rule(r10, isa(T,T), [], [ 'T' = T ]).
+rule(r11, isa(ssn,id), [], []).
+rule(r12, isa(passport,id), [], []).
+rule(r13, isa(driving_license,id), [], []).
+rule(r14, paid(Usr,Resource), [ price(Resource,Price), fastpay(Resource,Price) ], [ 'Usr' = Usr, 'Resource' = Resource,  'Price' = Price ]).
+rule(r15, paid(Usr,Resource), [ price(Resource,Price), credit_card_payment(Resource,Price) ], [ 'Usr' = Usr, 'Resource' = Resource,  'Price' = Price ]).
+rule(r16, fastpay(Resource,Price), [ valid_credential(FPC), complex_term(FPC, type, fastpay), declaration(D), complex_term(D, pin, XXXX), charged(Resource,Price,FPC,XXXX) ], [ 'Resource' = Resource,  'Price' = Price, 'FPC' = FPC, 'D' = D, 'XXXX' = XXXX ]).
+rule(r17, credit_card_payment(Resource,Price), [ valid_credential(CC), complex_term(CC, type, credit_card), complex_term(CC, owner, Usr), authenticated(Usr), charged(Resource,Price,CC,na) ], [ 'Resource' = Resource,  'Price' = Price, 'FPC' = FPC, 'CC' = CC, 'Usr' = Usr ]).
+rule(r18, valid_credential(C), [ credential(C), complex_term(C, issuer, CA), public_key(CA,K), verify_signature(C,K) ], [ 'C' = C, 'CA' = CA, 'K' = K ]).
+rule(r19, public(resource), [], []).
+rule(r20, public_key(issuer, publicKey), [], []).
+rule(r21, trusted_for(issuer, type), [], []).
+rule(r22, has_subscription(user, subscription), [], []).
+rule(r23, available_for(resource, subscription), [], []).
+rule(r24, price(resource, price), [], []).
+rule(r25, passwd(user, password), [], []).
+
+metarule(head(pred, allow(_), type, abbreviation), [], []).
+metarule(head(pred, allow(_), sensitivity, public), [], []).
+metarule(head(pred, public(_), type, stateQuery), [], []).
+metarule(head(pred, public(X), sensitivity, public), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, authenticated(_), type, abbreviation), [], []).
+metarule(head(pred, authenticated(_), sensitivity, public), [], []).
+metarule(head(pred, has_subscription(_,_), type, stateQuery), [], []).
+metarule(head(pred, has_subscription(X,_), sensitivity, public), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, available_for(_,_), type, stateQuery), [], []).
+metarule(head(pred, available_for(X,_), sensitivity, public), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, paid(_,_), type, abbreviation), [], []).
+metarule(head(pred, paid(_,_), sensitivity, public), [], []).
+metarule(head(pred, logged(_), type, provisional), [], []).
+metarule(head(pred, logged(_), actor, self), [], []).
+metarule(head(pred, logged(X), execution, immediate), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, id(_), type, abbreviation), [], []).
+metarule(head(pred, id(_), sensitivity, public), [], []).
+metarule(head(pred, challenge(_), type, provisional), [], []).
+metarule(head(pred, challenge(_), actor, self), [], []).
+metarule(head(pred, challenge(_), execution, immediate), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, declaration(_), type, provisional), [], []).
+metarule(head(pred, declaration(_), actor, peer), [], []).
+metarule(head(pred, passwd(_,_), type, stateQuery), [], []).
+metarule(head(pred, passwd(X,Y), sensitivity, public), [ ground(X), ground(Y) ], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, do(_), type, provisional), [], []).
+metarule(head(pred, do(_), actor, peer), [], []).
+metarule(head(pred, valid_credential(_), type, abbreviation), [], []).
+metarule(head(pred, valid_credential(_), sensitivity, public), [], []).
+metarule(head(pred, isa(_,_), type, stateQuery), [], []).
+metarule(head(pred, isa(_,_), sensitivity, public), [], []).
+metarule(head(pred, trusted_for(_,_), type, stateQuery), [], []).
+metarule(head(pred, trusted_for(_,_), sensitivity, public), [], []).
+metarule(head(pred, price(_,_), type, stateQuery), [], []).
+metarule(head(pred, price(X,_), sensitivity, public), [ ground(X) ], [ 'X' = X ]).
+metarule(head(pred, fastpay(_, _), type, abbreviation), [], []).
+metarule(head(pred, fastpay(_, _), sensitivity, public), [], []).
+metarule(head(pred, credit_card_payment(_, _), type, abbreviation), [], []).
+metarule(head(pred, credit_card_payment(_, _), sensitivity, public), [], []).
+metarule(head(pred, charged(_,_,_,_), type, provisional), [], []).
+metarule(head(pred, charged(_,_,_,_), actor, self), [], []).
+metarule(head(pred, charged(_,_,_,_), execution, immediate), [ ground(X), ground(Y), ground(Z), ground(T) ], [ 'X' = X, 'Y' = Y, 'Z' = Z, 'T' = T ]).
+metarule(head(pred, credential(_), type, provisional), [], []).
+metarule(head(pred, credential(_), actor, peer), [], []).
+metarule(head(pred, public_key(_,_), type, stateQuery), [], []).
+metarule(head(pred, public_key(_,_), sensitivity, private), [], []).
+metarule(head(pred, verify_signature(_,_), type, provisional), [], []).
+metarule(head(pred, verify_signature(_,_), actor, self), [], []).
+metarule(head(pred, verify_signature(_,_), execution, immediate), [ ground(X), ground(Y) ], [ 'X' = X, 'Y' = Y ]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

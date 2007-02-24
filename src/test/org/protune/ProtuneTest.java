@@ -15,7 +15,6 @@ import org.protune.core.ProtuneMessage;
 import org.protune.net.AddressPortPointer;
 import org.protune.net.DispatcherMessage;
 import org.protune.net.DispatcherPeer;
-import org.protune.net.DispatcherPointer;
 import org.protune.net.DispatcherStartNegotiationMessage;
 import org.protune.net.EndNegotiationMessage;
 import org.protune.net.OngoingNegotiationMessage;
@@ -24,6 +23,7 @@ import org.protune.net.ServiceAvailableMessage;
 import org.protune.net.ServiceRequestMessage;
 import org.protune.net.StartNegotiationMessage;
 import org.protune.net.WrongMessageTypeException;
+import org.protune.net.WrongPointerTypeException;
 
 public class ProtuneTest{
 	
@@ -105,7 +105,7 @@ public class ProtuneTest{
 		DispatcherMessage dm = null;
 		try {
 			dm = new DispatcherMessage(
-					((DispatcherPointer)p).getServiceID(),
+					p,
 					new ProtuneMessage(
 							new Goal("[execute(access(Resource))]"),
 							new FilteredPolicy("[]"),
@@ -113,6 +113,7 @@ public class ProtuneTest{
 					)
 			);
 		}
+		catch(WrongPointerTypeException wpte){}
 		catch (LoadTheoryException e) {
 			// It should not happen.
 		}

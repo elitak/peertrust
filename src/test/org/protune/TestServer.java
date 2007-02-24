@@ -13,7 +13,7 @@ public class TestServer extends ProtuneService {
 		checker = new DummyChecker();
 		engine = new TuPrologWrapper();
 		try {
-			File f = new File("C:/Programme/eclipse-SDK-3.2-win32/eclipse/workspace/Protune/src/Server.txt");
+			File f = new File("C:/Programme/eclipse-SDK-3.2-win32/eclipse/workspace/Protune/src/ServerBack.txt");
 			engine.loadTheory(f);
 		}
 		catch (Exception e) {

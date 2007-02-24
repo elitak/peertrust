@@ -1,0 +1,44 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Questions}
+\author{J. L. De Coi}
+\maketitle
+
+\section{Start-up}
+
+Let's think that a Server receives a request for performing the service it provides. We can think that the Server redirects the request on its Policy Engine in order to check whether the request should be accomplished or not
+
+\textbf{BUT}\\
+we stated that, in order to speed up the negotiation, the Requester could send some notifications together with the request. If this information is directly received by the Server (and not by the Policy Engine), it means that the Server itself should be able to manage this information
+
+\textbf{THEREFORE}\\
+I guess the following scenario should be better
+
+\begin{itemize}
+	\item the Requester decides to access the service provided by the Server
+	\item the Requester \emph{already knows} that a Policy Engine is available on the Server and sends its request \emph{directly} to it
+\end{itemize}
+
+\section{Built-in actions}
+
+\begin{itemize}
+	\item \texttt{allow()}
+	\item \texttt{sign()}
+	\item \texttt{[send\_]credential()}
+	\item \texttt{[send\_]declaration()}
+	\item \texttt{do()}
+	\item \texttt{authenticates\_to()} (challenge procedure)
+	\item \texttt{logged()}
+	\item \texttt{request()}
+	\item \texttt{in()}
+\end{itemize}
+
+All items in the list are provisional predicates ($PP$s) but the last two, which are state query predicates ($SQP$s). Which is the difference between $PP$s and $SQP$s? Just that the first ones raise side effects? But this does not matter under the point of view of the negotiation process: both $PP$ and $SQP$ involve actions (reading a database is an action as well) and can be protected by policies (maybe I do not want to disclose the content of my database to everyone).
+
+\section{Filtering process}
+
+
+
+\end{document}

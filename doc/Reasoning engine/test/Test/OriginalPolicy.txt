@@ -1,0 +1,172 @@
+% execute(access(Resource)) :-
+%    abbreviationPublicServer(X),
+%    abbreviationPrivateServer(Y),
+%    stateQueryPublicServer1(),
+%    stateQueryPrivateServer1(),
+%    provisionalSelfServer1(X, Y),
+%    clientCredential1().
+% 
+% abbreviationPublicServer(X) :-
+%    stateQueryPublicServer2(),
+%    stateQueryPrivateServer2(),
+%    provisionalSelfServer2(X),
+%    clientCredential2().
+% 
+% abbreviationPrivateServer(X) :-
+%    stateQueryPublicServer3(),
+%    stateQueryPrivateServer3(),
+%    provisionalSelfServer3(X).
+% 
+% execute(serverCredential1()) :-
+%    clientCredential3().
+% 
+% execute(serverCredential2()).
+% 
+% stateQueryPublicServer1().
+% stateQueryPublicServer2().
+% stateQueryPublicServer3().
+% stateQueryPrivateServer1().
+% stateQueryPrivateServer2().
+% stateQueryPrivateServer3().
+%
+% execute(access(X)).type:abbreviation.
+% execute(access(X)).sensitivity:public.
+%
+% abbreviationPublicServer(X).type:abbreviation.
+% abbreviationPublicServer(X).sensitivity:public.
+%
+% abbreviationPrivateServer(X).type:abbreviation.
+% abbreviationPrivateServer(X).sensitivity:private.
+%
+% stateQueryPublicServer1().type:stateQuery.
+% stateQueryPublicServer1().sensitivity:public.
+%
+% stateQueryPrivateServer1().type:stateQuery.
+% stateQueryPrivateServer1().sensitivity:private.
+%
+% provisionalSelfServer1(X, Y).type:provisional.
+% provisionalSelfServer1(X, Y).actor:self.
+% provisionalSelfServer1(X, Y).execution:immediate :-
+%    ground(X),
+%    ground(Y).
+%
+% clientCredential1().type:provisional.
+% clientCredential1().actor:peer.
+%
+% stateQueryPublicServer2().type:stateQuery.
+% stateQueryPublicServer2().sensitivity:public.
+%
+% stateQueryPrivateServer2().type:stateQuery.
+% stateQueryPrivateServer2().sensitivity:private.
+%
+% provisionalSelfServer2(X, Y).type:provisional.
+% provisionalSelfServer2(X, Y).actor:self.
+% provisionalSelfServer2(X, Y).execution:immediate.
+%
+% clientCredential2().type:provisional.
+% clientCredential2().actor:peer.
+%
+% stateQueryPublicServer3().type:stateQuery.
+% stateQueryPublicServer3().sensitivity:public.
+%
+% stateQueryPrivateServer3().type:stateQuery.
+% stateQueryPrivateServer3().sensitivity:private.
+%
+% provisionalSelfServer3(X, Y).type:provisional.
+% provisionalSelfServer3(X, Y).actor:self.
+% provisionalSelfServer3(X, Y).execution:immediate.
+%
+% execute(serverCredential1).type:abbreviation.
+% execute(serverCredential1).sensitivity:public.
+%
+% clientCredential3().type:provisional.
+% clientCredential3().actor:peer.
+%
+% execute(serverCredential2).type:abbreviation.
+% execute(serverCredential2).sensitivity:public.
+
+rule(r1, execute(access(Resource)), [ abbreviationPublicServer(X), abbreviationPrivateServer(Y), stateQueryPublicServer1, stateQueryPrivateServer1, provisionalSelfServer1(X, Y), clientCredential1 ], [ 'Resource' = Resource, 'X' = X, 'Y' = Y ]).
+rule(r2, abbreviationPublicServer(X), [ stateQueryPublicServer2, stateQueryPrivateServer2, provisionalSelfServer2(X), clientCredential2 ], [ 'X' = X ]).
+rule(r3, abbreviationPrivateServer(X), [ stateQueryPublicServer3, stateQueryPrivateServer3, provisionalSelfServer3(X) ], [ 'X' = X ]).
+rule(r4, execute(serverCredential1), [ clientCredential3 ], []).
+rule(r5, execute(serverCredential2), [], []).
+rule(r6, stateQueryPublicServer1, [], []).
+rule(r7, stateQueryPublicServer2, [], []).
+rule(r8, stateQueryPublicServer3, [], []).
+rule(r9, stateQueryPrivateServer1, [], []).
+rule(r10, stateQueryPrivateServer2, [], []).
+rule(r11, stateQueryPrivateServer3, [], []).
+
+metarule(head(pred, execute(access(X)), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, execute(access(X)), sensitivity, public), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPublicServer(X), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPublicServer(X), sensitivity, public), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPrivateServer(X), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPrivateServer(X), sensitivity, private), [], [ 'X' = X ]).
+metarule(head(pred, stateQueryPublicServer1, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer1, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer1, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer1, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer1(X, Y), type, provisional), [], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, provisionalSelfServer1(X, Y), actor, self), [], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, provisionalSelfServer1(X, Y), execution, immediate), [ ground(X), ground(Y) ], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, clientCredential1, type, provisional), [], []).
+metarule(head(pred, clientCredential1, actor, peer), [], []).
+metarule(head(pred, stateQueryPublicServer2, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer2, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer2, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer2, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer2(X), type, provisional), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer2(X), actor, self), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer2(X), execution, immediate), [], [ 'X' = X ]).
+metarule(head(pred, clientCredential2, type, provisional), [], []).
+metarule(head(pred, clientCredential2, actor, peer), [], []).
+metarule(head(pred, stateQueryPublicServer3, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer3, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer3, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer3, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer3(X), type, provisional), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer3(X), actor, self), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer3(X), execution, immediate), [], [ 'X' = X ]).
+metarule(head(pred, execute(serverCredential1), type, abbreviation), [], []).
+metarule(head(pred, execute(serverCredential1), sensitivity, public), [], []).
+metarule(head(pred, clientCredential3, type, provisional), [], []).
+metarule(head(pred, clientCredential3, actor, peer), [], []).
+metarule(head(pred, execute(serverCredential2), type, abbreviation), [], []).
+metarule(head(pred, execute(serverCredential2), sensitivity, public), [], []).
+
+state(negotiationId, negotiationStep, received, rule(id1, execute(clientCredential2), [], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id2, execute(clientCredential1), [ abbreviationPublicClient(result2), abbreviationPrivateClient(result3), stateQueryPublicClient1, stateQueryPrivateClient1, provisionalSelfClient1(result2,result3), serverCredential1 ], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id3, abbreviationPublicClient(result2), [ stateQueryPublicClient2, stateQueryPrivateClient2, provisionalSelfClient2(result2), serverCredential2 ], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id4, stateQueryPublicClient2, [], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id5, stateQueryPrivateClient2, [], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id6, stateQueryPublicClient1, [], []), timestamp).
+state(negotiationId, negotiationStep, received, rule(id7, stateQueryPrivateClient1, [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, execute(clientCredential2), type, abbreviation), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, execute(clientCredential1), type, abbreviation), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, abbreviationPublicClient(result2), type, abbreviation), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPublicClient2, type, stateQuery), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPrivateClient2, type, stateQuery), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPrivateClient2, blurred, true), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient2(result2), type, provisional), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient2(result2), actor, self), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient2(result2), executed, true), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, serverCredential2, type, provisional), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, serverCredential2, actor, peer), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, abbreviationPrivateClient(result3), type, abbreviation), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, abbreviationPrivateClient(result3), blurred, true), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPublicClient1, type, stateQuery), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPrivateClient1, type, stateQuery), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, stateQueryPrivateClient1, blurred, true), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient1(result2, result3), type, provisional), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient1(result2, result3), actor, self), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, provisionalSelfClient1(result2, result3), executed, true), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, serverCredential1, type, provisional), [], []), timestamp).
+state(negotiationId, negotiationStep, received, metarule(head(pred, serverCredential1, actor, peer), [], []), timestamp).
+
+state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer2(result2)), timestamp).
+state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer3(result3)), timestamp).
+state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer1(result2,result3)), timestamp).
+state(negotiationId, negotiationStep, received, notification(successful, execute(clientCredential2)), timestamp).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

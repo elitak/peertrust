@@ -1,0 +1,95 @@
+% 3: Extract external actions
+
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation), %Optimization: just public abbreviation predicates
+   !,
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractExternalActionsFromLocalPolicy(Bodies, ExternalActions),
+   write(Goal),write(' 1b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 2b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromFilteredPolicy(execute(Goal), ExternalActions),
+   write(Goal),write(' 3b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 4
+').
+
+extractExternalActionsFromLocalPolicy([], []).
+extractExternalActionsFromLocalPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromLocalPolicy(H, L1),
+   extractExternalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 5a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 5b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 6a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractExternalActionsFromFilteredPolicy(Bodies, ExternalActions),
+   write(Goal),write(' 6b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedBySelf(execute(Goal)),
+   !,
+   write(Goal),write(' 7b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, [execute(Goal)|ExternalActions]) :-
+   write(Goal),write(' 8a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromLocalPolicy(execute(Goal), ExternalActions),
+   write(Goal),write(' 8b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 9
+').
+
+extractExternalActionsFromFilteredPolicy([], []).
+extractExternalActionsFromFilteredPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromFilteredPolicy(H, L1),
+   extractExternalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+% extractExternalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractExternalActions(Goals, [H|T]) :-
+   extractExternalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractExternalActions(Goals, ExternalActions) :-
+   extractExternalActionsFromFilteredPolicy(Goals, ExternalActions).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

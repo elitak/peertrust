@@ -1,0 +1,327 @@
+% 0: Utilities
+
+isIn(X, [X|_]).
+isIn(X, [H|T]) :-
+   isIn(X, T).
+
+localProve([]).
+localProve([H|T]) :-
+   localProveGoal(H),
+   localProve(T).
+
+localProveGoal(Goal) :-
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   localProve(Body).
+% To be changed: so far ground() is the only built-in predicate supported
+localProveGoal(ground(X)) :-
+   ground(X).
+
+localMetapolicy(Atom, Type, Value) :-
+   localProve([metapolicy(Atom, Type, Value)]).
+
+filteredProve([]).
+filteredProve([H|T]) :-
+   filteredProveGoal(H),
+   filteredProve(T).
+
+filteredProveGoal(Goal) :-
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filteredProve(Body).
+% To be changed: so far ground() is the only built-in predicate supported
+filteredProveGoal(ground(X)) :-
+   ground(X).
+
+filteredMetapolicy(Atom, Type, Value) :-
+   filteredProve([metapolicy(Atom, Type, Value)]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 1: Extract local actions
+
+% extractLocalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractLocalActions(Goals, [H|T]) :-
+   extractLocalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractLocalActions(Goals, LocalActions) :-
+   extractLocalActionsFromFilteredPolicy(Goals, LocalActions).
+
+extractLocalActionsFromLocalPolicy([], []).
+extractLocalActionsFromLocalPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromLocalPolicy(H, L1),
+   extractLocalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   localMetapolicy(Goal, type, abbreviation),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractLocalActionsFromLocalPolicy(Body, LocalActions).
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   localMetapolicy(Goal, execution, immediate),
+   alreadyExecuted(Goal),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, [Goal]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   localMetapolicy(Goal, execution, immediate),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   alreadyExecuted(Goal),
+   !.
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromFilteredPolicy(execute(Goal), LocalActions).
+extractGoalLocalActionsFromLocalPolicy(Goal, []).
+
+extractLocalActionsFromFilteredPolicy([], []).
+extractLocalActionsFromFilteredPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromFilteredPolicy(H, L1),
+   extractLocalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractLocalActionsFromFilteredPolicy(Body, LocalActions).
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   alreadyExecuted(Goal),
+   !.
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromLocalPolicy(execute(Goal), LocalActions).
+extractGoalLocalActionsFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 2: Check whether an action (in particular the overall goal) is unlocked
+
+prove([]).
+prove([H|T]) :-
+   proveGoal(H),
+   prove(T).
+
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, abbreviation),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   prove(Body).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, stateQuery),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, [])|_], Policy).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   !,
+   alreadyExecuted(Goal).
+proveGoal(Goal) :-
+   localMetapolicy(Goal, type, provisional),
+   alreadyExecuted(execute(Goal)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 3: Extract external actions
+
+% extractExternalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractExternalActions(Goals, [H|T]) :-
+   extractExternalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractExternalActions(Goals, ExternalActions) :-
+   extractExternalActionsFromFilteredPolicy(Goals, ExternalActions).
+
+extractExternalActionsFromLocalPolicy([], []).
+extractExternalActionsFromLocalPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromLocalPolicy(H, L1),
+   extractExternalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   localMetapolicy(Goal, type, abbreviation),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractExternalActionsFromLocalPolicy(Body, ExternalActions).
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   alreadyExecuted(execute(Goal)),
+   !.
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromFilteredPolicy(execute(Goal), ExternalActions).
+extractGoalExternalActionsFromLocalPolicy(Goal, []).
+
+extractExternalActionsFromFilteredPolicy([], []).
+extractExternalActionsFromFilteredPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromFilteredPolicy(H, L1),
+   extractExternalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+extractGoalExternalActionsFromFilteredPolicy(Goal, ExternalActions) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   extractExternalActionsFromFilteredPolicy(Body, ExternalActions).
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   alreadyExecuted(execute(Goal)),
+   !.
+extractGoalExternalActionsFromFilteredPolicy(Goal, [execute(Goal)|ExternalActions]) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromLocalPolicy(execute(Goal), ExternalActions).
+extractGoalExternalActionsFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 4: Filter the policy
+
+% filter should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+filter(Goals, [H|T]) :-
+   filterFromLocalPolicy(Goals, [H|T]),
+   !.
+filter(Goals, FilteredPolicy) :-
+   filterFromFilteredPolicy(Goals, FilteredPolicy).
+
+filterFromLocalPolicy([], []).
+filterFromLocalPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromLocalPolicy(H, L1),
+   filterFromLocalPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+filterGoalFromLocalPolicy(Goal, [
+         rule(Goal, Body),
+         rule(metapolicy(Goal, type, abbreviation), []) |
+         FilteredPolicy
+   ]) :-
+   localMetapolicy(Goal, type, abbreviation),
+   localMetapolicy(Goal, sensitivity, public),
+%   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filterFromLocalPolicy(Body, FilteredPolicy).
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, abbreviation), []),
+      rule(metapolicy(Goal, blurred, true), [])
+]) :-
+   localMetapolicy(Goal, type, abbreviation).
+%   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(Goal, []),
+      rule(metapolicy(Goal, type, stateQuery), [])
+]) :-
+   localMetapolicy(Goal, type, stateQuery),
+   !,
+   localPolicy(Policy),
+   append(_, [rule(Goal, [])|_], Policy).
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, self), []),
+      rule(metapolicy(Goal, executed, true), [])
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   alreadyExecuted(Goal),
+   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, self), [])
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   localMetapolicy(Goal, actor, self),
+   !.
+filterGoalFromLocalPolicy(Goal, []) :-
+   localMetapolicy(Goal, type, provisional),
+   alreadyExecuted(execute(Goal)), % I do not know whether the execute(_) should be added
+   !.
+filterGoalFromLocalPolicy(Goal, [
+      rule(metapolicy(Goal, type, provisional), []),
+      rule(metapolicy(Goal, actor, peer), []) |
+      FilteredPolicy
+]) :-
+   localMetapolicy(Goal, type, provisional),
+   !,
+   filterGoalFromFilteredPolicy(execute(Goal), FilteredPolicy).
+filterGoalFromLocalPolicy(Goal, []).
+
+filterFromFilteredPolicy([], []).
+filterFromFilteredPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromFilteredPolicy(H, L1),
+   filterFromFilteredPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+filterGoalFromFilteredPolicy(Goal, []) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   filteredMetapolicy(Goal, blurred, true),
+   !.
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   filteredMetapolicy(Goal, type, abbreviation),
+   !,
+   currentFilteredPolicy(Policy),
+   append(_, [rule(Goal, Body)|_], Policy),
+   filterFromFilteredPolicy(Body, FilteredPolicy).
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   filteredMetapolicy(Goal, type, provisional),
+   filteredMetapolicy(Goal, actor, peer),
+   !,
+   filterGoalFromLocalPolicy(execute(Goal), FilteredPolicy).
+filterGoalFromFilteredPolicy(Goal, []).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Warning: to be proven
+
+extractUnlockedExternalActions(Goals, UnlockedExternalActions) :-
+   extractExternalActions(Goals, ExternalActions),
+   selectUnlockedActions(ExternalActions, UnlockedExternalActions).
+
+selectUnlockedActions([], []).
+selectUnlockedActions([H|Actions], [H|UnlockedActions]) :-
+   proveGoal(H),
+   !,
+   selectUnlockedActions(Actions, UnlockedActions).
+selectUnlockedActions([H|Actions], UnlockedActions) :-
+   selectUnlockedActions(Actions, UnlockedActions).
+
+actionSelectionFunction(Actions, SelectedActions) :-
+   dummyActionSelectionFunction(Actions, SelectedActions).
+
+dummyActionSelectionFunction(Actions, Actions).
+
+terminationAlgorithm :-
+   dummyTerminationAlgorithm.
+
+% dummyTerminationAlgorithm.

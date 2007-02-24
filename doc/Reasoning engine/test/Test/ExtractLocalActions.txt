@@ -1,0 +1,112 @@
+% 1: Extract local actions
+
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractLocalActionsFromLocalPolicy(Bodies, LocalActions),
+   write(Goal),write(' 1b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   localHoldingMetapredicate(Goal, execution, immediate),
+   alreadyExecutedBySelf(Goal),
+   !,
+   write(Goal),write(' 2b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, [Goal]) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   localHoldingMetapredicate(Goal, execution, immediate),
+   !,
+   write(Goal),write(' 3b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 4b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 5a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromFilteredPolicy(execute(Goal), LocalActions),
+   write(Goal),write(' 5b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 6
+').
+
+extractLocalActionsFromLocalPolicy([], []).
+extractLocalActionsFromLocalPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromLocalPolicy(H, L1),
+   extractLocalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 7b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 8a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractLocalActionsFromFilteredPolicy(Bodies, LocalActions),
+   write(Goal),write(' 8b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 9a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedBySelf(Goal),
+   !,
+   write(Goal),write(' 9b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 10a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromLocalPolicy(execute(Goal), LocalActions),
+   write(Goal),write(' 10b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 11
+').
+
+extractLocalActionsFromFilteredPolicy([], []).
+extractLocalActionsFromFilteredPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromFilteredPolicy(H, L1),
+   extractLocalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+% extractLocalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractLocalActions(Goals, [H|T]) :-
+   extractLocalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractLocalActions(Goals, LocalActions) :-
+   extractLocalActionsFromFilteredPolicy(Goals, LocalActions).

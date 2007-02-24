@@ -1,0 +1,225 @@
+% -------------------------------------------------------------------
+% BASIC DATATYPES
+% -------------------------------------------------------------------
+
+<SINGLE_QUOTED_STRING>  -> "'"  (~["'","\\","\n","\r"])* "'"
+
+<DOUBLE_QUOTED_STRING>  -> "\""  (~["\"","\\","\n","\r"])*  "\""
+
+<ANY_CHARACTER_BUT_EOF> -> (~["\n","\r"])*
+
+<EOF>                   -> (["\n","\r"])
+
+<DIGIT>                 -> 0 | 1 | ... | 9
+
+<LOWER_CASE>            -> a | b | ... | z
+
+<UPPER_CASE>            -> A | B | ... | Z
+
+<NUMBER>                -> <DIGIT> <NUMBER>
+                         | <DIGIT>
+
+<STRING_EXTENDED>       -> <LOWER_CASE> <STRING_EXTENDED>
+                         | <UPPER_CASE> <STRING_EXTENDED>
+                         | _ <STRING_EXTENDED>
+                         | <NUMBER> <STRING_EXTENDED>
+                         | E
+
+<STRING_CONSTANT>       -> <LOWER_CASE> <STRING_EXTENDED>
+                         | <SINGLE_QUOTED_STRING>
+
+<CONSTANT>              -> <STRING_CONSTANT>
+                         | <NUMBER>
+
+% Used to concatenate double quoted strings and variables
+
+<CONCATENATED_STRING>   -> <DOUBLE_QUOTED_STRING> <ESCAPE_OPERATOR> <CONCATENATED_STRING>
+                         | <DOUBLE_QUOTED_STRING>
+                         | <VARIABLE> <ESCAPE_OPERATOR> <CONCATENATED_STRING>
+                         | <VARIABLE>
+
+<ESCAPE_OPERATOR>       -> &
+
+<VARIABLE>              -> <UPPER_CASE> <STRING_EXTENDED>
+                         | _ <STRING_EXTENDED>
+
+<RULE_SEP>              -> <-
+                         | :-
+
+% Although initially we decided to be able to use "not" or "\+" I think it makes more sense
+%    if we allow only "not"
+<NEG_SYMBOL>            -> not
+
+<OPERATOR>              -> =
+                         | >
+                         | >=
+                         | <
+                         | <=
+                         | !=
+                         | is
+
+% -------------------------------------------------------------------
+% PROGRAM RULES
+% -------------------------------------------------------------------
+
+<PROGRAM>               -> <DIRECTIVE_LIST> <RULE_LIST>
+
+% In order to avoid ambiguity, a directive list cannot contain a single comment 
+%    (otherwise it could be mixed up with rule list for the case that the whole
+%    file is only a comment
+
+<DIRECTIVE_LIST>        -> <DIRECTIVE> <DIRECTIVE_LIST>
+                         | <COMMENT> <DIRECTIVE><DIRECTIVE_LIST>
+                         | E
+
+% include should work like if the text of the file is copied there
+% load should simply informed that some definitions can be used (but not modified)
+% (is there a clear distinction among these two?)
+
+<DIRECTIVE>             -> include <DOUBLE_QUOTED_STRING>
+                         | load <DOUBLE_QUOTED_STRING>
+
+<COMMENT>               -> "%" <ANY_CHARACTER_BUT_EOF> <EOF>
+                         | "//" <ANY_CHARACTER_BUT_EOF> <EOF>
+                         | "/*" ( )* "*/"
+
+<RULE_LIST>             -> <RULE>
+                         | <RULE> <RULE_LIST>
+                         | <META_RULE>
+                         | <META_RULE> <RULE_LIST>
+                         | <COMMENT>
+                         | <COMMENT> <RULE_LIST>
+
+<RULE>                  -> [ <ID> ] <HEAD_LITERAL> <RULE_SEP> <BODY> .
+                         | [ <ID> ] <HEAD_LITERAL> .
+                         | <HEAD_LITERAL> <RULE_SEP> <BODY> .
+                         | <HEAD_LITERAL> .
+
+<META_RULE>             -> <META_HEAD_LITERAL> <RULE_SEP> <META_BODY> .
+                         | <META_HEAD_LITERAL> .
+
+<ID>                    -> <CONSTANT>
+
+<HEAD_LITERAL>          -> <PREDICATE_LITERAL>
+
+<META_HEAD_LITERAL>     -> [ <ID> ] . <META_FIELD>
+                         | <HEAD_LITERAL> . <META_FIELD>
+
+<BODY>                  -> <LITERAL_LIST>
+
+<META_BODY>             -> <META_LITERAL_LIST>
+
+<LITERAL_LIST>          -> <ANY_LITERAL>
+                         | <ANY_LITERAL> , <LITERAL_LIST>
+
+<META_LITERAL_LIST>     -> <META_LITERAL>
+                         | <META_LITERAL> , <META_LITERAL_LIST>
+
+% disallow a predicate literal with brackets but no arguments?
+%    probably yes.
+
+<PREDICATE_LITERAL>     -> <PREDICATE_NAME>
+                         | <PREDICATE_NAME> ( )
+                         | <PREDICATE_NAME> ( <ARGUMENT_LIST> )
+
+<PREDICATE_NAME>        -> <STRING_CONSTANT>
+
+<ARGUMENT>              -> <ANY_TERM>
+                         | <PREDICATE_LITERAL>
+
+<ARGUMENT_LIST>         -> <ARGUMENT>
+                         | <ARGUMENT> , <ARGUMENT_LIST>
+
+<ANY_LITERAL>           -> <NORMAL_LITERAL>
+                         | <SPECIAL_LITERAL>
+
+<NORMAL_LITERAL>        -> <HEAD_LITERAL>
+                         | <NEG_SYMBOL> <HEAD_LITERAL>
+                         | <NEG_SYMBOL> ( <HEAD_LITERAL> )
+                         | <OPERATOR_LITERAL>
+                         | <NEG_SYMBOL> <OPERATOR_LITERAL>
+                         | <NEG_SYMBOL> ( <OPERATOR_LITERAL> )
+			 | <COMPLEX_TERM>
+			 | <NEG_SYMBOL> <COMPLEX_TERM>
+			 | <NEG_SYMBOL> ( COMPLEX_TERM> )
+
+<OPERATOR_LITERAL>      -> <ANY_TERM> <OPERATOR> <ANY_TERM>
+
+<META_LITERAL>          -> <META_HEAD_LITERAL>
+                         | <NEG_SYMBOL> <META_HEAD_LITERAL>
+                         | <NEG_SYMBOL> ( <META_HEAD_LITERAL> )
+                         | <NORMAL_LITERAL>
+
+<ANY_TERM>              -> <COMPLEX_TERM>
+                         | <TERM>
+
+<TERM>                  -> <VARIABLE>
+                         | <CONSTANT>
+
+% A complex term can be nested (e.g., id1[attr1:id2[attr2:val2]]
+% An empty complex term does not make much sense (e.g., id[]) so it
+%    is disallowed
+
+<COMPLEX_TERM>          -> <VARIABLE> [ <CT_FIELD_LIST> ]
+                         | <STRING_CONSTANT> [ <CT_FIELD_LIST> ]
+
+<CT_FIELD>	        -> <ATTRIBUTE> : <CT_VALUE>
+
+<CT_FIELD_LIST>         -> <CT_FIELD>
+                         | <CT_FIELD> , <CT_FIELD_LIST>
+
+% There are two types of meta-attributes:
+%   - Type 1: those that receive as value a constant or variable
+%             (e.g., pred(X,Y).sensitivity:private
+%             Current list is composed of: sensitivity, type, 
+%                            execution, actor, ontology and cost
+%   - Type 2: those that receive as value a concatenated string because the
+%             final string value depends on a variable instantiation
+%             (e.g., pred(X,Y).explanation:X & " refers to " & Y
+%             Current list is composed of: explanation and action
+% Whether the exact attributes are well used or not should not be check
+%    by the syntactic parser using this grammar but by the semantic parser
+
+<META_FIELD>	        -> <ATTRIBUTE> : <TERM>
+                         | <ATTRIBUTE> : <CONCATENATED_STRING>
+
+<SPECIAL_LITERAL>       -> in ( <VAR_CONTAINMENT> , <PACKAGE_CALL> )
+
+% A variable containment is a comma-separated flat enumeration of
+%    variables in a predicate (e.g., pred(X,Y,Z)
+
+<VAR_CONTAINMENT>       -> <PREDICATE_NAME>
+                         | <PREDICATE_NAME> ( )
+                         | <PREDICATE_NAME> ( <VAR_LIST> )
+
+<VAR_LIST>              -> <VARIABLE>
+                         | <VARIABLE> , <VAR_LIST>
+
+<PACKAGE_CALL>          -> <PACKAGE> : <FUNCTION>
+
+<PACKAGE>               -> <STRING_CONSTANT>
+
+% a function can only contain a list of parameters (each one being a 
+%     concatenation of strings and variables
+%     (e.g., show("red", "value:" & Value & " meters")
+
+<FUNCTION>              -> <PREDICATE_NAME>
+                         | <PREDICATE_NAME> ( )
+                         | <PREDICATE_NAME> ( <PARAM_LIST> )
+
+<PARAM_LIST>            -> <CONCATENATED_STRING>
+                         | <CONCATENATED_STRING> , <PARAM_LIST>
+
+<ATTRIBUTE>             -> <STRING_CONSTANT>
+
+<CT_VALUE>              -> <ANY_TERM>
+
+% In addition, a semantic parser should check for correctness, like:
+%   - No variable appears only in the head of a rule (safe rule)
+%   - If a metapolicy exists, then the policy it refers to should also exists
+%   - Negation cannot be applied to provisional predicates (too restrictive) or
+%       negation cannot be applied to provisional predicates which depend on the
+%       actor peer (more flexible)
+%   - the semantic parser should also check that for one policy there are not more
+%       than one metapolicy with same attribute (or even one for pred and one for id).
+%   - ...

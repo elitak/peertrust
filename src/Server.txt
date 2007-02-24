@@ -1,0 +1,581 @@
+rule(r1, execute(access(Resource)), [ abbreviationPublicServer(X), abbreviationPrivateServer(Y), stateQueryPublicServer1, stateQueryPrivateServer1, provisionalSelfServer1(X, Y), clientCredential1 ], [ 'Resource' = Resource, 'X' = X, 'Y' = Y ]).
+rule(r2, abbreviationPublicServer(X), [ stateQueryPublicServer2, stateQueryPrivateServer2, provisionalSelfServer2(X), clientCredential2 ], [ 'X' = X ]).
+rule(r3, abbreviationPrivateServer(X), [ stateQueryPublicServer3, stateQueryPrivateServer3, provisionalSelfServer3(X) ], [ 'X' = X ]).
+rule(r4, execute(serverCredential1), [ clientCredential3 ], []).
+rule(r5, execute(serverCredential2), [], []).
+rule(r6, stateQueryPublicServer1, [], []).
+rule(r7, stateQueryPublicServer2, [], []).
+rule(r8, stateQueryPublicServer3, [], []).
+rule(r9, stateQueryPrivateServer1, [], []).
+rule(r10, stateQueryPrivateServer2, [], []).
+rule(r11, stateQueryPrivateServer3, [], []).
+
+metarule(head(pred, execute(access(X)), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, execute(access(X)), sensitivity, public), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPublicServer(X), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPublicServer(X), sensitivity, public), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPrivateServer(X), type, abbreviation), [], [ 'X' = X ]).
+metarule(head(pred, abbreviationPrivateServer(X), sensitivity, private), [], [ 'X' = X ]).
+metarule(head(pred, stateQueryPublicServer1, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer1, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer1, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer1, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer1(X, Y), type, provisional), [], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, provisionalSelfServer1(X, Y), actor, self), [], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, provisionalSelfServer1(X, Y), execution, immediate), [ ground(X), ground(Y) ], [ 'X' = X, 'Y' = Y ]).
+metarule(head(pred, clientCredential1, type, provisional), [], []).
+metarule(head(pred, clientCredential1, actor, peer), [], []).
+metarule(head(pred, stateQueryPublicServer2, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer2, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer2, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer2, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer2(X), type, provisional), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer2(X), actor, self), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer2(X), execution, immediate), [], [ 'X' = X ]).
+metarule(head(pred, clientCredential2, type, provisional), [], []).
+metarule(head(pred, clientCredential2, actor, peer), [], []).
+metarule(head(pred, stateQueryPublicServer3, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPublicServer3, sensitivity, public), [], []).
+metarule(head(pred, stateQueryPrivateServer3, type, stateQuery), [], []).
+metarule(head(pred, stateQueryPrivateServer3, sensitivity, private), [], []).
+metarule(head(pred, provisionalSelfServer3(X), type, provisional), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer3(X), actor, self), [], [ 'X' = X ]).
+metarule(head(pred, provisionalSelfServer3(X), execution, immediate), [], [ 'X' = X ]).
+metarule(head(pred, execute(serverCredential1), type, abbreviation), [], []).
+metarule(head(pred, execute(serverCredential1), sensitivity, public), [], []).
+metarule(head(pred, clientCredential3, type, provisional), [], []).
+metarule(head(pred, clientCredential3, actor, peer), [], []).
+metarule(head(pred, execute(serverCredential2), type, abbreviation), [], []).
+metarule(head(pred, execute(serverCredential2), sensitivity, public), [], []).
+
+%state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer2(result2)), timestamp).
+%state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer3(result3)), timestamp).
+%state(negotiationId, negotiationStep, notSent, notification(successful, provisionalSelfServer1(result2,result3)), timestamp).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 0: Utilities
+
+isIn(H, [H|T]) :-
+   !.
+isIn(X, [H|T]) :-
+   isIn(X, T).
+
+deleteDuplicates([], []).
+deleteDuplicates([H|T], L) :-
+   deleteDuplicates(T, L),
+   isIn(H, L),
+   !.
+deleteDuplicates([H|T], [H|L]) :-
+   deleteDuplicates(T, L).
+
+merge([], L2, L2).
+merge([H|T], L2, L) :-
+   merge(T, L2, L),
+   isIn(H, L2),
+   !.
+merge([H|T], L2, [H|L]) :-
+   merge(T, L2, L).
+
+otherMerge(List, [], List).
+otherMerge(L1, [H|T], L2) :-
+   isIn(H, L1),
+   !,
+   otherMerge(L1, T, L2).
+otherMerge(L1, [H|T], [H|L2]) :-
+   otherMerge(L1, T, L2).
+
+multipleMerge([List], List) :-
+   !.
+multipleMerge([H|T], List) :-
+   multipleMerge(T, PartialList),
+   merge(H, PartialList, List).
+
+% To be changed: so far only predicates of the form "ground(X)" are supported.
+localProveGoal(ground(X)) :-
+   ground(X).
+
+localProve([]).
+localProve([H|T]) :-
+   localProveGoal(H),
+   localProve(T).
+
+localHoldingMetapredicate(Predicate, Attribute, Value) :-
+   metarule(head(pred, Predicate, Attribute, Value), MetaBody, _),
+   localProve(MetaBody).
+
+% To be changed: so far only predicates of the form "ground(X)" are supported.
+filteredProveGoal(ground(X)) :-
+   ground(X).
+
+filteredProve([]).
+filteredProve([H|T]) :-
+   filteredProveGoal(H),
+   filteredProve(T).
+
+% To be changed: so far the metarule can have been sent in whatever negotiation.
+filteredHoldingMetapredicate(Predicate, Attribute, Value) :-
+   state(_, _, received, metarule(head(pred, Predicate, Attribute, Value), Metabody, _), _),
+   filteredProve(Metabody).
+
+% To be changed: so far the action can have been executed in whatever negotiation.
+alreadyExecutedBySelf(Goal) :-
+   state(_, _, notSent, notification(successful, Goal), _).
+
+% To be changed: so far the action can have been executed in whatever negotiation.
+alreadyExecutedByPeer(Goal) :-
+   state(_, _, received, notification(successful, execute(Goal)), _).
+
+localFindall(Goal, BodyList) :-
+   findall(Body, rule(_, Goal, Body, _), BodyList),
+   localMatch(Goal, BodyList).
+
+localMatch(Goal, []).
+localMatch(Goal, [H|T]) :-
+   rule(_, Goal, H, _),
+   localMatch(Goal, T).
+
+% To be changed: so far the rule can have been sent in whatever step of whatever negotiation.
+filteredFindall(Goal, BodyList) :-
+   findall(Body, state(_, _, received, rule(_, Goal, Body, _), _), BodyList),
+   filteredMatch(Goal, BodyList).
+
+filteredMatch(Goal, []).
+filteredMatch(Goal, [H|T]) :-
+   state(_, _, received, rule(_, Goal, H, _), _),
+   filteredMatch(Goal, T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 1: Extract local actions
+
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractLocalActionsFromLocalPolicy(Bodies, LocalActions),
+   write(Goal),write(' 1b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   localHoldingMetapredicate(Goal, execution, immediate),
+   alreadyExecutedBySelf(Goal),
+   !,
+   write(Goal),write(' 2b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, [Goal]) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   localHoldingMetapredicate(Goal, execution, immediate),
+   !,
+   write(Goal),write(' 3b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 4b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 5a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromFilteredPolicy(execute(Goal), LocalActions),
+   write(Goal),write(' 5b
+').
+extractGoalLocalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 6
+').
+
+extractLocalActionsFromLocalPolicy([], []).
+extractLocalActionsFromLocalPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromLocalPolicy(H, L1),
+   extractLocalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 7b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 8a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractLocalActionsFromFilteredPolicy(Bodies, LocalActions),
+   write(Goal),write(' 8b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 9a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedBySelf(Goal),
+   !,
+   write(Goal),write(' 9b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, LocalActions) :-
+   write(Goal),write(' 10a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalLocalActionsFromLocalPolicy(execute(Goal), LocalActions),
+   write(Goal),write(' 10b
+').
+extractGoalLocalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 11
+').
+
+extractLocalActionsFromFilteredPolicy([], []).
+extractLocalActionsFromFilteredPolicy([H|T], LocalActions) :-
+   extractGoalLocalActionsFromFilteredPolicy(H, L1),
+   extractLocalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, LocalActions).
+
+% extractLocalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractLocalActions(Goals, [H|T]) :-
+   extractLocalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractLocalActions(Goals, LocalActions) :-
+   extractLocalActionsFromFilteredPolicy(Goals, LocalActions).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 2: Check whether an action (in particular the overall goal) is unlocked
+
+% To be changed: so far only "not (PREDICATE)" is allowed, where PREDICATE is
+% something  not involving abbreviation nor state predicates
+proveGoal(complex_term(X, Y, Z)) :-
+   write(complex_term(X, Y, Z)),write(' 0a
+'),
+   state(_, _, _, complex_term(X, Y, Z), _),
+   !,
+   write(complex_term(X, Y, Z)),write(' 0b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   rule(_, Goal, Body, _),
+   prove(Body),
+   write(Goal),write(' 1b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, stateQuery),
+   !,
+   rule(_, Goal, [], _),
+   write(Goal),write(' 2b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   !,
+   alreadyExecutedBySelf(Goal),
+   write(Goal),write(' 3b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   !,
+   alreadyExecutedByPeer(Goal),
+   write(Goal),write(' 4b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 5a
+'),
+   Goal,
+   write(Goal),write(' 5b
+').
+
+prove([]).
+prove([H|T]) :-
+   proveGoal(H),
+   prove(T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 3: Extract external actions
+
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   extractExternalActionsFromLocalPolicy(Bodies, ExternalActions),
+   write(Goal),write(' 1b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 2b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromFilteredPolicy(execute(Goal), ExternalActions),
+   write(Goal),write(' 3b
+').
+extractGoalExternalActionsFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 4
+').
+
+extractExternalActionsFromLocalPolicy([], []).
+extractExternalActionsFromLocalPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromLocalPolicy(H, L1),
+   extractExternalActionsFromLocalPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 5a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 5b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, ExternalActions) :-
+   write(Goal),write(' 6a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),write(BadyList),
+   multipleMerge(BodyList, Bodies),write(pippo2),
+   extractExternalActionsFromFilteredPolicy(Bodies, ExternalActions),
+   write(Goal),write(' 6b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedBySelf(execute(Goal)),
+   !,
+   write(Goal),write(' 7b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, [execute(Goal)|ExternalActions]) :-
+   write(Goal),write(' 8a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   extractGoalExternalActionsFromLocalPolicy(execute(Goal), ExternalActions),
+   write(Goal),write(' 8b
+').
+extractGoalExternalActionsFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 9
+').
+
+extractExternalActionsFromFilteredPolicy([], []).
+extractExternalActionsFromFilteredPolicy([H|T], ExternalActions) :-
+   extractGoalExternalActionsFromFilteredPolicy(H, L1),
+   extractExternalActionsFromFilteredPolicy(T, L2),
+   append(L1, L2, ExternalActions).
+
+% extractExternalActions should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+extractExternalActions(Goals, [H|T]) :-
+   extractExternalActionsFromLocalPolicy(Goals, [H|T]),
+   !.
+extractExternalActions(Goals, ExternalActions) :-
+   extractExternalActionsFromFilteredPolicy(Goals, ExternalActions).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 4: Filter the policy
+
+% 1. Metarules added to the filtered policy are instantiated, i.e. if the local policy contains
+% a metarule e.g.
+%    metarule(head(pred, a(X), type, abbreviation), [], [])
+% and in the filtering process a predicate
+%    a(a)
+% is being evaluated, then the following metarule will be added
+%    metarule(head(pred, a(a), type, abbreviation), [], [])
+% and not the original one. This means that for the same predicate P the filtered policy will
+% contain as many metarules referring to P as instantiations of it are being filtered.
+%
+% 2. According to the goal to be processed, it is possible that during the filtering process some
+% variables present in (meta)rules can be instantiated. E.g. if the theory contains the rule
+%    rule(r19,allow(access(X)),[],[ 'X' = X ])
+% against the goal
+%    allow(access(resource))
+% the rule will be filtered as follows
+%    rule(r19,allow(access(resource)),[],[ 'X' = resource ])
+% Notice that the instantiated variable is not removed from the variable list.
+filterGoalFromLocalPolicy(Goal, [
+         metarule(head(pred, Goal, type, abbreviation), [], []) |
+         FilteredPolicy
+]) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   localHoldingMetapredicate(Goal, sensitivity, public),
+   !,
+   findall(rule(Id, Goal, Body, VariableMappings), rule(Id, Goal, Body, VariableMappings), Rules),
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   filterFromLocalPolicy(Bodies, PartialFilteredPolicy),
+   append(Rules, PartialFilteredPolicy, FilteredPolicy),
+   write(Goal),write(' 1b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, abbreviation), [], []),
+      metarule(head(pred, Goal, blurred, true), [], [])
+]) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   write(Goal),write(' 2b
+').
+filterGoalFromLocalPolicy(Goal, FilteredPolicy) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, stateQuery),
+   localHoldingMetapredicate(Goal, sensitivity, public),
+   !,
+   findall(rule(Id, Goal, [], VariableMappings), rule(Id, Goal, [], VariableMappings), FilteredPolicy),
+   write(Goal),write(' 3b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, provisional), [], []),
+      metarule(head(pred, Goal, actor, peer), [], [])
+]) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 4b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, provisional), [], []),
+      metarule(head(pred, Goal, actor, peer), [], []) |
+      FilteredPolicy
+]) :-
+   write(Goal),write(' 5a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, peer),
+   !,
+   filterGoalFromFilteredPolicy(execute(Goal), FilteredPolicy),
+   write(Goal),write(' 5b
+').
+filterGoalFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 6
+').
+
+filterFromLocalPolicy([], []).
+filterFromLocalPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromLocalPolicy(H, L1),
+   filterFromLocalPolicy(T, L2),
+   otherMerge(L1, L2, FilteredPolicy).
+
+filterGoalFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 7b
+').
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   write(Goal),write(' 8a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   filterFromFilteredPolicy(Bodies, FilteredPolicy),
+   write(Goal),write(' 8b
+').
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   write(Goal),write(' 9a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   filterGoalFromLocalPolicy(execute(Goal), FilteredPolicy),
+   write(Goal),write(' 9b
+').
+filterGoalFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 10
+').
+
+filterFromFilteredPolicy([], []).
+filterFromFilteredPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromFilteredPolicy(H, L1),
+   filterFromFilteredPolicy(T, L2),
+   otherMerge(L1, L2, FilteredPolicy).
+
+% filter should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+filter(Goals, [H|T]) :-
+   filterFromLocalPolicy(Goals, [H|T]),
+   !.
+filter(Goals, FilteredPolicy) :-
+   filterFromFilteredPolicy(Goals, FilteredPolicy).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Warning: to be proven
+
+extractUnlockedExternalActions(Goals, UnlockedExternalActions) :-
+   extractExternalActions(Goals, ExternalActions),
+   selectUnlockedActions(ExternalActions, UnlockedExternalActions).
+
+selectUnlockedActions([], []).
+selectUnlockedActions([H|Actions], [H|UnlockedActions]) :-
+   proveGoal(H),
+   !,
+   selectUnlockedActions(Actions, UnlockedActions).
+selectUnlockedActions([H|Actions], UnlockedActions) :-
+   selectUnlockedActions(Actions, UnlockedActions).
+
+actionSelectionFunction(Actions, SelectedActions) :-
+   dummyActionSelectionFunction(Actions, SelectedActions).
+
+dummyActionSelectionFunction(Actions, Actions).
+
+terminationAlgorithm :-
+   dummyTerminationAlgorithm.
+
+% dummyTerminationAlgorithm.

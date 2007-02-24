@@ -1,0 +1,24 @@
+predicate(Id[Name1:Value1, ... NameN:ValueN]) :- ...
+
+predicate(Id) :- ...
+complexTerm(Id, Name1, Value1) :- ...
+...
+complexTerm(Id, Name1, Value1) :- ...
+
+
+... :- Id[Name1:Value1, ... NameN:ValueN].
+
+... :- complexTerm(Id, Name1, Value1), ... complexTerm(Id, NameN, ValueN).
+
+
+... :- predicate(Id[Name1:Value1, ... NameN:ValueN]).
+
+... :- predicate(Id), complexTerm(Id, Name1, Value1), ... complexTerm(Id, Name1, Value1).
+
+
+A complex term should always be preceded (somewhere in the theory) by a predicate
+telling whether the complex term has to be found in the KB or in the S.
+So the list of all complex terms so far encountered will 
+workspace/peertrust/config/prolog/yprolog/tools.
+basics
+interpreter

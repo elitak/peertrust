@@ -15,6 +15,7 @@ import alice.tuprolog.*;
 public class TuPrologWrapper extends PrologEngine {
 
 	private Prolog p;
+	//public Prolog p;
 	
 	public TuPrologWrapper(){
 		mapper = new MapperAdapter();
@@ -52,7 +53,10 @@ public class TuPrologWrapper extends PrologEngine {
 	public String getFirstAnswer(String query) throws QueryException {
 		try{
 			SolveInfo si = p.solve(query);
-			return si.getTerm(si.toVarArray()[0].getName()).toString();
+			String s = si.getTerm(si.toVarArray()[0].getName()).toString();
+			//System.out.println(this + "getFirstAnswer(" + query + "): " + s + ".");
+			//if(query.equals("filter([execute(access(Resource))], FilteredPolicy).")) System.out.println(this + ": " + p.getTheory());
+			return s;
 		}
 		catch(Exception e){
 			throw new QueryException();
@@ -61,7 +65,9 @@ public class TuPrologWrapper extends PrologEngine {
 	
 	public boolean isSuccessful(String query) throws QueryException{
 		try{
-			return p.solve(query).isSuccess();
+			boolean b = p.solve(query).isSuccess();
+			//System.out.println(this + "isSuccessful(" + query + "): " + b + ".");
+			return b;
 		}
 		catch(MalformedGoalException mge){
 			throw new QueryException();

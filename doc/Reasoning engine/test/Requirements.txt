@@ -1,0 +1,25 @@
+Syntax highlightening:
+Variables: boldface
+Constants: cursive
+Methods/Attributes: like Eclipse/Java
+Id's: grey?
+Predicates
+
+Dropdowns:
+metapolicies (complex terme)
+
+Controlling previous definitions of id's.
+   Metapolicies one about policies above in the program
+
+emacs like in Eclipse with descriptions
+
+Underline syntax (special tokens)/semantics emacs
+
+Add close brackets when opening and cursor between them
+
+Documents of diagram (Jude UML, jude.esm.jp)
+
+Semantic checkings:
+safety rule (heads)
+metapolicy only if policy exists
+Show metapolicies with policy

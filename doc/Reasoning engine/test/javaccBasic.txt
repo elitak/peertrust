@@ -1,0 +1,225 @@
+/*
+Following entities are to be defined as TOKENS (how can be the string behind them retrieved?):
+   CONSTANT
+   RULE_SEP
+   STRING_CONSTANT
+   VARIABLE
+   OPERATOR
+   ESCAPE_OPERATOR
+   STRING
+   NEG_SYMBOL
+Facts are not supported (only rules with not empty body).
+OPERATOR_LITERAL supports only complex terms on both sides.
+NEGATION must be extended with metapredicates.
+*/
+
+class VariableContainer{
+
+
+
+}
+
+class ComplexTermContainer{
+
+
+
+}
+
+class ComplexTerm{
+
+
+
+}
+
+class CtFieldList{
+
+
+
+}
+
+String RULE():
+{ String s; ComplexTermContainer ctc; VariableContainer vc; }
+{
+   "[" s=<CONSTANT> "]" ctc=<PREDICATE_LITERAL> <RULE_SEP> vc=<BODY> "."
+   {} |
+   ctc=<PREDICATE_LITERAL> <RULE_SEP> vc=<BODY> "."
+   {}
+   // Other cases.
+}
+
+// List
+VariableContainer BODY():
+{ VariableContainer vc, vc1; }
+{
+   vc=<ANY_LITERAL>
+   ( "," vc1=<ANY_LITERAL>
+      {  }
+   )*
+   { return vc; }
+}
+
+VariableContainer ANY_LITERAL():
+{ ComplexTermContainer ctc; ComplexTerm ct; VariableContainer vc; }
+{
+   ctc=<PREDICATE_LITERAL>
+   {} |
+   ct=<COMPLEX_TERM>
+   {} |
+   vc=<OPERATOR_LITERAL>
+   {} |
+   vc=<NEGATION>
+   {} |
+   vc=<SPECIAL_LITERAL>
+   {}
+}
+
+ComplexTermContainer PREDICATE_LITERAL():
+{ String s; ComplexTermContainer ctc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {} |
+   s=<STRING_CONSTANT> "(" ctc=<ARGUMENT_LIST> ")"
+   {}
+}
+
+// List
+ComplexTermContainer ARGUMENT_LIST():
+{ ComplexTermContainer ctc, ctc1; }
+{
+   ctc=<ARGUMENT>
+   ( "," ctc1=<ARGUMENT>
+      {  }
+   )*
+   { return ctc; }
+}
+
+ComplexTermContainer ARGUMENT():
+{ ComplexTermContainer ctc; ComplexTerm ct; String s; }
+{
+   ctc=<PREDICATE_LITERAL>
+   {} |
+   ct=<COMPLEX_TERM>
+   {} |
+   s=<VARIABLE>
+   {} |
+   s=<CONSTANT>
+   {}
+}
+
+ComplexTerm COMPLEX_TERM():
+{ String s; CtFieldList cfl; }
+{
+   s=<VARIABLE> "[" cfl=<CT_FIELD_LIST> "]"
+   {}
+   s=<STRING_CONSTANT> "[" cfl=<CT_FIELD_LIST> "]"
+   {}
+}
+
+// List
+CtFieldList CT_FILED_LIST():
+{ CtFieldList cfl, cfl1; }
+{
+   cfl=<CT_FIELD>
+   (  "," cfl1=<CT_FIELD>
+      {}
+   )*
+   { return cfl; }
+}
+
+CtFieldList CT_FIELD():
+{ String s1, s2; ComplexTerm ct; }
+{
+   s1=<STRING_CONSTANT> ":" ct=<COMPLEX_TERM>
+   {} |
+   s1=<STRING_CONSTANT> ":" s2=<VARIABLE>
+   {} |
+   s1=<STRING_CONSTANT> ":" s2=<CONSTANT>
+   {}
+}
+
+VariableContainer OPERATOR_LITERAL():
+{ ComplexTerm ct1, ct2; String s; }
+{
+   ct1=<COMPLEX_TERM> s=<OPERATOR> ct2=<COMPLEX_TERM>
+   {}
+   // Other cases.
+}
+
+VariableContainer NEGATION():
+{ ComplexTermContainer ctc; VariableContainer vc; ComplexTerm ct; }
+{
+   <NEG_SYMBOL> ctc=<PREDICATE_LITERAL>
+   {} |
+   <NEG_SYMBOL> vc=<OPERATOR_LITERAL>
+   {} |
+   <NEG_SYMBOL> ct=<COMPLEX_TERM>
+   {}
+}
+
+VariableContainer SPECIAL_LITERAL():
+{ VariableContainer vc1, vc2; String s; }
+{
+   "in(" vc1=<VAR_CONTAINMENT> "," s=<STRING_CONSTANT> ":" vc2=<FUNCTION>
+   {}
+}
+
+VariableContainer VAR_CONTAINMENT():
+{ String s; VariableContainer vc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {} |
+   s=<STRING_CONSTANT> "(" vc=<VAR_LIST> ")"
+   {}
+
+}
+
+// List
+VariableContainer VAR_LIST():
+{ String s, s1; }
+{
+   s=<VARIABLE>
+   ( "," s1=<VARIABLE>
+      
+   )*
+   { return s; }
+}
+
+VariableContainer FUNCTION():
+{ String s; VariableContainer vc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {} |
+   s=<STRING_CONSTANT> "(" vc=<PARAM_LIST> ")"
+   {}
+}
+
+// List
+VariableContainer PARAM_LIST():
+{ VariableContainer vc, vc1; }
+{
+   vc=<CONCATENATED_STRING>
+   ( "," vc1=<CONCATENATED_STRING>
+      
+   )*
+   { return vc; }
+}
+
+// List
+VariableContainer CONCATENATED_STRING():
+{ VariableContainer vc, vc1; }
+{
+   vc=<CONCATENATED_ELEMENT>
+   ( "," vc1=<CONCATENATED_ELEMENT>
+      
+   )*
+   { return vc; }
+}
+
+VariableContainer CONCATENATED_ELEMENT():
+{ String s; }
+{
+   "\"" s=<STRING> "\""
+   {} |
+   s=<VARIABLE>
+   {}
+}

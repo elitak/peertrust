@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{verbatim}
+\begin{document}
+
+\title{Use case}
+\author{Juri Luca De Coi}
+\maketitle
+
+At each instant a Peer involved in a negotiation is characterised by a state. The state consists of a (possibly empty) negotiation-dependent part and a (possibly empty) negotiation-independent part.
+
+\begin{itemize}
+	\item The first one contains information about the ongoing negotiation. The typical example are the results of the actions (not) successfully executed so far (in particular credentials and declarations), but the sent/received messages and their timestamps are potential valuable information as well
+	\item The second one contains information (currently) available to the Peer which may be relevant for some negotiation. The typical example are the facts/rules describing the policy, but database tuples or files are potential valuable information as well
+\end{itemize}
+
+At each transaction step a Peer receives a message containing
+
+\begin{itemize}
+	\item a goal to be proved
+	\item a fragment of the other Peer's state: a (possibly empty) fragment of its transaction-dependent state and a (possibly empty) filtered fragment ot its transaction-independent state\footnote{As described before, the negotiation-independent state may include objects, files or other resources.}
+\end{itemize}
+
+The Peer tries to prove the goal by using its own state and the one received from the other Peer. In case it is not able to carry out this task autonomously it sends the other Peer a message containing
+
+\begin{itemize}
+	\item the goal to be proved
+	\item a fragment of its state
+\end{itemize}
+
+\begin{comment}
+At each negotiation step, the negotiation takes place on a different Peer. Aim of a negotiation is proving a goal. In case this task cannot be carried out on the current Peer, the negotiation moves to another one.
+
+While leaving a Peer, a copy of (part of) its state moves as well. This part consists of
+
+\begin{itemize}
+	\item a (possibly empty) fragment of the Peer's negotiation-dependent state and
+	\item a (possibly empty) filtered fragment of the Peer's negotiation-independent state\footnote{As stated before, the negotiation-independent part may include objects, files or other resources.}
+\end{itemize}
+
+While residing on a Peer, an attempt is made to prove the goal by using
+
+\begin{itemize}
+	\item the state of the current Peer
+	\item the fragments of the states of the previously visited Peers (in case the current Peer was already visited, the state collected from it is discarded)
+\end{itemize}
+\end{comment}
+
+\end{document}

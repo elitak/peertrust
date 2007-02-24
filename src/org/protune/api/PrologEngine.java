@@ -69,7 +69,7 @@ public abstract class PrologEngine {
 
 //	 add RECEIVED, negotiationStep and Prolog representation of a policy; retract previous fp and assert the new one
 	public void addReceived(FilteredPolicy fp){
-		try{
+		try{//System.out.println(mapper.toPrologRepresentation(fp));
 			isSuccessful("retract(currentFilteredPolicy(_)).");
 			isSuccessful("assert(currentFilteredPolicy(" + mapper.toPrologRepresentation(fp) + ")).");
 		}
@@ -80,8 +80,8 @@ public abstract class PrologEngine {
 
 //	 add RECEIVED, negotiationStep and Prolog representation of a notification
 	public void addReceived(Notification n){
-		try{//System.out.println("received(alreadyExecuted(execute(" + mapper.toPrologRepresentation(n) + "))).");
-			isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		try{//System.out.println("received(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
 		}
 		catch(QueryException qe){
 			// Should not happen.
@@ -93,8 +93,8 @@ public abstract class PrologEngine {
 
 //	 add NegotiationElement.SENT, negotiationStep and Prolog representation of a notification
 	public void addSent(Notification n){
-		try{//System.out.println("sent(alreadyExecuted(execute(" + mapper.toPrologRepresentation(n) + "))).");
-			isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		try{//System.out.println("sent(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
 		}
 		catch(QueryException qe){
 			// Should not happen.
@@ -103,7 +103,7 @@ public abstract class PrologEngine {
 
 	public void addLocal(Notification n){
 		try{//System.out.println("local(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
-			isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
+		isSuccessful("assert(alreadyExecuted(" + mapper.toPrologRepresentation(n) + ")).");
 		}
 		catch(QueryException qe){
 			// Should not happen.

@@ -1,0 +1,191 @@
+% Client policy
+
+% execute(clientCredential1()) :-
+%    abbreviationPublicClient(X),
+%    abbreviationPrivateClient(Y),
+%    stateQueryPublicClient1(),
+%    stateQueryPrivateClient1(),
+%    provisionalSelfClient1(X, Y),
+%    serverCredential1().
+% 
+% abbreviationPublicClient(X) :-
+%    stateQueryPublicClient2(),
+%    stateQueryPrivateClient2(),
+%    provisionalSelfClient2(X),
+%    serverCredential2().
+% 
+% abbreviationPrivateClient(X) :-
+%    stateQueryPublicClient3(),
+%    stateQueryPrivateClient3(),
+%    provisionalSelfClient3(X).
+% 
+% execute(clientCredential2()).
+% execute(clientCredential3()).
+% 
+% stateQueryPublicClient1().
+% stateQueryPublicClient2().
+% stateQueryPublicClient3().
+% stateQueryPrivateClient1().
+% stateQueryPrivateClient2().
+% stateQueryPrivateClient3().
+%
+% execute(clientCredential1).type:abbreviation.
+% execute(clientCredential1).sensitivity:public.
+%
+% abbreviationPublicClient(X).type:abbreviation.
+% abbreviationPublicClient(X).sensitivity:public.
+%
+% abbreviationPrivateClient(X).type:abbreviation.
+% abbreviationPrivateClient(X).sensitivity:private.
+%
+% stateQueryPublicClient1().type:stateQuery.
+%
+% stateQueryPrivateClient1().type:stateQuery.
+%
+% provisionalSelfClient1(X, Y).type:provisional.
+% provisionalSelfClient1(X, Y).actor:self.
+% provisionalSelfClient1(X, Y).execution:immediate :-
+%    ground(X),
+%    ground(Y).
+%
+% serverCredential1().type:provisional.
+% serverCredential1().actor:peer.
+%
+% stateQueryPublicClient2().type:stateQuery.
+%
+% stateQueryPrivateClient2().type:stateQuery.
+%
+% provisionalSelfClient2(X, Y).type:provisional.
+% provisionalSelfClient2(X, Y).actor:self.
+% provisionalSelfClient2(X, Y).execution:immediate.
+%
+% serverCredential2().type:provisional.
+% serverCredential2().actor:peer.
+%
+% stateQueryPublicClient3().type:stateQuery.
+%
+% stateQueryPrivateClient3().type:stateQuery.
+%
+% provisionalSelfClient3(X, Y).type:provisional.
+% provisionalSelfClient3(X, Y).actor:self.
+% provisionalSelfClient3(X, Y).execution:immediate.
+%
+% execute(clientCredential2).type:abbreviation.
+% execute(clientCredential2).sensitivity:public.
+%
+% execute(clientCredential3).type:abbreviation.
+% execute(clientCredential3).sensitivity:public.
+
+localPolicy([
+   rule(execute(clientCredential1), [
+      abbreviationPublicClient(X1),
+      abbreviationPrivateClient(X2),
+      stateQueryPublicClient1,
+      stateQueryPrivateClient1,
+      provisionalSelfClient1(X1, X2),
+      serverCredential1
+   ]),
+   rule(abbreviationPublicClient(X3), [
+      stateQueryPublicClient2,
+      stateQueryPrivateClient2,
+      provisionalSelfClient2(X3),
+      serverCredential2
+   ]),
+   rule(abbreviationPrivateClient(X4), [
+      stateQueryPublicClient3,
+      stateQueryPrivateClient3,
+      provisionalSelfClient3(X4)
+   ]),
+   rule(execute(clientCredential2), []),
+   rule(execute(clientCredential3), []),
+   rule(stateQueryPublicClient1, []),
+   rule(stateQueryPublicClient2, []),
+   rule(stateQueryPublicClient3, []),
+   rule(stateQueryPrivateClient1, []),
+   rule(stateQueryPrivateClient2, []),
+   rule(stateQueryPrivateClient3, []),
+   rule(metapolicy(execute(clientCredential1), type, abbreviation), []),
+   rule(metapolicy(execute(clientCredential1), sensitivity, public), []),
+   rule(metapolicy(abbreviationPublicClient(X7), type, abbreviation), []),
+   rule(metapolicy(abbreviationPublicClient(X8), sensitivity, public), []),
+   rule(metapolicy(abbreviationPrivateClient(X9), type, abbreviation), []),
+   rule(metapolicy(abbreviationPrivateClient(X10), sensitivity, private), []),
+   rule(metapolicy(stateQueryPublicClient1, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateClient1, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfClient1(X11, X12), type, provisional), []),
+   rule(metapolicy(provisionalSelfClient1(X13, X14), actor, self), []),
+   rule(metapolicy(provisionalSelfClient1(X15, X16), execution, immediate), [
+      ground(X15),
+      ground(X16)
+   ]),
+   rule(metapolicy(serverCredential1, type, provisional), []),
+   rule(metapolicy(serverCredential1, actor, peer), []),
+   rule(metapolicy(stateQueryPublicClient2, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateClient2, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfClient2(X17), type, provisional), []),
+   rule(metapolicy(provisionalSelfClient2(X19), actor, self), []),
+   rule(metapolicy(provisionalSelfClient2(X21), execution, immediate), []),
+   rule(metapolicy(serverCredential2, type, provisional), []),
+   rule(metapolicy(serverCredential2, actor, peer), []),
+   rule(metapolicy(stateQueryPublicClient3, type, stateQuery), []),
+   rule(metapolicy(stateQueryPrivateClient3, type, stateQuery), []),
+   rule(metapolicy(provisionalSelfClient3(X23), type, provisional), []),
+   rule(metapolicy(provisionalSelfClient3(X25), actor, self), []),
+   rule(metapolicy(provisionalSelfClient3(X27), execution, immediate), []),
+   rule(metapolicy(execute(clientCredential2), type, abbreviation), []),
+   rule(metapolicy(execute(clientCredential2), sensitivity, public), []),
+   rule(metapolicy(execute(clientCredential3), type, abbreviation), []),
+   rule(metapolicy(execute(clientCredential3), sensitivity, public), [])
+]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Client state
+
+currentFilteredPolicy([
+   rule(execute(access(Resource)),[
+      abbreviationPublicServer(result2),
+      abbreviationPrivateServer(result3),
+      stateQueryPublicServer1,
+      stateQueryPrivateServer1,
+      provisionalSelfServer1(result2,result3),
+      clientCredential1
+   ]),
+   rule(metapolicy(execute(access(Resource)),type,abbreviation),[]),
+   rule(abbreviationPublicServer(result2),[
+      stateQueryPublicServer2,
+      stateQueryPrivateServer2,
+      provisionalSelfServer2(result2),
+      clientCredential2
+   ]),
+   rule(metapolicy(abbreviationPublicServer(result2),type,abbreviation),[]),
+   rule(stateQueryPublicServer2,[]),
+   rule(metapolicy(stateQueryPublicServer2,type,stateQuery),[]),
+   rule(stateQueryPrivateServer2,[]),
+   rule(metapolicy(stateQueryPrivateServer2,type,stateQuery),[]),
+   rule(metapolicy(provisionalSelfServer2(result2),type,provisional),[]),
+   rule(metapolicy(provisionalSelfServer2(result2),actor,self),[]),
+   rule(metapolicy(provisionalSelfServer2(result2),executed,true),[]),
+   rule(metapolicy(clientCredential2,type,provisional),[]),
+   rule(metapolicy(clientCredential2,actor,peer),[]),
+   rule(metapolicy(abbreviationPrivateServer(result3),type,abbreviation),[]),
+   rule(metapolicy(abbreviationPrivateServer(result3),blurred,true),[]),
+   rule(stateQueryPublicServer1,[]),
+   rule(metapolicy(stateQueryPublicServer1,type,stateQuery),[]),
+   rule(stateQueryPrivateServer1,[]),
+   rule(metapolicy(stateQueryPrivateServer1,type,stateQuery),[]),
+   rule(metapolicy(provisionalSelfServer1(result2,result3),type,provisional),[]),
+   rule(metapolicy(provisionalSelfServer1(result2,result3),actor,self),[]),
+   rule(metapolicy(provisionalSelfServer1(result2,result3),executed,true),[]),
+   rule(metapolicy(clientCredential1,type,provisional),[]),
+   rule(metapolicy(clientCredential1,actor,peer),[])
+]).
+
+% First addition
+
+alreadyExecuted(provisionalSelfClient2(result2)).
+alreadyExecuted(provisionalSelfClient3(result3)).
+
+% Second addition
+
+alreadyExecuted(provisionalSelfClient1(result2,result3)).

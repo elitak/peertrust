@@ -24,6 +24,12 @@ public class DispatcherMessage implements NegotiationMessage {
 		negotiationMessage = nm;
 	}
 	
+	public DispatcherMessage(Pointer p, NegotiationMessage nm) throws WrongPointerTypeException{
+		if(!(p instanceof DispatcherPointer)) throw new WrongPointerTypeException();
+		serviceID = ((DispatcherPointer)p).getServiceID();
+		negotiationMessage = nm;
+	}
+	
 	public long getServiceID(){
 		return serviceID;
 	}

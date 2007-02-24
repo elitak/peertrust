@@ -1,0 +1,361 @@
+Client: selectUnlockedActions([],[]).
+
+selectUnlockedActions([H|Actions],[H|UnlockedActions]) :-
+	proveGoal(H),
+	(!,
+	(selectUnlockedActions(Actions,UnlockedActions))).
+
+selectUnlockedActions([H|Actions],UnlockedActions) :-
+	selectUnlockedActions(Actions,UnlockedActions).
+
+filterGoalFromFilteredPolicy(Goal,[]) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(filteredMetapolicy(Goal,blurred,true),
+	(!)).
+
+filterGoalFromFilteredPolicy(Goal,FilteredPolicy) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(!,
+	(currentFilteredPolicy(Policy),
+	(append(_,[rule(Goal,Body)|_],Policy),
+	(filterFromFilteredPolicy(Body,FilteredPolicy))))).
+
+filterGoalFromFilteredPolicy(Goal,FilteredPolicy) :-
+	filteredMetapolicy(Goal,type,provisional),
+	(filteredMetapolicy(Goal,actor,peer),
+	(!,
+	(filterGoalFromLocalPolicy(execute(Goal),FilteredPolicy)))).
+
+filterGoalFromFilteredPolicy(Goal,[]).
+
+extractLocalActions(Goals,[H|T]) :-
+	extractLocalActionsFromLocalPolicy(Goals,[H|T]),
+	(!).
+
+extractLocalActions(Goals,LocalActions) :-
+	extractLocalActionsFromFilteredPolicy(Goals,LocalActions).
+
+currentFilteredPolicy([rule(execute(access(Resource)),[abbreviationPublicServer(a1000002),abbreviationPrivateServer(a1000001),stateQueryPublicServer1,stateQueryPrivateServer1,provisionalSelfServer1(a1000002,a1000001),clientCredential1]),rule(metapolicy(execute(access(Resource)),type,abbreviation),[]),rule(abbreviationPublicServer(a1000002),[stateQueryPublicServer2,stateQueryPrivateServer2,provisionalSelfServer2(a1000002),clientCredential2]),rule(metapolicy(abbreviationPublicServer(a1000002),type,abbreviation),[]),rule(stateQueryPublicServer2,[]),rule(metapolicy(stateQueryPublicServer2,type,stateQuery),[]),rule(stateQueryPrivateServer2,[]),rule(metapolicy(stateQueryPrivateServer2,type,stateQuery),[]),rule(metapolicy(provisionalSelfServer2(a1000002),type,provisional),[]),rule(metapolicy(provisionalSelfServer2(a1000002),actor,self),[]),rule(metapolicy(provisionalSelfServer2(a1000002),executed,true),[]),rule(metapolicy(clientCredential2,type,provisional),[]),rule(metapolicy(clientCredential2,actor,peer),[]),rule(metapolicy(abbreviationPrivateServer(a1000001),type,abbreviation),[]),rule(metapolicy(abbreviationPrivateServer(a1000001),blurred,true),[]),rule(stateQueryPublicServer1,[]),rule(metapolicy(stateQueryPublicServer1,type,stateQuery),[]),rule(stateQueryPrivateServer1,[]),rule(metapolicy(stateQueryPrivateServer1,type,stateQuery),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),type,provisional),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),actor,self),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),executed,true),[]),rule(metapolicy(clientCredential1,type,provisional),[]),rule(metapolicy(clientCredential1,actor,peer),[])]).
+
+currentFilteredPolicy([rule(execute(access(Resource)),[abbreviationPublicServer(a1000002),abbreviationPrivateServer(a1000001),stateQueryPublicServer1,stateQueryPrivateServer1,provisionalSelfServer1(a1000002,a1000001),clientCredential1]),rule(metapolicy(execute(access(Resource)),type,abbreviation),[]),rule(abbreviationPublicServer(a1000002),[stateQueryPublicServer2,stateQueryPrivateServer2,provisionalSelfServer2(a1000002),clientCredential2]),rule(metapolicy(abbreviationPublicServer(a1000002),type,abbreviation),[]),rule(stateQueryPublicServer2,[]),rule(metapolicy(stateQueryPublicServer2,type,stateQuery),[]),rule(stateQueryPrivateServer2,[]),rule(metapolicy(stateQueryPrivateServer2,type,stateQuery),[]),rule(metapolicy(provisionalSelfServer2(a1000002),type,provisional),[]),rule(metapolicy(provisionalSelfServer2(a1000002),actor,self),[]),rule(metapolicy(provisionalSelfServer2(a1000002),executed,true),[]),rule(metapolicy(abbreviationPrivateServer(a1000001),type,abbreviation),[]),rule(metapolicy(abbreviationPrivateServer(a1000001),blurred,true),[]),rule(stateQueryPublicServer1,[]),rule(metapolicy(stateQueryPublicServer1,type,stateQuery),[]),rule(stateQueryPrivateServer1,[]),rule(metapolicy(stateQueryPrivateServer1,type,stateQuery),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),type,provisional),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),actor,self),[]),rule(metapolicy(provisionalSelfServer1(a1000002,a1000001),executed,true),[]),rule(metapolicy(clientCredential1,type,provisional),[]),rule(metapolicy(clientCredential1,actor,peer),[]),rule(execute(serverCredential2),[]),rule(metapolicy(execute(serverCredential2),type,abbreviation),[]),rule(execute(serverCredential1),[clientCredential3]),rule(metapolicy(execute(serverCredential1),type,abbreviation),[]),rule(metapolicy(clientCredential3,type,provisional),[]),rule(metapolicy(clientCredential3,actor,peer),[])]).
+
+actionSelectionFunction(Actions,SelectedActions) :-
+	dummyActionSelectionFunction(Actions,SelectedActions).
+
+proveGoal(Goal) :-
+	localMetapolicy(Goal,type,abbreviation),
+	(!,
+	(localPolicy(Policy),
+	(append(_,[rule(Goal,Body)|_],Policy),
+	(prove(Body))))).
+
+proveGoal(Goal) :-
+	localMetapolicy(Goal,type,stateQuery),
+	(!,
+	(localPolicy(Policy),
+	(append(_,[rule(Goal,[])|_],Policy)))).
+
+proveGoal(Goal) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,self),
+	(!,
+	(alreadyExecuted(Goal)))).
+
+proveGoal(Goal) :-
+	localMetapolicy(Goal,type,provisional),
+	(alreadyExecuted(execute(Goal))).
+
+prove([]).
+
+prove([H|T]) :-
+	proveGoal(H),
+	(prove(T)).
+
+filteredProve([]).
+
+filteredProve([H|T]) :-
+	filteredProveGoal(H),
+	(filteredProve(T)).
+
+extractLocalActionsFromLocalPolicy([],[]).
+
+extractLocalActionsFromLocalPolicy([H|T],LocalActions) :-
+	extractGoalLocalActionsFromLocalPolicy(H,L1),
+	(extractLocalActionsFromLocalPolicy(T,L2),
+	(union(L1,L2,LocalActions))).
+
+extractExternalActions(Goals,[H|T]) :-
+	extractExternalActionsFromLocalPolicy(Goals,[H|T]),
+	(!).
+
+extractExternalActions(Goals,ExternalActions) :-
+	extractExternalActionsFromFilteredPolicy(Goals,ExternalActions).
+
+extractExternalActionsFromFilteredPolicy([],[]).
+
+extractExternalActionsFromFilteredPolicy([H|T],ExternalActions) :-
+	extractGoalExternalActionsFromFilteredPolicy(H,L1),
+	(extractExternalActionsFromFilteredPolicy(T,L2),
+	(append(L1,L2,ExternalActions))).
+
+localPolicy([rule(execute(clientCredential1),[abbreviationPublicClient(X1),abbreviationPrivateClient(X2),stateQueryPublicClient1,stateQueryPrivateClient1,provisionalSelfClient1(X1,X2),serverCredential1]),rule(abbreviationPublicClient(X3),[stateQueryPublicClient2,stateQueryPrivateClient2,provisionalSelfClient2(X3),serverCredential2]),rule(abbreviationPrivateClient(X4),[stateQueryPublicClient3,stateQueryPrivateClient3,provisionalSelfClient3(X4)]),rule(execute(clientCredential2),[]),rule(execute(clientCredential3),[]),rule(stateQueryPublicClient1,[]),rule(stateQueryPublicClient2,[]),rule(stateQueryPublicClient3,[]),rule(stateQueryPrivateClient1,[]),rule(stateQueryPrivateClient2,[]),rule(stateQueryPrivateClient3,[]),rule(metapolicy(execute(clientCredential1),type,abbreviation),[]),rule(metapolicy(execute(clientCredential1),sensitivity,public),[]),rule(metapolicy(abbreviationPublicClient(X7),type,abbreviation),[]),rule(metapolicy(abbreviationPublicClient(X8),sensitivity,public),[]),rule(metapolicy(abbreviationPrivateClient(X9),type,abbreviation),[]),rule(metapolicy(abbreviationPrivateClient(X10),sensitivity,private),[]),rule(metapolicy(stateQueryPublicClient1,type,stateQuery),[]),rule(metapolicy(stateQueryPrivateClient1,type,stateQuery),[]),rule(metapolicy(provisionalSelfClient1(X11,X12),type,provisional),[]),rule(metapolicy(provisionalSelfClient1(X13,X14),actor,self),[]),rule(metapolicy(provisionalSelfClient1(X15,X16),execution,immediate),[ground(X15),ground(X16)]),rule(metapolicy(serverCredential1,type,provisional),[]),rule(metapolicy(serverCredential1,actor,peer),[]),rule(metapolicy(stateQueryPublicClient2,type,stateQuery),[]),rule(metapolicy(stateQueryPrivateClient2,type,stateQuery),[]),rule(metapolicy(provisionalSelfClient2(X17),type,provisional),[]),rule(metapolicy(provisionalSelfClient2(X19),actor,self),[]),rule(metapolicy(provisionalSelfClient2(X21),execution,immediate),[]),rule(metapolicy(serverCredential2,type,provisional),[]),rule(metapolicy(serverCredential2,actor,peer),[]),rule(metapolicy(stateQueryPublicClient3,type,stateQuery),[]),rule(metapolicy(stateQueryPrivateClient3,type,stateQuery),[]),rule(metapolicy(provisionalSelfClient3(X23),type,provisional),[]),rule(metapolicy(provisionalSelfClient3(X25),actor,self),[]),rule(metapolicy(provisionalSelfClient3(X27),execution,immediate),[]),rule(metapolicy(execute(clientCredential2),type,abbreviation),[]),rule(metapolicy(execute(clientCredential2),sensitivity,public),[]),rule(metapolicy(execute(clientCredential3),type,abbreviation),[]),rule(metapolicy(execute(clientCredential3),sensitivity,public),[])]).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal,[]) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(filteredMetapolicy(Goal,blurred,true),
+	(!)).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal,ExternalActions) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(!,
+	(currentFilteredPolicy(Policy),
+	(findall(rule(Goal,Body),append(_,[rule(Goal,Body)|_],Policy),Definitions),
+	(unify(Goal,Definitions),
+	(getLiterals(Definitions,Literals),
+	(extractExternalActionsFromFilteredPolicy(Literals,ExternalActions))))))).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal,[]) :-
+	filteredMetapolicy(Goal,type,provisional),
+	(filteredMetapolicy(Goal,actor,peer),
+	(alreadyExecuted(execute(Goal)),
+	(!))).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal,[execute(Goal)|ExternalActions]) :-
+	filteredMetapolicy(Goal,type,provisional),
+	(filteredMetapolicy(Goal,actor,peer),
+	(!,
+	(extractGoalExternalActionsFromLocalPolicy(execute(Goal),ExternalActions)))).
+
+extractGoalExternalActionsFromFilteredPolicy(Goal,[]).
+
+getLiterals([],[]).
+
+getLiterals([rule(H,B)|T],Literals) :-
+	getLiterals(T,L1),
+	(union(B,L1,Literals)).
+
+filter(Goals,[H|T]) :-
+	filterFromLocalPolicy(Goals,[H|T]),
+	(!).
+
+filter(Goals,FilteredPolicy) :-
+	filterFromFilteredPolicy(Goals,FilteredPolicy).
+
+alreadyExecuted(provisionalSelfClient2(a1000006)).
+
+alreadyExecuted(provisionalSelfClient3(a1000005)).
+
+alreadyExecuted(provisionalSelfClient1(a1000006,a1000005)).
+
+alreadyExecuted(execute(clientCredential2)).
+
+alreadyExecuted(execute(serverCredential2)).
+
+isIn(X,[X|_]).
+
+isIn(X,[H|T]) :-
+	isIn(X,T).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,LocalActions) :-
+	localMetapolicy(Goal,type,abbreviation),
+	(localPolicy(Policy),
+	(findall(rule(Goal,Body),append(_,[rule(Goal,Body)|_],Policy),Definitions),
+	(unify(Goal,Definitions),
+	(getLiterals(Definitions,Literals),
+	(extractLocalActionsFromLocalPolicy(Literals,LocalActions)))))).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,[]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,self),
+	(localMetapolicy(Goal,execution,immediate),
+	(alreadyExecuted(Goal),
+	(!)))).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,[Goal]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,self),
+	(localMetapolicy(Goal,execution,immediate),
+	(!))).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,[]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,peer),
+	(alreadyExecuted(Goal),
+	(!))).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,LocalActions) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,peer),
+	(!,
+	(extractGoalLocalActionsFromFilteredPolicy(execute(Goal),LocalActions)))).
+
+extractGoalLocalActionsFromLocalPolicy(Goal,[]).
+
+filterFromFilteredPolicy([],[]).
+
+filterFromFilteredPolicy([H|T],FilteredPolicy) :-
+	filterGoalFromFilteredPolicy(H,L1),
+	(filterFromFilteredPolicy(T,L2),
+	(append(L1,L2,FilteredPolicy))).
+
+filterGoalFromLocalPolicy(Goal,[rule(Goal,Body),rule(metapolicy(Goal,type,abbreviation),[])|FilteredPolicy]) :-
+	localMetapolicy(Goal,type,abbreviation),
+	(localMetapolicy(Goal,sensitivity,public),
+	(localPolicy(Policy),
+	(append(_,[rule(Goal,Body)|_],Policy),
+	(filterFromLocalPolicy(Body,FilteredPolicy))))).
+
+filterGoalFromLocalPolicy(Goal,[rule(metapolicy(Goal,type,abbreviation),[]),rule(metapolicy(Goal,blurred,true),[])]) :-
+	localMetapolicy(Goal,type,abbreviation).
+
+filterGoalFromLocalPolicy(Goal,[rule(Goal,[]),rule(metapolicy(Goal,type,stateQuery),[])]) :-
+	localMetapolicy(Goal,type,stateQuery),
+	(!,
+	(localPolicy(Policy),
+	(append(_,[rule(Goal,[])|_],Policy)))).
+
+filterGoalFromLocalPolicy(Goal,[rule(metapolicy(Goal,type,provisional),[]),rule(metapolicy(Goal,actor,self),[]),rule(metapolicy(Goal,executed,true),[])]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,self),
+	(alreadyExecuted(Goal),
+	(!))).
+
+filterGoalFromLocalPolicy(Goal,[rule(metapolicy(Goal,type,provisional),[]),rule(metapolicy(Goal,actor,self),[])]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,self),
+	(!)).
+
+filterGoalFromLocalPolicy(Goal,[]) :-
+	localMetapolicy(Goal,type,provisional),
+	(alreadyExecuted(execute(Goal)),
+	(!)).
+
+filterGoalFromLocalPolicy(Goal,[rule(metapolicy(Goal,type,provisional),[]),rule(metapolicy(Goal,actor,peer),[])|FilteredPolicy]) :-
+	localMetapolicy(Goal,type,provisional),
+	(!,
+	(filterGoalFromFilteredPolicy(execute(Goal),FilteredPolicy))).
+
+filterGoalFromLocalPolicy(Goal,[]).
+
+extractExternalActionsFromLocalPolicy([],[]).
+
+extractExternalActionsFromLocalPolicy([H|T],ExternalActions) :-
+	extractGoalExternalActionsFromLocalPolicy(H,L1),
+	(extractExternalActionsFromLocalPolicy(T,L2),
+	(append(L1,L2,ExternalActions))).
+
+extractLocalActionsFromFilteredPolicy([],[]).
+
+extractLocalActionsFromFilteredPolicy([H|T],LocalActions) :-
+	extractGoalLocalActionsFromFilteredPolicy(H,L1),
+	(extractLocalActionsFromFilteredPolicy(T,L2),
+	(union(L1,L2,LocalActions))).
+
+terminationAlgorithm :-
+	dummyTerminationAlgorithm.
+
+extractUnlockedExternalActions(Goals,UnlockedExternalActions) :-
+	extractExternalActions(Goals,ExternalActions),
+	(selectUnlockedActions(ExternalActions,UnlockedExternalActions)).
+
+localMetapolicy(Atom,Type,Value) :-
+	localProve([metapolicy(Atom,Type,Value)]).
+
+filteredMetapolicy(Atom,Type,Value) :-
+	filteredProve([metapolicy(Atom,Type,Value)]).
+
+localProve([]).
+
+localProve([H|T]) :-
+	localProveGoal(H),
+	(localProve(T)).
+
+unify(Goal,[]).
+
+unify(Goal,[rule(Goal,Body)|T]) :-
+	unify(Goal,T).
+
+union([],L,L).
+
+union([H|T],L1,L) :-
+	isIn(H,L1),
+	(!,
+	(union(T,L1,L))).
+
+union([H|T],L1,[H|L]) :-
+	union(T,L1,L).
+
+filterFromLocalPolicy([],[]).
+
+filterFromLocalPolicy([H|T],FilteredPolicy) :-
+	filterGoalFromLocalPolicy(H,L1),
+	(filterFromLocalPolicy(T,L2),
+	(append(L1,L2,FilteredPolicy))).
+
+localProveGoal(Goal) :-
+	localPolicy(Policy),
+	(append(_,[rule(Goal,Body)|_],Policy),
+	(localProve(Body))).
+
+localProveGoal(ground(X)) :-
+	ground(X).
+
+extractGoalExternalActionsFromLocalPolicy(Goal,ExternalActions) :-
+	localMetapolicy(Goal,type,abbreviation),
+	(localPolicy(Policy),
+	(findall(rule(Goal,Body),append(_,[rule(Goal,Body)|_],Policy),Definitions),
+	(unify(Goal,Definitions),
+	(getLiterals(Definitions,Literals),
+	(extractExternalActionsFromLocalPolicy(Literals,ExternalActions)))))).
+
+extractGoalExternalActionsFromLocalPolicy(Goal,[]) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,peer),
+	(alreadyExecuted(execute(Goal)),
+	(!))).
+
+extractGoalExternalActionsFromLocalPolicy(Goal,ExternalActions) :-
+	localMetapolicy(Goal,type,provisional),
+	(localMetapolicy(Goal,actor,peer),
+	(!,
+	(extractGoalExternalActionsFromFilteredPolicy(execute(Goal),ExternalActions)))).
+
+extractGoalExternalActionsFromLocalPolicy(Goal,[]).
+
+dummyActionSelectionFunction(Actions,Actions).
+
+filteredProveGoal(Goal) :-
+	currentFilteredPolicy(Policy),
+	(append(_,[rule(Goal,Body)|_],Policy),
+	(filteredProve(Body))).
+
+filteredProveGoal(ground(X)) :-
+	ground(X).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal,[]) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(filteredMetapolicy(Goal,blurred,true),
+	(!)).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal,LocalActions) :-
+	filteredMetapolicy(Goal,type,abbreviation),
+	(!,
+	(currentFilteredPolicy(Policy),
+	(findall(rule(Goal,Body),append(_,[rule(Goal,Body)|_],Policy),Definitions),
+	(unify(Goal,Definitions),
+	(getLiterals(Definitions,Literals),
+	(extractLocalActionsFromFilteredPolicy(Literals,LocalActions))))))).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal,[]) :-
+	filteredMetapolicy(Goal,type,provisional),
+	(filteredMetapolicy(Goal,actor,peer),
+	(alreadyExecuted(Goal),
+	(!))).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal,LocalActions) :-
+	filteredMetapolicy(Goal,type,provisional),
+	(filteredMetapolicy(Goal,actor,peer),
+	(!,
+	(extractGoalLocalActionsFromLocalPolicy(execute(Goal),LocalActions)))).
+
+extractGoalLocalActionsFromFilteredPolicy(Goal,[]).

@@ -1,0 +1,57 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Use case -- Particular version}
+\author{J. L. De Coi}
+\maketitle
+
+Each Peer tracks everything happens in its state. Among other the following information is tracked
+
+\begin{itemize}
+	\item notifications that credentials were sent/received
+	\item requests for performing actions
+	\item notifications of performed actions
+	\item sent/received (filtered) policies
+\end{itemize}
+
+In the following table optional items are in \textit{italic}.
+
+\begin{table}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{First Peer -- $P1$} & \textbf{Second Peer -- $P2$} \\
+\hline
+\textit{Sends $P2$ some credentials} & \\
+Asks $P2$ for allowing access to resource $R$ & \\
+\textit{Notify $P2$ that some credentials were sent} & \\
+\hline
+& \textit{Gets the credentials} \\
+& Gets the request \textit{and the notification} \\
+& \textit{Proves whether the credentials were} \\
+& \textit{actually sent and whether they are valid} \\
+& Determines whether to terminate the negotiation \\
+& according to its termination algorithm \\
+& Identifies the actions $P1$ must fulfill in \\
+& order to get access to $R$ \\
+& Filters such information \\
+& Sends $P1$ such information \\
+\hline
+Gets the (filtered) information & \\
+Determines whether to terminate the negotiation & \\
+according to its termination algorithm & \\
+Identifies the actions to be performed & \\
+Performs some unlocked actions according to its & \\
+strategy & \\
+For each locked action identifies the actions $P2$ & \\
+must fulfill & \\
+Filters such information & \\
+Sends $P2$ such information & \\
+Notify $P2$ that some actions were performed & \\
+\hline
+& ... \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{document}

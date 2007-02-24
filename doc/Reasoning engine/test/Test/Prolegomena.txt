@@ -1,0 +1,23 @@
+% Warning: to be proven
+
+extractUnlockedExternalActions(Goals, UnlockedExternalActions) :-
+   extractExternalActions(Goals, ExternalActions),
+   selectUnlockedActions(ExternalActions, UnlockedExternalActions).
+
+selectUnlockedActions([], []).
+selectUnlockedActions([H|Actions], [H|UnlockedActions]) :-
+   proveGoal(H),
+   !,
+   selectUnlockedActions(Actions, UnlockedActions).
+selectUnlockedActions([H|Actions], UnlockedActions) :-
+   selectUnlockedActions(Actions, UnlockedActions).
+
+actionSelectionFunction(Actions, SelectedActions) :-
+   dummyActionSelectionFunction(Actions, SelectedActions).
+
+dummyActionSelectionFunction(Actions, Actions).
+
+terminationAlgorithm :-
+   dummyTerminationAlgorithm.
+
+% dummyTerminationAlgorithm.

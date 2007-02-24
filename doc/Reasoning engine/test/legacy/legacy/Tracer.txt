@@ -1,0 +1,123 @@
+% Policy.
+
+policy([rule(a(_1), [b(_1), c(_1), d(_1), e(_1)]), rule(c(0), [])]).
+
+% Metapolicy.
+
+type(a(_), abbreviationPredicate).
+sensitivity(a(_), public).
+
+type(b(_), provisionalPredicate).
+actor(b(_), self).
+evaluation(b(X), immediate) :- ground(X).
+
+type(c(_), stateQueryPredicate).
+sensitivity(c(_), private).
+
+type(d(_), provisionalPredicate).
+actor(d(_), peer).
+
+type(e(_), provisionalPredicate).
+actor(e(_), peer).
+
+% Run Time Environment
+
+actionWellPerformed((d(0))).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+proveGoals([], ProofProcedureList).
+proveGoals([H|T], ProofProcedureList) :-
+   proveGoal(H, ProofProcedureList, ProofProcedureList),
+   proveGoals(T, ProofProcedureList).
+
+% H must be somthing like
+% <proofProcedureName>(Goal, ProofProcedureList, <eventually additional parameters>)
+proveGoal(Goal, [H|T], ProofProcedureList) :-
+   H.
+proveGoal(Goal, [H|T], ProofProcedureList) :-
+   proveGoal(Goal, T, ProofProcedureList).
+
+proofProcedure1Wrapper(Goal, ProofProcedureList) :-
+   localPolicy(Policy),
+   proofProcedure1(Goal, ProofProcedureList, Policy).
+
+proofProcedure1(true, ProofProcedureList, Policy).
+proofProcedure1(Goal, ProofProcedureList, [rule(Goal, [])|T]).
+proofProcedure1(Goal, ProofProcedureList, [rule(Goal, [BH|BT])|T]) :-
+   proveGoals([BH|BT], ProofProcedureList).
+proofProcedure1(Goal, ProofProcedureList, [H|T]) :-
+   proofProcedure1(Goal, ProofProcedureList, T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mySolve(Goals, Theories) :-
+   allAppend(Theories, Theory),
+   solve(Goals, Theory).
+
+allAppend([], []).
+allAppend([H|T], List) :-
+   allAppend(T, X),
+   append(H, X, List).
+
+solve([], Theory).
+solve([H|T], Theory) :-
+   solveGoal(H, Theory),
+   solve(T, Theory).
+
+solveGoal(true, Theory).
+solveGoal(Goal, Theory) :-
+   append(_, [rule(Goal, [])|_], Theory).
+solveGoal(Goal, Theory) :-
+   append(_, [rule(Goal, Body)|_], Theory),
+   solve(Body, Theory).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+notEmptyTree([H|T]) :-
+   treeList(T).
+
+treeList([]).
+treeList([H|T]) :-
+   notEmptyTree(H),
+   treeList(T).
+
+treeToList([], []).
+treeToList([H|T], [H|L]) :-
+   treeListToTree(T, L).
+
+treeListToTree([], []).
+treeListToTree([H|T], L) :-
+   treeToList(H, L1),
+   treeListToTree(T, L2),
+   append(L1, L2, L).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+solve([]).
+solve([H|T]) :-
+   rule(H, B),
+   append(B, T, Goals),
+   solve(Goals).
+
+filter(Body, FilteredBody) :-
+   sequenceToList(Body, _1),
+   filterBody(_1, FilteredBody).
+
+filterBody([], []).
+filterBody([a(_)|T], L) :-
+   !,
+   filterBody(T, L).
+filterBody([A|T], [A|L]) :-
+   !,
+   filterBody(T, L).
+
+sequenceToList((A, B), [A|T]) :-
+   !,
+   sequenceToList(B, T).
+sequenceToList((X), [X]).
+
+listToSequence([X], (X)) :-
+   !.
+listToSequence([H|T], (H, B)) :-
+   listToSequence(T, B).

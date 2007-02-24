@@ -1,0 +1,44 @@
+InferenceEngine ie;
+
+filter(Action a, Policy p, Status s){
+   Action[] aa = ie.firstStep(a, p, s);
+   while(aa.length != 0){
+      Notification[] na = aa.perform();
+      ie.addToEvaluationState(na);
+      aa = ie.secondStep(a, p, s);
+   }
+   return ie.thirdStep(a, p, s);
+   // What about the actions whose evaluation is delayed?
+}
+
+/**
+Reads the state and returns an ActionResult containing it.
+@return An ActionResult containing the read state.
+*/
+ActionResult readState();
+
+/**
+Returns the filtered policy protecting the credential, declaration
+or action contained in the parameter request. The filtering is
+performed according to the policy available on the peer and
+according to the set of credentials sent by the other peer.
+@param Credential[] The set of credentials sent by the other peer.
+@param request Can be either
+   allow(release(Credential)) or
+   allow(release(Declaration)) or
+   allow(do(Action)).
+@param policy The policy available on the peer.
+@return The filtered policy protecting the credential, declaration
+or action contained in the parameter request.
+*/
+String filter(Credential[], request, policy);
+
+/**
+Returns the set of credentials, declarations and actions contained
+in the AND-OR tree extracted from the parameter filteredPolicy.
+@parameter filteredPolicy the filtered policy sent by the other
+peer.
+@return The set of credentials, declarations and actions contained
+in the AND-OR tree extracted from the parameter filteredPolicy.
+*/
+String[] getAction(filteredPolicy);

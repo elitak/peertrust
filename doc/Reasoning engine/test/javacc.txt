@@ -1,0 +1,471 @@
+/*
+Set LOOKHAED to a very large number.
+Following entities are to be defined as TOKENS (how can be the string behind them retrieved?):
+   CONSTANT
+   RULE_SEP
+   STRING_CONSTANT
+   VARIABLE
+   OPERATOR
+   ESCAPE_OPERATOR
+   STRING
+   NEG_SYMBOL
+Facts are not supported (only rules with not empty body).
+OPERATOR_LITERAL supports only complex terms on both sides.
+NEGATION must be extended with metapredicates.
+*/
+
+public class VariableContainer{
+
+   protected String string;
+   protected String[] variables;
+
+   public VariableContainer(String s, String[] sa){
+      string = s;
+      variables = sa;
+   }
+
+   public String getString(){
+      return string;
+   }
+
+   public String[] getVariables(){
+      return variables;
+   }
+
+}
+
+public class ComplexTermContainer extends VariableContainer{
+
+   protected ComplexTerm[] complexTerms;
+
+   public ComplexTermContainer(String s, String[] sa, ComplexTerm[] cta){
+      super(s, sa);
+      complexTerms = cta;
+   }
+
+   public String getComplexTerms(){
+      return complexTerms;
+   }
+
+   // Returns the complex terms in complexTerms at whatever depth level.
+   // Retrieving is performed in a depth-first way.
+   public ComplexTerm[] retrieveAllComplexTerms(){}
+
+}
+
+public class CtFieldList{
+
+   protected String[] variables;
+   protected ComplexTerm[] complexTerms;
+   protected String[] properties;
+
+   public CtFieldList(String[] sa1, ComplexTerm[] cta, String[] sa2){
+      variables = sa1;
+      complexTerms = cta;
+      properties = sa2;
+   }
+
+   public String getVariables(){
+      return variables;
+   }
+
+   public String getComplexTerms(){
+      return complexTerms;
+   }
+
+   public String getProperties(){
+      return properties;
+   }
+
+}
+
+public class ComplexTerm extends CtFieldList{
+
+   protected String name;
+
+   public ComplexTerm(String s, String[] sa1, ComplexTerm[] cta, String[] sa2){
+      super(sa1, cta, sa2);
+      name = s;
+   }
+
+   public String getName(){
+      return name;
+   }
+
+   // Returns the complex terms in complexTerms at whatever depth level.
+   // Retrieving is performed in a depth-first way.
+   public ComplexTerm[] retrieveAllComplexTerms(){}
+
+}
+
+____________________________________________
+
+String RULE():
+{ String s; ComplexTermContainer ctc; VariableContainer vc; }
+{
+   "[" s=<CONSTANT> "]" ctc=<PREDICATE_LITERAL> <RULE_SEP> vc=<BODY> "."
+   {
+      String bodyAndVariableMapping = ",[" + vc.getString() + "],[";
+      String[] sa = merge(ctc.getVariables(), vc.getVariables());
+      // Add variables to bodyAndVariableMapping. Be careful with commas.
+      bodyAndVariableMapping += "]).";
+
+      String rule = "rule(" + s + "," + ctc.getString() + bodyAndVariableMapping;
+      ComplexTerm[] cta = ctc.retrieveAllComplexTerms();
+      for(int i=0; i<cta.length; i++){
+         String name = cta[i].getName();
+         String[] sa = cta[i].getProperties();
+         for(int j=0; j<sa.length; j++) rule += "rule(" + s + ",complex_term(" + name + "," + sa[i] + ")" + bodyAndVariableMapping;
+      }
+      return rule;
+   } |
+   ctc=<PREDICATE_LITERAL> <RULE_SEP> vc=<BODY> "."
+   {
+      s = nextId();
+      // Cf. above.
+   }
+   // Other cases.
+}
+
+// List
+VariableContainer BODY():
+{ VariableContainer vc, vc1; }
+{
+   vc=<ANY_LITERAL>
+   ( "," vc1=<ANY_LITERAL>
+      {
+         vc = new VariableContainer(vc.getString() + "," + vc1.getString(), merge(vc.getVariables(), vc1.getVariables()));
+      }
+   )*
+   { return vc; }
+}
+
+VariableContainer ANY_LITERAL():
+{ ComplexTermContainer ctc; ComplexTerm ct; VariableContainer vc; }
+{
+   ctc=<PREDICATE_LITERAL>
+   {
+      s = ctc.getString();
+      ComplexTerm[] cta = ctc.retrieveAllComplexTerms();
+      for(int i=0; i<cta.length; i++){
+         String name = cta[i].getName();
+         String[] sa = cta[i].getProperties();
+         for(int j=0; j<sa.length; j++) s += ",complex_term(" + name + "," + sa[i] + ")";
+      }
+      return new VariableContainer(s, ctc.getVariables());
+   } |
+   ct=<COMPLEX_TERM>
+   {
+      s = ct.getString();
+      ComplexTerm[] cta = ct.retrieveAllComplexTerms();
+      for(int i=0; i<cta.length; i++){
+         String name = cta[i].getName();
+         String[] sa = cta[i].getProperties();
+         for(int j=0; j<sa.length; j++) s += "complex_term(" + name + "," + sa[i] + ")"; // Be careful with commas.
+      }
+      return new VariableContainer(s, ct.getVariables());
+   } |
+   vc=<OPERATOR_LITERAL>
+   {
+      return vc;
+   } |
+   vc=<NEGATION>
+   {
+      return vc;
+   } |
+   vc=<SPECIAL_LITERAL>
+   {
+      return vc;
+   }
+}
+
+ComplexTermContainer PREDICATE_LITERAL():
+{ String s; ComplexTermContainer ctc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {
+      String[] sa = new String[0];
+      ComplexTerm[] cta = new ComplexTerm[0];
+      return new ComplexTermContainer(s, sa, cta);
+   } |
+   s=<STRING_CONSTANT> "(" ctc=<ARGUMENT_LIST> ")"
+   {
+      return new ComplexTermContainer(s + "(" + ctc.getString() + ")", ctc.getVariables(), ctc.getComplexTerms());
+   }
+}
+
+// List
+ComplexTermContainer ARGUMENT_LIST():
+{ ComplexTermContainer ctc, ctc1; }
+{
+   ctc=<ARGUMENT>
+   ( "," ctc1=<ARGUMENT>
+      {
+         ctc = new ComplexTermContainer(
+            ctc.getString() + "," + ctc1.getString(),
+            merge(ctc.getVariables(), ctc1.getVariables()),
+            merge(ctc.getComplexTerms(), ctc1.getComplexTerms())
+         );
+      }
+   )*
+   { return ctc; }
+}
+
+ComplexTermContainer ARGUMENT():
+{ ComplexTermContainer ctc; ComplexTerm ct; String s; }
+{
+   ctc=<PREDICATE_LITERAL>
+   {
+      return ct;
+   } |
+   ct=<COMPLEX_TERM>
+   {
+      ComplexTerm[] cta = {ct};
+      return new ComplexTermContainer(ct.getName(), ct.getVariables(), cta);
+   } |
+   s=<VARIABLE>
+   {
+      String[] sa = {s};
+      ComplexTerm[] cta = new ComplexTerm[0];
+      return new ComplexTermContainer(s, sa, cta);
+   } |
+   s=<CONSTANT>
+   {
+      String[] sa = new String[0];
+      ComplexTerm[] cta = new ComplexTerm[0];
+      return new ComplexTermContainer(s, sa, cta);
+   }
+}
+
+ComplexTerm COMPLEX_TERM():
+{ String s; CtFieldList cfl; }
+{
+   s=<VARIABLE> "[" cfl=<CT_FIELD_LIST> "]"
+   {
+      String[] properties = new String[cfl.getProperties().length];
+      for(int i=0; i<properties.length; i++) properties[i] = "complex_term(" + s + "," + clf.getProperties()[i] + ")";
+      String[] sa = {s};
+      return new ComplexTerm(
+         s,
+         merge(sa, cfl.getVariables())
+         cfl.getComplexTerms(),
+         properties
+      )
+   } |
+   s=<STRING_CONSTANT> "[" cfl=<CT_FIELD_LIST> "]"
+   {
+      String[] properties = new String[cfl.getProperties().length];
+      for(int i=0; i<properties.length; i++) properties[i] = "complex_term(" + s + "," + clf.getProperties()[i] + ")";
+      String[] sa = new String[0];
+      return new ComplexTerm(
+         s,
+         merge(sa, cfl.getVariables())
+         cfl.getComplexTerms(),
+         properties
+      )
+   }
+}
+
+// List
+CtFieldList CT_FILED_LIST():
+{ CtFieldList cfl, cfl1; }
+{
+   cfl=<CT_FIELD>
+   (  "," cfl1=<CT_FIELD>
+      {
+         cfl = new CtFieldList(
+            merge(cfl.getProperties(), cfl1.getProperties()),
+            merge(cfl.getComplexTerms(), cfl1.getComplexTerms()),
+            merge(cfl.getVariables(), cfl1.getVariables())
+         );
+      }
+   )*
+   { return cfl; }
+}
+
+CtFieldList CT_FIELD():
+{ String s1, s2; ComplexTerm ct; }
+{
+   s1=<STRING_CONSTANT> ":" ct=<COMPLEX_TERM>
+   {
+      ComplexTerm[] cta = {ct};
+      String[] properties = { s1 + "," + ct.getName() }
+      return new CtFieldList(ct.getVariables(), cta, properties);
+   } |
+   s1=<STRING_CONSTANT> ":" s2=<VARIABLE>
+   {
+      String[] variables = { s2 };
+      ComplexTerm[] cta = new ComplexTerm[0];
+      String[] properties = { s1 + "," + s2 }
+      return new CtFieldList(variables, cta, properties);
+   } |
+   s1=<STRING_CONSTANT> ":" s2=<CONSTANT>
+   {
+      String[] variables = new String[0];
+      ComplexTerm[] cta = new ComplexTerm[0];
+      String[] properties = { s1 + "," + s2 }
+      return new CtFieldList(variables, cta, properties);
+   }
+}
+
+VariableContainer OPERATOR_LITERAL():
+{ ComplexTerm ct1, ct2; String s; }
+{
+   ct1=<COMPLEX_TERM> s=<OPERATOR> ct2=<COMPLEX_TERM>
+   {
+      String operatorLiteral;
+      /*
+      For each of the complex terms:
+         for each property: operatorLiteral += "complex_term(" + complexTermName + "," + property + "),";
+         for each complex term contained in the previous complex term:
+            for each property: operatorLiteral += "complex_term(" + complexTermName + "," + property + "),";
+      */
+      return new VariableContainer(operatorLiteral, merge(ct1.getVariables(), ct2.getVariables()));
+   }
+   // Other cases.
+}
+
+VariableContainer NEGATION():
+{ ComplexTermContainer ctc; VariableContainer vc; ComplexTerm ct; }
+{
+   <NEG_SYMBOL> ctc=<PREDICATE_LITERAL>
+   {
+      String s = "not (" + ctc.getString();
+      ComplexTerm[] cta = ctc.retrieveAllComplexTerms();
+      for(int i=0; i<cta.length; i++){
+         String name = cta[i].getName();
+         String[] sa = cta[i].getProperties();
+         for(int j=0; j<sa.length; j++) s += ",complex_term(" + name + "," + sa[i] + ")";
+      }
+      return new VariableContainer(s + ")", ctc.getVariables());
+   } |
+   <NEG_SYMBOL> vc=<OPERATOR_LITERAL>
+   {
+      return new VariableContainer("not (" + vc.getString() + ")", vc.getVariables());
+   } |
+   <NEG_SYMBOL> ct=<COMPLEX_TERM>
+   {
+      String s;
+      // for each property of the complex term: s += "complex_term(" + complexTermName + "," + property + "),";
+      ComplexTerm[] cta = ct.retrieveAllComplexTerms();
+      for(int i=0; i<cta.length; i++){
+         String name = cta[i].getName();
+         String[] sa = cta[i].getProperties();
+         for(int j=0; j<sa.length; j++) s += "complex_term(" + name + "," + sa[i] + ")"; // Be careful with commas.
+      }
+      return new VariableContainer(s + ")", ct.getVariables());
+   }
+}
+
+VariableContainer SPECIAL_LITERAL():
+{ VariableContainer vc1, vc2; String s; }
+{
+   "in(" vc1=<VAR_CONTAINMENT> "," s=<STRING_CONSTANT> ":" vc2=<FUNCTION>
+   {
+      String specialLiteral = "in(" + vc1.getString() + "," + s + "," + vc2.getString() + ")";
+      return new VariableContainer(s, merge(vc1.getVariables(), vc2.getVariables()));
+   }
+}
+
+VariableContainer VAR_CONTAINMENT():
+{ String s; VariableContainer vc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {
+      String[] sa = new String[0];
+      return new VariableContainer(s, sa);
+   } |
+   s=<STRING_CONSTANT> "(" vc=<VAR_LIST> ")"
+   {
+      return new VariableContainer(s + "(" + vc.getString() + ")", vc.getVariables());
+   }
+}
+
+// List
+VariableContainer VAR_LIST():
+{ String s, s1; String[] sa; }
+{
+   s=<VARIABLE>
+   {
+      sa = {s};
+      VariableContainer vc = new VariableContainer(s, sa);
+   }
+   ( "," s1=<VARIABLE>
+      {
+         sa = {s1};
+         vc = new VariableContainer(vc.getString() + "," + s1, merge(vc.getVariables(), sa));
+      }
+   )*
+   { return vc; }
+}
+
+VariableContainer FUNCTION():
+{ String s; VariableContainer vc; }
+{
+   s=<STRING_CONSTANT> ( "(" ")" )+
+   {
+      String[] sa = new String[0];
+      return new VariableContainer(s, sa);
+   } |
+   s=<STRING_CONSTANT> "(" vc=<PARAM_LIST> ")"
+   {
+      return new VariableContainer(s + "(" + vc.getString() + ")", vc.getVariables());
+   }
+}
+
+// List
+VariableContainer PARAM_LIST():
+{ VariableContainer vc, vc1; }
+{
+   vc=<CONCATENATED_STRING>
+   ( "," vc1=<CONCATENATED_STRING>
+      {
+         vc = new VariableContainer(vc.getString() + "," + vc1.getString(), merge(vc.getVariables(), vc1.getVariables()));
+      }
+   )*
+   {
+      return new VariableContainer("[" + vc.getString() + "]", vc.getVariables());
+   }
+}
+
+// List
+VariableContainer CONCATENATED_STRING():
+{ VariableContainer vc, vc1; }
+{
+   vc=<CONCATENATED_ELEMENT>
+   ( "," vc1=<CONCATENATED_ELEMENT>
+      {
+         vc = new VariableContainer(vc.getString() + "," + vc1.getString(), merge(vc.getVariables(), vc1.getVariables()));
+      }
+   )*
+   {
+      return new VariableContainer("[" + vc.getString() + "]", vc.getVariables());
+   }
+}
+
+VariableContainer CONCATENATED_ELEMENT():
+{ String s; }
+{
+   "\"" s=<STRING> "\""
+   {
+      String[] sa = new String[0];
+      return new VariableContainer("'" + s + "'", sa);
+   } |
+   s=<VARIABLE>
+   {
+      String[] sa = {s};
+      return new VariableContainer(s, sa);
+   }
+}
+
+____________________________________________
+
+long currentId = -1;
+
+String nextId(){
+   currentId++;
+   return "" + currentId;
+}
+
+// Returns an array containing the same elements of the input arrays, but without repetitions.
+<X>[] merge(<X>[] xa1, <X>[] xa2){}

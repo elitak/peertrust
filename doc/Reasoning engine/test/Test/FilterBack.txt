@@ -1,0 +1,150 @@
+% 4: Filter the policy
+
+filterGoalFromLocalPolicy(Goal, [
+         metarule(head(pred, Goal, type, abbreviation), [], []) |
+         FilteredPolicy
+]) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   localHoldingMetapredicate(Goal, sensitivity, public),
+   !,
+   findall(rule(Id, Goal, Body, VariableMappings), rule(Id, Goal, Body, VariableMappings), Rules),
+   localFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   filterFromLocalPolicy(Bodies, PartialFilteredPolicy),
+   append(Rules, PartialFilteredPolicy, FilteredPolicy),
+   write(Goal),write(' 1b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, abbreviation), [], []),
+      metarule(head(pred, Goal, blurred, true), [], [])
+]) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation).
+   !,
+   write(Goal),write(' 2b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, stateQuery), [], []) |
+      FilteredPolicy
+]) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, stateQuery),
+   localHoldingMetapredicate(Goal, sensitivity, public),
+   !,
+   findall(rule(Id, Goal, [], VariableMappings), rule(Id, Goal, [], VariableMappings), FilteredPolicy),
+   write(Goal),write(' 3b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, stateQuery), [], []),
+      metarule(head(pred, Goal, blurred, true), [], [])
+]) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, stateQuery),
+   !,
+   write(Goal),write(' 4b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, provisional), [], []),
+      metarule(head(pred, Goal, actor, self), [], []),
+      metarule(head(pred, Goal, executed, true), [], [])
+]) :-
+   write(Goal),write(' 5a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   alreadyExecutedBySelf(Goal),
+   !,
+   write(Goal),write(' 5b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, provisional), [], []),
+      metarule(head(pred, Goal, actor, self), [], [])
+]) :-
+   write(Goal),write(' 6a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   !,
+   write(Goal),write(' 6b
+').
+filterGoalFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 7a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   alreadyExecutedByPeer(Goal),
+   !,
+   write(Goal),write(' 7b
+').
+filterGoalFromLocalPolicy(Goal, [
+      metarule(head(pred, Goal, type, provisional), [], []),
+      metarule(head(pred, Goal, actor, peer), [], []) |
+      FilteredPolicy
+]) :-
+   write(Goal),write(' 8a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   !,
+   filterGoalFromFilteredPolicy(execute(Goal), FilteredPolicy),
+   write(Goal),write(' 8b
+').
+filterGoalFromLocalPolicy(Goal, []) :-
+   write(Goal),write(' 9
+').
+
+filterFromLocalPolicy([], []).
+filterFromLocalPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromLocalPolicy(H, L1),
+   filterFromLocalPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+filterGoalFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 10a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   filteredHoldingMetapredicate(Goal, blurred, true),
+   !,
+   write(Goal),write(' 10b
+').
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   write(Goal),write(' 11a
+'),
+   filteredHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   filteredFindall(Goal, BodyList),
+   multipleMerge(BodyList, Bodies),
+   filterFromFilteredPolicy(Bodies, FilteredPolicy),
+   write(Goal),write(' 11b
+').
+filterGoalFromFilteredPolicy(Goal, FilteredPolicy) :-
+   write(Goal),write(' 12a
+'),
+   filteredHoldingMetapredicate(Goal, type, provisional),
+   filteredHoldingMetapredicate(Goal, actor, peer),
+   !,
+   filterGoalFromLocalPolicy(execute(Goal), FilteredPolicy),
+   write(Goal),write(' 12b
+').
+filterGoalFromFilteredPolicy(Goal, []) :-
+   write(Goal),write(' 13
+').
+
+filterFromFilteredPolicy([], []).
+filterFromFilteredPolicy([H|T], FilteredPolicy) :-
+   filterGoalFromFilteredPolicy(H, L1),
+   filterFromFilteredPolicy(T, L2),
+   append(L1, L2, FilteredPolicy).
+
+% filter should never fail, but it may report an empty list when it is not the case.
+% The following code forces to exploit the other alternative if the first one returns an empty list.
+filter(Goals, [H|T]) :-
+   filterFromLocalPolicy(Goals, [H|T]),
+   !.
+filter(Goals, FilteredPolicy) :-
+   filterFromFilteredPolicy(Goals, FilteredPolicy).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

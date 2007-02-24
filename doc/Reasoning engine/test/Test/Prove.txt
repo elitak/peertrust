@@ -1,0 +1,58 @@
+% 2: Check whether an action (in particular the overall goal) is unlocked
+
+% To be changed: so far only "not (PREDICATE)" is allowed, where PREDICATE is
+% something  not involving abbreviation nor state predicates
+proveGoal(complex_term(X, Y, Z)) :-
+   write(complex_term(X, Y, Z)),write(' 0a
+'),
+   state(_, _, _, complex_term(X, Y, Z), _),
+   !,
+   write(complex_term(X, Y, Z)),write(' 0b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 1a
+'),
+   localHoldingMetapredicate(Goal, type, abbreviation),
+   !,
+   rule(_, Goal, Body, _),
+   prove(Body),
+   write(Goal),write(' 1b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 2a
+'),
+   localHoldingMetapredicate(Goal, type, stateQuery),
+   !,
+   rule(_, Goal, [], _),
+   write(Goal),write(' 2b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 3a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   localHoldingMetapredicate(Goal, actor, self),
+   !,
+   alreadyExecutedBySelf(Goal),
+   write(Goal),write(' 3b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 4a
+'),
+   localHoldingMetapredicate(Goal, type, provisional),
+   !,
+   alreadyExecutedByPeer(Goal),
+   write(Goal),write(' 4b
+').
+proveGoal(Goal) :-
+   write(Goal),write(' 5a
+'),
+   Goal,
+   write(Goal),write(' 5b
+').
+
+prove([]).
+prove([H|T]) :-
+   proveGoal(H),
+   prove(T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

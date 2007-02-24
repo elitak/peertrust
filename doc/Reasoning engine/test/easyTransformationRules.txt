@@ -1,0 +1,231 @@
+The representation of variables and constants does not change during the Protune -> Prolog translation, i.e.
+
+X -> X
+_1 -> _1
+abc -> abc
+123 -> 123
+'a b' -> 'a b'
+____________________________
+
+Moreover the representation of predicates (resp. built-in operators) does not change IF predicates do not contain (resp. operators do not involve) complex terms, i.e.
+
+a(b(c)) -> a(b(c))
+1 + 2 -> 1 + 2
+____________________________
+
+A double-quoted string is translated into a single-quoted string (notice that double-quoted strings are not allowed everywhere where a single-quoted string is), i.e.
+
+"string" -> 'string'
+____________________________
+
+A concatenated string (i.e. a string obtained by concatenating sub-strings and variables) is translated according to the following pattern.
+
+SOMETHING1 & SOMETHING2 & ... SOMETHINGn -> [ TRANSLATION_OF_SOMETHING1, TRANSLATION_OF_SOMETHING2, ... TRANSLATION_OF_SOMETHINGn ]
+
+In our case
+
+... & "double-quoted string" & ... & Variable & ... -> [..., 'double-quoted string', ..., Variable, ...]
+
+Example:
+   "Result: " & VarResult -> [ 'Result: ', VarResult ]
+____________________________
+
+The "not" operator is translated according to the following pattern.
+
+not SOMETHING -> not ( TRANSLATION_OF_SOMETHING )
+
+Example:
+   not a(b) -> not (a(b))
+   not (a) -> not ((a))
+   not ( a(b), a, d(c) ) -> not (( a(b), a, d(c) ))
+____________________________
+
+The "in" predicate is translated according to the following pattern.
+
+in(SOMETHING, PACKAGE:FUNCTION(SOMETHING1, SOMETHING2, ... SOMETHINGn))
+->
+in(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_PACKAGE, TRANSLATION_OF_FUNCTION, [ TRANSLATION_OF_SOMETHING1, TRANSLATION_OF_SOMETHING2, ... TRANSLATION_OF_SOMETHINGn ])
+
+Example:
+   in(a(X, Y), package:function("string1" & X, Y))
+   ->
+   in(a(X, Y), package, function, [ ['string1', X], [Y] ])
+
+NOTE: Notice that the Protune grammar does not consider variables as parameters of a function call inside the "in" predicate as "variables" but rather as concatenated strings. The last variable of the previous example has therefore to be considered a concatenated string and consequently translated.
+____________________________
+
+Metapredicates allow to specify properties of predicates or rules. In the first case predicates are referred to by name, in the second case by rule id, like in the following example.
+
+Example:
+   [id1] a(X) :- b(X), c(Y).
+   a(X).attribute:value :- b(X), c(Y).
+   [id1].attribute:"string" & X :- b(X), c(Y).
+
+The first line of the example contains a (labeled) rule, the second one a (metarule containing a) metapredicate asserting some property of the predicate "a(X)" and the third one a (metarule containing a) metapredicate asserting some property of the whole rule in the first line.
+
+Metapredicates NOT containing complex terms are translated according to the following patterns.
+
+PREDICATE.ATTRIBUTE:VALUE -> metahead(pred, TRANSLATION_OF_PREDICATE, TRANSLATION_OF_ATTRIBUTE, TRANSLATION_OF_VALUE)
+[ID].ATTRIBUTE:VALUE -> metahead(id, TRANSLATION_OF_ID, TRANSLATION_OF_ATTRIBUTE, TRANSLATION_OF_VALUE)
+
+The first parameter of the "metahead" predicate is used to differentiate whether the metapredicate asserts properties of a predicate or of a rule.
+
+Example:
+   a(X).attribute:value -> head(pred, a(X), attribute, value)
+   [id1].attribute:"string" & X -> head(id, id1, attribute, [ 'string', X ])
+____________________________
+
+Rules NOT containing complex terms are translated according to the following pattern.
+
+[ID] HEAD :- LITERAL1, LITERAL2, ... LITERALn.
+->
+rule(TRANSLATION_OF_ID, TRANSLATION_OF_HEAD, [ TRANSLATION_OF_LITERAL1, TRANSLATION_OF_LITERAL2, ... TRANSLATION_OF_LITERALn ], VARIABLE_MAPPING).
+
+In case the rule does not contain an identifier, an automatically generated one is provided.
+VARIABLE_MAPPING contains a list of all variables appearing in the rule and their names.
+
+Example:
+   [id1] a(X) :- b(X), c(Y). -> rule(id1, a(X), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+   a(X) :- b(X), c(Y). -> rule(<automaticallyGeneratedId>, a(X), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+____________________________
+
+Metarules NOT containing complex terms are translated according to the same pattern which applies to rules, with the following differences
+* the predicate name of the translation is no longer "rule", but "metarule"
+* the first parameter of "rule" does not appear in "metarule"
+
+METAHEAD :- LITERAL1, LITERAL2, ... LITERALn.
+->
+metarule(TRANSLATION_OF_METAHEAD, [ TRANSLATION_OF_LITERAL1, TRANSLATION_OF_LITERAL2, ... TRANSLATION_OF_LITERALn ], VARIABLE_MAPPING).
+
+Example:
+   a(X).attribute:value :- b(X), c(Y).
+   ->
+   metarule(head(pred, a(X), attribute, value), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+
+   [id1].attribute:"string" & X :- b(X), c(Y).
+   ->
+   metarule(head(id, id1, attribute, [ 'string', X ]), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+____________________________
+
+Complex terms are translated differently according to where they appear.
+______________
+
+If they appear in a (meta)body as a literal on their own (i.e., within NO predicate or other complex term and NOT related to operators), they are translated according to the following pattern.
+
+SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn]
+->
+complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTE1, TRANSLATION_OF_VALUE1), complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTE2, TRANSLATION_OF_VALUE2), ... complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTEn, TRANSLATION_OF_VALUEn)
+
+Example:
+   X[attribute1:value1, attribute2:value2]
+   ->
+   complex_term(X, attribute1, value1), complex_term(X, attribute2, value2)
+______________
+
+A nested complex term is generally translated in the following way:
+* The id or variable (subject) of the complex term is kept in the place where the complex term appers (e.g., inside a predicate or another complex term or within the scope of operators)
+* The restrictions on attribute values are taken out of the place where the complex term appers (e.g., outside the predicate, other complex term or operator scope) and are presented as stand-alone literals. The placement of these restrictions varies depending on the location of the complex term
+   * After the predicate if the complex term is inside a predicate which appears in the body. This way it is clear the scope that applies to the complex term, i.e., whether the complex term should be evaluated against the local KB or against the information in the state (provided by the other party)
+   * Before the operator scope if the complex term is within an operator's scope. This is more like an optimization reason: putting the restrictions after the operator would decrease performance since in case of e.g. equality between two unbounded complex terms, all existing id values would be selected before any restriction applies. Putting restrictions before the operator (e.g. equality) decreases the number of possible instantiations of the complex term ids (if any) and therefore reduce the evaluation time
+   * In the head of a new rule with same body as the original if the complex term appears in a predicate in the head of a rule. In this case, a complex term in a predicate in the head of a rule is assumed to be the definition of such complex term locally in the KB
+
+The following is a general example of a nested complex term
+
+ID1 [ATTRIBUTE1:ID2 [ATTRIBUTE2: ID3 .... [ATTRIBUTEn:VALUEn] ... ]]
+->
+complex_term (TRANSLATION_OF_ID1, TRANSLATION_OF_ATTRIBUTE1, TRANSLATION_OF_ID2),
+complex_term (TRANSLATION_OF_ID2, TRANSLATION_OF_ATTRIBUTE2, TRANSLATION_OF_ID3),
+complex_term (TRANSLATION_OF_ID3, ..., ...),
+...
+complex_term (..., TRANSLATION_OF_ATTRIBUTEn, TRANSLATION_OF_VALUEn),
+
+Example:
+   X[attribute1:Y[attribute2:value2]]
+   ->
+   complex_term(X, attribute1, Y), complex_term(Y, attribute2, value2)
+
+The following provides some extra examples of the translation depending on where the complex term appears
+______________
+
+If they appear in a (meta)body within a predicate or nested in another complex term they are translated according to the following pattern.
+
+ENCLOSING_ENTITY( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] )
+->
+ENCLOSING_ENTITY(SOMETHING), SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn]
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+Example:
+   a(b(X[attribute1:value1, attribute2:value2]))
+   ->
+   a(b(X)), X[attribute1:value1, attribute2:value2]
+   ->
+   a(b(X)), complex_term(X, attribute1, value1), complex_term(X, attribute2, value2)
+
+   a(X[attribute1:value1, attribute2:value2]).attribute:value
+   ->
+   a(X).attribute:value, X[attribute1:value1, attribute2:value2]
+   ->
+   metahead(pred, a(X), attribute, value), complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), 
+
+   a[attribute:X[attribute1:value1, attribute2:value2]]
+   ->
+   a[attribute:X], X[attribute1:value1, attribute2:value2]
+   ->
+   complex_term(a, attribute, X), complex_term(X, attribute1, value1), complex_term(X, attribute2, value2)
+______________
+
+If they appear in a (meta)body related to operators, they are translated according to the following pattern.
+
+ENCLOSING_ENTITY( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] )
+->
+SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn], ENCLOSING_ENTITY(SOMETHING)
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+Example:
+   X[attribute1:value1] is Y[attribute2:value2]
+   ->
+   X[attribute1:value1], Y[attribute2:value2], X is Y
+   ->
+   complex_term(X, attribute1, value1), complex_term(Y, attribute2, value2), X is Y
+______________
+
+If they appear in the head (within a predicate), they are translated according to the following pattern.
+
+ENCLOSING_PREDICATE( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] ) :- BODY.
+->
+ENCLOSING_PREDICATE(SOMETHING) :- BODY.
+complex_term(SOMETHING, ATTRIBUTE1, VALUE1) :- BODY.
+complex_term(SOMETHING, ATTRIBUTE2, VALUE2) :- BODY.
+...
+complex_term(SOMETHING, ATTRIBUTEn, VALUEn) :- BODY.
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+Example: // Notice that "id" is repeated
+   [id] a(b(X[attribute1:value1, attribute2:value2])) :- c(X).
+   ->
+   [id] a(b(X)) :- c(X).
+   [id] complex_term(X, attribute1, value1) :- c(X).
+   [id] complex_term(X, attribute1, value1) :- c(X).
+   ->
+   rule(id, a(b(X)), [ c(X) ], [ 'X' = X ]).
+   rule(id, complex_term(X, attribute1, value1), [ c(X) ], [ 'X' = X ]).
+   rule(id, complex_term(X, attribute2, value2), [ c(X) ], [ 'X' = X ]).
+______________
+
+If they appear in the metahead (within a metapredicate), they are translated according to the following pattern.
+
+ENCLOSING_PREDICATE( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] ) :- BODY.
+->
+ENCLOSING_PREDICATE(SOMETHING) :- SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn], BODY.
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+Example:
+   a(b(X[attribute1:value1, attribute2:value2])).attribute:value :- c(X).
+   ->
+   a(b(X)).attribute:value :- X[attribute1:value1, attribute2:value2], c(X).
+   ->
+   metarule(head(pred, a(b(X)), attribute, value), [complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), c(X)], [ 'X' = X ]).

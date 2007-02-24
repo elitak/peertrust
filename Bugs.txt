@@ -16,7 +16,7 @@ deleted...). This implies changes to the Prolog part as well.
 
    Yellow bugs
 
-Demo is implemented only server-side and on localhost (ProtuneTest should be modified).
+Demo is implemented only on localhost.
 
 Prolog built-in predicates are not supported (except ground).
 
@@ -48,8 +48,6 @@ Notifications of local/external actions are not well distincted (in the Prolog p
 
 ProtuneService does not work if a constructor is specified. Theoretically it should not work if the
 constructor is NOT specified.
-
-A client cannot be supposed to know whether the Pointer it will receive will be a DispatcherPointer.
 
    Just in order to let you know
 

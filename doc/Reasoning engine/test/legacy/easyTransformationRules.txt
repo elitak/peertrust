@@ -1,0 +1,187 @@
+The representation of variables and constants does not change during the Protune -> Prolog translation, i.e.
+
+X -> X
+_1 -> _1
+abc -> abc
+123 -> 123
+'a b' -> 'a b'
+____________________________
+
+Moreover the representation of predicates (resp. built-in operators) does not change IF predicates do not contain (resp. operators do not involve) complex terms, i.e.
+
+a(b(c)) -> a(b(c))
+1 + 2 -> 1 + 2
+____________________________
+
+A double-quoted string is translated into a single-quoted string, i.e.
+
+"string" -> 'string'
+____________________________
+
+A concatenated string (i.e. a string obtained by concatenating sub-strings and variables) is translated according to the following pattern.
+
+SOMETHING1 & SOMETHING2 & ... SOMETHINGn -> [ TRANSLATION_OF_SOMETHING1, TRANSLATION_OF_SOMETHING2, ... TRANSLATION_OF_SOMETHINGn ]
+
+ES:
+   "Result: " & Result -> [ 'Result: ', Result ]
+____________________________
+
+The "not" operator is translated according to the following pattern.
+
+not SOMETHING -> not ( TRANSLATION_OF_SOMETHING )
+
+ES:
+   not a(b) -> not (a(b))
+   not (a) -> not ((a))
+____________________________
+
+The "in" predicate is translated according to the following pattern.
+
+in(SOMETHING, PACKAGE:FUNCTION(SOMETHING1, SOMETHING2, ... SOMETHINGn))
+->
+in(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_PACKAGE, TRANSLATION_OF_FUNCTION, [ TRANSLATION_OF_SOMETHING1, TRANSLATION_OF_SOMETHING2, ... TRANSLATION_OF_SOMETHINGn ])
+
+ES:
+   in(a(X, Y), package:function("string1" & X, Y))
+   ->
+   in(a(X, Y), package, function, [ ['string1', X], [Y] ])
+
+NOTE: Notice that the Protune grammar does not allow variables (as themselves) to appear as parameters of a function call inside the "in" predicate. The last variable of the previous example has therefore to be considered a concatenated string and consequently translated.
+____________________________
+
+Metapredicates allow to specify properties of predicates or rules. In the first case predicates are referred to by name, in the second case by rule id, like in the following example.
+
+ES:
+   [id1] a(X) :- b(X), c(Y).
+   a(X).attribute:value :- b(X), c(Y).
+   [id1].attribute:"string" & X :- b(X), c(Y).
+
+The first line of the example contains a (labeled) rule, the second one a (metarule containing a) metapredicate asserting some property of the predicate "a(X)" and the third one a (metarule containing a) metapredicate asserting some property of the whole rule in the first line.
+
+Metapredicates NOT containing complex terms are translated according to the following patterns.
+
+PREDICATE.ATTRIBUTE:VALUE -> head(pred, TRANSLATION_OF_PREDICATE, TRANSLATION_OF_ATTRIBUTE, TRANSLATION_OF_VALUE)
+[ID].ATTRIBUTE:VALUE -> head(id, TRANSLATION_OF_ID, TRANSLATION_OF_ATTRIBUTE, TRANSLATION_OF_VALUE)
+
+The first parameter of the "head" predicate is used to differentiate whether the metapredicate asserts properties of a predicate or of a rule.
+
+ES:
+   a(X).attribute:value -> head(pred, a(X), attribute, value)
+   [id1].attribute:"string" & X -> head(id, id1, attribute, [ 'string', X ])
+____________________________
+
+Rules NOT containing complex terms are translated according to the following pattern.
+
+[ID] HEAD :- LITERAL1, LITERAL2, ... LITERALn.
+->
+rule(TRANSLATION_OF_ID, TRANSLATION_OF_HEAD, [ TRANSLATION_OF_LITERAL1, TRANSLATION_OF_LITERAL2, ... TRANSLATION_OF_LITERALn ], VARIABLE_MAPPING).
+
+In case the rule does not contain an identifier, an automatically generated one is provided.
+VARIABLE_MAPPING contains a list of all variables appearing in the rule and their names.
+
+ES:
+   [id1] a(X) :- b(X), c(Y). -> rule(id1, a(X), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+   a(X) :- b(X), c(Y). -> rule(<automaticallyGeneratedId>, a(X), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+____________________________
+
+Metarules NOT containing complex terms are translated according to the same pattern which applies to rules, with the following differences
+* the predicate name of the translation is no longer "rule", but "metarule"
+* the first parameter of "rule" does not appear in "metarule"
+
+ES:
+   a(X).attribute:value :- b(X), c(Y).
+   ->
+   metarule(head(pred, a(X), attribute, value), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+
+   [id1].attribute:"string" & X :- b(X), c(Y).
+   ->
+   metarule(head(id, id1, attribute, [ 'string', X ]), [b(X), c(Y)], [ 'X' = X, 'Y' = Y ]).
+____________________________
+
+Complex terms are translated differently according to where they appear.
+______________
+
+If they appear in a (meta)body as a literal on their own (i.e., within NO predicate or other complex term and NOT related to operators), they are translated according to the following pattern.
+
+SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn]
+->
+complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTE1, TRANSLATION_OF_VALUE1), complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTE2, TRANSLATION_OF_VALUE2), ... complex_term(TRANSLATION_OF_SOMETHING, TRANSLATION_OF_ATTRIBUTEn, TRANSLATION_OF_VALUEn)
+
+ES:
+   X[attribute1:value1, attribute2:value2]
+   ->
+   complex_term(X, attribute1, value1), complex_term(X, attribute2, value2)
+______________
+
+If they appear in a (meta)body within a predicate or other complex term or related to operators, they are translated according to the following pattern.
+
+ENCLOSING_ENTITY( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] )
+->
+SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn], ENCLOSING_ENTITY(SOMETHING)
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+ES:
+   a(b(X[attribute1:value1, attribute2:value2]))
+   ->
+   X[attribute1:value1, attribute2:value2], a(b(X))
+   ->
+   complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), a(b(X))
+
+   a(X[attribute1:value1, attribute2:value2]).attribute:value
+   ->
+   X[attribute1:value1, attribute2:value2], a(X).attribute:value
+   ->
+   complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), head(pred, a(X), attribute, value)
+
+   a[attribute:X[attribute1:value1, attribute2:value2]]
+   ->
+   X[attribute1:value1, attribute2:value2], a[attribute:X]
+   ->
+   complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), complex_term(a, attribute, X)
+
+   X[attribute1:value1] is Y[attribute2:value2]
+   ->
+   X[attribute1:value1], Y[attribute2:value2], X is Y
+   ->
+   complex_term(X, attribute1, value1), complex_term(Y, attribute2, value2), X is Y
+______________
+
+If they appear in the head (within a predicate), they are translated according to the following pattern.
+
+ENCLOSING_PREDICATE( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] ) :- BODY.
+->
+ENCLOSING_PREDICATE(SOMETHING) :- BODY.
+complex_term(SOMETHING, ATTRIBUTE1, VALUE1) :- BODY.
+complex_term(SOMETHING, ATTRIBUTE2, VALUE2) :- BODY.
+...
+complex_term(SOMETHING, ATTRIBUTEn, VALUEn) :- BODY.
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+ES: // Notice that "id" is repeated
+   [id] a(b(X[attribute1:value1, attribute2:value2])) :- c(X).
+   ->
+   [id] a(b(X)) :- c(X).
+   [id] complex_term(X, attribute1, value1) :- c(X).
+   [id] complex_term(X, attribute1, value1) :- c(X).
+   ->
+   rule(id, a(b(X)), [ c(X) ], [ 'X' = X ]).
+   rule(id, complex_term(X, attribute1, value1), [ c(X) ], [ 'X' = X ]).
+   rule(id, complex_term(X, attribute2, value2), [ c(X) ], [ 'X' = X ]).
+______________
+
+If they appear in the metahead (within a metapredicate), they are translated according to the following pattern.
+
+ENCLOSING_PREDICATE( SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn] ) :- BODY.
+->
+ENCLOSING_PREDICATE(SOMETHING) :- SOMETHING[ATTRIBUTE1:VALUE1, ATTRIBUTE2:VALUE2, ... ATTRIBUTEn:VALUEn], BODY.
+
+The second form can then be further translated into Prolog by exploiting the translation rules described above.
+
+ES:
+   a(b(X[attribute1:value1, attribute2:value2])).attribute:value :- c(X).
+   ->
+   a(b(X)).attribute:value :- X[attribute1:value1, attribute2:value2], c(X).
+   ->
+   metarule(head(pred, a(b(X)), attribute, value), [complex_term(X, attribute1, value1), complex_term(X, attribute2, value2), c(X)], [ 'X' = X ]).

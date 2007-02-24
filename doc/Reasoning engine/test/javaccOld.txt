@@ -1,0 +1,63 @@
+String DIRECTIVE():
+{}
+{
+   return "";
+}
+
+String COMMENT():
+{}
+{
+   return "";
+}
+
+String RULE():
+{ PREDICATE_LITERAL pl; String body, s; String id = nextId(); }
+{
+   (
+      pl = PREDICATE_LITERAL()
+      ":-"
+      body = BODY()
+   ){
+      String[] sa = pl.getComplexTerms();
+	for(int i=0; i<sa.length; i++)
+         s += "rule(" + id + "," + sa[i] + ",[" + body + "]," + _getVariableMappings_() + ").";
+      s += "rule(" + id + "," + pl.getPredicate() + ",[" + body + "]," + _getVariableMappings_() + ").";
+   } | (
+      "["
+      ID
+      "]"
+      pl = PREDICATE_LITERAL()
+      ":-"
+      body = BODY()
+   )
+}
+
+String BODY():
+{}
+{
+   
+}
+
+PREDICATE_LITERAL PREDICATE_LITERAL():
+{}
+{
+   STRING_CONSTANT |
+   STRING_CONSTANT
+}
+
+String nextId(){}
+
+public class PREDICATE_LITERAL{
+   String predicate;
+   String[] complexTerms;
+   PREDICATE_LITERAL(String s, String[] sa){
+      predicate = s;
+      complexTerms = sa;
+   }
+   String getPredicate(){
+      return predicate;
+   }
+   String[] getComplexTerms(){
+      return complexTerms;
+   }
+}

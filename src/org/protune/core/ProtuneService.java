@@ -62,7 +62,7 @@ public abstract class ProtuneService extends Service {
 	
 	/* For some reason this constructor must be commented.
 	public ProtuneService(Pointer p){
-		otherPeer = p;
+		super(p);
 	}*/
 	
 	public NegotiationMessage eval(OngoingNegotiationMessage onm) throws WrongMessageTypeException{
@@ -85,7 +85,7 @@ public abstract class ProtuneService extends Service {
 		engine.increaseNegotiationStepNumber();
 		
 		Action[] laa;
-		try {
+		try {//System.out.println("B internalA");
 			laa = engine.extractLocalActions(g);
 			while(laa.length!=0){
 				Notification[] lna = new Notification[laa.length];
@@ -94,7 +94,7 @@ public abstract class ProtuneService extends Service {
 					engine.addLocal(lna[i]);
 				}
 				laa = engine.extractLocalActions(g);
-			}
+			}//System.out.println("E internalA");
 		} catch (QueryException e1) {
 			// Should not happen.
 		} catch (ParseException e1) {
@@ -111,8 +111,11 @@ public abstract class ProtuneService extends Service {
 		}
 		
 		Action[] eaa = new Action[0];
-		try {
+		try {//System.out.println("B externalA");
 			eaa = engine.extractExternalActions(g);
+			//String s = "a ";
+			//for(int i=0; i<eaa.length; i++) s += eaa[i] + " ";
+			//System.out.println(s);
 		} catch (QueryException e1) {
 			// Should not happen.
 		} catch (ParseException e1) {
@@ -121,8 +124,8 @@ public abstract class ProtuneService extends Service {
 		Notification[] ena = new Notification[eaa.length]; 
 		for(int i=0; i<eaa.length; i++) ena[i] = eaa[i].perform();
 		
-		try {
-			fp = engine.filter(g);
+		try {//System.out.println("B filter");
+			fp = engine.filter(g);//System.out.println("E filter");
 		} catch (QueryException e1) {
 			// Should not happen.
 		} catch (ParseException e1) {
@@ -130,6 +133,7 @@ public abstract class ProtuneService extends Service {
 		}
 		
 		engine.addSent(fp);
+		//System.out.println(engine + ": " + ((TuPrologWrapper)engine).p.getTheory());
 		for(int i=0; i<ena.length; i++) engine.addSent(ena[i]);
 		
 		engine.increaseNegotiationStepNumber();

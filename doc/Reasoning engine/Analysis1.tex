@@ -1,0 +1,82 @@
+\documentclass{article}
+%\usepackage{verbatim}
+\begin{document}
+
+\title{Analysis}
+\author{J. L. De Coi}
+\maketitle
+
+\begin{itemize}
+	\item The following Java-like code tries to catch the logic of the algorithm: the synchronous protocol, as well as other implementation issues entailed by the choice of Java as a language, is not supposed to be necessarily part of the final solution
+	\item Comments are written over the line(s) they refer to
+	\item
+\begin{verbatim}
+Type1[] t1a;
+Type2[] t2a=t1a.method();
+
+\end{verbatim}
+is a shortcut for
+\begin{verbatim}
+Type1[] t1a;
+Type2[] t2a= new Type2[t1a.length];
+for(i=0; i<t1a.length; i++) t2a[i]=t1a[i].method();
+\end{verbatim}
+\end{itemize}
+
+\begin{verbatim}
+
+class NegotiationEngine{
+
+  Policy p;
+  Status s;
+  /* Checks whether the actions, which the Peer claims to have
+  performed
+  * were actually performed and
+  * were performed in the right way */
+  Checker c;
+  TerminationAlgorithm ta;
+  NegotiationStrategy ns;
+  /* Let think at this abstraction level that the two Peers negotiate
+  directly. Afterwards suitable wrappers will be developed */
+  NegotiationEngine other;
+
+  void perform(FilteredPolicy receivedFp, Notification[] receivedNa){
+      s.add(receivedFp);
+      s.add(receivedNa);
+    Action[] aa=receivedNa.getActions();
+    /* In order to report whether an action was performed or not, a
+    boolean could be enough. The class PerformedCheck was defined in
+    order to allow more information exchange. E.g. a PerformedCheck
+    object could contain not only the notification whether the action
+    was actually executed or not, but also the notification whether
+    the check itself was performed or the other Peer's notification
+    was simply trusted */
+    PerformedCheck[] pca=c.checkPerformed(aa);
+      s.add(pca);
+    // Only for actions which were actually performed
+    WellPerformedCheck[] wpca=c.checkWellPerformed(aa);
+      s.add(wpca);
+    if(!ta.terminate(s)){
+      Action[] toBePerformed=ns.identifyActions(s, p);
+      toBePerformed.perform();
+      Notification[] toSendNa=new Notification[](toBePerformed);
+        s.add(toSendNa);
+      FilteredPolicy toSendFp=filterPolicy();
+        s.add(toSendFp);
+      other.perform(toSendFp, toSendNa);
+    }
+  }
+  
+  /* As far as I have understood, there is just one way to filter
+  policies, therefore there is no need to define a new Class taking
+  care of the filtering process, since it can be carried out inside
+  the class NegotiationEngine */
+  FilteredPolicy filterPolicy(){
+    //...
+  }
+
+}
+
+\end{verbatim}
+
+\end{document}

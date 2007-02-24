@@ -16,6 +16,11 @@ public abstract class Service {
 	
 	protected Pointer otherPeer;
 	
+	/*
+	public Service(Pointer p){
+		otherPeer = p;
+	}*/
+	
 	public NegotiationMessage perform(OngoingNegotiationMessage onm)
 			throws IOException, WrongMessageTypeException{
 		NegotiationMessage toSend = eval(onm);

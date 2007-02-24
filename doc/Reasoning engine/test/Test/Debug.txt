@@ -1,0 +1,36 @@
+extractLocalActions([ execute(access(Resource)) ], LocalActions).
+prove([ execute(access(Resource)) ]).
+prove([ execute(serverCredential2) ]).
+OR
+prove([ execute(clientCredential2) ]).
+extractExternalActions([ execute(access(Resource)) ], LocalActions).
+filter([ execute(access(Resource)) ], LocalActions).
+
+extractLocalActions([ allow( browse(index) ) ], LocalActions).
+prove([ allow( browse(index) ) ]).
+prove([ download(pippo) ]).
+
+extractLocalActions([ allow( download(resource) ) ], LocalActions).
+prove([ allow( download(resource) ) ]).
+prove([ allow( download(pippo) ) ]).
+extractExternalActions([ allow( download(resource) ) ], LocalActions).
+filter([ allow( download(resource) ) ], LocalActions).
+
+extractLocalActions([ allow( download(Resource) ) ], LocalActions).
+prove([ allow( download(Resource) ) ]).
+prove([ allow( browse(index) ) ]).
+extractExternalActions([ allow( download(Resource) ) ], LocalActions).
+filter([ allow( download(Resource) ) ], LocalActions).
+
+extractLocalActions([ allow( comment(X) ) ], LocalActions).
+prove([ allow( comment(X) ) ]).
+prove([ allow( browse(index) ) ]).
+extractExternalActions([ allow( comment(X) ) ], LocalActions).
+filter([ allow( comment(X) ) ], LocalActions).
+
+extractLocalActions([ allow( comment(comment) ) ], LocalActions).
+prove([ allow( comment(comment) ) ]).
+prove([ download(pippo) ]).
+
+_________________________________
+

@@ -1,0 +1,92 @@
+% 0: Utilities
+
+isIn(H, [H|T]) :-
+   !.
+isIn(X, [H|T]) :-
+   isIn(X, T).
+
+deleteDuplicates([], []).
+deleteDuplicates([H|T], L) :-
+   deleteDuplicates(T, L),
+   isIn(H, L),
+   !.
+deleteDuplicates([H|T], [H|L]) :-
+   deleteDuplicates(T, L).
+
+merge([], L2, L2).
+merge([H|T], L2, L) :-
+   merge(T, L2, L),
+   isIn(H, L2),
+   !.
+merge([H|T], L2, [H|L]) :-
+   merge(T, L2, L).
+
+otherMerge(List, [], List).
+otherMerge(L1, [H|T], L2) :-
+   isIn(H, L1),
+   !,
+   otherMerge(L1, T, L2).
+otherMerge(L1, [H|T], [H|L2]) :-
+   otherMerge(L1, T, L2).
+
+multipleMerge([List], List) :-
+   !.
+multipleMerge([H|T], List) :-
+   multipleMerge(T, PartialList),
+   merge(H, PartialList, List).
+
+% To be changed: so far only predicates of the form "ground(X)" are supported.
+localProveGoal(ground(X)) :-
+   ground(X).
+
+localProve([]).
+localProve([H|T]) :-
+   localProveGoal(H),
+   localProve(T).
+
+localHoldingMetapredicate(Predicate, Attribute, Value) :-
+   metarule(head(pred, Predicate, Attribute, Value), MetaBody, _),
+   localProve(MetaBody).
+
+% To be changed: so far only predicates of the form "ground(X)" are supported.
+filteredProveGoal(ground(X)) :-
+   ground(X).
+
+filteredProve([]).
+filteredProve([H|T]) :-
+   filteredProveGoal(H),
+   filteredProve(T).
+
+% To be changed: so far the metarule can have been sent in whatever negotiation.
+filteredHoldingMetapredicate(Predicate, Attribute, Value) :-
+   state(_, _, received, metarule(head(pred, Predicate, Attribute, Value), Metabody, _), _),
+   filteredProve(Metabody).
+
+% To be changed: so far the action can have been executed in whatever negotiation.
+alreadyExecutedBySelf(Goal) :-
+   state(_, _, notSent, notification(successful, Goal), _).
+
+% To be changed: so far the action can have been executed in whatever negotiation.
+alreadyExecutedByPeer(Goal) :-
+   state(_, _, received, notification(successful, execute(Goal)), _).
+
+localFindall(Goal, BodyList) :-
+   findall(Body, rule(_, Goal, Body, _), BodyList),
+   localMatch(Goal, BodyList).
+
+localMatch(Goal, []).
+localMatch(Goal, [H|T]) :-
+   rule(_, Goal, H, _),
+   localMatch(Goal, T).
+
+% To be changed: so far the rule can have been sent in whatever step of whatever negotiation.
+filteredFindall(Goal, BodyList) :-
+   findall(Body, state(_, _, received, rule(_, Goal, Body, _), _), BodyList),
+   filteredMatch(Goal, BodyList).
+
+filteredMatch(Goal, []).
+filteredMatch(Goal, [H|T]) :-
+   state(_, _, received, rule(_, Goal, H, _), _),
+   filteredMatch(Goal, T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
