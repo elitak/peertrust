@@ -25,10 +25,10 @@ import org.policy.config.Configurable;
 import org.policy.config.ConfigurationException;
 
 /**
- * $Id: TestClass.java,v 1.1 2007/02/24 19:20:46 dolmedilla Exp $
+ * $Id: TestClass.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2007/02/24 19:20:46 $
+ * Last changed  $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * @description
  */
@@ -37,7 +37,7 @@ public class TestClass implements Configurable {
 	private boolean bool ;
 	private int integer ;
 	private long longinteger ;
-	private Vector vector ;
+	private Vector<TestClass2> vector ;
 	private TestClass example2 ;
 	private Object extraExample ;
 	
@@ -119,13 +119,13 @@ public class TestClass implements Configurable {
 	/**
 	 * @return Returns the vector.
 	 */
-	public Vector getVector() {
+	public Vector<TestClass2> getVector() {
 		return vector;
 	}
 	/**
 	 * @param vector The vector to set.
 	 */
-	public void setVector(Vector vector) {
+	public void setVector(Vector<TestClass2> vector) {
 		this.vector = vector;
 	}
 	/**

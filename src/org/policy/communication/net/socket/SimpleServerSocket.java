@@ -24,17 +24,18 @@ import java.net.*;
 
 import org.apache.log4j.Logger;
 import org.policy.communication.message.ServiceMessage;
+import org.policy.communication.net.NetworkCommunicationException;
 import org.policy.communication.net.NetworkServer;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: SimpleServerSocket.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: SimpleServerSocket.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -48,21 +49,18 @@ public class SimpleServerSocket implements NetworkServer {
 
    private ServerSocket _ss = null;
    
-	public SimpleServerSocket(int port) {
-		log.debug("$Id: SimpleServerSocket.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $");
+	public SimpleServerSocket(int port) throws IOException
+	{
+		log.debug("$Id: SimpleServerSocket.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $");
 		
-		try {
-			_ss = new ServerSocket (port) ;			
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+		_ss = new ServerSocket (port) ;			
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.peertrust.net.NetServer#listen()
 	 */
-	public ServiceMessage listen() {
+	public ServiceMessage listen() throws NetworkCommunicationException
+	{
 
 		ServiceMessage message = null ;
 		try
@@ -99,7 +97,8 @@ public class SimpleServerSocket implements NetworkServer {
 		}
 		catch(Exception e)
 		{
-			log.error("Exception", e) ;
+			log.error(e.getMessage()) ;
+			throw new NetworkCommunicationException(e.getMessage(),e) ;
 		}
 		return message ;
 	}

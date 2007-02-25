@@ -9,7 +9,7 @@
  	<!-- ======================================================================
 	Peertrust Engine
 	================================================================== -->
-	<pt:PolicyEngine rdf:about="#Example1">
+	<pt:PolicyEngine rdf:about="&pt;Example1">
 		<pt:javaClass>test.org.policy.config.TestClass</pt:javaClass>
 		<pt:vector rdf:resource="#Vector1"/>
 	</pt:PolicyEngine>

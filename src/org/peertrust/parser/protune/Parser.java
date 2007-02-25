@@ -39,28 +39,54 @@ public class Parser implements ParserConstants {
                 return metarules;
         }
 
+        public static String translate(String policy) throws Exception{
+
+                Parser parser=new Parser(new BufferedReader(new StringReader(policy)));
+                parser.init();
+                parser.start();
+
+                StringBuffer sb=new StringBuffer();
+                for(Iterator it=parser.getRules().iterator();it.hasNext();)
+                        sb.append((String)it.next()+"\n");
+                for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
+                        sb.append((String)it.next()+"\n");
+
+                return sb.toString();
+        }
+
+        /*------------------------------------------------------------------------------------------------------*/
+
+
         public static void main(String args[]) throws ParseException,TokenMgrError{
 
-                Parser parser=null;
                 try{
-
-                        //parser=new Parser(new BufferedReader(new StringReader("author(denisa).")));
-                        parser=new Parser(new FileReader("./config/policy_code_samples/exemplu.pro"));
-                        parser.init();
-                        parser.start();
-
-                        for(Iterator it=parser.getDirectives().iterator();it.hasNext();)
-                                System.out.println((String)it.next());
-                        for(Iterator it=parser.getRules().iterator();it.hasNext();)
-                                System.out.println((String)it.next());
-                        for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
-                                System.out.println((String)it.next());
-
+                        String s=Parser.translate("[r1]fact(X).");
+                        System.out.println(s);
                 }catch(Exception e){
                         e.printStackTrace();
-                        return;
                 }
 
+                /*
+		Parser parser=null;
+		try{
+			
+			//parser=new Parser(new BufferedReader(new StringReader("author(denisa).")));
+			parser=new Parser(new FileReader("./config/policy_code_samples/OnlineLibrary/LibraryPolicy.protune"));
+			parser.init();
+			parser.start();
+			
+			for(Iterator it=parser.getDirectives().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			for(Iterator it=parser.getRules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			for(Iterator it=parser.getMetarules().iterator();it.hasNext();)
+				System.out.println((String)it.next());
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return;
+		}
+		*/
         }
 
 /*----------------------------------------------------------------------------------------------------------*/
@@ -1240,56 +1266,6 @@ public class Parser implements ParserConstants {
     finally { jj_save(8, xla); }
   }
 
-  final private boolean jj_3_8() {
-    if (jj_scan_token(22)) return true;
-    if (jj_3R_3()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_6() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(16)) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3_3() {
-    if (jj_3R_4()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_3() {
-    if (jj_3R_6()) return true;
-    if (jj_scan_token(28)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_1() {
-    if (jj_3R_3()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_6() {
-    if (jj_scan_token(22)) return true;
-    if (jj_3R_3()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_9() {
-    if (jj_3R_5()) return true;
-    if (jj_scan_token(OPERATOR)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_5() {
-    if (jj_3R_5()) return true;
-    if (jj_scan_token(OPERATOR)) return true;
-    return false;
-  }
-
   final private boolean jj_3_4() {
     if (jj_3R_5()) return true;
     if (jj_scan_token(OPERATOR)) return true;
@@ -1350,6 +1326,56 @@ public class Parser implements ParserConstants {
 
   final private boolean jj_3R_7() {
     if (jj_scan_token(VARIABLE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_8() {
+    if (jj_scan_token(22)) return true;
+    if (jj_3R_3()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_6() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(16)) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_3R_4()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_3() {
+    if (jj_3R_6()) return true;
+    if (jj_scan_token(28)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_1() {
+    if (jj_3R_3()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_6() {
+    if (jj_scan_token(22)) return true;
+    if (jj_3R_3()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_9() {
+    if (jj_3R_5()) return true;
+    if (jj_scan_token(OPERATOR)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_5() {
+    if (jj_3R_5()) return true;
+    if (jj_scan_token(OPERATOR)) return true;
     return false;
   }
 

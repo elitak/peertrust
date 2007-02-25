@@ -36,13 +36,13 @@ import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.config.Configurator;
 import org.policy.config.Vocabulary;
+import org.policy.engine.service.ServiceHandler;
 import org.policy.model.ClientRequestId;
 import org.policy.model.Explanation;
 import org.policy.model.NegotiationInfo;
 import org.policy.model.Notification;
 import org.policy.model.Policy;
 import org.policy.model.RequestIdentifier;
-import org.policy.model.ServiceHandler;
 import org.policy.protune.model.Protune;
 import org.policy.protune.model.ProtunePolicy;
 
@@ -51,11 +51,11 @@ import org.policy.protune.model.ProtunePolicy;
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.4 2007/02/19 09:01:28 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.5 2007/02/25 23:00:26 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:28 $
+ * Last changed: $Date: 2007/02/25 23:00:26 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -69,6 +69,8 @@ public class PolicyEngineClient implements Replyable
 	static public int DEFAULT_TIMEOUT = 15000 ;
 	static public int DEFAULT_SLEEP_INTERVAL = 200 ;
 	static public long DEFAULT_FRESHNESS_TIME = 7200000 ;
+	
+	static final String POLICY_ENGINE_ID = "PEngine" ;
 
 /*	final String PREFIX_MESSAGE = "CLIENT: " ;
 	final String INFO_MESSAGE = PREFIX_MESSAGE + "INFO: " ;
@@ -111,7 +113,8 @@ public class PolicyEngineClient implements Replyable
 
 		_config.startApp(_configurationArgs, _components) ;
 		
-		_engine = (PolicyEngine) _config.getComponent(Vocabulary.PolicyEngine) ;
+		//_engine = (PolicyEngine) _config.getComponentByType(Vocabulary.PolicyEngine) ;
+		_engine = (PolicyEngine) _config.getComponent(POLICY_ENGINE_ID) ;
 		
 		checkInitializedEngine () ;
 		
@@ -310,7 +313,8 @@ public class PolicyEngineClient implements Replyable
 		String USAGE_MESSAGE = "Usage: program <configFile> <queryString>" ;
 		int USAGE_RETURN_ERROR = 1 ; 
 		
-		String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
+		//String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
+		String [] defaultComponents = { Vocabulary.getURI() + POLICY_ENGINE_ID } ;
 			
 		String newArgs[] = new String[1] ;
 		String query = null ;

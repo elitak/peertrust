@@ -20,17 +20,17 @@
 
 package org.policy.peertrust.model;
 
-import org.policy.model.ServiceHandler;
+import org.policy.engine.service.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PeerTrustServiceHandler.java,v 1.1 2007/02/19 09:01:28 dolmedilla Exp $
+ * $Id: PeerTrustServiceHandler.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: Feb 17, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:28 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

@@ -28,15 +28,18 @@ import org.policy.config.Vocabulary;
 import junit.framework.*;
 
 /**
- * $Id: ConfiguratorTest.java,v 1.1 2007/02/24 19:20:46 dolmedilla Exp $
+ * $Id: ConfiguratorTest.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2007/02/24 19:20:46 $
+ * Last changed  $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * @description
  */
 public class ConfiguratorTest extends TestCase {
 
+	private final String DEFAULT_COMPONENT = Vocabulary.getURI() + "Example1" ;
+	private final String DEFAULT_RETRIEVED_COMPONENT = "Example1" ;
+	
 	public ConfiguratorTest ( String name ) {
 		super( name ) ;
 	}
@@ -54,7 +57,7 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE1 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		String defaultComponent = DEFAULT_COMPONENT ;
 		String[] components = { defaultComponent } ;
 		
 		try {
@@ -69,7 +72,7 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE1 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		String defaultComponent = DEFAULT_COMPONENT ;
 		String[] components = { defaultComponent } ;
 		try {
 			config.startApp(args, components) ;
@@ -77,7 +80,7 @@ public class ConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		TestClass ec = (TestClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent(DEFAULT_RETRIEVED_COMPONENT) ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 34) ;
@@ -102,7 +105,7 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE2 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		String defaultComponent = DEFAULT_COMPONENT ;
 		String[] components = { defaultComponent } ;
 		try {
 			config.startApp(args, components) ;
@@ -117,7 +120,7 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE3 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		String defaultComponent = DEFAULT_COMPONENT ;
 		String[] components = { defaultComponent } ;
 		
 		try {
@@ -126,7 +129,7 @@ public class ConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		TestClass ec = (TestClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent(DEFAULT_RETRIEVED_COMPONENT) ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 34) ;
@@ -162,7 +165,7 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator(this) ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE4 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		String defaultComponent = DEFAULT_COMPONENT ;
 		String[] components = { defaultComponent } ;
 		
 		try {
@@ -171,7 +174,7 @@ public class ConfiguratorTest extends TestCase {
 			fail(e.getMessage()) ;
 		}
 		
-		TestClass ec = (TestClass) config.getComponent("Example1") ;
+		TestClass ec = (TestClass) config.getComponent(DEFAULT_RETRIEVED_COMPONENT) ;
 		assertEquals (ec.getString(), "testing") ;
 		assertEquals (ec.isBool(), true) ;
 		assertEquals (ec.getInteger(), 34) ;
@@ -190,7 +193,8 @@ public class ConfiguratorTest extends TestCase {
 		Configurator config = new Configurator() ;
 		
 		String [] args = { Vocabulary4Tests.CONFIG_FILE5 } ;
-		String defaultComponent = Vocabulary.PolicyEngine.toString() ;
+		//String defaultComponent = DEFAULT_COMPONENT ;
+		String defaultComponent = Vocabulary.getURI() + "Example1" ;
 		String[] components = { defaultComponent } ;
 		try {
 			config.startApp(args, components) ;

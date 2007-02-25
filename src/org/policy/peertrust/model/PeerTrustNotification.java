@@ -21,17 +21,18 @@
 package org.policy.peertrust.model;
 
 import org.policy.action.StandardNotification;
+import org.policy.model.Action;
 import org.policy.model.Notification;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PeerTrustNotification.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
+ * $Id: PeerTrustNotification.java,v 1.3 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: Feb 18, 2007
  * <br/>
- * Last changed: $Date: 2007/02/21 06:52:48 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -41,8 +42,18 @@ public class PeerTrustNotification extends Notification
 {
 	
 	// TODO to write completely
+	public PeerTrustNotification (Action action, String notificationString)
+	{
+		this(action, new String[] { notificationString } ) ;
+	}
+	
+	public PeerTrustNotification (Action action, String [] notificationStrings)
+	{
+		super(action,notificationStrings) ;
+	}
+	
 	public PeerTrustNotification (StandardNotification notification)
 	{
-
-	}	
+		this(notification.getAction(), notification.getNotificationStrings()) ;
+	}
 }

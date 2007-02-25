@@ -21,17 +21,18 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
-import org.policy.model.NegotiationInfo;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.model.ClientRequestId;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyMgmtRequest.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: PolicyMgmtRequest.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -40,9 +41,9 @@ import org.policy.model.NegotiationInfo;
 public class PolicyMgmtRequest extends PolicyMgmtMessage
 {
 
-	public PolicyMgmtRequest(long clientReqId, Peer origin, Peer target)
+	public PolicyMgmtRequest(ClientRequestId clientReqId, Peer origin, Peer target, ServiceHandler handler)
 	{
-		super(clientReqId, origin, target);
+		super(clientReqId, origin, target, handler);
 		// TODO Auto-generated constructor stub
 	}
 	

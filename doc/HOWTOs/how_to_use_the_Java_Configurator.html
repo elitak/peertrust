@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html><!-- InstanceBegin template="/Templates/HowTo.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>HOW TO USE THE JAVA CONFIGURATOR</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<table align="center" width="800">
+<tr><td>
+<!-- InstanceBeginEditable name="Content" -->
+<H2>HOW TO USE THE JAVA CONFIGURATOR</H2>
+
+<P>The java configurator located under org.policy.config is a powerful way of intializing the system. In addition, it is possible to load the application with different properties and even with a completely different functionality without having to recompile the code. This HOW-TO describes how this configurator can be used.</P>
+
+<P>The class org.policy.config.Configurator is invoked as follows:
+
+<blockquote>
+<PRE>
+String [] configurationArgs ;
+String [] components ;
+
+configurationArgs = { "file:configurationFileName.rdf" } ;
+components = { "http://www.L3S.de/~olmedilla/policy/Vocabulary#PEngine" }
+
+Configurator config = new Configurator() ;
+config.startApp(configurationArgs, components) ;
+
+PolicyEngine engine = (PolicyEngine) _config.getComponent(&quot;PEngine&quot;) ;
+</PRE>
+</blockquote>
+
+<p>
+Once a Configurator is created, it is invoked by using the method <I>startApp</I>, which receives two arrays of Strings as arguments. The first one provides different configuration files (in a specific RDF format) that will be used for the initialization and the second array contains the URIs of the high level components that should be initialized according to the configuration file.<BR/>
+NOTE: Other subcomponents contained in the high level components may be initialized via the configuration file even if they are not specified in this array.<BR/>
+NOTE: In the current implementation only the first file is read and only the first component is created and initialized.
+</p>
+<p>
+Any component that has now been created can be retrieved by using the <I>getComponent()</I> method, which takes the local name of the URI of the resource to be retrieved.</p>
+<p>The configuration file provides the information of how a component should be initialized. It looks like
+<blockquote>
+<pre>
+&lt;?xml version='1.0' encoding='ISO-8859-1'?&gt;
+&lt;!DOCTYPE rdf:RDF [
+    &lt;!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'&gt;
+    &lt;!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'&gt;
+    &lt;!ENTITY pt 'http://www.L3S.de/~olmedilla/policy/Vocabulary#'&gt;
+]&gt;
+
+&lt;rdf:RDF xmlns=&quot;&amp;pt;&quot; xmlns:rdf=&quot;&amp;rdf;&quot; xmlns:rdfs=&quot;&amp;rdfs;&quot; xmlns:pt=&quot;&amp;pt;&quot;&gt;
+    &lt;!-- ======================================================================
+        Policy Engine
+        ================================================================== --&gt;
+    &lt;pt:PolicyEngine rdf:about=&quot;&amp;pt;PEngine&quot;&gt;
+        &lt;pt:javaClass&gt;org.policy.engine.PolicyEngineImpl&lt;/pt:javaClass&gt;
+        &lt;pt:handlerRegistry rdf:resource=&quot;#ServiceRegistry&quot;/&gt;
+        &lt;pt:eventDispatcher rdf:resource=&quot;#Dispatcher&quot;/&gt;
+        &lt;pt:communicationChannel rdf:resource=&quot;#CommChannel&quot;/&gt;
+    &lt;/pt:PeertrustEngine&gt;
+
+    ...
+
+&lt;/rdf:RDF&gt;
+</pre>
+</blockquote>
+<P>Apart of the XML and rdf headers and the namespace declarations, the configuration file contains the definition of several resources which contain some properties. In the example above, an object called <I>pt:PEngine</I> of type <I>pt:PolicyEngine</I> is defined.<br>
+  NOTE: Notice that &quot;&amp;pt;&quot; is a shortcut for the pt namespace. Therefore, &amp;pt;PEngine actually represents pt:PEngine 
+<P>This object contains four properties:
+<ul>
+<li><I>pt:javaClass</I>: with a literal as value</li>
+<li><I>pt:handlerRegistry</I>: with a resource <I>#ServiceRegistry</I> as value</li>
+<li><I>pt:eventDispatcher</I>: with a resource <I>#Dispatcher</I> as value</li>
+<li><I>pt:communicationChannel</I>: with a resource <I>#CommChannel</I> as value</li>
+</ul>
+<p>The most important property of a resource is <I>pt:javaClass</I> since it defines which will be the java class used to create a new object for this resource. The other properties correspond to actual attributes of the java object that will be created. </p>
+    
+<p>The way the configurator works is as follows:
+<ol>
+<li>Loads in memory the configuration file passed as argument.</li>
+<li>Searches for the URI of the component to be initialized. This URI represents the class of a resource in the file.</li>
+<li>Once the component is found (e.g., <I>pt:PolicyEngine</I>) the configurator creates one object <b>O</b> of the type specified in the <I>pt:javaClass</I> property.</li>
+<li>Then, the configurator reads the rest of the properties for that resource and for each one of them</li>
+	<ul>
+	<li>If the property contains a literal as value, the configurator invokes a method of the object created called as the proprety with the prefix "set" (e.g., <B>O.</B><I>setPropertyName()</I> and passes the literal as argument to that method</li>
+	<li>If the property contains another resource as value, the configurator recursively creates the java object associated to that resource (in the same way as it is being described here). Once the object has been created and initialized, the configurator invokes a method of the object created in the previous step (<B>O</B>) with the prefix "set" (e.g., <B>O.</B><I>setHandlerRegistry()</I> with the newly created object as argument.</li>
+	</ul>
+<li>Once all properties are processed, the configurator calls the method "init" of the object, that is, <B>O.</B><I>init()</I></li>
+</ol>
+<p>NOTE: classes specified in the configuration file should all have implemented the org.policy.config.Configurable interface. Otherwise, the configurator will raise an org.policy.config.InitializationException exception.<BR/>
+  NOTE: classes specified in the configuration file should all have a public constructor without arguments, which is the one the configurator will use to create the instances.<BR/>
+  NOTE: the <I>setProperty</I> methods used to set the properties specified in the configuration file should all be public.</p>
+<p>
+Thanks to this recursive method a whole system can be initialized simply by specifying the starting class from which all other class of the systems will be derived.</p>
+
+<p><H4>Advantages of using the configurator</H4></p>
+<p>
+ Using this configurator has several advantages:
+<ul>
+<li>The class structure of the system and its properties are easily understand by using any tool for reading or visualizing RDF. This gives a quick overview of the system.</li>
+<li>Values of variables in classes can easily be set in the configuration file without having to recompile or, passing all of them via runtime arguments or using properties files.</li>
+<li>Not only literal values can be assigned by reading from the file (as it could be done with properties files) but also full objects can be assigned.</li>
+<li>Thanks to the previous item, functionality can easily be changed without the need of recompile. For example, a class in an application could simply use an interface and the specific class that will be instantiated will be decided at runtime depending on the configuration file. For example, suppose we define the interface
+
+<blockquote><PRE>
+public interface Registry extends Configurable
+{
+    void addContent (String key, String content) ;
+    String removeContent (String key) ;
+    String getContent (String key) ;
+}
+</PRE></blockquote>
+and the classes
+<blockquote><PRE>
+public class RDFBasedRegistry implements Registry
+{
+    ...
+}
+</PRE></blockquote>
+and
+<blockquote><PRE>
+public class DatabaseBasedRegistry implements Registry
+{
+    ...
+}
+</PRE></blockquote>
+and the class that is going to use the registry defined as:
+<blockquote><PRE>
+public class DoSomethingWithRegistry
+{
+    Registry _registry ;
+	
+    public DoSomethingWithRegistry () {}
+    ...
+    public void setContentRegistry (Registry registry)
+    {
+        _registry = registry ;
+    }
+    ...
+    public void init() throws ConfigurationException
+    {
+        if (_registry == null)
+            throw new Exception ("This class requires to have a registry") ;
+    }
+    ...
+    public void anyMethod ()
+    {
+        _registry.add (...) ;
+    }
+}
+</PRE></blockquote>
+
+This way, we may have two different configuration files:
+	<ul>
+		<li>Configuration file one:
+
+<blockquote><PRE>
+&lt;pt:DoSomethingWithRegistry rdf:about=&quot;#MainClass&quot;&gt;
+    &lt;pt:javaClass&gt;org.test.DoSomethingWithRegistry&lt;/pt:javaClass&gt;
+    &lt;pt:contentRegistry rdf:resource=&quot;#RDFRegistry&quot;/&gt;
+&lt;/pt:DoSomethingWithRegistry&gt;
+&lt;pt:Registry rdf:about=&quot;#RDFRegistry&quot;&gt;
+    &lt;pt:javaClass&gt;org.test.RDFBasedRegistry&lt;/pt:javaClass&gt;
+&lt;/pt:Registry&gt;
+</PRE></blockquote>
+		</li>
+		<li>Configuration file two:
+<blockquote><PRE>
+&lt;pt:DoSomethingWithRegistry rdf:about=&quot;#MainClass&quot;&gt;
+    &lt;pt:javaClass&gt;org.test.DoSomethingWithRegistry&lt;/pt:javaClass&gt;
+	&lt;pt:contentRegistry rdf:resource=&quot;#DBRegistry&quot;/&gt;
+&lt;/pt:DoSomethingWithRegistry&gt;
+&lt;pt:Registry rdf:about=&quot;#DBRegistry&quot;&gt;
+    &lt;pt:javaClass&gt;org.test.DatabaseBasedRegistry&lt;/pt:javaClass&gt;
+&lt;/pt:Registry&gt;
+</PRE></blockquote>
+		</li>
+	</ul>
+	which at runtime will initialize two different systems where the first one will use an RDF registry and the second a database registry without making any change to the code and therefore without the need of recompiling.
+</li>
+</ul>
+</P>
+
+<p><H4>Other Relevant Features</H4></p>
+<P>
+TODO: Add information about the capabilities of having vectors in the configuration file
+</P>
+<!-- InstanceEndEditable -->
+</td>
+</tr>
+</table>
+</body>
+<!-- InstanceEnd --></html>

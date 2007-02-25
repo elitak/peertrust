@@ -27,22 +27,22 @@ import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.engine.EngineInternalException;
 import org.policy.engine.PolicyEngine;
-import org.policy.engine.ServiceHandlerRegistry;
-import org.policy.engine.UnavailableServiceHandlerException;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.engine.service.ServiceHandlerRegistry;
+import org.policy.engine.service.UnavailableServiceHandlerException;
 import org.policy.event.EventDispatcher;
 import org.policy.event.ReceivedMessageEvent;
 import org.policy.model.RequestIdentifier;
-import org.policy.model.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ProtunePolicyEngine.java,v 1.1 2007/02/19 09:01:29 dolmedilla Exp $
+ * $Id: ProtunePolicyEngine.java,v 1.2 2007/02/25 23:00:31 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:29 $
+ * Last changed: $Date: 2007/02/25 23:00:31 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -64,10 +64,12 @@ public class ProtunePolicyEngine implements PolicyEngine
 
 	public ProtunePolicyEngine ()
 	{
+		log.debug("$Id: ProtunePolicyEngine.java,v 1.2 2007/02/25 23:00:31 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
 	{
+/*
 		_enginePeer = new LocalPeerEngine (_alias) ;
 		
 		String msg = null ;
@@ -83,33 +85,16 @@ public class ProtunePolicyEngine implements PolicyEngine
 		{
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
-		}
+		}*/
 	}
 
-	private PolicyEngine retrieveServiceHandler (ServiceHandler handler) throws UnavailableServiceHandlerException
-	{
-		return _handlerRegistry.retrieveServiceHandler(handler) ;
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.policy.engine.PolicyEngine#sendRequest(org.policy.communication.message.ServiceRequest, org.policy.communication.Peer)
 	 */
 	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException
 	{	
-		// We dispatch a new event in order to notify other components about the new request
-		_dispatcher.event(new ReceivedMessageEvent(request)) ;
-		
-		PolicyEngine engine;
-		try
-		{
-			engine = retrieveServiceHandler (request.getHandler());
-		} catch (UnavailableServiceHandlerException e)
-		{
-			log.error("No policy engine is associated to service handler " + request.getHandler().getClass().getName()) ;
-			throw new EngineInternalException (e) ;
-		}
-
-		return engine.sendRequest(request) ;
+		// TODO Completely
+		return null ;
 	}
 	
 	public void setCommunicationChannel(NetworkCommunicationFactory factory)

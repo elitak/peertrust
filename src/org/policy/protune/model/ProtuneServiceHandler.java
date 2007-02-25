@@ -20,17 +20,17 @@
 
 package org.policy.protune.model;
 
-import org.policy.model.ServiceHandler;
+import org.policy.engine.service.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ProtuneServiceHandler.java,v 1.1 2007/02/19 09:01:27 dolmedilla Exp $
+ * $Id: ProtuneServiceHandler.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: Feb 17, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:27 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

@@ -19,9 +19,12 @@
 */
 package org.policy.communication.net.socket;
 
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.policy.communication.NetworkPeer;
 import org.policy.communication.net.NetworkClient;
+import org.policy.communication.net.NetworkCommunicationException;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.communication.net.NetworkServer;
 import org.policy.config.ConfigurationException;
@@ -31,11 +34,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * 
  * </p><p>
- * $Id: SimpleSocketFactory.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: SimpleSocketFactory.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -50,7 +53,7 @@ public class SimpleSocketFactory extends NetworkCommunicationFactory {
 	public SimpleSocketFactory ()
 	{
 		super() ;
-		log.debug("$Id: SimpleSocketFactory.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $");
+		log.debug("$Id: SimpleSocketFactory.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $");
 	}
 	
 	/* (non-Javadoc)
@@ -77,11 +80,19 @@ public class SimpleSocketFactory extends NetworkCommunicationFactory {
 	/* (non-Javadoc)
 	 * @see org.peertrust.net.AbstractFactory#createNetServer(net.jxta.edutella.util.Configurator)
 	 */
-	public NetworkServer createNetServer() {
+	public NetworkServer createNetServer() throws NetworkCommunicationException {
 		log.debug("Creating new ServerSocket") ;
 		log.debug("port: " + _port) ;
 		
-		return new SimpleServerSocket(_port) ;
+		SimpleServerSocket socket;
+		try {
+			socket = new SimpleServerSocket(_port);
+		} catch (IOException e) {
+			log.error(e.getMessage()) ;
+			throw new NetworkCommunicationException(e.getMessage(), e) ;
+		}
+		
+		return socket  ;
 	}
 	/**
 	 * @return Returns the _host

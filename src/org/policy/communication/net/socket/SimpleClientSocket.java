@@ -28,16 +28,17 @@ import org.policy.communication.NetworkPeer;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkClient;
 //import javax.security.cert.X509Certificate;
+import org.policy.communication.net.NetworkCommunicationException;
 
 /**
  * <p>
  * 
  * </p><p> 
- * $Id: SimpleClientSocket.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: SimpleClientSocket.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -50,7 +51,7 @@ public class SimpleClientSocket implements NetworkClient {
 	private final int MAX_NUM_TRIES = 5 ;
 
 	public SimpleClientSocket() {
-		log.debug("$Id: SimpleClientSocket.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $");
+		log.debug("$Id: SimpleClientSocket.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $");
 	}
 
 	/* (non-Javadoc)
@@ -59,7 +60,7 @@ public class SimpleClientSocket implements NetworkClient {
 	/**
 	 * @param obj
 	 */
-	public void send(ServiceMessage message, NetworkPeer peer)
+	public void send(ServiceMessage message, NetworkPeer peer) throws NetworkCommunicationException
 	{
 		log.debug("Send() " + message) ;
 		//int tries = 0 ;
@@ -82,7 +83,8 @@ public class SimpleClientSocket implements NetworkClient {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage()) ;
+			throw new NetworkCommunicationException(e.getMessage(), e) ;
 		}
 		finally{
 			if(_socket!=null)

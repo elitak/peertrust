@@ -31,11 +31,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: EventDispatcherImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $
+ * $Id: EventDispatcherImpl.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/18 00:38:12 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -44,16 +44,15 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 	
 	private static Logger log = Logger.getLogger(EventDispatcherImpl.class);
 	
-	Hashtable _registry ;
+	Hashtable<Class,Vector<EventListener>> _registry ;
 	
 	public EventDispatcherImpl() {
-		super();
-		log.debug("$Id: EventDispatcherImpl.java,v 1.2 2007/02/18 00:38:12 dolmedilla Exp $");
+		log.debug("$Id: EventDispatcherImpl.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
-		_registry = new Hashtable() ;
+		_registry = new Hashtable<Class,Vector<EventListener>>() ;
 	}
 
 	/* (non-Javadoc)
@@ -71,10 +70,9 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 		Iterator it = _registry.keySet().iterator() ;
 		while (it.hasNext())
 		{
-			Vector vector = (Vector) _registry.get(it.next()) ;
+			Vector<EventListener> vector = (Vector<EventListener>) _registry.get(it.next()) ;
 			if (vector.remove(listener) == true)
 				res = true ;
-			
 		}
 		return res ;
 	}
@@ -85,11 +83,11 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 	public void register(EventListener listener, Class event) {
     	log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
     	
-        Vector vector = (Vector) _registry.get(event);
+        Vector<EventListener> vector = (Vector<EventListener>) _registry.get(event);
     	
     	// Add a new vector if not existing already
     	if ( vector == null ) {
-    		vector = new Vector();
+    		vector = new Vector<EventListener>();
     		_registry.put(event, vector);
     	}
     	
@@ -108,11 +106,11 @@ public class EventDispatcherImpl implements EventDispatcher, Configurable {
 		log.debug("Distributing event " + event.getClass().getName() + " from " + event.getSource().getClass().getName());
 		
 		Class currentClass = event.getClass() ;
-		Vector vector ;
+		Vector<EventListener> vector ;
 		
 		while ( (currentClass != Object.class ) && (currentClass != null) )
 		{
-			vector = (Vector) _registry.get(currentClass);
+			vector = (Vector<EventListener>) _registry.get(currentClass);
 	
 			// No entries for this event, do a broadcast to all elements registered to PeerTrustEvent
 			if (vector == null)

@@ -21,25 +21,27 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.model.ClientRequestId;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: EngineMgmtMessage.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: EngineMgmtMessage.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
 public abstract class EngineMgmtMessage extends ServiceMessage {
 	
-	public EngineMgmtMessage(Peer origin, Peer target)
+	public EngineMgmtMessage(ClientRequestId clientReqId, Peer origin, Peer target, ServiceHandler handler)
 	{
-		super(origin, target) ;
+		super(clientReqId, origin, target, handler) ;
  		
 	}
 

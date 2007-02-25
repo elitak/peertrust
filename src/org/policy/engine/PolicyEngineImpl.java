@@ -25,20 +25,22 @@ import org.policy.communication.LocalPeerEngine;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.engine.service.ServiceHandlerRegistry;
+import org.policy.engine.service.UnavailableServiceHandlerException;
 import org.policy.event.EventDispatcher;
 import org.policy.event.ReceivedMessageEvent;
 import org.policy.model.RequestIdentifier;
-import org.policy.model.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngineImpl.java,v 1.3 2007/02/18 00:42:46 dolmedilla Exp $
+ * $Id: PolicyEngineImpl.java,v 1.4 2007/02/25 23:00:25 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/18 00:42:46 $
+ * Last changed: $Date: 2007/02/25 23:00:25 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -58,6 +60,7 @@ public class PolicyEngineImpl implements PolicyEngine
 
 	public PolicyEngineImpl ()
 	{
+		log.debug("$Id: PolicyEngineImpl.java,v 1.4 2007/02/25 23:00:25 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -90,6 +93,8 @@ public class PolicyEngineImpl implements PolicyEngine
 	 */
 	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException
 	{	
+		log.debug("New request received: " + request.toString()) ;
+		
 		// We dispatch a new event in order to notify other components about the new request
 		_dispatcher.event(new ReceivedMessageEvent(request)) ;
 		
@@ -103,7 +108,13 @@ public class PolicyEngineImpl implements PolicyEngine
 			throw new EngineInternalException (e) ;
 		}
 
-		return engine.sendRequest(request) ;
+		log.debug("Sending the request to " + engine.getClass().getName()) ;
+		
+		RequestIdentifier id = engine.sendRequest(request) ;
+		
+		log.debug("Received answer id: " + id) ;
+		
+		return  id ;
 	}
 	
 	public void setCommunicationChannel(NetworkCommunicationFactory factory)
@@ -127,7 +138,7 @@ public class PolicyEngineImpl implements PolicyEngine
 	/**
 	 * @param dispatcher The dispatcher to set.
 	 */
-	public void setDispatcher(EventDispatcher dispatcher)
+	public void setEventDispatcher(EventDispatcher dispatcher)
 	{
 		this._dispatcher = dispatcher;
 	}

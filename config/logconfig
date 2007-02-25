@@ -135,7 +135,7 @@ log4j.appender.selected.layout.ConversionPattern=%p %t %c - %m%n
 #
 # Setting categories
 #
-log4j.logger.org.peertrust=DEBUG
+log4j.logger.org.policy=DEBUG
 log4j.logger.net.jxta=WARN
 log4j.logger.net.jxta.edutella=DEBUG
 

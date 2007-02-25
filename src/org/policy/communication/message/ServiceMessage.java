@@ -23,18 +23,18 @@ import java.io.Serializable;
 
 import org.policy.communication.LocalPeerClient;
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
 import org.policy.model.ClientRequestId;
-import org.policy.model.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: ServiceMessage.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: ServiceMessage.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 

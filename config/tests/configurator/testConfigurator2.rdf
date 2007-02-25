@@ -9,7 +9,7 @@
  	<!-- ======================================================================
 	PeertrustEngine
 	================================================================== -->
-	<pt:PolicyEngine rdf:about="#Example1">
+	<pt:PolicyEngine rdf:about="&pt;Example1">
 		<pt:javaClass>test.org.policy.config.TestClass</pt:javaClass>
 		<pt:string>testing</pt:string>
 		<pt:bool>true</pt:bool>

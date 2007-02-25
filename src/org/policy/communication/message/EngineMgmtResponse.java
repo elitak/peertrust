@@ -21,17 +21,19 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.model.ClientRequestId;
 
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: EngineMgmtResponse.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: EngineMgmtResponse.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -40,16 +42,10 @@ import org.policy.communication.Peer;
 public class EngineMgmtResponse extends EngineMgmtMessage
 {
 
-	public EngineMgmtResponse(Peer origin, Peer target)
+	public EngineMgmtResponse(ClientRequestId clientReqId, Peer origin, Peer target, ServiceHandler handler)
 	{
-		super(origin, target);
+		super(clientReqId, origin, target, handler);
 		// TODO Auto-generated constructor stub
 	}	
-	
-	// boolean isFinished (id)
-	// boolean isSuccessful (id)
-	// String [] getAnswers (id)
-	// 			only if finished
-	// Explanation getExplanation (id, explanationType)
 
 }

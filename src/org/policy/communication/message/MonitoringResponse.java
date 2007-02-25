@@ -21,18 +21,20 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
 import org.policy.model.NegotiationInfo;
+import org.policy.model.ClientRequestId;
 
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: MonitoringResponse.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: MonitoringResponse.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -41,9 +43,9 @@ import org.policy.model.NegotiationInfo;
 public class MonitoringResponse extends MonitoringMessage
 {
 
-	public MonitoringResponse(Peer origin, Peer target)
+	public MonitoringResponse(ClientRequestId clientReqId, Peer origin, Peer target, ServiceHandler handler)
 	{
-		super(origin, target);
+		super(clientReqId, origin, target, handler);
 		// TODO Auto-generated constructor stub
 	}	
 	

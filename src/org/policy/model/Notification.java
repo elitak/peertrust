@@ -20,24 +20,31 @@
 
 package org.policy.model;
 
+import org.policy.action.StandardNotification;
+
 /**
  * <p>
  * 
  * </p><p>
- * $Id: Notification.java,v 1.2 2007/02/21 06:52:48 dolmedilla Exp $
+ * $Id: Notification.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/21 06:52:48 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class Notification
+public abstract class Notification
 {
 	Action _action ;
 	String [] _notificationStrings ;
+	
+	public Notification (Action action, String notificationString)
+	{
+		this(action, new String[] { notificationString } ) ;
+	}
 	
 	public Notification (Action action, String [] notificationStrings)
 	{

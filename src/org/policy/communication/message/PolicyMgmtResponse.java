@@ -21,18 +21,19 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
-import org.policy.model.NegotiationInfo;
+import org.policy.engine.service.ServiceHandler;
+import org.policy.model.ClientRequestId;
 
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyMgmtResponse.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: PolicyMgmtResponse.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -41,16 +42,9 @@ import org.policy.model.NegotiationInfo;
 public class PolicyMgmtResponse extends PolicyMgmtMessage
 {
 
-	public PolicyMgmtResponse(long clientReqId, Peer origin, Peer target)
+	public PolicyMgmtResponse(ClientRequestId clientReqId, Peer origin, Peer target, ServiceHandler handler)
 	{
-		super(clientReqId, origin, target);
+		super(clientReqId, origin, target, handler);
 		// TODO Auto-generated constructor stub
 	}	
-	
-	// boolean isFinished (id)
-	// boolean isSuccessful (id)
-	// String [] getAnswers (id)
-	// 			only if finished
-	// Explanation getExplanation (id, explanationType)
-
 }

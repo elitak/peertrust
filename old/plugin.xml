@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="de.l3s.ppt.rcp.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Ppt Perspective"
+            class="de.l3s.ppt.rcp.Perspective"
+            id="de.l3s.ppt.perspective">
+      </perspective>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            id="de.l3s.ppt.rcp.protune.ProtuneEditor"
+            icon="icons/text.gif"
+            name="Protune Editor"
+            class="de.l3s.ppt.rcp.protune.ProtuneEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="false"
+            extensions="pro,protune"/>
+      <editor
+            id="de.l3s.ppt.rcp.peertrust.PeerTrustEditor"
+            icon="icons/text.gif"
+            name="PeerTrust Editor"
+            class="de.l3s.ppt.rcp.peertrust.PeerTrustEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="false"
+            extensions="pt,peer"/>
+      <editor
+            id="de.l3s.ppt.rcp.DefaultEditor"
+            icon="icons/text.gif"
+            name="Default Editor"
+            class="de.l3s.ppt.rcp.DefaultEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"/>
+   </extension>
+   <extension
+         id="editor"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="de.l3s.ppt.application"
+            name="PeerTrust and Protune Programming Editor"/>
+   </extension>
+
+</plugin>

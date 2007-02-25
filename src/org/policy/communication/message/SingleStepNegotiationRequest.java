@@ -21,9 +21,9 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
 import org.policy.model.ClientRequestId;
 import org.policy.model.NegotiationInfo;
-import org.policy.model.ServiceHandler;
 
 /**
  * <p>
@@ -31,11 +31,11 @@ import org.policy.model.ServiceHandler;
  *     it is wanted to know only the policy applying to a resource or to take a simple boolean decision
  *     based on given parameters 
  * </p><p>
- * $Id: SingleStepNegotiationRequest.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: SingleStepNegotiationRequest.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/25 23:00:29 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

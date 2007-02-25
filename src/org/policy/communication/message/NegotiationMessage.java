@@ -21,19 +21,19 @@
 package org.policy.communication.message;
 
 import org.policy.communication.Peer;
+import org.policy.engine.service.ServiceHandler;
 import org.policy.model.ClientRequestId;
 import org.policy.model.NegotiationInfo;
-import org.policy.model.ServiceHandler;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: NegotiationMessage.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: NegotiationMessage.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 

@@ -19,16 +19,14 @@
 */
 package test.org.policy.config;
 
-import java.util.Vector;
-
 import org.policy.config.Configurable;
 import org.policy.config.ConfigurationException;
 
 /**
- * $Id: TestClass2.java,v 1.1 2007/02/24 19:20:46 dolmedilla Exp $
+ * $Id: TestClass2.java,v 1.2 2007/02/25 23:00:30 dolmedilla Exp $
  * @author olmedilla 
  * @date 05-Dec-2003
- * Last changed  $Date: 2007/02/24 19:20:46 $
+ * Last changed  $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * @description
  */

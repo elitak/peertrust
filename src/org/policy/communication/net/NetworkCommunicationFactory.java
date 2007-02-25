@@ -30,7 +30,6 @@ import org.policy.event.CommunicationEvent;
 import org.policy.event.CommunicationEventListener;
 import org.policy.event.Event;
 import org.policy.event.EventDispatcher;
-import org.policy.event.EventListener;
 import org.policy.event.ReceivedMessageEvent;
 import org.policy.event.SendMessageEvent;
 
@@ -38,11 +37,11 @@ import org.policy.event.SendMessageEvent;
  * <p>
  * 
  * </p><p>
- * $Id: NetworkCommunicationFactory.java,v 1.3 2007/02/19 09:01:28 dolmedilla Exp $
+ * $Id: NetworkCommunicationFactory.java,v 1.4 2007/02/25 23:00:26 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:28 $
+ * Last changed: $Date: 2007/02/25 23:00:26 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -56,13 +55,13 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 	
 	public abstract NetworkPeer getLocalServerPeerInfo () ;
 	
-	public abstract NetworkClient createNetClient() ;
+	public abstract NetworkClient createNetClient() throws NetworkCommunicationException ;
 	
-	public abstract NetworkServer createNetServer() ;
+	public abstract NetworkServer createNetServer() throws NetworkCommunicationException ;
 
 	public NetworkCommunicationFactory ()
 	{
-
+		log.debug("$Id: NetworkCommunicationFactory.java,v 1.4 2007/02/25 23:00:26 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -75,14 +74,24 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 			throw new ConfigurationException(msg) ;
 		}
 		
-		NetworkServer netServer = createNetServer () ;
-		NetworkServerThread serverThread = new NetworkServerThread (_dispatcher, netServer) ;
-		Thread thread = new Thread(serverThread) ;
-		thread.start() ;
-		
-		NetworkClient netClient = createNetClient () ;
-		NetworkClientWrapper networkClientWrapper = new NetworkClientWrapper (netClient) ;
-		_dispatcher.register(networkClientWrapper, SendMessageEvent.class) ;
+		try {
+			NetworkServer netServer = createNetServer ();
+			NetworkServerThread serverThread = new NetworkServerThread (_dispatcher, netServer) ;
+			Thread thread = new Thread(serverThread) ;
+			thread.start() ;
+		} catch (NetworkCommunicationException e) {
+			log.error(e.getMessage()) ;
+			throw new ConfigurationException("Error creating the network server element: " + e.getMessage(), e) ;
+		}
+
+		try {
+			NetworkClient netClient = createNetClient () ;
+			NetworkClientWrapper networkClientWrapper = new NetworkClientWrapper (netClient) ;
+			_dispatcher.register(networkClientWrapper, SendMessageEvent.class) ;
+		} catch (NetworkCommunicationException e) {
+			log.error(e.getMessage()) ;
+			throw new ConfigurationException("Error creating the network client element: " + e.getMessage(), e) ;
+		}
 	}
 	
 	/**

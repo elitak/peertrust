@@ -60,14 +60,14 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: Configurator.java,v 1.2 2007/02/24 19:20:54 dolmedilla Exp $
+ * $Id: Configurator.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/24 19:20:54 $
+ * Last changed: $Date: 2007/02/25 23:00:30 $
  * by $Author: dolmedilla $
  * </p>
- * @author olmedilla 
+ * @author Ingo Brunkhorst and Daniel Olmedilla 
  */
 public class Configurator {
 	
@@ -144,7 +144,7 @@ public class Configurator {
         
         
 
-		log.debug("$Id: Configurator.java,v 1.2 2007/02/24 19:20:54 dolmedilla Exp $");
+		log.debug("$Id: Configurator.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -231,11 +231,16 @@ public class Configurator {
         log.debug(".baseConfigure()");
         
         log.info("Retrieving root node of configuration file...");
+
+    	// DOC: changing it so the subject is used to identify a component and not the type
+        //     the resource is passed as an argument so no need to look for it
+
+        /*
         Resource resource = null;
         
         try {
-            resource = RdfUtilities.findSubject(model, RDF.type, res);
-            
+        	resource = RdfUtilities.findSubject(model, RDF.type, res);
+        	
             log.info("Resource configured: " + resource.getURI());
             
         } catch (RDFException rdfe) {
@@ -243,6 +248,8 @@ public class Configurator {
             throw(new ConfigurationException(rdfe));
         }
         return resource ;
+        */
+        return res ;
     }
     
     public Object createComponent (Resource identifier) throws ConfigurationException
@@ -308,16 +315,16 @@ public class Configurator {
                 
         } catch (RDFException rdfe) {
             log.error("RDFException ", rdfe);
-            throw new ConfigurationException ("Error creating object " + identifier.getURI(), rdfe) ;
+            throw new ConfigurationException ("Error creating object " + identifier.getURI() + ". " + rdfe.getMessage(), rdfe) ;
         } catch (ClassNotFoundException cnfe) {
             log.error("ClassNotFoundException: ", cnfe);
-            throw new ConfigurationException ("Error creating object " + identifier.getURI(), cnfe) ;
+            throw new ConfigurationException ("Error creating object " + identifier.getURI() + ". " + cnfe.getMessage(), cnfe) ;
         } catch (InstantiationException ie) {
             log.error("InstantiationeException: ", ie);
-            throw new ConfigurationException ("Error creating object " + identifier.getURI(), ie) ;
+            throw new ConfigurationException ("Error creating object " + identifier.getURI() + ". " + ie.getMessage(), ie) ;
         } catch (IllegalAccessException iae) {
             log.error("IllegalAccessException: ", iae);
-            throw new ConfigurationException ("Error creating object " + identifier.getURI(), iae) ;
+            throw new ConfigurationException ("Error creating object " + identifier.getURI() + ". " + iae.getMessage(), iae) ;
         }
         
         return object ;
@@ -523,8 +530,8 @@ public class Configurator {
     public boolean isVerbose() {
         return _verbose;
     }
-
-    public Object getComponent (Resource resource)
+ 
+    public Object getComponentByType (Resource resource)
     {
     	if (_configuration == null)
     	{
