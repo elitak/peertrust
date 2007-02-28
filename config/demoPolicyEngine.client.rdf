@@ -20,7 +20,8 @@
 	Event Dispatcher
 	================================================================== -->
 	<pt:EventDispatcher rdf:about="#Dispatcher">
-		<pt:javaClass>org.policy.event.EventDispatcherImpl</pt:javaClass>
+		<pt:javaClass>org.policy.event.ThreadedEventDispatcher</pt:javaClass>
+		<pt:numberOfThreads>10</pt:numberOfThreads>
 	</pt:EventDispatcher>
 
 	<!-- ======================================================================

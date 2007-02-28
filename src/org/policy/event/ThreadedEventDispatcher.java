@@ -33,14 +33,14 @@ import org.policy.config.ConfigurationException;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: ThreadedEventDispatcher.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $
+ * $Id: ThreadedEventDispatcher.java,v 1.3 2007/02/28 08:40:14 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 23:00:31 $
+ * Last changed: $Date: 2007/02/28 08:40:14 $
  * by $Author: dolmedilla $
  * </p>
- * @author olmedilla 
+ * @author Daniel Olmedilla 
  */
 public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
@@ -56,19 +56,21 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
 	public ThreadedEventDispatcher() {
 		super();
-		log.debug("$Id: ThreadedEventDispatcher.java,v 1.2 2007/02/17 23:00:31 dolmedilla Exp $");
+		log.debug("$Id: ThreadedEventDispatcher.java,v 1.3 2007/02/28 08:40:14 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
 	{
 		_registry = new ConcurrentHashMap<Class,Vector<EventListener>>() ;
 		_threadPool = Executors.newFixedThreadPool(_numberOfThreads) ;
+		log.debug(this.getClass().getName() + " initialized") ;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.EventDispatcher#register(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void register(EventListener listener) {
+	public void register(EventListener listener)
+	{
 		register(listener, Event.class) ;
 	}
 
@@ -78,7 +80,10 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
 	// register and unregister must be synchronized. The rest of the methods do not change the registry
 	//     so there is no need for having them synchronized
-	public synchronized boolean unregister(EventListener listener) {
+	public synchronized boolean unregister(EventListener listener)
+	{
+		log.debug("Unregistering listener " + listener.getClass().getName()) ;
+		
 		boolean res = false ;
 		Iterator it = _registry.keySet().iterator() ;
 		while (it.hasNext())
@@ -86,7 +91,6 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 			Vector<EventListener> vector = (Vector<EventListener>) _registry.get(it.next()) ;
 			if (vector.remove(listener) == true)
 				res = true ;
-			
 		}
 		return res ;
 	}
@@ -96,19 +100,21 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	 */
 	public synchronized void register(EventListener listener, Class event)
 	{
-    		log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
+    	log.debug(".registering " + listener.getClass().getName() + " to event " + event.getName());
     	
         Vector<EventListener> vector = (Vector<EventListener>) _registry.get(event);
     	
         // Add a new vector if not existing already
-	    	if ( vector == null ) {
+	    	if ( vector == null )
+	    	{
 	    		vector = new Vector<EventListener>();
 	    		_registry.put(event, vector);
 	    	}
 	    	
 	    	// Only add not already registered components for the specified event
-	    	if ( vector.contains(listener) ) {
-	    		return;
+	    	if ( vector.contains(listener) )
+	    	{
+	    		return ;
 	    	}
 	    	
 	    	vector.addElement(listener);		
@@ -183,8 +189,10 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	             
 	            if (listener instanceof EventListener)
 	            {
-		            	if (listener != _event.getSource())
-		            		( (EventListener)listener).event(_event) ;
+	            	log.debug("Distributing event " + _event + " to listener " + listener) ;
+	            	
+		            if (listener != _event.getSource())
+		            	( (EventListener)listener).event(_event) ;
 	            }
 				else
 				{

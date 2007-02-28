@@ -60,11 +60,11 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * <p>
  * This class reads a configuration file and set up the system accordingly.
  * </p><p>
- * $Id: Configurator.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $
+ * $Id: Configurator.java,v 1.4 2007/02/28 08:40:15 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:30 $
+ * Last changed: $Date: 2007/02/28 08:40:15 $
  * by $Author: dolmedilla $
  * </p>
  * @author Ingo Brunkhorst and Daniel Olmedilla 
@@ -144,7 +144,7 @@ public class Configurator {
         
         
 
-		log.debug("$Id: Configurator.java,v 1.3 2007/02/25 23:00:30 dolmedilla Exp $");
+		log.debug("$Id: Configurator.java,v 1.4 2007/02/28 08:40:15 dolmedilla Exp $");
 		
 		log.info("Current directory: " + System.getProperty("user.dir")) ;
 	}
@@ -557,18 +557,5 @@ public class Configurator {
     public Object getComponent (String resource)
     {
     	return _registry.get(resource) ;
-    }
-    
-//    public Object getEventDispatcher ()
-//    {
-//    	return _registry.get(_eventDispatcher.getLocalName()) ;
-//    }
-    
-    public static void main (String args[]) throws ConfigurationException
-    {
-    	String [] confFiles = { "peertrustConfig.rdf" } ;
-    	String [] components = { Vocabulary.PolicyEngine.toString() } ;
-    	Configurator ptconf = new Configurator() ;
-    	ptconf.startApp(confFiles, components) ;
     }
 }

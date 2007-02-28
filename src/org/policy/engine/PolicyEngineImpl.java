@@ -22,31 +22,35 @@ package org.policy.engine;
 
 import org.apache.log4j.Logger;
 import org.policy.communication.LocalPeerEngine;
+import org.policy.communication.Replyable;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.engine.service.ServiceHandler;
 import org.policy.engine.service.ServiceHandlerRegistry;
 import org.policy.engine.service.UnavailableServiceHandlerException;
+import org.policy.event.Event;
 import org.policy.event.EventDispatcher;
+import org.policy.event.EventListener;
 import org.policy.event.ReceivedMessageEvent;
+import org.policy.model.ClientRequestId;
 import org.policy.model.RequestIdentifier;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngineImpl.java,v 1.4 2007/02/25 23:00:25 dolmedilla Exp $
+ * $Id: PolicyEngineImpl.java,v 1.5 2007/02/28 08:40:14 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:25 $
+ * Last changed: $Date: 2007/02/28 08:40:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
  */
 
-public class PolicyEngineImpl implements PolicyEngine
+public class PolicyEngineImpl implements PolicyEngine, Replyable, EventListener
 {
 	private static Logger log = Logger.getLogger(PolicyEngineImpl.class);
 
@@ -60,7 +64,7 @@ public class PolicyEngineImpl implements PolicyEngine
 
 	public PolicyEngineImpl ()
 	{
-		log.debug("$Id: PolicyEngineImpl.java,v 1.4 2007/02/25 23:00:25 dolmedilla Exp $");
+		log.debug("$Id: PolicyEngineImpl.java,v 1.5 2007/02/28 08:40:14 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -81,8 +85,37 @@ public class PolicyEngineImpl implements PolicyEngine
 			log.error (msg) ;
 			throw new ConfigurationException(msg) ;
 		}
+		
+		_dispatcher.register(this, ReceivedMessageEvent.class) ;
 	}
 
+	public void event(Event event)
+	{
+		if (event instanceof ReceivedMessageEvent)
+		{
+			ReceivedMessageEvent rcvEvent = (ReceivedMessageEvent) event ;
+			
+			try {
+				RequestIdentifier id = sendRequest(rcvEvent.getMessage()) ;
+				
+				// TODO not yet clear how to handle this
+				
+			} catch (EngineInternalException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			log.error("Unknown event " + event.getClass().getName()) ;
+		}
+	}
+
+	public void reply(ClientRequestId identifier, ServiceMessage response) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	private PolicyEngine retrieveServiceHandler (ServiceHandler handler) throws UnavailableServiceHandlerException
 	{
 		return _handlerRegistry.retrieveServiceHandler(handler) ;
@@ -96,7 +129,9 @@ public class PolicyEngineImpl implements PolicyEngine
 		log.debug("New request received: " + request.toString()) ;
 		
 		// We dispatch a new event in order to notify other components about the new request
-		_dispatcher.event(new ReceivedMessageEvent(request)) ;
+
+		// TODO problem with circular notifications: TOCHECK
+		// _dispatcher.event(new ReceivedMessageEvent(request)) ;
 		
 		PolicyEngine engine;
 		try

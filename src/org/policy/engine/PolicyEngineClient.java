@@ -35,7 +35,6 @@ import org.policy.communication.message.SingleStepNegotiationRequest;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.config.Configurator;
-import org.policy.config.Vocabulary;
 import org.policy.engine.service.ServiceHandler;
 import org.policy.model.ClientRequestId;
 import org.policy.model.Explanation;
@@ -51,11 +50,11 @@ import org.policy.protune.model.ProtunePolicy;
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.5 2007/02/25 23:00:26 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.6 2007/02/28 08:40:14 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:26 $
+ * Last changed: $Date: 2007/02/28 08:40:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -67,11 +66,9 @@ public class PolicyEngineClient implements Replyable
 
 	static final String DEFAULT_ALIAS = "Client" ;
 	static public int DEFAULT_TIMEOUT = 15000 ;
-	static public int DEFAULT_SLEEP_INTERVAL = 200 ;
+	static public int DEFAULT_SLEEP_INTERVAL = 100 ;
 	static public long DEFAULT_FRESHNESS_TIME = 7200000 ;
 	
-	static final String POLICY_ENGINE_ID = "PEngine" ;
-
 /*	final String PREFIX_MESSAGE = "CLIENT: " ;
 	final String INFO_MESSAGE = PREFIX_MESSAGE + "INFO: " ;
 	final String ERROR_MESSAGE = PREFIX_MESSAGE + "ERROR: " ;
@@ -114,7 +111,7 @@ public class PolicyEngineClient implements Replyable
 		_config.startApp(_configurationArgs, _components) ;
 		
 		//_engine = (PolicyEngine) _config.getComponentByType(Vocabulary.PolicyEngine) ;
-		_engine = (PolicyEngine) _config.getComponent(POLICY_ENGINE_ID) ;
+		_engine = (PolicyEngine) _config.getComponent(PolicyVocabulary.PolicyEngineObject.getLocalName()) ;
 		
 		checkInitializedEngine () ;
 		
@@ -212,15 +209,24 @@ public class PolicyEngineClient implements Replyable
 		RequestIdentifier id = _engine.sendRequest (entryRequest.getRequest()) ;
 		
 		long time = System.currentTimeMillis() ;
+		long newTime ;
 		
-		while ( (entryRequest.isResponseReceived() == false) && (System.currentTimeMillis() - time < _timeout ) )
+		while (entryRequest.isResponseReceived() == false)
 		{
+			newTime = System.currentTimeMillis() ;
+			
+			if (newTime - time < _timeout )
+			{
+				String msg = "Timeout for request " + id + " - " + entryRequest.getRequest().toString() ;
+				log.error(msg) ;
+				throw new EngineInternalException (msg) ;
+			}
+			
             try
 			{
-				wait();
+				wait(_sleepInterval);
 			} catch (InterruptedException e)
 			{}
-			
 		}		
 			
 		return id ;
@@ -314,8 +320,8 @@ public class PolicyEngineClient implements Replyable
 		int USAGE_RETURN_ERROR = 1 ; 
 		
 		//String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
-		String [] defaultComponents = { Vocabulary.getURI() + POLICY_ENGINE_ID } ;
-			
+		String [] defaultComponents = { PolicyVocabulary.PolicyEngineObject.toString() } ;
+		
 		String newArgs[] = new String[1] ;
 		String query = null ;
 		if (args.length < 2)

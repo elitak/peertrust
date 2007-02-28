@@ -27,11 +27,12 @@ String [] components ;
 
 configurationArgs = { "file:configurationFileName.rdf" } ;
 components = { "http://www.L3S.de/~olmedilla/policy/Vocabulary#PEngine" }
+// or better a static constant like PolicyVocabulary.PolicyEngineObject.toString()
 
 Configurator config = new Configurator() ;
 config.startApp(configurationArgs, components) ;
 
-PolicyEngine engine = (PolicyEngine) _config.getComponent(&quot;PEngine&quot;) ;
+PolicyEngine engine = (PolicyEngine) _config.getComponent(PolicyVocabulary.PolicyEngineObject.getLocalName()) ;
 </PRE>
 </blockquote>
 

@@ -135,6 +135,7 @@
     <!-- temporary -->
         <exclude name="org/policy/crypt/credentials/**"/>
         <exclude name="org/policy/reasoning/**"/>
+        <exclude name="org/policy/peertrust/engine/meta/**"/>
       <classpath refid="common.classpath"/>
       <src path="${src}"/>
     </javac>

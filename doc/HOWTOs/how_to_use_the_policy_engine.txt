@@ -27,7 +27,7 @@ An example of how to use the class org.policy.engine.PolicyEngineClient is here 
 	String configurationFile = ... ;
 
 	String [] newArgs = {  configurationFile } ;
-	String [] defaultComponents = { Vocabulary.PolicyEngine.toString() } ;
+	String [] defaultComponents = { PolicyVocabulary.PolicyEngineObject.toString() } ;
 	
 	PolicyEngineClient client = new PolicyEngineClient (newArgs, defaultComponents) ;
 

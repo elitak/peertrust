@@ -24,17 +24,18 @@ import org.policy.communication.LocalPeerEngine;
 import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.Configurable;
+import org.policy.event.EventListener;
 import org.policy.model.RequestIdentifier;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngine.java,v 1.3 2007/02/19 09:01:28 dolmedilla Exp $
+ * $Id: PolicyEngine.java,v 1.4 2007/02/28 08:40:14 dolmedilla Exp $
  * <br/>
  * Date: Feb 12, 2007
  * <br/>
- * Last changed: $Date: 2007/02/19 09:01:28 $
+ * Last changed: $Date: 2007/02/28 08:40:14 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla

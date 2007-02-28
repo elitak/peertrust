@@ -29,18 +29,18 @@ import com.hp.hpl.jena.rdf.model.RDFException;
  * <p>
  * Specifies the vocabulary accepted by the configurator in the configuration file.
  * </p><p>
- * $Id: Vocabulary.java,v 1.3 2007/02/24 19:20:54 dolmedilla Exp $
+ * $Id: Vocabulary.java,v 1.4 2007/02/28 08:40:15 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/24 19:20:54 $
+ * Last changed: $Date: 2007/02/28 08:40:15 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
 public class Vocabulary {
 
-    public static final String uri = "http://www.L3S.de/~olmedilla/policy/Vocabulary#";
+    static final String uri = "http://www.L3S.de/~olmedilla/policy/Vocabulary#";
 
 
     public static String getURI()
@@ -53,7 +53,7 @@ public class Vocabulary {
     /**
      * Peer
     */
-    public static Resource PolicyEngine;
+    // public static Resource PolicyEngine;
 
     
     ///////////////////////////////////////////////////////////////////////////
@@ -66,8 +66,7 @@ public class Vocabulary {
       javaClass =
       	  m.createProperty(Vocabulary.uri + "javaClass") ;
 
-      PolicyEngine =
-        m.createResource(Vocabulary.uri + "PolicyEngine");
+//    PolicyEngine = m.createResource(Vocabulary.uri + "PolicyEngine");
       
     } catch (RDFException rdfe) {
       throw(new RuntimeException(rdfe.getMessage()));
