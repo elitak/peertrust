@@ -15,46 +15,35 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with Peertrust; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+package org.policy.event;
 
-package org.policy.model;
-
-import org.policy.util.NumberGenerator;
+import org.apache.log4j.Logger;
+import org.policy.communication.message.ServiceMessage;
 
 /**
  * <p>
- * 
+ * General Event
  * </p><p>
- * $Id: RequestIdentifier.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: ReceivedEngineRequestEvent.java,v 1.1 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
- * Date: Feb 14, 2007
+ * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed:  $Date: 2007/02/28 17:29:06 $
  * by $Author: dolmedilla $
  * </p>
- * @author olmedilla
+ * @author olmedilla 
  */
-
-public class RequestIdentifier
-{
-	static NumberGenerator generator = new NumberGenerator () ;
+public class ReceivedEngineRequestEvent extends EngineInternalCommEvent
+{	
+	private static Logger log = Logger.getLogger(ReceivedEngineRequestEvent.class);
 	
-	static long _id ;
-	
+	ServiceMessage _message ;
 	/**
 	 * 
 	 */
-	public RequestIdentifier() {
-		super();
-		_id = generator.getNewId() ;
-	}
-
-	/**
-	 * @return Returns the id.
-	 */
-	public static long getId()
-	{
-		return _id;
+	public ReceivedEngineRequestEvent(Object source, ServiceMessage message) {
+		super(source, message);
 	}
 }

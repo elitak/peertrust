@@ -21,12 +21,13 @@ package org.policy.event;
 
 import org.apache.log4j.Logger;
 import org.policy.communication.message.Message;
+import org.policy.communication.message.ServiceMessage;
 
 /**
  * <p>
  * General Event
  * </p><p>
- * $Id: CommunicationEvent.java,v 1.2 2007/02/28 17:29:06 dolmedilla Exp $
+ * $Id: SendEngineResponseEvent.java,v 1.1 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
@@ -35,21 +36,14 @@ import org.policy.communication.message.Message;
  * </p>
  * @author olmedilla 
  */
-public abstract class CommunicationEvent extends Event {
+public abstract class SendEngineResponseEvent extends EngineInternalCommEvent
+{
+	private static Logger log = Logger.getLogger(SendEngineResponseEvent.class);
 	
-	private static Logger log = Logger.getLogger(CommunicationEvent.class);
-	
-	Message _message ;
 	/**
 	 * 
 	 */
-	public CommunicationEvent(Object source, Message message) {
-		super(source);
-		_message = message ;
-	}
-	
-	public Message getMessage ()
-	{
-		return _message ;
+	public SendEngineResponseEvent(ServiceMessage source, ServiceMessage message) {
+		super(source, message);
 	}
 }

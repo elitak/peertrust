@@ -27,28 +27,28 @@ import org.policy.communication.message.ServiceMessage;
  * <p>
  * General Event
  * </p><p>
- * $Id: ReceivedMessageEvent.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: SendCommMessageEvent.java,v 1.1 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed:  $Date: 2007/02/17 16:59:27 $
+ * Last changed:  $Date: 2007/02/28 17:29:06 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
  */
-public class ReceivedMessageEvent extends CommunicationEvent {
+public class SendCommMessageEvent extends CommunicationEvent {
 	
-	private static Logger log = Logger.getLogger(ReceivedMessageEvent.class);
+	private static Logger log = Logger.getLogger(SendCommMessageEvent.class);
 	
 	/**
 	 * 
 	 */
-	public ReceivedMessageEvent(ServiceMessage source) {
-		super(source);
+	public SendCommMessageEvent(Object source, ServiceMessage message) {
+		super(source, message);
 	}
 	
 	public ServiceMessage getMessage ()
 	{
-		return (ServiceMessage) this.getMessage() ;
+		return (ServiceMessage) super.getMessage() ;
 	}
 }

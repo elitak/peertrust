@@ -25,17 +25,16 @@ import org.policy.communication.message.ServiceMessage;
 import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.Configurable;
 import org.policy.event.EventListener;
-import org.policy.model.RequestIdentifier;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PolicyEngine.java,v 1.4 2007/02/28 08:40:14 dolmedilla Exp $
+ * $Id: PolicyEngine.java,v 1.5 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: Feb 12, 2007
  * <br/>
- * Last changed: $Date: 2007/02/28 08:40:14 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -68,5 +67,6 @@ public interface PolicyEngine extends Configurable
 	//     - Add/modify/remove policies
 	//   * Engine Management
 	//     - Start/Stop
-	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException;
+	//public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException;
+	public void sendRequest(ServiceMessage request) throws EngineInternalException;
 }

@@ -20,13 +20,12 @@
 package org.policy.event;
 
 import org.apache.log4j.Logger;
-import org.policy.communication.message.Message;
 
 /**
  * <p>
  * General Event
  * </p><p>
- * $Id: CommunicationEvent.java,v 1.2 2007/02/28 17:29:06 dolmedilla Exp $
+ * $Id: PolicyEngineEvent.java,v 1.1 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
@@ -35,21 +34,14 @@ import org.policy.communication.message.Message;
  * </p>
  * @author olmedilla 
  */
-public abstract class CommunicationEvent extends Event {
+public class PolicyEngineEvent extends Event {
 	
-	private static Logger log = Logger.getLogger(CommunicationEvent.class);
+	private static Logger log = Logger.getLogger(PolicyEngineEvent.class);
 	
-	Message _message ;
 	/**
 	 * 
 	 */
-	public CommunicationEvent(Object source, Message message) {
+	public PolicyEngineEvent(Object source) {
 		super(source);
-		_message = message ;
-	}
-	
-	public Message getMessage ()
-	{
-		return _message ;
 	}
 }

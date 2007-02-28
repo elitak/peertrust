@@ -31,18 +31,17 @@ import org.policy.engine.service.ServiceHandler;
 import org.policy.engine.service.ServiceHandlerRegistry;
 import org.policy.engine.service.UnavailableServiceHandlerException;
 import org.policy.event.EventDispatcher;
-import org.policy.event.ReceivedMessageEvent;
-import org.policy.model.RequestIdentifier;
+import org.policy.event.ReceivedCommMessageEvent;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: PeerTrustPolicyEngine.java,v 1.2 2007/02/25 23:00:31 dolmedilla Exp $
+ * $Id: PeerTrustPolicyEngine.java,v 1.3 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:31 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -64,7 +63,7 @@ public class PeerTrustPolicyEngine implements PolicyEngine
 
 	public PeerTrustPolicyEngine ()
 	{
-		log.debug("$Id: PeerTrustPolicyEngine.java,v 1.2 2007/02/25 23:00:31 dolmedilla Exp $");
+		log.debug("$Id: PeerTrustPolicyEngine.java,v 1.3 2007/02/28 17:29:07 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -91,10 +90,9 @@ public class PeerTrustPolicyEngine implements PolicyEngine
 	/* (non-Javadoc)
 	 * @see org.policy.engine.PolicyEngine#sendRequest(org.policy.communication.message.ServiceRequest, org.policy.communication.Peer)
 	 */
-	public RequestIdentifier sendRequest(ServiceMessage request) throws EngineInternalException
+	public void sendRequest(ServiceMessage request) throws EngineInternalException
 	{	
 		// TODO Completely 
-		return null ;
 	}
 	
 	public void setCommunicationChannel(NetworkCommunicationFactory factory)

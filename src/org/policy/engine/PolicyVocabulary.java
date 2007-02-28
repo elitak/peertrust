@@ -31,11 +31,11 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * <p>
  * 
  * </p><p>
- * $Id: PolicyVocabulary.java,v 1.1 2007/02/28 08:40:14 dolmedilla Exp $
+ * $Id: PolicyVocabulary.java,v 1.2 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: Feb 28, 2007
  * <br/>
- * Last changed: $Date: 2007/02/28 08:40:14 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -46,6 +46,8 @@ public class PolicyVocabulary {
 	
 	 public static Resource PolicyEngineObject ;
 	 
+	 // public static Resource EventDispatcher ;
+	 
 	 static
 	 {
 		try
@@ -53,6 +55,8 @@ public class PolicyVocabulary {
 			 Model m = new ModelMem();
 
 			 PolicyEngineObject = m.createResource(Vocabulary.getURI() + "PEngine");
+			 
+			 // EventDispatcher = m.createResource(Vocabulary.getURI() + "Dispatcher");
 			 
 		} catch (RDFException rdfe)
 		{

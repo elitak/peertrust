@@ -20,15 +20,17 @@
 
 package org.policy.communication;
 
+import org.policy.event.EventListener;
+
 /**
  * <p>
  * 
  * </p><p>
- * $Id: LocalPeerClient.java,v 1.1 2007/02/17 16:59:27 dolmedilla Exp $
+ * $Id: LocalPeerClient.java,v 1.2 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
  * Date: Feb 13, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:27 $
+ * Last changed: $Date: 2007/02/28 17:29:06 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -48,7 +50,7 @@ public class LocalPeerClient extends LocalPeer
 	/**
 	 * @return Returns the attachedClass.
 	 */
-	public Object getAttachedClass()
+	public Replyable getAttachedClass()
 	{
 		return _attachedClass;
 	}

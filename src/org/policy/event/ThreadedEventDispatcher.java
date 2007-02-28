@@ -33,11 +33,11 @@ import org.policy.config.ConfigurationException;
  * <p>
  * PeerTrust event dispatcher.
  * </p><p>
- * $Id: ThreadedEventDispatcher.java,v 1.3 2007/02/28 08:40:14 dolmedilla Exp $
+ * $Id: ThreadedEventDispatcher.java,v 1.4 2007/02/28 17:29:06 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/28 08:40:14 $
+ * Last changed: $Date: 2007/02/28 17:29:06 $
  * by $Author: dolmedilla $
  * </p>
  * @author Daniel Olmedilla 
@@ -46,7 +46,7 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
 	private static Logger log = Logger.getLogger(ThreadedEventDispatcher.class);
 	
-	final int DEFAULT_NUMBER_OF_THREADS = 10 ;
+	final int DEFAULT_NUMBER_OF_THREADS = 4 ;
 	
 	// ConcurrentHashMap provides safe concurrent access (including the iterators)
 	ConcurrentHashMap<Class,Vector<EventListener>> _registry ;
@@ -56,7 +56,7 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	
 	public ThreadedEventDispatcher() {
 		super();
-		log.debug("$Id: ThreadedEventDispatcher.java,v 1.3 2007/02/28 08:40:14 dolmedilla Exp $");
+		log.debug("$Id: ThreadedEventDispatcher.java,v 1.4 2007/02/28 17:29:06 dolmedilla Exp $");
 	}
 	
 	public void init () throws ConfigurationException
@@ -123,7 +123,8 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	/* (non-Javadoc)
 	 * @see org.peertrust.event.PeerTrustEventListener#event(org.peertrust.event.PeerTrustEvent)
 	 */
-	public void event(Event event) {
+	public void event(Event event)
+	{
 		log.debug("Distributing event " + event.getClass().getName() + " from " + event.getSource().getClass().getName());
 		
 		Class currentClass = event.getClass() ;
@@ -189,10 +190,10 @@ public class ThreadedEventDispatcher implements EventDispatcher, Configurable {
 	             
 	            if (listener instanceof EventListener)
 	            {
-	            	log.debug("Distributing event " + _event + " to listener " + listener) ;
-	            	
+	            		log.debug("Distributing event " + _event + " to listener " + listener) ;
+	            
 		            if (listener != _event.getSource())
-		            	( (EventListener)listener).event(_event) ;
+		            		( (EventListener)listener).event(_event) ;
 	            }
 				else
 				{

@@ -10,7 +10,7 @@
 	Policy Engine
 	================================================================== -->
 	<pt:PolicyEngine rdf:about="&pt;PEngine">
-		<pt:javaClass>org.policy.engine.PolicyEngineImpl</pt:javaClass>
+		<pt:javaClass>org.policy.engine.PolicyEngineDistributor</pt:javaClass>
 		<pt:eventDispatcher rdf:resource="#Dispatcher"/>
 		<pt:handlerRegistry rdf:resource="#ServiceRegistry"/>
 		<pt:communicationChannel rdf:resource="#CommChannel"/>
@@ -21,7 +21,7 @@
 	================================================================== -->
 	<pt:EventDispatcher rdf:about="#Dispatcher">
 		<pt:javaClass>org.policy.event.ThreadedEventDispatcher</pt:javaClass>
-		<pt:numberOfThreads>10</pt:numberOfThreads>
+		<pt:numberOfThreads>4</pt:numberOfThreads>
 	</pt:EventDispatcher>
 
 	<!-- ======================================================================

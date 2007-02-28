@@ -36,12 +36,14 @@ import org.policy.communication.net.NetworkCommunicationFactory;
 import org.policy.config.ConfigurationException;
 import org.policy.config.Configurator;
 import org.policy.engine.service.ServiceHandler;
+import org.policy.event.Event;
+import org.policy.event.EventListener;
+import org.policy.event.ReceivedCommMessageEvent;
 import org.policy.model.ClientRequestId;
 import org.policy.model.Explanation;
 import org.policy.model.NegotiationInfo;
 import org.policy.model.Notification;
 import org.policy.model.Policy;
-import org.policy.model.RequestIdentifier;
 import org.policy.protune.model.Protune;
 import org.policy.protune.model.ProtunePolicy;
 
@@ -50,11 +52,11 @@ import org.policy.protune.model.ProtunePolicy;
  * Wrapper for an application client, that is, the wrapper provides a simple API an application to communicate
  *     with the local policy engine. 
  * </p><p>
- * $Id: PolicyEngineClient.java,v 1.6 2007/02/28 08:40:14 dolmedilla Exp $
+ * $Id: PolicyEngineClient.java,v 1.7 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/28 08:40:14 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -199,14 +201,14 @@ public class PolicyEngineClient implements Replyable
 		return requestId ;		
 	}
 
-	public synchronized RequestIdentifier sendAndWaitForAnswer (CommunicationEntry entryRequest)
+	public synchronized ClientRequestId sendAndWaitForAnswer (CommunicationEntry entryRequest)
 		throws CommunicationEntryNotFound, EngineInternalException
 	{
 		ClientRequestId clientReqId = entryRequest.getClientRequestIdentifier() ;
 		
 		_requests.put(clientReqId, entryRequest) ;
 		
-		RequestIdentifier id = _engine.sendRequest (entryRequest.getRequest()) ;
+		_engine.sendRequest (entryRequest.getRequest()) ;
 		
 		long time = System.currentTimeMillis() ;
 		long newTime ;
@@ -215,9 +217,9 @@ public class PolicyEngineClient implements Replyable
 		{
 			newTime = System.currentTimeMillis() ;
 			
-			if (newTime - time < _timeout )
+			if (newTime - time > _timeout )
 			{
-				String msg = "Timeout for request " + id + " - " + entryRequest.getRequest().toString() ;
+				String msg = "Timeout for request " + clientReqId + " - " + entryRequest.getRequest().toString() ;
 				log.error(msg) ;
 				throw new EngineInternalException (msg) ;
 			}
@@ -229,10 +231,11 @@ public class PolicyEngineClient implements Replyable
 			{}
 		}		
 			
-		return id ;
+		return clientReqId ;
 	}
 	
-	public synchronized void reply (ClientRequestId identifier, ServiceMessage response)
+
+	public void reply(ClientRequestId identifier, ServiceMessage response) 
 	{
 		CommunicationEntry entry;
 		try

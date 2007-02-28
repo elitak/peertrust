@@ -30,11 +30,11 @@ import org.policy.model.ClientRequestId;
  * <p>
  * 
  * </p><p>
- * $Id: ServiceMessage.java,v 1.2 2007/02/25 23:00:29 dolmedilla Exp $
+ * $Id: ServiceMessage.java,v 1.3 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:29 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -77,7 +77,7 @@ public abstract class ServiceMessage extends Message implements Serializable {
 	/**
 	 * @return Returns the _clientRequestIdentifier.
 	 */
-	public ClientRequestId get_clientRequestIdentifier()
+	public ClientRequestId getClientRequestIdentifier()
 	{
 		return _clientRequestIdentifier;
 	}

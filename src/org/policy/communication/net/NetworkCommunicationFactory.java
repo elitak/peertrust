@@ -30,18 +30,18 @@ import org.policy.event.CommunicationEvent;
 import org.policy.event.CommunicationEventListener;
 import org.policy.event.Event;
 import org.policy.event.EventDispatcher;
-import org.policy.event.ReceivedMessageEvent;
-import org.policy.event.SendMessageEvent;
+import org.policy.event.ReceivedCommMessageEvent;
+import org.policy.event.SendCommMessageEvent;
 
 /**
  * <p>
  * 
  * </p><p>
- * $Id: NetworkCommunicationFactory.java,v 1.4 2007/02/25 23:00:26 dolmedilla Exp $
+ * $Id: NetworkCommunicationFactory.java,v 1.5 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2007/02/25 23:00:26 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -61,7 +61,7 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 
 	public NetworkCommunicationFactory ()
 	{
-		log.debug("$Id: NetworkCommunicationFactory.java,v 1.4 2007/02/25 23:00:26 dolmedilla Exp $");
+		log.debug("$Id: NetworkCommunicationFactory.java,v 1.5 2007/02/28 17:29:07 dolmedilla Exp $");
 	}
 	
 	public void init() throws ConfigurationException
@@ -87,7 +87,7 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 		try {
 			NetworkClient netClient = createNetClient () ;
 			NetworkClientWrapper networkClientWrapper = new NetworkClientWrapper (netClient) ;
-			_dispatcher.register(networkClientWrapper, SendMessageEvent.class) ;
+			_dispatcher.register(networkClientWrapper, SendCommMessageEvent.class) ;
 		} catch (NetworkCommunicationException e) {
 			log.error(e.getMessage()) ;
 			throw new ConfigurationException("Error creating the network client element: " + e.getMessage(), e) ;
@@ -153,7 +153,7 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 					{
 						log.debug ("New message received from " + message.getSource() + " to " + message.getTarget()) ;
 
-						_dispatcher.event(new ReceivedMessageEvent(message)) ;
+						_dispatcher.event(new ReceivedCommMessageEvent(this, message)) ;
 		 			}
 
 				} catch (NetworkCommunicationException e)
@@ -178,21 +178,23 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 		public void event(Event event)
 		{
 			if (event instanceof CommunicationEvent)
-				this.event(event) ;
+				log.error("This part of the code should never be reached.") ;
+				// this.event((CommunicationEvent) event) ;
 			else
 				log.warn("Received event of type " + event.getClass().getName()) ;
 		}
 		
 		public void event(CommunicationEvent event)
 		{
-			if (event instanceof SendMessageEvent)
+			if (event instanceof SendCommMessageEvent)
 			{
-				ServiceMessage message = ( (SendMessageEvent) event).getMessage() ;
+				ServiceMessage message = ( (SendCommMessageEvent) event).getMessage() ;
 				Peer peer = message.getTarget() ;
 				
 				// if the peer is a NetworkPeer then the message is sent, otherwise it is ignored
 				//    (it is not a network event but probably an application event)
 				if (peer instanceof NetworkPeer)
+				{
 					try
 					{
 						_netClient.send(message, (NetworkPeer) message.getTarget()) ;
@@ -201,6 +203,9 @@ public abstract class NetworkCommunicationFactory implements Configurable {
 						// TODO probably try to send an error back to the application or retry at least another time
 						log.error(e) ;
 					}
+					// TODO control events (who creates them and who executes them). E.g., here the engine sends
+					// a sendcommMessageEvent but no event is generated when successfully performed?
+				}
 			}
 			else
 				// The event should not have been received by this class

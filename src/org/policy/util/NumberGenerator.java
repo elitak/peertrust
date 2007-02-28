@@ -24,11 +24,11 @@ package org.policy.util;
  * <p>
  * 
  * </p><p>
- * $Id: NumberGenerator.java,v 1.1 2007/02/17 16:59:28 dolmedilla Exp $
+ * $Id: NumberGenerator.java,v 1.2 2007/02/28 17:29:07 dolmedilla Exp $
  * <br/>
  * Date: Feb 14, 2007
  * <br/>
- * Last changed: $Date: 2007/02/17 16:59:28 $
+ * Last changed: $Date: 2007/02/28 17:29:07 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla
@@ -43,5 +43,9 @@ public class NumberGenerator
 		id += 1 ;
 		return id ;
 	}
-
+	
+	public synchronized Long getNewIdAsLong ()
+	{
+		return new Long(getNewId()) ;
+	}
 }
