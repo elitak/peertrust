@@ -1,0 +1,152 @@
+
+load :-
+	consult('basics.P'),
+	consult('tools.P'),
+	consult('peerTrustReasoner.P'),
+	setSelfAlias(alice),
+	setDebugMode.
+
+loadXSB :-
+	[basics],
+	dynamic(markSignal/1),
+	dynamic(selectedFilteredRule/2),
+	consult('tools.P'),
+	init,
+	consult('peerTrustReasoner.P'),
+	setSelfAlias(alice),
+	setDebugMode.
+
+start_test(X,R) :-
+	log_debug(['Test ',X]),
+	test(X,R),
+	log_debug(R),
+	solution(X,R),
+	log_debug(['Test ',X,' SUCCESSFUL']).
+start_test2(X,R) :-
+	log_debug(['Test ',X]),
+	test(X,R),
+	log_debug(R).
+
+
+% begin examples
+% ---------------------------------------
+% query, rules and facts for example 1
+
+rule(1,'$'(access(Url), Requester),[],[validClient(Requester,Url)]).
+
+rule(2,validClient(user,result1), [],[]).
+rule(3,validClient(user,result2), [],[]).
+
+rule(4,'$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),Requester),'@'(notify(Res,Requester),peer)]).
+rule(5,'$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),peer)]).
+rule(6,access(Res),[available(Res)],[public(Res)],private).
+
+rule(7,available(result1),[],[]).
+rule(8,public(result2),[],[]).
+
+state(9,'1c',2,notification('@'(vipClient(user),user),successful),proof).
+state(10,'2c',2,notification('@'(vipClient(user),user),successful),proof).
+
+state(11,'2e',2,notification('@'(vipClient(user),user),successful),proof).
+state(12,'2e',3,notification('@'(notify(result1,user),peer),successful),proof).
+
+rule(13,'$'(accessBook(Book),Requester),['@'('@'(subscribed(Requester),bookshop),Requester)],[available(Book)]).
+
+rule(14,available(book1),[],[]).
+
+% ------------------------------------------------------------------------------
+% Simple extract actions tests
+% ------------------------------------------------------------------------------
+test('1a',ActionList) :-
+	requestExtractActions(request('1a',validClient(user,result1),user), ActionList).
+solution('1a',[]).
+
+test('1b',ActionList) :-
+	requestExtractActions(request('1b',access(result1),user), ActionList).
+solution('1b',['@'(vipClient(user),peer)]).
+
+test('1c',ActionList) :-
+	requestExtractActions(request('1c',access(result1),user), ActionList).
+solution('1c',['@'(notify(result1,user),peer),'@'(vipClient(user),peer)]).
+
+test('1d',ActionList) :-
+	requestExtractActions(request('1d',access(result2),user), ActionList).
+solution('1d',[]).
+
+% ------------------------------------------------------------------------------
+% Simple filtering tests
+% ------------------------------------------------------------------------------
+test('2a',FilteredRules) :-
+	requestFiltering(request('2a',validClient(user,result1),user),FilteredRules).
+solution('2a',[rule(validClient(user,result1), [],[])]).
+
+test('2b',FilteredRules) :-
+	requestFiltering(request('2b',access(result1),user),FilteredRules).
+solution('2b',[rule(validClient(user,result1), [],[]),
+	       rule('$'(access(Url), Requester),[],[validClient(Requester,Url)])]).
+
+test('2c',FilteredRules) :-
+	requestFiltering(request('2c',access(result1),user),FilteredRules).
+solution('2c',[rule(validClient(user,result1), [],[]),
+	       rule('$'(access(Url), Requester),[],[validClient(Requester,Url)])]).
+
+test('2d',FilteredRules) :-
+	requestFiltering(request('2d',access(result2),user),FilteredRules).
+solution('2d',[rule(validClient(user,result2), [],[]),
+	       rule('$'(access(Url), Requester),[],[validClient(Requester,Url)])]).
+
+test('2e',FilteredRules) :-
+	requestFiltering(request('2e',access(result1),user),FilteredRules).
+solution('2e',[rule(available(result1),[],[]),
+	       notification('@'(vipClient(user),user),successful),
+	       notification('@'(notify(result1,user),peer),successful),
+	       rule('$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),Requester),'@'(notify(Res,Requester),peer)]),
+	       rule(validClient(user,result1), [],[]),
+	       rule('$'(access(Url), Requester),[],[validClient(Requester,Url)])]).
+	       
+test('2f',FilteredRules) :-
+	requestFiltering(request('2f',accessBook(book1),user),FilteredRules).
+solution('2f',[rule('$'(accessBook(_Book),Requester),['@'('@'(subscribed(Requester),bookshop),Requester)],[blurred])]).
+
+	       
+	       
+	       
+
+% ---------------------------------------
+% query, rules and facts for example 7
+
+% alice has an employee ID
+
+% employee(alice,microsoft) @ microsoft signedBy microsoft
+signed(100,rule('@'(employee(alice, microsoft), microsoft), [], []),microsoft).
+
+% ---------------------------------------
+% Semantic Web paper example
+
+% drivingLicense(alice) @ caState signedBy caState
+signed(101,rule('@'(drivingLicense(alice), caState), [], []),caState).
+
+% policeOfficer(alice) @ caStatePolice $ Requester:-
+%          bbbMember(Requester) @ bbb @ Requester
+%          signedBy caStatePolice
+signed(102,rule('@'(policeOfficer(alice), caStatePolice), [], []),caStatePolice).
+policy(103,'$'('@'(policeOfficer(alice), caStatepolice), Requester),
+            ['@'('@'(bbbMember(Requester), bbb), Requester)]).
+
+
+%---------------------------------------
+% Pharmaceutical example
+
+%isPharmacy(alice)@fda :-
+%          isPharmacy(alice)@massBP
+%          signedBy fda
+signed(104, rule( '@'(isPharmacy(alice),fda), [], [] ), fda, signature( fda ) ).
+policy(105, '@'(isPharmacy(X),fda), ['@'(isPharmacy(X),massBP)] ).
+
+% isPharmacy(alice)@massBP $ Requester :-
+%          isPharmaceuticalCo(Requester)@fda@Requester
+%          signedBy massBP
+signed(106, rule( '$'('@'(isPharmacy(alice),massBP),_Requester), [], [] ), massBP).
+
+policy( 107, '$'('@'(isPharmacy(alice),massBP),Requester), ['@'('@'(isPharmaceuticalCo(Requester),fda),Requester)] ).
+
