@@ -22,8 +22,11 @@ check_init :-
 	fail.
 
 %%% --------------------------------------------------------------------------------------------------
-%%% High Level Calls
+%%% High Level Calls (to be made from an application)
 %%% --------------------------------------------------------------------------------------------------
+
+initReasoner :-
+	init(kbCounter).
 
 setSelfAlias(Alias) :-
 	retractall(providedSelfAlias(_Name)),
@@ -32,13 +35,20 @@ setSelfAlias(Alias) :-
 setDebugMode :-
 	assert(debug_on).
 
-requestExtractActions(request(NegId,Goal,Requester), ActionList) :-
-	log_debug(['Request ',requestExtractActions(request(NegId,Goal,Requester), ActionList),' received.']),
-	check_init,
-	extractActions(NegId,Goal,Requester),
-	retrieveExtractedActions(NegId,ActionList).
+% insert rules in the KB. KB may refer to
+%    - kb: in the main KB (for self information, like e.g. policies)
+%    - sideKB: in the side KB (for external information, like e.g. filtered policies)
 
-% TODO whole filtering
+requestInsertRules(request(NegId,Rules,AddOrAddNew,KB)) :-
+	emptyRules(NegId,AddOrAddNew,KB),
+	insertRules(NegId,Rules,KB).
+
+requestExtractLocalActions(request(NegId,Goal,Requester), ActionList) :-
+	log_debug(['Request ',requestExtractLocalActions(request(NegId,Goal,Requester), ActionList),' received.']),
+	check_init,
+	extractActions(NegId,Goal,Requester,extractLocalActions),
+	retrieveExtractedActions(NegId,extractLocalActions,ActionList).
+
 requestFiltering(request(NegId,Goal,Requester),FilteredRuleList) :-
 	log_debug(['Request ',requestFiltering(request(NegId,Goal,Requester),FilteredRuleList),' received.']),
 	check_init,
@@ -46,10 +56,53 @@ requestFiltering(request(NegId,Goal,Requester),FilteredRuleList) :-
 	log_filtering(['Retrieved set of filtered rules:',AllRuleLists]),
 	cleanRuleList(NegId,AllRuleLists,FilteredRuleList).
 
+requestExtractRequesterActions(request(NegId,Goal,Requester), ActionList) :-
+	log_debug(['Request ',requestExtractRequesterActions(request(NegId,Goal,Requester), ActionList),' received.']),
+	check_init,
+	extractActions(NegId,Goal,Requester,extractRequesterActions),
+	retrieveExtractedActions(NegId,extractRequesterActions,ActionList).
 
 
+%%% --------------------------------------------------------------------------------------------------
+%%% Shared Predicates
+%%% --------------------------------------------------------------------------------------------------
 
+% if not specified, by default filtering mode is assumed
+findTerm(NegId,ElementId,Term) :-
+	findTerm(NegId,filtering,ElementId,Term).
 
+findTerm(NegId,extractRequesterActions,_ElementId,Term) :-
+	sideKB(NegId,Term).
+findTerm(_NegId,EvaluationType,ElementId,Term) :-
+	member(EvaluationType,[evaluate,localEvaluate,extractLocalActions,filtering]),
+	element(ElementId,Term).
+
+init(kbCounter) :- 
+    retractall(kbCounter(_X)),
+    asserta(kbCounter(0)).
+
+getNewId(kbCounter,NewId) :-
+     retract(kbCounter(Id)),
+     NewId is Id+1,
+     asserta(kbCounter(NewId)).
+
+emptyRules(_NegId,add,_KB) :- !.
+emptyRules(_NegId,addNew,kb) :-
+	retractall(element(_Id,_Rule)).
+emptyRules(NegId,addNew,sideKB) :-
+	retractall(sideKB(NegId,_Rule)).
+
+insertRules(_NegId,[],_KB) :- !.
+insertRules(NegId,[Rule|Rest],kb) :-
+	!,
+	getNewId(kbCounter,NewId),
+	assert(element(NewId,Rule)),
+	insertRules(NegId,Rest,kb).
+insertRules(NegId,[Rule|Rest],sideKB) :-
+	!,
+	assert(sideKB(NegId,Rule)),
+	insertRules(NegId,Rest,sideKB).
+		       
 cleanRuleList(NegId,AllRuleLists,FilteredRuleList) :-
 	selectRules(NegId,AllRuleLists),
 	findall(Rule,retract(selectedFilteredRule(NegId,Rule)),FilteredRuleList).
@@ -68,16 +121,6 @@ insertIfNew(NegId,Rule) :-
 	selectedFilteredRule(NegId,Rule),!.
 insertIfNew(NegId,Rule) :-
 	asserta(selectedFilteredRule(NegId,Rule)).
-
-%insertIfNew(rule(RuleId,_Head,_Guards,_Body)) :-
-%	selectedFilteredRule(rule(RuleId,_Head,_Guards,_Body)),!.
-%insertIfNew(rule(RuleId,Head,Guards,Body)) :-
-%	assert(selectedFilteredRule(rule(RuleId,Head,Guards,Body))).
-% signed rule
-%insertIfNew(signed(rule(RuleId,_Head,_Guards,_Body),_Issuer)) :-
-%	selectedFilteredRule(signed(rule(RuleId,_Head,_Guards,_Body),_Issuer)),!.
-%insertIfNew(signed(rule(RuleId,Head,Guards,Body),Issuer)) :-
-%	assert(selectedFilteredRule(signed(rule(RuleId,Head,Guards,Body),Issuer))).
 
 
 % Assert the rules into the KB and adds a global identifier to the rule
@@ -99,26 +142,32 @@ addElement(rule(Head,Guards,Body)) :-
             
 
 % asserts each action selected
-extractActions(NegId,Goal,Requester) :-
-	extractLeafPredicates(NegId,Goal,Requester),
+extractActions(NegId,Goal,Requester,EvaluationType) :-
+	extractLeafPredicates(NegId,Goal,Requester,EvaluationType),
 	fail.
-extractActions(_NegId,_Goal,_Requester).
+extractActions(_NegId,_Goal,_Requester,_EvaluationType).
 
 % retrieves all selected actions
-retrieveExtractedActions(NegId, ActionList) :-
+retrieveExtractedActions(NegId,extractLocalActions,ActionList) :-
 	findall(Action, retract(selectedForSelfExecution(NegId,Action)),ActionList).
 
+retrieveExtractedActions(NegId,extractRequesterActions,ActionList) :-
+	findall(Action, retract(selectedForRequesterExecution(NegId,Action)),ActionList).
 
-extractLeafPredicates(NegId,_Goal,_Requester) :-
+extractLeafPredicates(NegId,_Goal,_Requester,extractLocalActions) :-
 	retractall(selectedForSelfExecution(NegId,_Action)).
-extractLeafPredicates(NegId,Goal,Requester) :-
-	processTerm(NegId,Goal,Requester,extractActions).
+extractLeafPredicates(NegId,_Goal,_Requester,extractRequesterActions) :-
+	retractall(selectedForRequesterExecution(NegId,_Action)).
+extractLeafPredicates(NegId,Goal,Requester,EvaluationType) :-
+	processTerm(NegId,Goal,Requester,EvaluationType).
 
 
-% Three ways of evaluation:
-% - extractActions: extracts action to be executed
+% 4 ways of evaluation:
+% - extractLocalActions: extracts actions to be executed locally (by self)
+% - extractRequesterActions: extracts actions to be executed by requester
 % - evaluate: fully evaluates against the state
 % - localEvaluate: evaluates against the state except actions dependent of Requester which are ignored.
+% - filteredEvaluate: evaluates against the sideKB and accepts blurred as a synonim of true.
 
 processTerms(_NegId,[],_Requester,_EvaluationType) :- !.
 processTerms(NegId,[Goal|List],Requester,EvaluationType) :-
@@ -149,7 +198,13 @@ processTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Start remote process of ',Goal]),
 	remoteProcessTerm(NegId,Goal,Requester,EvaluationType),
 	log_processing(['Remote match found.']).
-	
+
+% FILTERED LITERALS
+
+% In the case of evaluating a filtered policy, then blurred is a valid symbol
+localProcessTerm(_NegId,blurred,_Requester,EvaluationType) :-
+	member(EvaluationType,[extractRequesterActions,filteredEvaluate]),
+	!.
 
 % NORMAL LOCAL RULES
 
@@ -167,7 +222,7 @@ localProcessTerm(_NegId,Goal,_Requester,_EvaluationType) :-
 % Rules
 localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Is ',Goal,' a rule?']),
-	rule(_RuleId,Goal,Guards,Body),
+	findTerm(NegId,EvaluationType,_RuleId,rule(Goal,Guards,Body)),
 	log_processing([Goal,' is a rule.']),
 	processTerms(NegId,Guards,Requester,EvaluationType),
 	processTerms(NegId,Body,Requester,EvaluationType).
@@ -176,7 +231,7 @@ localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Is ',Goal,' a signed rule?']),
 	(Goal = '@'(_, Issuer) ; Goal = '$'('@'(_ , Issuer), _)),
-	signed(_RuleId,rule(Goal,Guards,Body),Issuer),
+	findTerm(NegId,EvaluationType,_RuleId,signed(rule(Goal,Guards,Body),Issuer)),
 	log_processing([Goal,' is a signed rule.']),
 	processPolicy(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,EvaluationType),
 	processTerms(NegId,Guards,Requester,EvaluationType),
@@ -187,7 +242,7 @@ localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 % If the Goal is private, no requests to Requester can be found from here
 localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Is ',Goal,' an internal rule?']),
-	rule(_RuleId,Goal,Guards,Body,private),
+	findTerm(NegId,EvaluationType,_RuleId,rule(Goal,Guards,Body,private)),
 	log_processing([Goal,' is a private rule.']),
 	processTerms(NegId,Guards,Requester,EvaluationType),
 	processTerms(NegId,Body,Requester,EvaluationType).
@@ -196,7 +251,7 @@ localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 localProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Is ',Goal,' an internal signed rule?']),
 	(Goal = '@'(_, Issuer) ; Goal = '$'('@'(_ , Issuer), _)),
-	signed(_RuleId,rule(Goal,Guards,Body),Issuer,private),
+	findTerm(NegId,EvaluationType,_RuleId,signed(rule(Goal,Guards,Body),Issuer,private)),
 	log_processing([Goal,' is a private signed rule.']),
 	processPolicy(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,private,EvaluationType),
 	processTerms(NegId,Guards,Requester,EvaluationType),
@@ -222,7 +277,7 @@ remarkIfMarked(_Goal,_Goal2).
 % Checks if there exists a policy protecting a signed rule
 processPolicy(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,EvaluationType) :-
 	log_processing(['Has ',Goal,' a protecting policy?']),
-	policy(_RuleId,signed(rule(Goal,Guards,Body),Issuer), Guards, Body),
+	findTerm(NegId,EvaluationType,_RuleId,policy(signed(rule(Goal,Guards,Body),Issuer), Guards, Body)),
 	log_processing([Goal,' has a protecting policy.']),
 	!,
 	processTerms(NegId,Guards,Requester,EvaluationType),
@@ -237,21 +292,45 @@ processPolicy(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,EvaluationTy
 	log_processing(['Expanding ',Goal,' with requester for protecting policy search.']),
 	processPolicy(NegId,signed(rule('$'(Goal, Requester),Guards,Body),Issuer),Requester,EvaluationType).
 processPolicy(_NegId,_SignedRule,_Requester,_EvaluationType).
-
+	
 
 % REMOTE RULES
 
 % requests to the other peer
-% if issuer = self, then at this point the evaluation has failed
-% TODO when using @ and @@ it may be different since we couldn't remove the @@ but if it was only @ then we could remove it
 
 remoteProcessTerm(NegId,Goal,Requester,EvaluationType) :-
 	log_processing(['Is ',Goal,' a remote predicate?']),
 	Goal = '@'(_, Issuer),
-	self_alias(Alias),
-	\+(Alias = Issuer),
+	checkAlias(Issuer,EvaluationType),
 	log_processing([Goal,' is a remote predicate.']),
 	remoteSelect(NegId,Goal,Issuer,Requester,EvaluationType).
+
+% if we are in filtered policies mode, we may make a call with our own alias as requester
+checkAlias(_Issuer,EvaluationType) :-
+	member(EvaluationType,[extractRequesterActions,filteredEvaluate]),
+	!.
+
+% in any other mode, this may not happen, so if issuer = self, then at this point the evaluation has failed
+% TODO when using @ and @@ it may be different since we couldn't remove the @@ but if it was only @ then we could remove it
+
+checkAlias(Issuer,_EvaluationType) :-
+	self_alias(Alias),
+	\+(Alias = Issuer).
+	
+% if in extractRequesterActions mode, extract if to be executed by requester and not in state
+remoteSelect(NegId,Goal,Issuer,Requester,extractRequesterActions) :-
+	Issuer = Requester,
+	!,
+	selectIfNotInFilteredState(NegId,Goal).
+
+remoteSelect(NegId,Goal,Issuer,Requester,extractRequesterActions) :-
+	\+(Issuer = Requester),
+	inFilteredState(NegId,Goal).
+
+% if in filteredEvaluate mode, simply check if Goal is in the filtered state
+remoteSelect(NegId,Goal,_Issuer,_Requester,filteredEvaluate) :-
+	!,
+	inFilteredState(NegId,Goal).
 
 % if in evaluation mode, simply check if Goal is in the state
 remoteSelect(NegId,Goal,_Issuer,_Requester,evaluate) :-
@@ -267,14 +346,14 @@ remoteSelect(NegId,Goal,Issuer,Requester,localEvaluate) :-
 remoteSelect(_NegId,_Goal,Issuer,Requester,localEvaluate) :-
 	Issuer = Requester.
 
-% if in extractActions mode, check if it is to be executed by the requester or a different peer
+% if in extractLocalActions mode, check if it is to be executed by the requester or a different peer
 
-remoteSelect(NegId,Goal,Issuer,Requester,extractActions) :-
+remoteSelect(NegId,Goal,Issuer,Requester,extractLocalActions) :-
 	Issuer = Requester,
 	log_processing([Goal,' is a request to requester ',Requester]),
 	failIfNotInState(NegId,Goal,Requester).
 
-remoteSelect(NegId,Goal,Issuer,Requester,extractActions) :-
+remoteSelect(NegId,Goal,Issuer,Requester,extractLocalActions) :-
 	\+(Issuer = Requester),
 	log_processing([Goal,' is a request to peer ',Issuer]),
 	selectIfNotInState(NegId,Goal,Issuer).
@@ -294,6 +373,25 @@ inState(NegId,Goal) :-
 	log_processing(['Is ',Goal,' in the state?']),
 	state(_RuleId,NegId,_NegStep,notification(Goal,successful),_Proof),
 	log_processing([Goal,' is in the state.']).
+
+inFilteredState(NegId,Goal) :-
+	log_processing(['Is ',Goal,' in the filtered state?']),
+	sideKB(NegId,notification(Goal,successful)),
+	log_processing([Goal,' is in the filtered state.']).
+
+selectIfNotInFilteredState(NegId,Goal) :-
+	inFilteredState(NegId,Goal).
+
+selectIfNotInFilteredState(NegId,Goal) :-
+	\+(inFilteredState(NegId,Goal)),
+	log_processing([Goal,' is not in the filtered state.']),
+	% we must remove the @ requester and instantiate any Requester occurrence with our alias
+	self_alias(Alias),
+	Goal = '@'(CleanedGoal, Requester),
+	log_processing([Goal,' has Requester ',Requester,' and must be simplified with Alias ',Alias]),
+	Alias = Requester,
+	assert(selectedForRequesterExecution(NegId,CleanedGoal)),
+	log_processing([CleanedGoal,' selected for requester execution.']).
 
 %%% --------------------------------------------------------------------------------------------------
 %%% Filtering
@@ -362,9 +460,9 @@ localFilterTerm(in(_NegId,Goal,UnboundGoal,_Requester,_Internal,RuleList),out(Un
 % Rules
 localFilterTerm(in(NegId,Goal,UnboundGoal,Requester,Internal,RuleList),out(UnboundGoal,NewRuleList)) :-
 	log_filtering(['Is ',Goal,' a rule?']),
-	rule(RuleId,Goal,BoundGuards,BoundBody),
-	log_filtering([Goal,' is a rule: ',rule(RuleId,Goal,BoundGuards,BoundBody)]),
-	rule(RuleId,FilteredGoal,UnboundGuards,UnboundBody),
+	findTerm(NegId,RuleId,rule(Goal,BoundGuards,BoundBody)),
+	log_filtering([Goal,' is a rule: ',RuleId,' - ',rule(Goal,BoundGuards,BoundBody)]),
+	findTerm(NegId,RuleId,rule(FilteredGoal,UnboundGuards,UnboundBody)),
 	filterGuardsAndBody(in(NegId,Goal,BoundGuards,UnboundGuards,BoundBody,UnboundBody,Requester,Internal,RuleList),out(FilteredGuards,FilteredBody,RuleList2)),
 	appendToListIfPublic(Internal,[rule(FilteredGoal,FilteredGuards,FilteredBody)],RuleList2,NewRuleList),
 	log_filtering(['FilterTerm for rule finished with FilteredGoal=',UnboundGoal,' and NewRuleList=',NewRuleList]).
@@ -373,9 +471,9 @@ localFilterTerm(in(NegId,Goal,UnboundGoal,Requester,Internal,RuleList),out(Unbou
 localFilterTerm(in(NegId,Goal,UnboundGoal,Requester,Internal,RuleList),out(UnboundGoal,NewRuleList)) :-
 	log_filtering(['Is ',Goal,' a signed rule?']),
 	(Goal = '@'(_, Issuer) ; Goal = '$'('@'(_ , Issuer), _)),
-	signed(RuleId,rule(Goal,Guards,Body),Issuer),
-	log_filtering([Goal,' is a signed rule: ',signed(RuleId,rule(Goal,Guards,Body),Issuer)]),
-	signed(RuleId,rule(FilteredGoal,UnboundGuards,UnboundBody),UnboundIssuer),
+	findTerm(NegId,RuleId,signed(rule(Goal,Guards,Body),Issuer)),
+	log_filtering([Goal,' is a signed rule: ',RuleId,' - ',signed(rule(Goal,Guards,Body),Issuer)]),
+	findTerm(NegId,RuleId,signed(rule(FilteredGoal,UnboundGuards,UnboundBody),UnboundIssuer)),
 	filterPolicy(in(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,Internal,RuleList),out(RuleList2)),
 	filterGuardsAndBody(in(NegId,Goal,Guards,UnboundGuards,Body,UnboundBody,Requester,Internal,RuleList2),out(FilteredGuards,FilteredBody,RuleList3)),
 	appendToListIfPublic(Internal,[signed(rule(FilteredGoal,FilteredGuards,FilteredBody),UnboundIssuer)],RuleList3,NewRuleList),
@@ -396,7 +494,7 @@ localFilterTerm(in(NegId,Goal,UnboundGoal,Requester,Internal,RuleList),out(Unbou
 			    
 localFilterTerm(in(NegId,Goal,_UnboundGoal,Requester,_Internal,RuleList),out(FilteredGoal,RuleList)) :-
 	log_filtering(['Is ',Goal,' an internal rule?']),
-	rule(_RuleId,Goal,Guards,Body,private),
+	findTerm(NegId,_RuleId,rule(Goal,Guards,Body,private)),
 	log_filtering([Goal,' is a private rule:',rule(_RuleId,Goal,Guards,Body,private)]),
 %	( (ground(Goal))
 %	->
@@ -412,7 +510,7 @@ localFilterTerm(in(NegId,Goal,_UnboundGoal,Requester,_Internal,RuleList),out(Fil
 localFilterTerm(in(NegId,Goal,_UnboundGoal,Requester,_Internal,RuleList),out(FilteredGoal,RuleList)) :-
 	log_filtering(['Is ',Goal,' an internal signed rule?']),
 	(Goal = '@'(_, Issuer) ; Goal = '$'('@'(_ , Issuer), _)),
-	signed(_RuleId,rule(Goal,Guards,Body),Issuer,private),
+	findTerm(NegId,_RuleId,signed(rule(Goal,Guards,Body),Issuer,private)),
 	log_filtering([Goal,' is a private signed rule: ',signed(_RuleId,rule(Goal,Guards,Body),Issuer,private)]),
 %	( (ground(Goal))
 %	->
@@ -436,10 +534,10 @@ localFilterTerm(in(NegId,Goal,UnboundGoal,Requester,Internal,RuleList),out(Filte
 % Checks if there exists a policy protecting a signed rule
 filterPolicy(in(NegId,signed(rule(Goal,Guards,Body),Issuer),Requester,Internal,RuleList),out(NewRuleList)) :-
 	log_filtering(['Has ',Goal,' a protecting policy?']),
-	policy(RuleId,signed(rule(Goal,Guards,Body),Issuer), PolicyGuards, PolicyBody),
-	log_filtering([Goal,' has a protecting policy.']),
+	findTerm(NegId,RuleId,policy(signed(rule(Goal,Guards,Body),Issuer), PolicyGuards, PolicyBody)),
+	log_filtering([Goal,' has a protecting policy: ',RuleId,' - ',policy(signed(rule(Goal,Guards,Body),Issuer), PolicyGuards, PolicyBody)]),
 	!,
-	policy(RuleId,signed(rule(UnboundGoal,UnboundGuards,UnboundBody),UnboundIssuer), UnboundPolicyGuards, UnboundPolicyBody),
+	findTerm(NegId,RuleId,policy(signed(rule(UnboundGoal,UnboundGuards,UnboundBody),UnboundIssuer), UnboundPolicyGuards, UnboundPolicyBody)),
 	filterGuardsAndBody(in(NegId,Goal,PolicyGuards,UnboundPolicyGuards,PolicyBody,UnboundPolicyBody,Requester,Internal,RuleList),out(FilteredPolicyGuards,FilteredPolicyBody,RuleList2)),
 	appendToListIfPublic(Internal,[policy(signed(rule(UnboundGoal,UnboundGuards,UnboundBody),UnboundIssuer), FilteredPolicyGuards, FilteredPolicyBody)],RuleList2,NewRuleList),
 	log_filtering(['FilterTerm for protecting policy finished with NewRuleList=',NewRuleList]).

@@ -27,22 +27,24 @@ start_test2(X,R) :-
 	test(X,R),
 	log_debug(R).
 
+all_tests(List) :-
+	findall(N,start_test(N,_R),List).
 
 % begin examples
 % ---------------------------------------
 % query, rules and facts for example 1
 
-rule(1,'$'(access(Url), Requester),[],[validClient(Requester,Url)]).
+element(1,rule('$'(access(Url), Requester),[],[validClient(Requester,Url)])).
 
-rule(2,validClient(user,result1), [],[]).
-rule(3,validClient(user,result2), [],[]).
+element(2,rule(validClient(user,result1), [],[])).
+element(3,rule(validClient(user,result2), [],[])).
 
-rule(4,'$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),Requester),'@'(notify(Res,Requester),peer)]).
-rule(5,'$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),peer)]).
-rule(6,access(Res),[available(Res)],[public(Res)],private).
+element(4,rule('$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),Requester),'@'(notify(Res,Requester),peer)])).
+element(5,rule('$'(access(Res),Requester),[available(Res)],['@'(vipClient(Requester),peer)])).
+element(6,rule(access(Res),[available(Res)],[public(Res)],private)).
 
-rule(7,available(result1),[],[]).
-rule(8,public(result2),[],[]).
+element(7,rule(available(result1),[],[])).
+element(8,rule(public(result2),[],[])).
 
 state(9,'1c',2,notification('@'(vipClient(user),user),successful),proof).
 state(10,'2c',2,notification('@'(vipClient(user),user),successful),proof).
@@ -50,27 +52,27 @@ state(10,'2c',2,notification('@'(vipClient(user),user),successful),proof).
 state(11,'2e',2,notification('@'(vipClient(user),user),successful),proof).
 state(12,'2e',3,notification('@'(notify(result1,user),peer),successful),proof).
 
-rule(13,'$'(accessBook(Book),Requester),['@'('@'(subscribed(Requester),bookshop),Requester)],[available(Book)]).
+element(13,rule('$'(accessBook(Book),Requester),['@'('@'(subscribed(Requester),bookshop),Requester)],[available(Book)])).
 
-rule(14,available(book1),[],[]).
+element(14,rule(available(book1),[],[])).
 
 % ------------------------------------------------------------------------------
 % Simple extract actions tests
 % ------------------------------------------------------------------------------
 test('1a',ActionList) :-
-	requestExtractActions(request('1a',validClient(user,result1),user), ActionList).
+	requestExtractLocalActions(request('1a',validClient(user,result1),user), ActionList).
 solution('1a',[]).
 
 test('1b',ActionList) :-
-	requestExtractActions(request('1b',access(result1),user), ActionList).
+	requestExtractLocalActions(request('1b',access(result1),user), ActionList).
 solution('1b',['@'(vipClient(user),peer)]).
 
 test('1c',ActionList) :-
-	requestExtractActions(request('1c',access(result1),user), ActionList).
+	requestExtractLocalActions(request('1c',access(result1),user), ActionList).
 solution('1c',['@'(notify(result1,user),peer),'@'(vipClient(user),peer)]).
 
 test('1d',ActionList) :-
-	requestExtractActions(request('1d',access(result2),user), ActionList).
+	requestExtractLocalActions(request('1d',access(result2),user), ActionList).
 solution('1d',[]).
 
 % ------------------------------------------------------------------------------
@@ -108,9 +110,21 @@ test('2f',FilteredRules) :-
 	requestFiltering(request('2f',accessBook(book1),user),FilteredRules).
 solution('2f',[rule('$'(accessBook(_Book),Requester),['@'('@'(subscribed(Requester),bookshop),Requester)],[blurred])]).
 
-	       
-	       
-	       
+% ------------------------------------------------------------------------------
+% Simple extract requester actions tests
+% ------------------------------------------------------------------------------
+
+test('3a',ActionList) :-
+	test('2e',FilteredRules),
+	requestInsertRules(request('3a',FilteredRules,addNew,sideKB)),
+	requestExtractRequesterActions(request('3a',access(result1),alice),ActionList).
+solution('3a',[]).
+
+test('3b',ActionList) :-
+	test('2f',FilteredRules),
+	requestInsertRules(request('3b',FilteredRules,addNew,sideKB)),
+	requestExtractRequesterActions(request('3b',accessBook(book1),alice),ActionList).
+solution('3b',['@'(subscribed(user),bookshop)]).
 
 % ---------------------------------------
 % query, rules and facts for example 7
