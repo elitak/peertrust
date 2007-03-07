@@ -1,1 +1,0 @@
-autor(dragos,carte).

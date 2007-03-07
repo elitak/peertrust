@@ -1,5 +1,0 @@
-tes.java 
-tt.java aa.java a.java ${test}.java hallo.java ttttttttt.java
-t.java
-hallo.java
-ttt.java

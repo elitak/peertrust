@@ -23,11 +23,11 @@ package org.peertrust.exception;
  * <p>
  * Exception produced from creation, modification or management of credentials
  * </p><p>
- * $Id: CredentialException.java,v 1.1 2005/05/22 17:56:48 dolmedilla Exp $
+ * $Id: CredentialException.java,v 1.2 2007/03/07 22:17:20 dolmedilla Exp $
  * <br/>
  * Date: 05-Dec-2003
  * <br/>
- * Last changed: $Date: 2005/05/22 17:56:48 $
+ * Last changed: $Date: 2007/03/07 22:17:20 $
  * by $Author: dolmedilla $
  * </p>
  * @author olmedilla 
@@ -53,7 +53,6 @@ public class CredentialException extends PeertrustException {
 	 */
 	public CredentialException(Throwable arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * @param arg0
@@ -61,6 +60,5 @@ public class CredentialException extends PeertrustException {
 	 */
 	public CredentialException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
 	}
 }
